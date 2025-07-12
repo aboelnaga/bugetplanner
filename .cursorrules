@@ -1,0 +1,29 @@
+# Cursor Rules for Budget Planner with Supabase MCP
+
+## Project Context
+This is a Vue.js budget planning application that will be integrated with Supabase for backend functionality.
+
+## MCP Configuration
+- Use Supabase MCP for database schema management
+- Use Supabase MCP for API integration
+- Use Supabase MCP for authentication setup
+
+## Development Guidelines
+- Follow Vue.js best practices
+- Use TypeScript for type safety
+- Implement proper error handling
+- Use Supabase client for all database operations
+- Implement real-time subscriptions where appropriate
+
+## Database Schema Requirements
+- Users table (extends Supabase auth)
+- Budget items table with proper relationships
+- Monthly amounts table for flexible data
+- Budget history table for tracking changes
+- Row Level Security (RLS) policies for data isolation
+
+## API Integration
+- Replace localStorage with Supabase operations
+- Implement real-time updates
+- Add proper loading states
+- Handle offline scenarios gracefully 
