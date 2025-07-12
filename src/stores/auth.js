@@ -60,7 +60,6 @@ export const useAuthStore = defineStore('auth', () => {
             id: userData.id,
             email: userData.email,
             full_name: userData.user_metadata?.full_name || '',
-            avatar_url: userData.user_metadata?.avatar_url || ''
           })
 
         if (profileError) throw profileError

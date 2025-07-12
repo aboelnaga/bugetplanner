@@ -4,8 +4,8 @@
       "command": "npx",
       "args": ["supabase", "start"],
       "env": {
-        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}",
-        "SUPABASE_PROJECT_ID": "${SUPABASE_PROJECT_ID}"
+        "SUPABASE_ACCESS_TOKEN": "sbp_b58bbd5ef188ab5dad3ca4f4251114bda461979f",
+        "SUPABASE_PROJECT_ID": "https://shnnbuquwnzzzudwvcdp.supabase.co"
       }
     }
   }

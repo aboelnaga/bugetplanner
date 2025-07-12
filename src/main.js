@@ -5,59 +5,59 @@ import App from './App.vue'
 import './style.css'
 
 // Import views
-import Dashboard from './views/Dashboard.vue'
+// import Dashboard from './views/Dashboard.vue'
 import BudgetPlanner from './views/BudgetPlanner.vue'
-import Income from './views/Income.vue'
-import Expenses from './views/Expenses.vue'
-import Family from './views/Family.vue'
-import Investments from './views/Investments.vue'
-import Zakat from './views/Zakat.vue'
+// import Income from './views/Income.vue'
+// import Expenses from './views/Expenses.vue'
+// import Family from './views/Family.vue'
+// import Investments from './views/Investments.vue'
+// import Zakat from './views/Zakat.vue'
 import Auth from './views/Auth.vue'
 
 const routes = [
   { path: '/auth', name: 'Auth', component: Auth },
-  { 
-    path: '/', 
-    name: 'Dashboard', 
-    component: Dashboard,
-    meta: { requiresAuth: true }
-  },
+  // { 
+  //   path: '/', 
+  //   name: 'Dashboard', 
+  //   component: Dashboard,
+  //   meta: { requiresAuth: true }
+  // },
   { 
     path: '/planner', 
     name: 'BudgetPlanner', 
     component: BudgetPlanner,
     meta: { requiresAuth: true }
   },
-  { 
-    path: '/income', 
-    name: 'Income', 
-    component: Income,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/expenses', 
-    name: 'Expenses', 
-    component: Expenses,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/family', 
-    name: 'Family', 
-    component: Family,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/investments', 
-    name: 'Investments', 
-    component: Investments,
-    meta: { requiresAuth: true }
-  },
-  { 
-    path: '/zakat', 
-    name: 'Zakat', 
-    component: Zakat,
-    meta: { requiresAuth: true }
-  },
+  // { 
+  //   path: '/income', 
+  //   name: 'Income', 
+  //   component: Income,
+  //   meta: { requiresAuth: true }
+  // },
+  // { 
+  //   path: '/expenses', 
+  //   name: 'Expenses', 
+  //   component: Expenses,
+  //   meta: { requiresAuth: true }
+  // },
+  // { 
+  //   path: '/family', 
+  //   name: 'Family', 
+  //   component: Family,
+  //   meta: { requiresAuth: true }
+  // },
+  // { 
+  //   path: '/investments', 
+  //   name: 'Investments', 
+  //   component: Investments,
+  //   meta: { requiresAuth: true }
+  // },
+  // { 
+  //   path: '/zakat', 
+  //   name: 'Zakat', 
+  //   component: Zakat,
+  //   meta: { requiresAuth: true }
+  // },
 ]
 
 const router = createRouter({
