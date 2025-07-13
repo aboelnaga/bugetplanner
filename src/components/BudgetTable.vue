@@ -101,10 +101,8 @@
           <tbody class="bg-white divide-y divide-gray-200">
             <!-- Regular table view -->
             <template v-if="!groupByCategory">
-              <BudgetTableRow
-                v-for="budget in filteredBudgetItems"
-                :key="budget.id"
-                :budget="budget"
+              <BudgetTableList
+                :filtered-budget-items="filteredBudgetItems"
                 :months="months"
                 :selected-year="selectedYear"
                 :current-year="currentYear"
@@ -121,279 +119,51 @@
 
             <!-- Grouped table view -->
             <template v-else>
-              <template v-for="(group, categoryName) in groupedBudgetItems" :key="categoryName">
-                <!-- Category Header -->
-                <tr class="bg-gray-200">
-                  <td class="px-6 py-3 text-sm font-bold text-gray-800 sticky left-0 bg-gray-200 z-10">
-                    <div>
-                      <div>{{ categoryName }} ({{ group.length }} items)</div>
-                      <div :class="[
-                        'text-xs font-normal',
-                        getCategoryType(group) === 'income' || getCategoryType(group) === 'investment-incoming' ? 'text-green-700' : 'text-red-700'
-                      ]">
-                        <span v-if="calculateCategoryTotal(group) > 0">
-                          {{ (getCategoryType(group) === 'expense' || getCategoryType(group) === 'investment-outgoing') ? '-' : '' }}{{ formatCurrency(calculateCategoryTotal(group)) }} total
-                        </span>
-                        <span v-else class="text-gray-400">— total</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td v-for="(month, index) in months" :key="`header-${categoryName}-${month}`" 
-                      :class="[
-                        'px-4 py-3 bg-gray-200 text-center font-semibold',
-                        selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : '',
-                        calculateCategoryMonthlyTotal(group, index) > 0 ? 
-                          (getCategoryType(group) === 'income' || getCategoryType(group) === 'investment-incoming' ? 'text-green-700' : 'text-red-700') 
-                          : 'text-gray-400'
-                      ]">
-                    <span v-if="calculateCategoryMonthlyTotal(group, index) > 0">
-                      {{ (getCategoryType(group) === 'expense' || getCategoryType(group) === 'investment-outgoing') ? '-' : '' }}{{ formatCurrency(calculateCategoryMonthlyTotal(group, index)) }}
-                    </span>
-                    <span v-else class="text-gray-400">—</span>
-                  </td>
-                  <td :class="[
-                    'px-4 py-3 bg-gray-200 text-center font-bold',
-                    calculateCategoryTotal(group) > 0 ? 
-                      (getCategoryType(group) === 'income' || getCategoryType(group) === 'investment-incoming' ? 'text-green-700' : 'text-red-700') 
-                      : 'text-gray-400'
-                  ]">
-                    <span v-if="calculateCategoryTotal(group) > 0">
-                      {{ (getCategoryType(group) === 'expense' || getCategoryType(group) === 'investment-outgoing') ? '-' : '' }}{{ formatCurrency(calculateCategoryTotal(group)) }}
-                    </span>
-                    <span v-else class="text-gray-400">—</span>
-                  </td>
-                  <td class="px-4 py-3 bg-gray-200 sticky right-0 z-10"></td>
-                </tr>
-                <!-- Category Items -->
-                <BudgetTableRow
-                  v-for="budget in group"
-                  :key="budget.id"
-                  :budget="budget"
-                  :months="months"
-                  :selected-year="selectedYear"
-                  :current-year="currentYear"
-                  :current-month="currentMonth"
-                  :is-scheduled-month="isScheduledMonth"
-                  :get-budget-amount="getBudgetAmount"
-                  :has-changes="hasChanges"
-                  :calculate-yearly-total="calculateYearlyTotal"
-                  :format-currency="formatCurrency"
-                  @edit-budget="$emit('edit-budget', $event)"
-                  @duplicate-budget="$emit('duplicate-budget', $event)"
-                  @delete-budget="$emit('delete-budget', $event)" />
-              </template>
+              <BudgetTableGrouped
+                :grouped-budget-items="groupedBudgetItems"
+                :months="months"
+                :selected-year="selectedYear"
+                :current-year="currentYear"
+                :current-month="currentMonth"
+                :get-category-type="getCategoryType"
+                :calculate-category-total="calculateCategoryTotal"
+                :calculate-category-monthly-total="calculateCategoryMonthlyTotal"
+                :is-scheduled-month="isScheduledMonth"
+                :get-budget-amount="getBudgetAmount"
+                :has-changes="hasChanges"
+                :calculate-yearly-total="calculateYearlyTotal"
+                :format-currency="formatCurrency"
+                @edit-budget="$emit('edit-budget', $event)"
+                @duplicate-budget="$emit('duplicate-budget', $event)"
+                @delete-budget="$emit('delete-budget', $event)" />
             </template>
 
-            <!-- Income Line -->
-            <tr v-if="hasIncomeData" class="bg-green-50">
-              <td class="px-6 py-3 text-sm font-semibold text-green-700 sticky left-0 bg-green-50 z-10">
-                <div class="flex items-center">
-                  <span class="text-lg font-bold text-green-600 mr-2">+</span>
-                  Total Income
-                </div>
-              </td>
-              <td v-for="(month, index) in months" :key="`eq-income-${month}`" 
-                  :class="[
-                    'px-2 py-3 text-center',
-                    calculateMonthlyIncome(index) > 0 ? 'text-green-700 bg-green-50' : 'text-gray-400',
-                    selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-                  ]">
-                <span v-if="calculateMonthlyIncome(index) > 0">
-                  {{ formatCurrency(calculateMonthlyIncome(index)) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td :class="[
-                'px-4 py-3 text-right text-sm font-bold',
-                calculateGrandTotalIncome() > 0 ? 'text-green-700' : 'text-gray-400'
-              ]">
-                <span v-if="calculateGrandTotalIncome() > 0">
-                  {{ formatCurrency(calculateGrandTotalIncome()) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-4 py-3 sticky right-0 bg-green-50 z-10"></td>
-            </tr>
-
-            <!-- Investment Returns Line -->
-            <tr v-if="hasInvestmentIncomingData" class="bg-green-50">
-              <td class="px-6 py-3 text-sm font-semibold text-green-700 sticky left-0 bg-green-50 z-10">
-                <div class="flex items-center">
-                  <span class="text-lg font-bold text-green-600 mr-2">+</span>
-                  Investment Returns
-                </div>
-              </td>
-              <td v-for="(month, index) in months" :key="`eq-inv-in-${month}`" 
-                  :class="[
-                    'px-2 py-3 text-center',
-                    calculateMonthlyInvestmentIncoming(index) > 0 ? 'text-green-700 bg-green-50' : 'text-gray-400',
-                    selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-                  ]">
-                <span v-if="calculateMonthlyInvestmentIncoming(index) > 0">
-                  {{ formatCurrency(calculateMonthlyInvestmentIncoming(index)) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td :class="[
-                'px-4 py-3 text-right text-sm font-bold',
-                calculateGrandTotalInvestmentIncoming() > 0 ? 'text-green-700' : 'text-gray-400'
-              ]">
-                <span v-if="calculateGrandTotalInvestmentIncoming() > 0">
-                  {{ formatCurrency(calculateGrandTotalInvestmentIncoming()) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-4 py-3 sticky right-0 bg-green-50 z-10"></td>
-            </tr>
-
-            <!-- Expenses Line -->
-            <tr v-if="hasExpenseData" class="bg-red-50">
-              <td class="px-6 py-3 text-sm font-semibold text-red-700 sticky left-0 bg-red-50 z-10">
-                <div class="flex items-center">
-                  <span class="text-lg font-bold text-red-600 mr-2">−</span>
-                  Total Expenses
-                </div>
-              </td>
-              <td v-for="(month, index) in months" :key="`eq-expense-${month}`" 
-                  :class="[
-                    'px-2 py-3 text-center',
-                    calculateMonthlyExpenses(index) > 0 ? 'text-red-700 bg-red-50' : 'text-gray-400',
-                    selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-                  ]">
-                <span v-if="calculateMonthlyExpenses(index) > 0">
-                  {{ formatCurrency(calculateMonthlyExpenses(index)) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td :class="[
-                'px-4 py-3 text-right text-sm font-bold',
-                calculateGrandTotalExpenses() > 0 ? 'text-red-700' : 'text-gray-400'
-              ]">
-                <span v-if="calculateGrandTotalExpenses() > 0">
-                  {{ formatCurrency(calculateGrandTotalExpenses()) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-4 py-3 sticky right-0 bg-red-50 z-10"></td>
-            </tr>
-
-            <!-- Investment Purchases Line -->
-            <tr v-if="hasInvestmentOutgoingData" class="bg-red-50">
-              <td class="px-6 py-3 text-sm font-semibold text-red-700 sticky left-0 bg-red-50 z-10">
-                <div class="flex items-center">
-                  <span class="text-lg font-bold text-red-600 mr-2">−</span>
-                  Investment Purchases
-                </div>
-              </td>
-              <td v-for="(month, index) in months" :key="`eq-inv-out-${month}`" 
-                  :class="[
-                    'px-2 py-3 text-center',
-                    calculateMonthlyInvestmentOutgoing(index) > 0 ? 'text-red-700 bg-red-50' : 'text-gray-400',
-                    selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-                  ]">
-                <span v-if="calculateMonthlyInvestmentOutgoing(index) > 0">
-                  {{ formatCurrency(calculateMonthlyInvestmentOutgoing(index)) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td :class="[
-                'px-4 py-3 text-right text-sm font-bold',
-                calculateGrandTotalInvestmentOutgoing() > 0 ? 'text-red-700' : 'text-gray-400'
-              ]">
-                <span v-if="calculateGrandTotalInvestmentOutgoing() > 0">
-                  {{ formatCurrency(calculateGrandTotalInvestmentOutgoing()) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-4 py-3 sticky right-0 bg-red-50 z-10"></td>
-            </tr>
-
-            <!-- Divider Line -->
-            <tr v-if="selectedTypeFilter === 'all' && hasAnyData" class="bg-gray-100">
-              <td class="p-0 border-t-2 border-gray-400"></td>
-              <td v-for="(month, index) in months" :key="`divider-${month}`" class="p-0 border-t-2 border-gray-400"></td>
-              <td class="p-0 border-t-2 border-gray-400"></td>
-              <td class="p-0"></td>
-            </tr>
-
-            <!-- Net Balance Line -->
-            <tr v-if="selectedTypeFilter === 'all' && hasAnyData" class="bg-blue-50 font-bold">
-              <td class="px-6 py-4 text-sm font-bold text-gray-900 sticky left-0 bg-blue-50 z-10">
-                <div class="flex items-center">
-                  <span class="text-xl font-bold text-blue-600 mr-2">=</span>
-                  Net Monthly Balance
-                </div>
-              </td>
-              <td v-for="(month, index) in months" :key="`eq-net-${month}`" 
-                  :class="[
-                    'px-2 py-4 text-center font-bold',
-                    selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-                  ]">
-                <span v-if="calculateMonthlyTotal(index) > 0">
-                  {{ formatCurrency(calculateMonthlyTotal(index)) }}
-                </span>
-                <span v-else-if="calculateMonthlyTotal(index) < 0">
-                  {{ formatCurrency(calculateMonthlyTotal(index)) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td :class="[
-                'px-4 py-4 text-right text-lg font-bold border-2',
-                calculateGrandTotal() > 0 ? 'text-green-800 bg-green-100 border-green-300' : 
-                calculateGrandTotal() < 0 ? 'text-red-800 bg-red-100 border-red-300' : 'text-gray-400 bg-gray-50 border-gray-300'
-              ]">
-                <span v-if="calculateGrandTotal() > 0">
-                  {{ formatCurrency(calculateGrandTotal()) }}
-                </span>
-                <span v-else-if="calculateGrandTotal() < 0">
-                  {{ formatCurrency(calculateGrandTotal()) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-4 py-4 sticky right-0 bg-blue-50 z-10"></td>
-            </tr>
-
-            <!-- Net Investment Row -->
-            <tr v-if="hasInvestmentData" class="bg-indigo-50">
-              <td class="px-6 py-3 text-sm font-semibold text-indigo-700 sticky left-0 bg-indigo-50 z-10">
-                <div class="flex items-center">
-                  <span class="text-lg font-bold text-indigo-600 mr-2">📈</span>
-                  Net Investment
-                </div>
-                <div class="text-xs text-gray-500 mt-1">
-                  ( Returns - Purchases)
-                </div>
-              </td>
-              <td v-for="(month, index) in months" :key="`net-inv-${month}`" 
-                  :class="[
-                    'px-2 py-3 text-center',
-                    calculateMonthlyInvestmentNet(index) > 0 ? 'text-green-700 bg-green-50' : 
-                    calculateMonthlyInvestmentNet(index) < 0 ? 'text-red-700 bg-red-50' : 'text-gray-400 bg-gray-50',
-                    selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-                  ]">
-                <span v-if="calculateMonthlyInvestmentNet(index) > 0">
-                  {{ formatCurrency(calculateMonthlyInvestmentNet(index)) }}
-                </span>
-                <span v-else-if="calculateMonthlyInvestmentNet(index) < 0">
-                  {{ formatCurrency(calculateMonthlyInvestmentNet(index)) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td :class="[
-                'px-4 py-3 text-right text-sm font-bold',
-                calculateGrandTotalInvestmentNet() > 0 ? 'text-green-700' : 
-                calculateGrandTotalInvestmentNet() < 0 ? 'text-red-700' : 'text-gray-400'
-              ]">
-                <span v-if="calculateGrandTotalInvestmentNet() > 0">
-                  {{ formatCurrency(calculateGrandTotalInvestmentNet()) }}
-                </span>
-                <span v-else-if="calculateGrandTotalInvestmentNet() < 0">
-                  {{ formatCurrency(calculateGrandTotalInvestmentNet()) }}
-                </span>
-                <span v-else>—</span>
-              </td>
-              <td class="px-4 py-3 sticky right-0 bg-indigo-50 z-10"></td>
-            </tr>
+            <!-- Summary Rows -->
+            <BudgetTableSummary
+              :months="months"
+              :selected-year="selectedYear"
+              :current-year="currentYear"
+              :current-month="currentMonth"
+              :selected-type-filter="selectedTypeFilter"
+              :has-income-data="hasIncomeData"
+              :has-expense-data="hasExpenseData"
+              :has-investment-data="hasInvestmentData"
+              :has-investment-incoming-data="hasInvestmentIncomingData"
+              :has-investment-outgoing-data="hasInvestmentOutgoingData"
+              :has-any-data="hasAnyData"
+              :calculate-monthly-total="calculateMonthlyTotal"
+              :calculate-monthly-income="calculateMonthlyIncome"
+              :calculate-monthly-expenses="calculateMonthlyExpenses"
+              :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
+              :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
+              :calculate-monthly-investment-net="calculateMonthlyInvestmentNet"
+              :calculate-grand-total="calculateGrandTotal"
+              :calculate-grand-total-income="calculateGrandTotalIncome"
+              :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+              :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
+              :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
+              :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
+              :format-currency="formatCurrency" />
           </tbody>
         </table>
       </div>
@@ -403,6 +173,9 @@
 
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
+import BudgetTableGrouped from './BudgetTableGrouped.vue'
+import BudgetTableList from './BudgetTableList.vue'
+import BudgetTableSummary from './BudgetTableSummary.vue'
 
 // Props
 const props = defineProps({
