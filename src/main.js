@@ -23,7 +23,7 @@ const routes = [
   //   meta: { requiresAuth: true }
   // },
   { 
-    path: '/planner', 
+    path: '/', 
     name: 'BudgetPlanner', 
     component: BudgetPlanner,
     meta: { requiresAuth: true }

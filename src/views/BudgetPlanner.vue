@@ -226,9 +226,9 @@
                       <div class="font-semibold">{{ budget.name }}</div>
                       <span :class="[
                         'ml-2 px-2 py-1 text-xs rounded-full flex items-center',
-                        budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       ]">
-                        <TrendingUp v-if="budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming')" class="w-3 h-3 mr-1" />
+                        <TrendingUp v-if="budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming')" class="w-3 h-3 mr-1" />
                         <TrendingDown v-else class="w-3 h-3 mr-1" />
                         {{ budget.type === 'income' ? 'Income' : 
                            budget.type === 'investment' ? 'Investment' : 'Expense' }}
@@ -258,14 +258,14 @@
                         selectedYear === budgetStore.currentYear && index === currentMonth ? 
                           'bg-blue-50 border border-blue-200 shadow-sm' :
                           isScheduledMonth(budget, index) ? 
-                            (budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'bg-green-50' : 'bg-red-50') 
+                            (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'bg-green-50' : 'bg-red-50') 
                             : 'bg-gray-50',
                       getBudgetAmount(budget, index) > 0 ? 
-                        (budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'font-semibold text-green-700' : 'font-semibold text-red-700') 
+                        (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'font-semibold text-green-700' : 'font-semibold text-red-700') 
                         : 'text-gray-400'
                     ]">
                       <span v-if="getBudgetAmount(budget, index) > 0">
-                        {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investmentDirection === 'outgoing')) ? '-' : '' }}{{ formatCurrency(getBudgetAmount(budget, index)) }}
+                        {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')) ? '-' : '' }}{{ formatCurrency(getBudgetAmount(budget, index)) }}
                       </span>
                       <span v-else class="text-gray-400">—</span>
                     </div>
@@ -277,11 +277,11 @@
                 <td :class="[
                   'px-4 py-4 text-center font-semibold',
                   calculateYearlyTotal(budget) > 0 ? 
-                    (budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'text-green-700' : 'text-red-700') 
+                    (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'text-green-700' : 'text-red-700') 
                     : 'text-gray-400'
                 ]">
                   <span v-if="calculateYearlyTotal(budget) > 0">
-                    {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investmentDirection === 'outgoing')) ? '-' : '' }}{{ formatCurrency(calculateYearlyTotal(budget)) }}
+                    {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')) ? '-' : '' }}{{ formatCurrency(calculateYearlyTotal(budget)) }}
                   </span>
                   <span v-else>—</span>
                 </td>
@@ -360,9 +360,9 @@
                          <div class="font-semibold">{{ budget.name }}</div>
                          <span :class="[
                         'ml-2 px-2 py-1 text-xs rounded-full flex items-center',
-                        budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       ]">
-                        <TrendingUp v-if="budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming')" class="w-3 h-3 mr-1" />
+                        <TrendingUp v-if="budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming')" class="w-3 h-3 mr-1" />
                         <TrendingDown v-else class="w-3 h-3 mr-1" />
                         {{ budget.type === 'income' ? 'Income' : 
                            budget.type === 'investment' ? 'Investment' : 'Expense' }}
@@ -391,15 +391,15 @@
                            'bg-gray-100 text-gray-400' :
                            selectedYear === budgetStore.currentYear && index === currentMonth ? 
                              'bg-blue-50 border border-blue-200 shadow-sm' :
-                             isScheduledMonth(budget, index) ? 
-                               (budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'bg-green-50' : 'bg-red-50') 
+                                                          isScheduledMonth(budget, index) ? 
+                               (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'bg-green-50' : 'bg-red-50') 
                                : 'bg-gray-50',
-                         getBudgetAmount(budget, index) > 0 ? 
-                           (budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'font-semibold text-green-700' : 'font-semibold text-red-700') 
-                           : 'text-gray-400'
+                           getBudgetAmount(budget, index) > 0 ? 
+                             (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'font-semibold text-green-700' : 'font-semibold text-red-700') 
+                             : 'text-gray-400'
                        ]">
                          <span v-if="getBudgetAmount(budget, index) > 0">
-                           {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investmentDirection === 'outgoing')) ? '-' : '' }}{{ formatCurrency(getBudgetAmount(budget, index)) }}
+                           {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')) ? '-' : '' }}{{ formatCurrency(getBudgetAmount(budget, index)) }}
                          </span>
                          <span v-else class="text-gray-400">—</span>
                        </div>
@@ -411,11 +411,11 @@
                    <td :class="[
                      'px-4 py-4 text-center font-semibold',
                      calculateYearlyTotal(budget) > 0 ? 
-                       (budget.type === 'income' || (budget.type === 'investment' && budget.investmentDirection === 'incoming') ? 'text-green-700' : 'text-red-700') 
+                       (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'text-green-700' : 'text-red-700') 
                        : 'text-gray-400'
                    ]">
                      <span v-if="calculateYearlyTotal(budget) > 0">
-                       {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investmentDirection === 'outgoing')) ? '-' : '' }}{{ formatCurrency(calculateYearlyTotal(budget)) }}
+                       {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')) ? '-' : '' }}{{ formatCurrency(calculateYearlyTotal(budget)) }}
                      </span>
                      <span v-else>—</span>
                    </td>
@@ -742,7 +742,7 @@
             </div>
             <div v-if="newBudget.type === 'investment'">
               <label class="block text-sm font-medium text-gray-700">Investment Direction</label>
-              <select v-model="newBudget.investmentDirection" 
+              <select v-model="newBudget.investment_direction" 
                       class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="outgoing">Outgoing (Purchase/Contribution)</option>
                 <option value="incoming">Incoming (Returns/Sales)</option>
@@ -914,7 +914,7 @@
             </div>
             <div v-if="editingBudget.type === 'investment'">
               <label class="block text-sm font-medium text-gray-700">Investment Direction</label>
-              <select v-model="editingBudget.investmentDirection" 
+              <select v-model="editingBudget.investment_direction" 
                       class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="outgoing">Outgoing (Purchase/Contribution)</option>
                 <option value="incoming">Incoming (Returns/Sales)</option>
@@ -1105,7 +1105,7 @@
     recurrence: 'monthly',
     customMonths: [],
     oneTimeMonth: 0,
-    investmentDirection: 'outgoing',
+    investment_direction: 'outgoing',
     startMonth: currentMonth.value // Will be adjusted based on selected year when modal opens
   })
 
@@ -1270,7 +1270,7 @@
       if (budget.type === 'income') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
-      if (budget.type === 'investment' && budget.investmentDirection === 'incoming') {
+      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
       return sum
@@ -1280,7 +1280,7 @@
       if (budget.type === 'expense') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
-      if (budget.type === 'investment' && budget.investmentDirection === 'outgoing') {
+      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
       return sum
@@ -1309,7 +1309,7 @@
 
   const calculateMonthlyInvestmentIncoming = (monthIndex) => {
     return filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'investment' && budget.investmentDirection === 'incoming') {
+      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
       return sum
@@ -1318,7 +1318,7 @@
 
   const calculateMonthlyInvestmentOutgoing = (monthIndex) => {
     return filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'investment' && budget.investmentDirection === 'outgoing') {
+      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
       return sum
@@ -1353,7 +1353,7 @@
 
   const calculateGrandTotalInvestmentIncoming = () => {
     return filteredBudgetItems.value.reduce((total, budget) => {
-      if (budget.type === 'investment' && budget.investmentDirection === 'incoming') {
+      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
         return total + calculateYearlyTotal(budget)
       }
       return total
@@ -1362,7 +1362,7 @@
 
   const calculateGrandTotalInvestmentOutgoing = () => {
     return filteredBudgetItems.value.reduce((total, budget) => {
-      if (budget.type === 'investment' && budget.investmentDirection === 'outgoing') {
+      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
         return total + calculateYearlyTotal(budget)
       }
       return total
@@ -1429,7 +1429,7 @@
         default_amount: newBudget.value.defaultAmount,
         amounts: amounts,
         schedule: schedule,
-        investment_direction: newBudget.value.investmentDirection,
+        investment_direction: newBudget.value.investment_direction,
         start_month: newBudget.value.startMonth
       }
 
@@ -1448,7 +1448,7 @@
           recurrence: 'monthly',
           customMonths: [],
           oneTimeMonth: 0,
-          investmentDirection: 'outgoing',
+          investment_direction: 'outgoing',
           startMonth: selectedYear.value === budgetStore.currentYear ? currentMonth.value : 0
         }
         
@@ -1487,7 +1487,7 @@
       ...budget,
       // Map snake_case database fields to camelCase frontend fields
       defaultAmount: budget.default_amount || budget.defaultAmount || 0,
-      investmentDirection: budget.investment_direction || budget.investmentDirection || 'outgoing',
+      investment_direction: budget.investment_direction || budget.investment_direction || 'outgoing',
       startMonth: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
       amounts: [...budget.amounts],
       schedule: [...budget.schedule],
@@ -1582,7 +1582,7 @@
       }
       
       if (editingBudget.value.type === 'investment') {
-        updateData.investment_direction = editingBudget.value.investmentDirection
+        updateData.investment_direction = editingBudget.value.investment_direction
       }
       
       // Update via store
@@ -1649,7 +1649,7 @@
       default_amount: budget.defaultAmount || 0,
       amounts: [...budget.amounts],
       schedule: [...budget.schedule],
-      investment_direction: budget.investmentDirection,
+      investment_direction: budget.investment_direction,
       start_month: budget.startMonth
     }
 
@@ -1793,7 +1793,7 @@
     
     const typeCounts = categoryItems.reduce((counts, item) => {
       const key = item.type === 'investment' 
-        ? `${item.type}-${item.investmentDirection}`
+        ? `${item.type}-${item.investment_direction}`
         : item.type
       counts[key] = (counts[key] || 0) + 1
       return counts
@@ -1834,11 +1834,11 @@
   })
 
   const hasInvestmentIncomingData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === 'investment' && item.investmentDirection === 'incoming')
+    return filteredBudgetItems.value.some(item => item.type === 'investment' && item.investment_direction === 'incoming')
   })
 
   const hasInvestmentOutgoingData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === 'investment' && item.investmentDirection === 'outgoing')
+    return filteredBudgetItems.value.some(item => item.type === 'investment' && item.investment_direction === 'outgoing')
   })
 
   const hasInvestmentData = computed(() => {
