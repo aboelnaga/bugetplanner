@@ -1,84 +1,86 @@
 <template>
-  <div class="space-y-6">
-    <!-- Header -->
-    <div class="flex justify-between items-center">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">Budget Planner</h1>
+  <div>
+    <div class="space-y-6">
+      <!-- Header -->
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Budget Planner</h1>
+        </div>
+        <div class="flex space-x-3">
+          <button @click="openAddBudgetModal" class="btn-primary">Add Budget Item</button>
+          <button @click="openHistoryModal" class="btn-secondary">View History</button>
+        </div>
       </div>
-      <div class="flex space-x-3">
-        <button @click="openAddBudgetModal" class="btn-primary">Add Budget Item</button>
-        <button @click="openHistoryModal" class="btn-secondary">View History</button>
-      </div>
+
+      <!-- Budget Control Panel -->
+      <BudgetControlPanel
+        :selected-year="selectedYear"
+        :available-years="availableYears"
+        :selected-type-filter="selectedTypeFilter"
+        :selected-category-filter="selectedCategoryFilter"
+        :unique-categories="uniqueCategories"
+        :can-copy-from-previous-year="canCopyFromPreviousYear"
+        :group-by-category="groupByCategory"
+        :budget-items="budgetItems"
+        @update:selected-year="(year) => selectedYear = year"
+        @update:selected-type-filter="(filter) => selectedTypeFilter = filter"
+        @update:selected-category-filter="(filter) => selectedCategoryFilter = filter"
+        @update:group-by-category="(grouped) => groupByCategory = grouped"
+        @add-year="addNewYear"
+        @copy-from-previous-year="copyFromPreviousYear"
+        @clear-filters="clearAllFilters"
+      />
+
+      <!-- Budget Table -->
+      <BudgetTable
+        :loading="budgetStore.loading"
+        :error="budgetStore.error"
+        :budget-items="budgetItems"
+        :selected-category-filter="selectedCategoryFilter"
+        :can-copy-from-previous-year="canCopyFromPreviousYear"
+        :filtered-budget-items="filteredBudgetItems"
+        :grouped-budget-items="groupedBudgetItems"
+        :months="MONTHS"
+        :selected-year="selectedYear"
+        :current-year="budgetStore.currentYear"
+        :current-month="currentMonth"
+        :group-by-category="groupByCategory"
+        :selected-type-filter="selectedTypeFilter"
+        :has-income-data="hasIncomeData"
+        :has-expense-data="hasExpenseData"
+        :has-investment-data="hasInvestmentData"
+        :has-investment-incoming-data="hasInvestmentIncomingData"
+        :has-investment-outgoing-data="hasInvestmentOutgoingData"
+        :has-any-data="hasAnyData"
+        :calculate-yearly-total="calculateYearlyTotal"
+        :calculate-monthly-total="calculateMonthlyTotal"
+        :calculate-monthly-income="calculateMonthlyIncome"
+        :calculate-monthly-expenses="calculateMonthlyExpenses"
+        :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
+        :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
+        :calculate-monthly-investment-net="calculateMonthlyInvestmentNet"
+        :calculate-grand-total="calculateGrandTotal"
+        :calculate-grand-total-income="calculateGrandTotalIncome"
+        :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+        :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
+        :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
+        :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
+        :get-category-type="getCategoryType"
+        :calculate-category-total="calculateCategoryTotal"
+        :calculate-category-monthly-total="calculateCategoryMonthlyTotal"
+        :is-scheduled-month="isScheduledMonth"
+        :get-budget-amount="getBudgetAmount"
+        :has-changes="hasChanges"
+        :format-currency="formatCurrency"
+        @retry="budgetStore.fetchBudgetItems()"
+        @add-first-budget="openAddBudgetModal"
+        @copy-from-previous-year="copyFromPreviousYear"
+        @clear-filters="clearAllFilters"
+        @add-budget="openAddBudgetModal"
+        @edit-budget="editBudget"
+        @duplicate-budget="duplicateBudget"
+        @delete-budget="deleteBudget" />
     </div>
-
-    <!-- Budget Control Panel -->
-    <BudgetControlPanel
-      :selected-year="selectedYear"
-      :available-years="availableYears"
-      :selected-type-filter="selectedTypeFilter"
-      :selected-category-filter="selectedCategoryFilter"
-      :unique-categories="uniqueCategories"
-      :can-copy-from-previous-year="canCopyFromPreviousYear"
-      :group-by-category="groupByCategory"
-      :budget-items="budgetItems"
-      @update:selected-year="(year) => selectedYear = year"
-      @update:selected-type-filter="(filter) => selectedTypeFilter = filter"
-      @update:selected-category-filter="(filter) => selectedCategoryFilter = filter"
-      @update:group-by-category="(grouped) => groupByCategory = grouped"
-      @add-year="addNewYear"
-      @copy-from-previous-year="copyFromPreviousYear"
-      @clear-filters="clearAllFilters"
-    />
-
-    <!-- Budget Table -->
-    <BudgetTable
-      :loading="budgetStore.loading"
-      :error="budgetStore.error"
-      :budget-items="budgetItems"
-      :selected-category-filter="selectedCategoryFilter"
-      :can-copy-from-previous-year="canCopyFromPreviousYear"
-      :filtered-budget-items="filteredBudgetItems"
-      :grouped-budget-items="groupedBudgetItems"
-      :months="MONTHS"
-      :selected-year="selectedYear"
-      :current-year="budgetStore.currentYear"
-      :current-month="currentMonth"
-      :group-by-category="groupByCategory"
-      :selected-type-filter="selectedTypeFilter"
-      :has-income-data="hasIncomeData"
-      :has-expense-data="hasExpenseData"
-      :has-investment-data="hasInvestmentData"
-      :has-investment-incoming-data="hasInvestmentIncomingData"
-      :has-investment-outgoing-data="hasInvestmentOutgoingData"
-      :has-any-data="hasAnyData"
-      :calculate-yearly-total="calculateYearlyTotal"
-      :calculate-monthly-total="calculateMonthlyTotal"
-      :calculate-monthly-income="calculateMonthlyIncome"
-      :calculate-monthly-expenses="calculateMonthlyExpenses"
-      :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
-      :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
-      :calculate-monthly-investment-net="calculateMonthlyInvestmentNet"
-      :calculate-grand-total="calculateGrandTotal"
-      :calculate-grand-total-income="calculateGrandTotalIncome"
-      :calculate-grand-total-expenses="calculateGrandTotalExpenses"
-      :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
-      :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
-      :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
-      :get-category-type="getCategoryType"
-      :calculate-category-total="calculateCategoryTotal"
-      :calculate-category-monthly-total="calculateCategoryMonthlyTotal"
-      :is-scheduled-month="isScheduledMonth"
-      :get-budget-amount="getBudgetAmount"
-      :has-changes="hasChanges"
-      :format-currency="formatCurrency"
-      @retry="budgetStore.fetchBudgetItems()"
-      @add-first-budget="openAddBudgetModal"
-      @copy-from-previous-year="copyFromPreviousYear"
-      @clear-filters="clearAllFilters"
-      @add-budget="openAddBudgetModal"
-      @edit-budget="editBudget"
-      @duplicate-budget="duplicateBudget"
-      @delete-budget="deleteBudget" />
 
     <!-- Add Budget Modal -->
     <AddBudgetModal 
@@ -86,7 +88,7 @@
       :selected-year="selectedYear"
       @budget-added="handleBudgetAdded" />
 
-    <!-- Edit Budget Modal -->
+      <!-- Edit Budget Modal -->
     <EditBudgetModal 
       v-model="showEditBudgetModal"
       :budget="editingBudget"
