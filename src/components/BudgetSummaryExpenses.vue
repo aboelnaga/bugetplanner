@@ -11,7 +11,7 @@
         :class="getSummaryCellClasses(calculateMonthlyExpenses(index), selectedYear, currentYear, currentMonth, index, 'TOTAL_EXPENSES')">
       {{ formatSummaryValue(calculateMonthlyExpenses(index), formatCurrency) }}
     </td>
-    <td :class="getSummaryTotalClasses(calculateGrandTotalExpenses())">
+    <td :class="getSummaryTotalClasses(-1 * calculateGrandTotalExpenses())">
       {{ formatSummaryValue(calculateGrandTotalExpenses(), formatCurrency) }}
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${totalExpensesStyling.stickyBgColor} z-10`"></td>
@@ -29,7 +29,7 @@
         :class="getSummaryCellClasses(calculateMonthlyInvestmentOutgoing(index), selectedYear, currentYear, currentMonth, index, 'INVESTMENT_PURCHASES')">
       {{ formatSummaryValue(calculateMonthlyInvestmentOutgoing(index), formatCurrency) }}
     </td>
-    <td :class="getSummaryTotalClasses(calculateGrandTotalInvestmentOutgoing())">
+    <td :class="getSummaryTotalClasses(-1 * calculateGrandTotalInvestmentOutgoing())">
       {{ formatSummaryValue(calculateGrandTotalInvestmentOutgoing(), formatCurrency) }}
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${investmentPurchasesStyling.stickyBgColor} z-10`"></td>

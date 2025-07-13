@@ -144,20 +144,13 @@
     return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
   })
 
-  // Check if data is ready
-  const isDataReady = computed(() => {
-    return !budgetStore.loading && !budgetStore.error && budgetItems.value !== null
-  })
+
 
   // Use composables
   const {
     selectedTypeFilter,
     selectedCategoryFilter,
     groupByCategory,
-    incomeCount,
-    expenseCount,
-    investmentCount,
-    totalCount,
     uniqueCategories,
     filteredBudgetItems,
     groupedBudgetItems,
@@ -168,7 +161,6 @@
     hasInvestmentData,
     hasAnyData,
     clearAllFilters,
-    toggleGroupByCategory,
     getCategoryType
   } = useBudgetFilters(budgetItems, budgetStore)
 
@@ -177,20 +169,9 @@
     showEditBudgetModal,
     showHistoryModal,
     editingBudget,
-    isLoading,
-    formData,
     openAddBudgetModal,
-    closeAddBudgetModal,
-    openEditBudgetModal,
-    closeEditBudgetModal,
-    openHistoryModal,
-    closeHistoryModal,
     handleBudgetAdded,
     handleBudgetUpdated,
-    updateCategoryOnTypeChange,
-    ensureValidStartMonth,
-    generateSchedule,
-    resetFormData,
     editBudget,
     duplicateBudget,
     deleteBudget,
@@ -216,8 +197,7 @@
     calculateGrandTotalInvestmentOutgoing,
     calculateGrandTotalInvestmentNet,
     calculateCategoryTotal,
-    calculateCategoryMonthlyTotal,
-    updateBudgetAmount
+    calculateCategoryMonthlyTotal
   } = useBudgetCalculations(budgetItems, budgetStore)
 
   // Year management
@@ -254,8 +234,4 @@
   })
 </script>
 
-<style scoped>
-.sticky {
-  position: sticky;
-}
-</style> 
+ 
