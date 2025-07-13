@@ -210,7 +210,7 @@
               <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
                 Total
               </th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 sticky right-0 z-40">
                 Actions
               </th>
             </tr>
@@ -284,7 +284,7 @@
                   </span>
                   <span v-else>—</span>
                 </td>
-                <td class="px-4 py-4 text-center">
+                <td class="px-4 py-4 text-center sticky right-0 bg-white z-10">
                   <div class="flex justify-center space-x-1">
                     <button @click="editBudget(budget)" 
                             title="Edit budget settings"
@@ -349,7 +349,7 @@
                     </span>
                     <span v-else class="text-gray-400">—</span>
                   </td>
-                  <td class="px-4 py-3 bg-gray-200"></td>
+                  <td class="px-4 py-3 bg-gray-200 sticky right-0 z-10"></td>
                 </tr>
                                  <!-- Category Items -->
                  <tr v-for="budget in group" :key="budget.id" class="hover:bg-gray-50">
@@ -418,7 +418,7 @@
                      </span>
                      <span v-else>—</span>
                    </td>
-                   <td class="px-4 py-4 text-center">
+                   <td class="px-4 py-4 text-center sticky right-0 bg-white z-10">
                      <div class="flex justify-center space-x-1">
                        <button @click="editBudget(budget)" 
                                title="Edit budget settings"
@@ -469,7 +469,7 @@
                 </span>
                 <span v-else>—</span>
               </td>
-              <td class="px-4 py-3"></td>
+              <td class="px-4 py-3 sticky right-0 bg-green-50 z-10"></td>
             </tr>
 
             <!-- Investment Returns Line -->
@@ -500,7 +500,7 @@
                 </span>
                 <span v-else>—</span>
               </td>
-              <td class="px-4 py-3"></td>
+              <td class="px-4 py-3 sticky right-0 bg-green-50 z-10"></td>
             </tr>
 
             <!-- Expenses Line -->
@@ -531,7 +531,7 @@
                 </span>
                 <span v-else>—</span>
               </td>
-              <td class="px-4 py-3"></td>
+              <td class="px-4 py-3 sticky right-0 bg-red-50 z-10"></td>
             </tr>
 
             <!-- Investment Purchases Line -->
@@ -562,7 +562,7 @@
                 </span>
                 <span v-else>—</span>
               </td>
-              <td class="px-4 py-3"></td>
+              <td class="px-4 py-3 sticky right-0 bg-red-50 z-10"></td>
             </tr>
 
             <!-- Divider Line -->
@@ -607,7 +607,7 @@
                 </span>
                 <span v-else>—</span>
               </td>
-              <td class="px-4 py-4"></td>
+              <td class="px-4 py-4 sticky right-0 bg-blue-50 z-10"></td>
             </tr>
 
             <!-- Net Investment Row -->
@@ -649,7 +649,7 @@
                 </span>
                 <span v-else>—</span>
               </td>
-              <td class="px-4 py-3"></td>
+              <td class="px-4 py-3 sticky right-0 bg-indigo-50 z-10"></td>
             </tr>
           </tbody>
         </table>
