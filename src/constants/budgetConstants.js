@@ -28,6 +28,87 @@ export const BUDGET_TYPE_LABELS = {
   [BUDGET_TYPES.INVESTMENT]: 'Investments'
 }
 
+// Summary row types and configurations
+export const SUMMARY_ROWS = {
+  NET_BALANCE: {
+    id: 'net-balance',
+    label: 'Net Monthly Balance',
+    symbol: '=',
+    bgColor: 'bg-blue-50',
+    textColor: 'text-blue-600',
+    stickyBgColor: 'bg-blue-50',
+    showCondition: (selectedTypeFilter, hasAnyData) => selectedTypeFilter === 'all' && hasAnyData
+  },
+  NET_INVESTMENT: {
+    id: 'net-investment',
+    label: 'Net Investment',
+    subtitle: '( Returns - Purchases)',
+    symbol: '📈',
+    bgColor: 'bg-indigo-50',
+    textColor: 'text-indigo-600',
+    stickyBgColor: 'bg-indigo-50',
+    showCondition: (hasInvestmentData) => hasInvestmentData
+  },
+  TOTAL_INCOME: {
+    id: 'total-income',
+    label: 'Total Income',
+    symbol: '+',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-600',
+    stickyBgColor: 'bg-green-50',
+    showCondition: (hasIncomeData) => hasIncomeData
+  },
+  INVESTMENT_RETURNS: {
+    id: 'investment-returns',
+    label: 'Investment Returns',
+    symbol: '+',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-600',
+    stickyBgColor: 'bg-green-50',
+    showCondition: (hasInvestmentIncomingData) => hasInvestmentIncomingData
+  },
+  TOTAL_EXPENSES: {
+    id: 'total-expenses',
+    label: 'Total Expenses',
+    symbol: '−',
+    bgColor: 'bg-red-50',
+    textColor: 'text-red-600',
+    stickyBgColor: 'bg-red-50',
+    showCondition: (hasExpenseData) => hasExpenseData
+  },
+  INVESTMENT_PURCHASES: {
+    id: 'investment-purchases',
+    label: 'Investment Purchases',
+    symbol: '−',
+    bgColor: 'bg-red-50',
+    textColor: 'text-red-600',
+    stickyBgColor: 'bg-red-50',
+    showCondition: (hasInvestmentOutgoingData) => hasInvestmentOutgoingData
+  }
+}
+
+// Summary value styling configurations
+export const SUMMARY_VALUE_STYLES = {
+  POSITIVE: {
+    textColor: 'text-green-700',
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-300'
+  },
+  NEGATIVE: {
+    textColor: 'text-red-700',
+    bgColor: 'bg-red-50',
+    borderColor: 'border-red-300'
+  },
+  NEUTRAL: {
+    textColor: 'text-gray-400',
+    bgColor: 'bg-gray-50',
+    borderColor: 'border-gray-300'
+  },
+  CURRENT_MONTH: {
+    bgColor: 'bg-blue-400'
+  }
+}
+
 // Categories by type
 export const CATEGORIES_BY_TYPE = {
   [BUDGET_TYPES.INCOME]: [

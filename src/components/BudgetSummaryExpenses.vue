@@ -1,68 +1,45 @@
 <template>
   <!-- Expenses Line -->
-  <tr v-if="hasExpenseData" class="bg-red-50">
-    <td class="px-6 py-3 text-sm font-semibold text-red-700 sticky left-0 bg-red-50 z-10">
+  <tr v-if="shouldShowSummaryRow('TOTAL_EXPENSES')" :class="totalExpensesStyling.bgColor">
+    <td :class="`px-6 py-3 text-sm font-semibold text-red-700 sticky left-0 ${totalExpensesStyling.stickyBgColor} z-10`">
       <div class="flex items-center">
-        <span class="text-lg font-bold text-red-600 mr-2">−</span>
-        Total Expenses
+        <span :class="`text-lg font-bold ${totalExpensesStyling.textColor} mr-2`">{{ totalExpensesConfig.symbol }}</span>
+        {{ totalExpensesConfig.label }}
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-expense-${month}`" 
-        :class="[
-          'px-2 py-3 text-center',
-          calculateMonthlyExpenses(index) > 0 ? 'text-red-700 bg-red-50' : 'text-gray-400',
-          selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-        ]">
-      <span v-if="calculateMonthlyExpenses(index) > 0">
-        {{ formatCurrency(calculateMonthlyExpenses(index)) }}
-      </span>
-      <span v-else>—</span>
+        :class="getSummaryCellClasses(calculateMonthlyExpenses(index), selectedYear, currentYear, currentMonth, index, 'TOTAL_EXPENSES')">
+      {{ formatSummaryValue(calculateMonthlyExpenses(index), formatCurrency) }}
     </td>
-    <td :class="[
-      'px-4 py-3 text-right text-sm font-bold',
-      calculateGrandTotalExpenses() > 0 ? 'text-red-700' : 'text-gray-400'
-    ]">
-      <span v-if="calculateGrandTotalExpenses() > 0">
-        {{ formatCurrency(calculateGrandTotalExpenses()) }}
-      </span>
-      <span v-else>—</span>
+    <td :class="getSummaryTotalClasses(calculateGrandTotalExpenses())">
+      {{ formatSummaryValue(calculateGrandTotalExpenses(), formatCurrency) }}
     </td>
-    <td class="px-4 py-3 sticky right-0 bg-red-50 z-10"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${totalExpensesStyling.stickyBgColor} z-10`"></td>
   </tr>
 
   <!-- Investment Purchases Line -->
-  <tr v-if="hasInvestmentOutgoingData" class="bg-red-50">
-    <td class="px-6 py-3 text-sm font-semibold text-red-700 sticky left-0 bg-red-50 z-10">
+  <tr v-if="shouldShowSummaryRow('INVESTMENT_PURCHASES')" :class="investmentPurchasesStyling.bgColor">
+    <td :class="`px-6 py-3 text-sm font-semibold text-red-700 sticky left-0 ${investmentPurchasesStyling.stickyBgColor} z-10`">
       <div class="flex items-center">
-        <span class="text-lg font-bold text-red-600 mr-2">−</span>
-        Investment Purchases
+        <span :class="`text-lg font-bold ${investmentPurchasesStyling.textColor} mr-2`">{{ investmentPurchasesConfig.symbol }}</span>
+        {{ investmentPurchasesConfig.label }}
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-inv-out-${month}`" 
-        :class="[
-          'px-2 py-3 text-center',
-          calculateMonthlyInvestmentOutgoing(index) > 0 ? 'text-red-700 bg-red-50' : 'text-gray-400',
-          selectedYear === currentYear && index === currentMonth ? 'bg-blue-400' : ''
-        ]">
-      <span v-if="calculateMonthlyInvestmentOutgoing(index) > 0">
-        {{ formatCurrency(calculateMonthlyInvestmentOutgoing(index)) }}
-      </span>
-      <span v-else>—</span>
+        :class="getSummaryCellClasses(calculateMonthlyInvestmentOutgoing(index), selectedYear, currentYear, currentMonth, index, 'INVESTMENT_PURCHASES')">
+      {{ formatSummaryValue(calculateMonthlyInvestmentOutgoing(index), formatCurrency) }}
     </td>
-    <td :class="[
-      'px-4 py-3 text-right text-sm font-bold',
-      calculateGrandTotalInvestmentOutgoing() > 0 ? 'text-red-700' : 'text-gray-400'
-    ]">
-      <span v-if="calculateGrandTotalInvestmentOutgoing() > 0">
-        {{ formatCurrency(calculateGrandTotalInvestmentOutgoing()) }}
-      </span>
-      <span v-else>—</span>
+    <td :class="getSummaryTotalClasses(calculateGrandTotalInvestmentOutgoing())">
+      {{ formatSummaryValue(calculateGrandTotalInvestmentOutgoing(), formatCurrency) }}
     </td>
-    <td class="px-4 py-3 sticky right-0 bg-red-50 z-10"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${investmentPurchasesStyling.stickyBgColor} z-10`"></td>
   </tr>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
+
 // Props
 const props = defineProps({
   months: {
@@ -114,4 +91,31 @@ const props = defineProps({
     required: true
   }
 })
+
+// Use budget summaries composable
+const {
+  shouldShowSummaryRow,
+  getSummaryRowConfig,
+  getSummaryRowStyling,
+  getSummaryCellClasses,
+  getSummaryTotalClasses,
+  formatSummaryValue
+} = useBudgetSummaries(
+  null, // budgetItems not needed for this component
+  computed(() => 'all'), // selectedTypeFilter not needed for expense summaries
+  computed(() => false), // hasIncomeData not needed
+  computed(() => props.hasExpenseData),
+  computed(() => false), // hasInvestmentData not needed
+  computed(() => false), // hasInvestmentIncomingData not needed
+  computed(() => props.hasInvestmentOutgoingData),
+  computed(() => false) // hasAnyData not needed
+)
+
+// Get row configurations
+const totalExpensesConfig = computed(() => getSummaryRowConfig('TOTAL_EXPENSES'))
+const investmentPurchasesConfig = computed(() => getSummaryRowConfig('INVESTMENT_PURCHASES'))
+
+// Get row styling
+const totalExpensesStyling = computed(() => getSummaryRowStyling('TOTAL_EXPENSES'))
+const investmentPurchasesStyling = computed(() => getSummaryRowStyling('INVESTMENT_PURCHASES'))
 </script> 
