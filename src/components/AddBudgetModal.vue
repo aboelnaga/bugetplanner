@@ -24,9 +24,7 @@
             <label class="block text-sm font-medium text-gray-700">Budget Type</label>
             <select v-model="formData.type" @change="updateCategoryOnTypeChange"
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-              <option value="investment">Investment</option>
+              <option v-for="(label, type) in BUDGET_TYPE_LABELS" :key="type" :value="type">{{ label }}</option>
             </select>
           </div>
           <div>
@@ -34,59 +32,24 @@
             <select v-model="formData.category" 
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
               <!-- Income Categories -->
-              <optgroup v-if="formData.type === 'income'" label="Income Categories">
-                <option value="Salary">Salary</option>
-                <option value="Freelance">Freelance</option>
-                <option value="Business">Business</option>
-                <option value="Bonus">Bonus</option>
-                <option value="Side Hustle">Side Hustle</option>
-                <option value="Other Income">Other Income</option>
+              <optgroup v-if="formData.type === BUDGET_TYPES.INCOME" label="Income Categories">
+                <option v-for="category in CATEGORIES_BY_TYPE[BUDGET_TYPES.INCOME]" :key="category" :value="category">{{ category }}</option>
               </optgroup>
               <!-- Investment Categories -->
-              <optgroup v-else-if="formData.type === 'investment'" label="Investment Categories">
-                <option value="Real Estate Purchase">Real Estate Purchase</option>
-                <option value="Real Estate Installment">Real Estate Installment</option>
-                <option value="Rental Income">Rental Income</option>
-                <option value="Stock Purchase">Stock Purchase</option>
-                <option value="Stock Dividends">Stock Dividends</option>
-                <option value="Gold Purchase">Gold Purchase</option>
-                <option value="Gold Sale">Gold Sale</option>
-                <option value="Mutual Funds">Mutual Funds</option>
-                <option value="Retirement Fund">Retirement Fund</option>
-                <option value="Crypto Purchase">Crypto Purchase</option>
-                <option value="Crypto Sale">Crypto Sale</option>
-                <option value="Investment Returns">Investment Returns</option>
-                <option value="Capital Gains">Capital Gains</option>
-                <option value="Other Investment">Other Investment</option>
+              <optgroup v-else-if="formData.type === BUDGET_TYPES.INVESTMENT" label="Investment Categories">
+                <option v-for="category in CATEGORIES_BY_TYPE[BUDGET_TYPES.INVESTMENT]" :key="category" :value="category">{{ category }}</option>
               </optgroup>
               <!-- Expense Categories -->
               <optgroup v-else label="Expense Categories">
-                <option value="Essential">Essential</option>
-                <option value="Lifestyle">Lifestyle</option>
-                <option value="Savings">Savings</option>
-                <option value="Investment">Investment</option>
-                <option value="Education">Education</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Food & Dining">Food & Dining</option>
-                <option value="Housing">Housing</option>
-                <option value="Utilities">Utilities</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Travel">Travel</option>
-                <option value="Insurance">Insurance</option>
-                <option value="Debt Payments">Debt Payments</option>
-                <option value="Charity">Charity</option>
-                <option value="Other">Other</option>
+                <option v-for="category in CATEGORIES_BY_TYPE[BUDGET_TYPES.EXPENSE]" :key="category" :value="category">{{ category }}</option>
               </optgroup>
             </select>
           </div>
-          <div v-if="formData.type === 'investment'">
+          <div v-if="formData.type === BUDGET_TYPES.INVESTMENT">
             <label class="block text-sm font-medium text-gray-700">Investment Direction</label>
             <select v-model="formData.investment_direction" 
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="outgoing">Outgoing (Purchase/Contribution)</option>
-              <option value="incoming">Incoming (Returns/Sales)</option>
+              <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">{{ label }}</option>
             </select>
           </div>
           <div>
@@ -104,27 +67,22 @@
             <label class="block text-sm font-medium text-gray-700">Recurrence</label>
             <select v-model="formData.recurrence" 
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly (Q1, Q2, Q3, Q4)</option>
-              <option value="bi-annual">Bi-Annual (Jan & Jul)</option>
-              <option value="school-terms">School Terms (Jan & Sep)</option>
-              <option value="custom">Custom Months</option>
-              <option value="one-time">One Time</option>
+              <option v-for="(label, type) in RECURRENCE_LABELS" :key="type" :value="type">{{ label }}</option>
             </select>
           </div>
-          <div v-if="formData.recurrence !== 'one-time' && formData.recurrence !== 'custom'">
+          <div v-if="formData.recurrence !== RECURRENCE_TYPES.ONE_TIME && formData.recurrence !== RECURRENCE_TYPES.CUSTOM">
             <label class="block text-sm font-medium text-gray-700">Start Month</label>
             <select v-model="formData.startMonth" 
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
               <option v-for="(monthIndex, arrayIndex) in availableStartMonthIndices" :key="monthIndex" :value="monthIndex">
-                {{ months[monthIndex] }} {{ getMonthLabel(monthIndex) }}
+                {{ MONTHS[monthIndex] }} {{ getMonthLabelForDisplay(monthIndex) }}
               </option>
             </select>
             <p class="text-xs text-gray-500 mt-1">
-              <span v-if="formData.recurrence === 'monthly'">Budget will start from this month and continue monthly until December</span>
-              <span v-else-if="formData.recurrence === 'quarterly'">Budget will start from the first quarter at or after this month</span>
-              <span v-else-if="formData.recurrence === 'bi-annual'">Budget will start from the first bi-annual period at or after this month</span>
-              <span v-else-if="formData.recurrence === 'school-terms'">Budget will start from the first school term at or after this month</span>
+              <span v-if="formData.recurrence === RECURRENCE_TYPES.MONTHLY">Budget will start from this month and continue monthly until December</span>
+              <span v-else-if="formData.recurrence === RECURRENCE_TYPES.QUARTERLY">Budget will start from the first quarter at or after this month</span>
+              <span v-else-if="formData.recurrence === RECURRENCE_TYPES.BI_ANNUAL">Budget will start from the first bi-annual period at or after this month</span>
+              <span v-else-if="formData.recurrence === RECURRENCE_TYPES.SCHOOL_TERMS">Budget will start from the first school term at or after this month</span>
               <span v-else>Budget will start from this month and continue based on recurrence pattern</span>
               <br>
               <span v-if="selectedYear === currentYear" class="text-orange-600">Only current and future months are available for {{ currentYear }}</span>
@@ -132,20 +90,20 @@
               <span v-else class="text-blue-600">All months are available for past year {{ selectedYear }}</span>
             </p>
           </div>
-          <div v-if="formData.recurrence === 'custom'">
+          <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM">
             <label class="block text-sm font-medium text-gray-700">Select Months</label>
             <div class="grid grid-cols-3 gap-2 mt-2">
-              <label v-for="(month, index) in months" :key="month" class="flex items-center">
+              <label v-for="(month, index) in MONTHS" :key="month" class="flex items-center">
                 <input type="checkbox" v-model="formData.customMonths" :value="index" class="mr-1" />
                 <span class="text-sm">{{ month }}</span>
               </label>
             </div>
           </div>
-          <div v-if="formData.recurrence === 'one-time'">
+          <div v-if="formData.recurrence === RECURRENCE_TYPES.ONE_TIME">
             <label class="block text-sm font-medium text-gray-700">Month</label>
             <select v-model="formData.oneTimeMonth" 
                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option v-for="(month, index) in months" :key="month" :value="index">{{ month }}</option>
+              <option v-for="(month, index) in MONTHS" :key="month" :value="index">{{ month }}</option>
             </select>
           </div>
         </div>
@@ -175,6 +133,26 @@
 import { ref, computed, watch } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
 
+// Import constants and utilities
+import { 
+  MONTHS, 
+  BUDGET_TYPES, 
+  BUDGET_TYPE_LABELS,
+  CATEGORIES_BY_TYPE,
+  INVESTMENT_DIRECTIONS,
+  INVESTMENT_DIRECTION_LABELS,
+  RECURRENCE_TYPES,
+  RECURRENCE_LABELS,
+  DEFAULT_VALUES
+} from '@/constants/budgetConstants.js'
+import { 
+  formatNumberWithCommas, 
+  getMonthLabel, 
+  validationHelpers, 
+  dateUtils, 
+  inputUtils 
+} from '@/utils/budgetUtils.js'
+
 // Props
 const props = defineProps({
   modelValue: {
@@ -193,121 +171,50 @@ const emit = defineEmits(['update:modelValue', 'budget-added'])
 // Store
 const budgetStore = useBudgetStore()
 
-// Constants
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-]
-
 // Computed
 const currentYear = computed(() => budgetStore.currentYear)
 const currentMonth = computed(() => budgetStore.currentMonth)
 
 // Available months for start month (depends on selected year)
 const availableStartMonthIndices = computed(() => {
-  if (props.selectedYear > currentYear.value) {
-    // Future year: all month indices (0-11)
-    return Array.from({ length: 12 }, (_, i) => i)
-  } else if (props.selectedYear === currentYear.value) {
-    // Current year: only current month and future month indices
-    return Array.from({ length: 12 - currentMonth.value }, (_, i) => currentMonth.value + i)
-  } else {
-    // Past year: all month indices (0-11)
-    return Array.from({ length: 12 }, (_, i) => i)
-  }
+  return dateUtils.getAvailableStartMonthIndices(props.selectedYear, currentYear.value, currentMonth.value)
 })
 
 // Form data
-const formData = ref({
-  name: '',
-  type: 'expense',
-  category: 'Essential',
-  defaultAmount: 0,
-  recurrence: 'monthly',
-  customMonths: [],
-  oneTimeMonth: 0,
-  investment_direction: 'outgoing',
-  startMonth: 0
-})
+const formData = ref({ ...DEFAULT_VALUES.FORM_DATA })
 
 // Loading state
 const isLoading = ref(false)
 
 // Get month label based on selected year and current date
-const getMonthLabel = (monthIndex) => {
-  if (props.selectedYear === currentYear.value) {
-    if (monthIndex === currentMonth.value) return '(Current)'
-    if (monthIndex === currentMonth.value + 1) return '(Next)'
-  } else if (props.selectedYear > currentYear.value) {
-    if (monthIndex === 0) return '(Jan of future year)'
-  } else {
-    return '(Past year)'
-  }
-  return ''
-}
-
-// Format number with commas every 3 digits
-const formatNumberWithCommas = (value) => {
-  if (value === null || value === undefined || value === '') return ''
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-}
-
-// Parse formatted number back to numeric value
-const parseFormattedNumber = (value) => {
-  if (value === null || value === undefined || value === '') return 0
-  return parseFloat(value.toString().replace(/,/g, '')) || 0
+const getMonthLabelForDisplay = (monthIndex) => {
+  return getMonthLabel(monthIndex, props.selectedYear, currentYear.value, currentMonth.value)
 }
 
 // Allow only numbers and specific keys
-const allowOnlyNumbers = (event) => {
-  const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
-  const allowedChars = /[0-9]/
-  
-  if (allowedKeys.includes(event.key) || allowedChars.test(event.key)) {
-    return true
-  }
-  
-  event.preventDefault()
-  return false
-}
+const allowOnlyNumbers = validationHelpers.allowOnlyNumbers
 
 // Handle amount input with validation and formatting
 const handleAmountInput = (event) => {
-  const input = event.target.value
-  const rawValue = input.replace(/,/g, '')
-  
-  // Only allow numbers
-  if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
-    const numericValue = parseFloat(rawValue) || 0
-    formData.value.defaultAmount = numericValue
-  }
+  inputUtils.handleAmountInput(event, formData.value)
 }
 
 // Update category when type changes
 const updateCategoryOnTypeChange = () => {
-  if (formData.value.type === 'income') {
-    formData.value.category = 'Salary'
-  } else if (formData.value.type === 'investment') {
-    formData.value.category = 'Real Estate Purchase'
-  } else {
-    formData.value.category = 'Essential'
-  }
+  formData.value.category = DEFAULT_VALUES.CATEGORIES_BY_TYPE[formData.value.type]
   
   // Reset start month based on selected year
-  if (props.selectedYear === currentYear.value) {
-    formData.value.startMonth = currentMonth.value
-  } else {
-    formData.value.startMonth = 0 // Default to January for non-current years
-  }
+  formData.value.startMonth = dateUtils.getDefaultStartMonth(props.selectedYear, currentYear.value, currentMonth.value)
 }
 
 // Ensure start month is valid for the selected year
 const ensureValidStartMonth = () => {
-  if (props.selectedYear === currentYear.value && formData.value.startMonth < currentMonth.value) {
-    formData.value.startMonth = currentMonth.value
-  } else if (props.selectedYear !== currentYear.value && formData.value.startMonth < 0) {
-    formData.value.startMonth = 0 // Default to January for non-current years
-  }
+  formData.value.startMonth = validationHelpers.ensureValidStartMonth(
+    formData.value.startMonth,
+    props.selectedYear,
+    currentYear.value,
+    currentMonth.value
+  )
 }
 
 // Close modal
@@ -320,48 +227,13 @@ const handleSubmit = async () => {
   try {
     isLoading.value = true
     
-    let schedule = []
-    let amounts = new Array(12).fill(0)
-    
     // Generate schedule based on recurrence
-    const startMonth = formData.value.startMonth
-    
-    switch (formData.value.recurrence) {
-      case 'monthly':
-        // Start from specified month and continue for remaining months in the year
-        schedule = []
-        for (let month = startMonth; month < 12; month++) {
-          schedule.push(month)
-        }
-        schedule.forEach(month => amounts[month] = formData.value.defaultAmount)
-        break
-      case 'quarterly':
-        // Start from the first quarter that includes or comes after startMonth
-        const quarters = [0, 3, 6, 9] // Q1, Q2, Q3, Q4
-        schedule = quarters.filter(quarter => quarter >= startMonth)
-        schedule.forEach(month => amounts[month] = formData.value.defaultAmount)
-        break
-      case 'bi-annual':
-        // Start from the first bi-annual period that includes or comes after startMonth
-        const biAnnual = [0, 6] // January and July
-        schedule = biAnnual.filter(month => month >= startMonth)
-        schedule.forEach(month => amounts[month] = formData.value.defaultAmount)
-        break
-      case 'school-terms':
-        // Start from the first school term that includes or comes after startMonth
-        const schoolTerms = [0, 8] // January and September
-        schedule = schoolTerms.filter(month => month >= startMonth)
-        schedule.forEach(month => amounts[month] = formData.value.defaultAmount)
-        break
-      case 'custom':
-        schedule = [...formData.value.customMonths]
-        schedule.forEach(month => amounts[month] = formData.value.defaultAmount)
-        break
-      case 'one-time':
-        schedule = [formData.value.oneTimeMonth]
-        amounts[formData.value.oneTimeMonth] = formData.value.defaultAmount
-        break
-    }
+    const { schedule, amounts } = generateSchedule(
+      formData.value.recurrence,
+      formData.value.startMonth,
+      formData.value.customMonths,
+      formData.value.oneTimeMonth
+    )
 
     // Create budget data object
     const budgetData = {
@@ -384,15 +256,8 @@ const handleSubmit = async () => {
     if (result) {
       // Reset form
       formData.value = {
-        name: '',
-        type: 'expense',
-        category: 'Essential',
-        defaultAmount: 0,
-        recurrence: 'monthly',
-        customMonths: [],
-        oneTimeMonth: 0,
-        investment_direction: 'outgoing',
-        startMonth: props.selectedYear === currentYear.value ? currentMonth.value : 0
+        ...DEFAULT_VALUES.FORM_DATA,
+        startMonth: dateUtils.getDefaultStartMonth(props.selectedYear, currentYear.value, currentMonth.value)
       }
       
       // Close modal
@@ -412,15 +277,55 @@ const handleSubmit = async () => {
   }
 }
 
+// Generate schedule based on recurrence
+const generateSchedule = (recurrence, startMonth, customMonths = [], oneTimeMonth = 0) => {
+  let schedule = []
+  let amounts = new Array(12).fill(0)
+  
+  switch (recurrence) {
+    case RECURRENCE_TYPES.MONTHLY:
+      // Start from specified month and continue for remaining months in the year
+      schedule = []
+      for (let month = startMonth; month < 12; month++) {
+        schedule.push(month)
+      }
+      break
+    case RECURRENCE_TYPES.QUARTERLY:
+      // Start from the first quarter that includes or comes after startMonth
+      const quarters = [0, 3, 6, 9] // Q1, Q2, Q3, Q4
+      schedule = quarters.filter(quarter => quarter >= startMonth)
+      break
+    case RECURRENCE_TYPES.BI_ANNUAL:
+      // Start from the first bi-annual period that includes or comes after startMonth
+      const biAnnual = [0, 6] // January and July
+      schedule = biAnnual.filter(month => month >= startMonth)
+      break
+    case RECURRENCE_TYPES.SCHOOL_TERMS:
+      // Start from the first school term that includes or comes after startMonth
+      const schoolTerms = [0, 8] // January and September
+      schedule = schoolTerms.filter(month => month >= startMonth)
+      break
+    case RECURRENCE_TYPES.CUSTOM:
+      schedule = [...customMonths]
+      break
+    case RECURRENCE_TYPES.ONE_TIME:
+      schedule = [oneTimeMonth]
+      break
+  }
+
+  // Populate amounts array
+  schedule.forEach(month => {
+    amounts[month] = formData.value.defaultAmount
+  })
+
+  return { schedule, amounts }
+}
+
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     // Set appropriate default start month based on selected year
-    if (props.selectedYear === currentYear.value) {
-      formData.value.startMonth = currentMonth.value
-    } else {
-      formData.value.startMonth = 0 // Default to January for non-current years
-    }
+    formData.value.startMonth = dateUtils.getDefaultStartMonth(props.selectedYear, currentYear.value, currentMonth.value)
     ensureValidStartMonth()
   }
 })

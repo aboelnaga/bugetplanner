@@ -50,9 +50,7 @@
             class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white hover:border-gray-400 focus:border-blue-500"
           >
             <option value="all">All Types</option>
-            <option value="income">💰 Income</option>
-            <option value="expense">💸 Expenses</option>
-            <option value="investment">📈 Investments</option>
+            <option v-for="(label, type) in BUDGET_TYPE_LABELS" :key="type" :value="type">{{ getBudgetTypeIcon(type) }} {{ label }}</option>
           </select>
         </div>
         
@@ -111,7 +109,7 @@
           v-if="selectedTypeFilter !== 'all'" 
           class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
         >
-          {{ selectedTypeFilter === 'income' ? '💰' : selectedTypeFilter === 'expense' ? '💸' : '📈' }}
+          {{ getBudgetTypeIcon(selectedTypeFilter) }}
           <button 
             @click="$emit('update:selectedTypeFilter', 'all')" 
             class="ml-1 text-blue-600 hover:text-blue-800"
@@ -145,6 +143,10 @@
 <script setup>
 import { computed } from 'vue'
 import { Calendar, Copy, Settings } from 'lucide-vue-next'
+
+// Import constants and utilities
+import { BUDGET_TYPE_LABELS } from '@/constants/budgetConstants.js'
+import { getBudgetTypeIcon } from '@/utils/budgetUtils.js'
 
 // Props
 const props = defineProps({

@@ -7,7 +7,7 @@
       </div>
       <div class="flex space-x-3">
         <button @click="openAddBudgetModal" class="btn-primary">Add Budget Item</button>
-        <button @click="showHistoryModal = true" class="btn-secondary">View History</button>
+        <button @click="openHistoryModal" class="btn-secondary">View History</button>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
       :can-copy-from-previous-year="canCopyFromPreviousYear"
       :filtered-budget-items="filteredBudgetItems"
       :grouped-budget-items="groupedBudgetItems"
-      :months="months"
+      :months="MONTHS"
       :selected-year="selectedYear"
       :current-year="budgetStore.currentYear"
       :current-month="currentMonth"
@@ -99,8 +99,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, onMounted, watch } from 'vue'
-  import { Edit, Copy, Trash2, DollarSign, TrendingDown, TrendingUp, ArrowUpRight, ArrowDownLeft, Calendar, Clock, Repeat, Settings } from 'lucide-vue-next'
+  import { computed, onMounted, watch } from 'vue'
   import { useBudgetStore } from '@/stores/budget.js'
   import { useAuthStore } from '@/stores/auth.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
@@ -108,32 +107,19 @@
   import HistoryModal from '@/components/HistoryModal.vue'
   import BudgetTable from '@/components/BudgetTable.vue'
   import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
+  
+  // Import constants and utilities
+  import { MONTHS } from '@/constants/budgetConstants.js'
+  import { formatCurrency } from '@/utils/budgetUtils.js'
+  
+  // Import composables
+  import { useBudgetFilters } from '@/composables/useBudgetFilters.js'
+  import { useBudgetModals } from '@/composables/useBudgetModals.js'
+  import { useBudgetCalculations } from '@/composables/useBudgetCalculations.js'
 
   // Stores
   const budgetStore = useBudgetStore()
   const authStore = useAuthStore()
-
-  // Local state
-  const showAddBudgetModal = ref(false)
-  const showEditBudgetModal = ref(false)
-  const showHistoryModal = ref(false)
-  const editingBudget = ref(null)
-  const selectedTypeFilter = ref('all')
-  const selectedCategoryFilter = ref('all')
-  const groupByCategory = ref(false)
-
-
-
-  const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-  ]
-
-  // Available years (computed from store)
-  const availableYears = computed(() => {
-    const currentYear = budgetStore.currentYear
-    return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
-  })
 
   // Budget items from store
   const budgetItems = computed(() => budgetStore.budgetItems || [])
@@ -147,415 +133,90 @@
     }
   })
 
+  // Current month from store
+  const currentMonth = computed(() => budgetStore.currentMonth)
+
+  // Available years (computed from store)
+  const availableYears = computed(() => {
+    const currentYear = budgetStore.currentYear
+    return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
+  })
+
   // Check if data is ready
   const isDataReady = computed(() => {
     return !budgetStore.loading && !budgetStore.error && budgetItems.value !== null
   })
 
+  // Use composables
+  const {
+    selectedTypeFilter,
+    selectedCategoryFilter,
+    groupByCategory,
+    incomeCount,
+    expenseCount,
+    investmentCount,
+    totalCount,
+    uniqueCategories,
+    filteredBudgetItems,
+    groupedBudgetItems,
+    hasIncomeData,
+    hasExpenseData,
+    hasInvestmentIncomingData,
+    hasInvestmentOutgoingData,
+    hasInvestmentData,
+    hasAnyData,
+    clearAllFilters,
+    toggleGroupByCategory,
+    getCategoryType
+  } = useBudgetFilters(budgetItems, budgetStore)
 
+  const {
+    showAddBudgetModal,
+    showEditBudgetModal,
+    showHistoryModal,
+    editingBudget,
+    isLoading,
+    formData,
+    openAddBudgetModal,
+    closeAddBudgetModal,
+    openEditBudgetModal,
+    closeEditBudgetModal,
+    openHistoryModal,
+    closeHistoryModal,
+    handleBudgetAdded,
+    handleBudgetUpdated,
+    updateCategoryOnTypeChange,
+    ensureValidStartMonth,
+    generateSchedule,
+    resetFormData,
+    editBudget,
+    duplicateBudget,
+    deleteBudget,
+    addNewYear,
+    copyFromPreviousYear
+  } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth)
 
-  const currentMonth = computed(() => budgetStore.currentMonth)
-
-
-
-  // Available months for start month (depends on selected year)
-  const availableStartMonths = computed(() => {
-    if (selectedYear.value > budgetStore.currentYear) {
-      // Future year: all months are available
-      return months
-    } else if (selectedYear.value === budgetStore.currentYear) {
-      // Current year: only current month and future months
-      return months.slice(currentMonth.value)
-    } else {
-      // Past year: all months available for historical data entry
-      return months
-    }
-  })
-
-  // Available start month indices (for dropdown values)
-  const availableStartMonthIndices = computed(() => {
-    if (selectedYear.value > budgetStore.currentYear) {
-      // Future year: all month indices (0-11)
-      return Array.from({ length: 12 }, (_, i) => i)
-    } else if (selectedYear.value === budgetStore.currentYear) {
-      // Current year: only current month and future month indices
-      return Array.from({ length: 12 - currentMonth.value }, (_, i) => currentMonth.value + i)
-    } else {
-      // Past year: all month indices (0-11)
-      return Array.from({ length: 12 }, (_, i) => i)
-    }
-  })
-
-  // Get month label based on selected year and current date
-  const getMonthLabel = (monthIndex) => {
-    if (selectedYear.value === budgetStore.currentYear) {
-      if (monthIndex === currentMonth.value) return '(Current)'
-      if (monthIndex === currentMonth.value + 1) return '(Next)'
-    } else if (selectedYear.value > budgetStore.currentYear) {
-      if (monthIndex === 0) return '(Jan of future year)'
-    } else {
-      return '(Past year)'
-    }
-    return ''
-  }
-
-
-
-
-
-  // Open add budget modal with validation
-  const openAddBudgetModal = () => {
-    showAddBudgetModal.value = true
-  }
-
-  const handleBudgetAdded = (budgetItem) => {
-    // Budget was successfully added, no additional action needed
-    // The store will automatically update the budget items list
-    console.log('Budget item added successfully:', budgetItem)
-  }
-
-  const handleBudgetUpdated = (budgetItem) => {
-    // Budget was successfully updated, no additional action needed
-    // The store will automatically update the budget items list
-    console.log('Budget item updated successfully:', budgetItem)
-  }
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EGP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(Math.abs(amount || 0))
-  }
-
-
-
-
-
-  const isScheduledMonth = (budget, monthIndex) => {
-    if (!budget || !budget.schedule) return false
-    return budget.schedule.includes(monthIndex) || false
-  }
-
-  const getBudgetAmount = (budget, monthIndex) => {
-    if (!budget || !budget.amounts || !Array.isArray(budget.amounts)) return 0
-    return parseFloat(budget.amounts[monthIndex]) || 0
-  }
-
-  const hasChanges = (budgetId, monthIndex) => {
-    if (!budgetId) return false
-    // Check if this month/budget combination has been modified
-    return budgetStore.budgetHistory?.some(change => 
-      change.budgetId === budgetId && 
-      change.monthIndex === monthIndex
-    ) || false
-  }
-
-  const calculateYearlyTotal = (budget) => {
-    if (!budget || !budget.amounts) return 0
-    const total = budget.amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
-    return budget.type === 'income' ? total : total
-  }
-
-  const calculateMonthlyTotal = (monthIndex) => {
-    const income = filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'income') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      return sum
-    }, 0)
-    
-    const expenses = filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'expense') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      return sum
-    }, 0)
-    
-    return income - expenses
-  }
-
-  const calculateMonthlyIncome = (monthIndex) => {
-    return filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'income') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      return sum
-    }, 0)
-  }
-
-  const calculateMonthlyExpenses = (monthIndex) => {
-    return filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'expense') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      return sum
-    }, 0)
-  }
-
-  const calculateMonthlyInvestmentIncoming = (monthIndex) => {
-    return filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      return sum
-    }, 0)
-  }
-
-  const calculateMonthlyInvestmentOutgoing = (monthIndex) => {
-    return filteredBudgetItems.value.reduce((sum, budget) => {
-      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
-      }
-      return sum
-    }, 0)
-  }
-
-  const calculateMonthlyInvestmentNet = (monthIndex) => {
-    return calculateMonthlyInvestmentIncoming(monthIndex) - calculateMonthlyInvestmentOutgoing(monthIndex)
-  }
-
-  const calculateGrandTotal = () => {
-    return calculateGrandTotalIncome() + calculateGrandTotalInvestmentIncoming() - calculateGrandTotalExpenses() - calculateGrandTotalInvestmentOutgoing()
-  }
-
-  const calculateGrandTotalIncome = () => {
-    return filteredBudgetItems.value.reduce((total, budget) => {
-      if (budget.type === 'income') {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
-  }
-
-  const calculateGrandTotalExpenses = () => {
-    return filteredBudgetItems.value.reduce((total, budget) => {
-      if (budget.type === 'expense') {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
-  }
-
-  const calculateGrandTotalInvestmentIncoming = () => {
-    return filteredBudgetItems.value.reduce((total, budget) => {
-      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
-  }
-
-  const calculateGrandTotalInvestmentOutgoing = () => {
-    return filteredBudgetItems.value.reduce((total, budget) => {
-      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
-  }
-
-  const calculateGrandTotalInvestmentNet = () => {
-    return calculateGrandTotalInvestmentIncoming() - calculateGrandTotalInvestmentOutgoing()
-  }
-
-
-
-  const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
-    const budget = budgetItems.value.find(b => b.id === budgetId)
-    if (!budget) return
-    
-    const oldValue = budget.amounts[monthIndex]
-    const numericOldValue = parseFloat(oldValue) || 0
-    const numericNewValue = parseFloat(newValue) || 0
-    
-    // Only proceed if the values are actually different
-    if (numericOldValue !== numericNewValue) {
-      // Update via store
-      await budgetStore.updateMonthlyAmount(budgetId, monthIndex, numericNewValue)
-    }
-  }
-
-  const editBudget = (budget) => {
-    // Set the budget to edit - the modal component will handle form initialization
-    editingBudget.value = budget
-    showEditBudgetModal.value = true
-  }
-
-
-
-
-
-
-
-  const duplicateBudget = async (budget) => {
-    // Create a copy of the budget item
-    const budgetData = {
-      name: budget.name + ' (Copy)',
-      type: budget.type,
-      category: budget.category,
-      recurrence: budget.recurrence,
-      default_amount: budget.defaultAmount || 0,
-      amounts: [...budget.amounts],
-      schedule: [...budget.schedule],
-      investment_direction: budget.investment_direction,
-      start_month: budget.startMonth
-    }
-
-    // Add to store
-    await budgetStore.addBudgetItem(budgetData)
-  }
-
-  const deleteBudget = async (budgetId) => {
-    const budget = budgetItems.value.find(item => item.id === budgetId)
-    if (!budget) return
-    
-    // Check if budget has any values for the whole year
-    const hasAnyValues = budget.amounts.some(amount => amount > 0)
-    
-    // If it's a future year, allow full deletion
-    if (selectedYear.value > budgetStore.currentYear) {
-      if (confirm('Are you sure you want to delete this budget item?')) {
-        await budgetStore.deleteBudgetItem(budgetId)
-      }
-      return
-    }
-    
-    // If no values for the whole year, allow deletion
-    if (!hasAnyValues) {
-      if (confirm('Are you sure you want to delete this empty budget item?')) {
-        await budgetStore.deleteBudgetItem(budgetId)
-      }
-      return
-    }
-    
-    // If current year and has values, check if there are past values
-    if (selectedYear.value === budgetStore.currentYear) {
-      const hasPastValues = budget.amounts.slice(0, currentMonth.value).some(amount => amount > 0)
-      const hasFutureValues = budget.amounts.slice(currentMonth.value).some(amount => amount > 0)
-      
-      if (hasPastValues && hasFutureValues) {
-        // Has both past and future values - clear only future values
-        if (confirm('This budget item has historical data. Clear only the remaining months (current month onwards)?')) {
-          for (let i = currentMonth.value; i < 12; i++) {
-            if (budget.amounts[i] > 0) {
-              await updateBudgetAmount(budgetId, i, 0)
-            }
-          }
-        }
-      } else if (hasPastValues && !hasFutureValues) {
-        // Has only past values - don't allow deletion
-        alert('Cannot delete this budget item as it contains historical data and all future months are already empty.')
-      } else if (!hasPastValues && hasFutureValues) {
-        // Has only future values - allow full deletion
-        if (confirm('Are you sure you want to delete this budget item? (It only contains future planning data)')) {
-          await budgetStore.deleteBudgetItem(budgetId)
-        }
-      }
-    } else if (selectedYear.value < budgetStore.currentYear) {
-      // Past year with values - don't allow deletion
-      alert('Cannot delete budget items from past years that contain data.')
-    }
-  }
-
-  const addNewYear = () => {
-    const newYear = Math.max(...availableYears.value) + 1
-    availableYears.value.push(newYear)
-    selectedYear.value = newYear
-    
-    // The store will automatically fetch budget items for the new year
-    // when selectedYear changes
-  }
-
-
-
-  // Category management
-  const uniqueCategories = computed(() => {
-    const categories = new Set()
-    ;(budgetItems.value || []).forEach(item => {
-      if (item && item.category) {
-        categories.add(item.category)
-      }
-    })
-    return Array.from(categories).sort()
-  })
-
-  const filteredBudgetItems = computed(() => {
-    return budgetItems.value.filter(item => {
-      if (!item) return false
-      const typeMatches = selectedTypeFilter.value === 'all' || item.type === selectedTypeFilter.value
-      const categoryMatches = selectedCategoryFilter.value === 'all' || item.category === selectedCategoryFilter.value
-      return typeMatches && categoryMatches
-    })
-  })
-
-  const groupedBudgetItems = computed(() => {
-    if (!groupByCategory.value) return {}
-    
-    const grouped = {}
-    filteredBudgetItems.value.forEach(item => {
-      if (!grouped[item.category]) {
-        grouped[item.category] = []
-      }
-      grouped[item.category].push(item)
-    })
-    
-    // Sort categories alphabetically
-    const sortedGrouped = {}
-    Object.keys(grouped).sort().forEach(key => {
-      sortedGrouped[key] = grouped[key]
-    })
-    
-    return sortedGrouped
-  })
-
-  const calculateCategoryTotal = (categoryItems) => {
-    return categoryItems.reduce((total, item) => {
-      return total + calculateYearlyTotal(item)
-    }, 0)
-  }
-
-  const calculateCategoryMonthlyTotal = (categoryItems, monthIndex) => {
-    return categoryItems.reduce((total, item) => {
-      return total + (parseFloat(item.amounts[monthIndex]) || 0)
-    }, 0)
-  }
-
-  const getCategoryType = (categoryItems) => {
-    // Determine the predominant type in the category
-    if (categoryItems.length === 0) return 'expense'
-    
-    const typeCounts = categoryItems.reduce((counts, item) => {
-      const key = item.type === 'investment' 
-        ? `${item.type}-${item.investment_direction}`
-        : item.type
-      counts[key] = (counts[key] || 0) + 1
-      return counts
-    }, {})
-    
-    // Return the most common type
-    const mostCommonType = Object.keys(typeCounts).reduce((a, b) => 
-      typeCounts[a] > typeCounts[b] ? a : b
-    )
-    
-    return mostCommonType
-  }
-
-  const toggleGroupByCategory = () => {
-    groupByCategory.value = !groupByCategory.value
-  }
-
-  const clearAllFilters = () => {
-    selectedTypeFilter.value = 'all'
-    selectedCategoryFilter.value = 'all'
-  }
+  const {
+    isScheduledMonth,
+    getBudgetAmount,
+    hasChanges,
+    calculateYearlyTotal,
+    calculateMonthlyTotal,
+    calculateMonthlyIncome,
+    calculateMonthlyExpenses,
+    calculateMonthlyInvestmentIncoming,
+    calculateMonthlyInvestmentOutgoing,
+    calculateMonthlyInvestmentNet,
+    calculateGrandTotal,
+    calculateGrandTotalIncome,
+    calculateGrandTotalExpenses,
+    calculateGrandTotalInvestmentIncoming,
+    calculateGrandTotalInvestmentOutgoing,
+    calculateGrandTotalInvestmentNet,
+    calculateCategoryTotal,
+    calculateCategoryMonthlyTotal,
+    updateBudgetAmount
+  } = useBudgetCalculations(budgetItems, budgetStore)
 
   // Year management
   const canCopyFromPreviousYear = computed(() => {
@@ -564,45 +225,6 @@
     // This will be updated when we implement the copy functionality with Supabase
     return false
   })
-
-  // Computed properties to check if there's data for each type
-  const hasIncomeData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === 'income')
-  })
-
-  const hasExpenseData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === 'expense')
-  })
-
-  const hasInvestmentIncomingData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === 'investment' && item.investment_direction === 'incoming')
-  })
-
-  const hasInvestmentOutgoingData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === 'investment' && item.investment_direction === 'outgoing')
-  })
-
-  const hasInvestmentData = computed(() => {
-    return hasInvestmentIncomingData.value || hasInvestmentOutgoingData.value
-  })
-
-  const hasAnyData = computed(() => {
-    return hasIncomeData.value || hasExpenseData.value || hasInvestmentData.value
-  })
-
-  const copyFromPreviousYear = async () => {
-    const previousYear = selectedYear.value - 1
-    
-    if (confirm(`Copy all budget items from ${previousYear} to ${selectedYear.value}?`)) {
-      const result = await budgetStore.copyFromPreviousYear(previousYear, selectedYear.value)
-      
-      if (!result) {
-        alert('Failed to copy budget items. Please try again.')
-      }
-    }
-  }
-
-
 
   // Watch for authentication changes
   watch(() => authStore.isAuthenticated, (isAuthenticated) => {
