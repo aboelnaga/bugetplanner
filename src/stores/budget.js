@@ -86,6 +86,10 @@ export const useBudgetStore = defineStore('budget', () => {
       loading.value = true
       error.value = null
       
+      // Get the current budget item to compare amounts
+      const currentBudget = budgetItems.value.find(item => item.id === id)
+      if (!currentBudget) return false
+      
       const data = await budgetAPI.updateBudgetItem(id, updates)
       
       // Update local state
@@ -94,7 +98,20 @@ export const useBudgetStore = defineStore('budget', () => {
         budgetItems.value[index] = { ...budgetItems.value[index], ...data }
       }
       
-      // No need to update separate monthly amounts table since amounts are stored directly
+      // Create history entries for any amount changes
+      if (updates.amounts && Array.isArray(updates.amounts)) {
+        for (let monthIndex = 0; monthIndex < updates.amounts.length; monthIndex++) {
+          const oldAmount = currentBudget.amounts[monthIndex] || 0
+          const newAmount = updates.amounts[monthIndex] || 0
+          
+          if (oldAmount !== newAmount) {
+            await addBudgetHistory(id, monthIndex, newAmount, oldAmount)
+          }
+        }
+      }
+      
+      // Refresh history to show the new entries
+      await fetchBudgetHistory()
       
       return true
     } catch (err) {
@@ -170,20 +187,21 @@ export const useBudgetStore = defineStore('budget', () => {
   // These functions are no longer needed since amounts are stored directly in budget_items
 
   // Add budget history entry
-  const addBudgetHistory = async (budgetId, monthIndex, newAmount) => {
+  const addBudgetHistory = async (budgetId, monthIndex, newAmount, oldAmount = null) => {
     if (!authStore.isAuthenticated || !authStore.userId) return
     
     try {
-      const budget = budgetItems.value.find(b => b.id === budgetId)
-      if (!budget) return
-      
-      const oldAmount = budget.amounts[monthIndex] || 0
+      // If oldAmount is not provided, get it from the current budget
+      if (oldAmount === null) {
+        const budget = budgetItems.value.find(b => b.id === budgetId)
+        if (!budget) return
+        oldAmount = budget.amounts[monthIndex] || 0
+      }
       
       if (oldAmount !== newAmount) {
         await budgetAPI.createBudgetHistory(authStore.userId, {
           budget_item_id: budgetId,
           month_index: monthIndex,
-          year: selectedYear.value,
           old_amount: oldAmount,
           new_amount: newAmount,
           user_id: authStore.userId

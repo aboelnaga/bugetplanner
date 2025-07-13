@@ -86,7 +86,6 @@ export const budgetAPI = {
       .from('budget_history')
       .select('*')
       .eq('user_id', userId)
-      .eq('year', year)
       .order('changed_at', { ascending: false })
     
     if (error) throw error

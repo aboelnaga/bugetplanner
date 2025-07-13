@@ -18,16 +18,16 @@
         <div v-for="change in historyItems" :key="change.id" 
              class="flex justify-between items-center py-2 px-4 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
           <div class="flex-1">
-            <span class="font-medium text-gray-900">{{ change.budgetName }}</span>
-            <span class="text-gray-500 ml-2">- {{ change.month }} {{ change.year }}</span>
+            <span class="font-medium text-gray-900">{{ getBudgetItemName(change.budget_item_id) }}</span>
+            <span class="text-gray-500 ml-2">- Month {{ change.month_index + 1 }}</span>
           </div>
           <div class="flex items-center space-x-2">
-            <span class="text-red-600 font-medium">{{ formatHistoryValue(change.oldValue) }}</span>
+            <span class="text-red-600 font-medium">{{ formatHistoryValue(change.old_amount) }}</span>
             <span class="text-gray-400">→</span>
-            <span class="text-green-600 font-medium">{{ formatHistoryValue(change.newValue) }}</span>
+            <span class="text-green-600 font-medium">{{ formatHistoryValue(change.new_amount) }}</span>
           </div>
           <div class="text-xs text-gray-500 ml-4">
-            {{ formatTimestamp(change.timestamp) }}
+            {{ formatTimestamp(change.changed_at) }}
           </div>
         </div>
       </div>
@@ -71,6 +71,12 @@ const budgetStore = useBudgetStore()
 
 // Computed
 const historyItems = computed(() => budgetStore.budgetHistory || [])
+
+// Get budget item name by ID
+const getBudgetItemName = (budgetItemId) => {
+  const budgetItem = budgetStore.budgetItems.find(item => item.id === budgetItemId)
+  return budgetItem ? budgetItem.name : `Budget Item #${budgetItemId}`
+}
 
 // Format currency for history values
 const formatCurrency = (amount) => {

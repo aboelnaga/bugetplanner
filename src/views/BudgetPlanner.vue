@@ -170,6 +170,7 @@
     showHistoryModal,
     editingBudget,
     openAddBudgetModal,
+    openHistoryModal,
     handleBudgetAdded,
     handleBudgetUpdated,
     editBudget,
