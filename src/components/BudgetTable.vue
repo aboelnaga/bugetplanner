@@ -1,34 +1,25 @@
 <template>
   <div class="card">
-    <!-- Loading State -->
-    <div v-if="loading" class="text-center py-12">
-      <div class="text-gray-500 mb-4">
-        <div class="text-4xl mb-2">⏳</div>
-        <h3 class="text-lg font-medium">Loading budget data...</h3>
-        <p class="text-sm mt-2">Please wait while we fetch your budget information.</p>
+    <!-- Empty States -->
+    <div v-if="shouldShowEmptyState" class="text-center py-12">
+      <div :class="emptyStateConfig.icon === '⚠️' ? 'text-red-500 mb-4' : 'text-gray-500 mb-4'">
+        <div class="text-4xl mb-2">{{ emptyStateConfig.icon }}</div>
+        <h3 class="text-lg font-medium" :class="emptyStateConfig.icon === '⚠️' ? '' : 'text-gray-700'">
+          {{ emptyStateConfig.title }}
+        </h3>
+        <p v-if="emptyStateConfig.message" class="text-sm mt-2">{{ emptyStateConfig.message }}</p>
       </div>
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="text-center py-12">
-      <div class="text-red-500 mb-4">
-        <div class="text-4xl mb-2">⚠️</div>
-        <h3 class="text-lg font-medium">Error loading budget data</h3>
-        <p class="text-sm mt-2">{{ error }}</p>
-      </div>
-      <div class="flex justify-center space-x-3">
+      
+      <!-- Loading State - No Actions -->
+      <div v-if="shouldShowLoadingState"></div>
+      
+      <!-- Error State Actions -->
+      <div v-else-if="shouldShowErrorState" class="flex justify-center space-x-3">
         <button @click="$emit('retry')" class="btn-primary">Retry</button>
       </div>
-    </div>
-
-    <!-- Empty State for No Budget Items -->
-    <div v-else-if="budgetItems.length === 0" class="text-center py-12">
-      <div class="text-gray-500 mb-4">
-        <div class="text-4xl mb-2">📊</div>
-        <h3 class="text-lg font-medium">No budget items for {{ selectedYear }}</h3>
-        <p class="text-sm mt-2">Start by adding your first budget item or copy from a previous year.</p>
-      </div>
-      <div class="flex justify-center space-x-3">
+      
+      <!-- No Budget Items Actions -->
+      <div v-else-if="shouldShowNoBudgetItemsState" class="flex justify-center space-x-3">
         <button @click="$emit('add-first-budget')" class="btn-primary">Add First Budget Item</button>
         <button v-if="canCopyFromPreviousYear" 
                 @click="$emit('copy-from-previous-year')" 
@@ -36,43 +27,24 @@
           📋 Copy from {{ selectedYear - 1 }}
         </button>
       </div>
-    </div>
-
-    <!-- Empty State for No Filtered Results -->
-    <div v-else-if="filteredBudgetItems.length === 0" class="text-center py-12">
-      <div class="text-gray-500 mb-4">
-        <div class="text-4xl mb-4">🔍</div>
-        <h3 class="text-lg font-medium text-gray-700 mb-2">No budget items found</h3>
-        <p class="text-sm text-gray-500 mb-4">
-          <span v-if="selectedTypeFilter !== 'all'">
-            No {{ selectedTypeFilter === 'income' ? 'income' : selectedTypeFilter === 'expense' ? 'expense' : 'investment' }} items 
-          </span>
-          <span v-if="selectedCategoryFilter !== 'all'">
-            <span v-if="selectedTypeFilter !== 'all'">in</span>
-            in the "{{ selectedCategoryFilter }}" category
-          </span>
-          <span v-if="selectedTypeFilter === 'all' && selectedCategoryFilter === 'all'">
-            No budget items
-          </span>
-          for {{ selectedYear }}
-        </p>
-        <div class="flex justify-center space-x-3">
-          <button @click="$emit('clear-filters')" class="text-sm text-blue-600 hover:text-blue-800 underline">
-            Clear filters
-          </button>
-          <button 
-            @click="$emit('add-budget')" 
-            :disabled="loading"
-            class="text-sm text-green-600 hover:text-green-800 underline disabled:text-gray-400 disabled:cursor-not-allowed">
-            Add budget item
-          </button>
-        </div>
+      
+      <!-- No Filtered Results Actions -->
+      <div v-else-if="shouldShowNoFilteredResultsState" class="flex justify-center space-x-3">
+        <button @click="$emit('clear-filters')" class="text-sm text-blue-600 hover:text-blue-800 underline">
+          Clear filters
+        </button>
+        <button 
+          @click="$emit('add-budget')" 
+          :disabled="loading"
+          class="text-sm text-green-600 hover:text-green-800 underline disabled:text-gray-400 disabled:cursor-not-allowed">
+          Add budget item
+        </button>
       </div>
     </div>
 
     <!-- Budget Table -->
-    <div v-else class="overflow-hidden max-h-[calc(100vh-3rem-100px)]">
-      <div class="overflow-auto max-h-[calc(100vh-6rem-100px)]">
+    <div v-else :class="getTableContainerClasses()">
+      <div :class="getTableScrollClasses()">
         <table class="min-w-full">
           <thead class="bg-gray-50 sticky top-0 z-30">
             <tr>
@@ -80,11 +52,7 @@
                 Budget Item
               </th>
               <th v-for="(month, index) in months" :key="month" 
-                  :class="[
-                    'px-4 py-3 text-center text-xs font-medium uppercase tracking-wider min-w-32 bg-gray-50',
-                    selectedYear === currentYear && index === currentMonth ? 
-                      'bg-blue-200 text-blue-900 font-bold' : 'text-gray-500'
-                  ]">
+                  :class="getMonthHeaderClasses(currentYear, currentMonth, index)">
                 {{ month }}
                 <span v-if="selectedYear === currentYear && index === currentMonth" class="block text-xs font-normal mt-1">
                   (Current)
@@ -172,10 +140,12 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import BudgetTableRow from './BudgetTableRow.vue'
 import BudgetTableGrouped from './BudgetTableGrouped.vue'
 import BudgetTableList from './BudgetTableList.vue'
 import BudgetTableSummary from './BudgetTableSummary.vue'
+import { useBudgetTable } from '@/composables/useBudgetTable.js'
 
 // Props
 const props = defineProps({
@@ -343,6 +313,28 @@ const props = defineProps({
     required: true
   }
 })
+
+// Use budget table composable
+const {
+  shouldShowEmptyState,
+  shouldShowLoadingState,
+  shouldShowErrorState,
+  shouldShowNoBudgetItemsState,
+  shouldShowNoFilteredResultsState,
+  emptyStateConfig,
+  getMonthHeaderClasses,
+  getTableContainerClasses,
+  getTableScrollClasses
+} = useBudgetTable(
+  computed(() => props.loading),
+  computed(() => props.error),
+  computed(() => props.budgetItems),
+  computed(() => props.filteredBudgetItems),
+  computed(() => props.selectedYear),
+  computed(() => props.selectedTypeFilter),
+  computed(() => props.selectedCategoryFilter),
+  computed(() => props.canCopyFromPreviousYear)
+)
 
 // Emits
 const emit = defineEmits([

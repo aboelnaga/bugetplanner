@@ -178,4 +178,67 @@ export const inputUtils = {
       formData.defaultAmount = numericValue
     }
   }
+}
+
+// Empty state utilities
+export const emptyStateUtils = {
+  // Generate empty state message based on filters
+  generateFilteredResultsMessage: (selectedTypeFilter, selectedCategoryFilter, selectedYear) => {
+    const parts = []
+    
+    if (selectedTypeFilter !== 'all') {
+      const typeLabel = selectedTypeFilter === 'income' ? 'income' : 
+                       selectedTypeFilter === 'expense' ? 'expense' : 'investment'
+      parts.push(`No ${typeLabel} items`)
+    }
+    
+    if (selectedCategoryFilter !== 'all') {
+      if (selectedTypeFilter !== 'all') {
+        parts.push('in')
+      }
+      parts.push(`in the "${selectedCategoryFilter}" category`)
+    }
+    
+    if (selectedTypeFilter === 'all' && selectedCategoryFilter === 'all') {
+      parts.push('No budget items')
+    }
+    
+    parts.push(`for ${selectedYear}`)
+    
+    return parts.join(' ')
+  },
+
+  // Format empty state title with dynamic values
+  formatEmptyStateTitle: (title, replacements = {}) => {
+    let formattedTitle = title
+    Object.entries(replacements).forEach(([key, value]) => {
+      formattedTitle = formattedTitle.replace(`{${key}}`, value)
+    })
+    return formattedTitle
+  }
+}
+
+// Table utilities
+export const tableUtils = {
+  // Get table header classes for month columns
+  getMonthHeaderClasses: (selectedYear, currentYear, currentMonth, monthIndex) => {
+    const baseClasses = 'px-4 py-3 text-center text-xs font-medium uppercase tracking-wider min-w-32 bg-gray-50'
+    const isCurrentMonth = selectedYear === currentYear && monthIndex === currentMonth
+    
+    if (isCurrentMonth) {
+      return `${baseClasses} bg-blue-200 text-blue-900 font-bold`
+    }
+    
+    return `${baseClasses} text-gray-500`
+  },
+
+  // Get table container classes
+  getTableContainerClasses: () => {
+    return 'overflow-hidden max-h-[calc(100vh-3rem-100px)]'
+  },
+
+  // Get table scroll container classes
+  getTableScrollClasses: () => {
+    return 'overflow-auto max-h-[calc(100vh-6rem-100px)]'
+  }
 } 

@@ -198,6 +198,37 @@ export const VIEW_MODES = {
 }
 
 // Default values
+
+// Empty state configurations
+export const EMPTY_STATES = {
+  LOADING: {
+    icon: '⏳',
+    title: 'Loading budget data...',
+    message: 'Please wait while we fetch your budget information.',
+    showActions: false
+  },
+  ERROR: {
+    icon: '⚠️',
+    title: 'Error loading budget data',
+    message: null, // Will be passed dynamically
+    showActions: true,
+    actions: ['retry']
+  },
+  NO_BUDGET_ITEMS: {
+    icon: '📊',
+    title: 'No budget items for {year}',
+    message: 'Start by adding your first budget item or copy from a previous year.',
+    showActions: true,
+    actions: ['add-first-budget', 'copy-from-previous-year']
+  },
+  NO_FILTERED_RESULTS: {
+    icon: '🔍',
+    title: 'No budget items found',
+    message: null, // Will be generated dynamically based on filters
+    showActions: true,
+    actions: ['clear-filters', 'add-budget']
+  }
+}
 export const DEFAULT_VALUES = {
   FORM_DATA: {
     name: '',
