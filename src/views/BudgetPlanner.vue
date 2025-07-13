@@ -670,39 +670,7 @@
       @budget-updated="handleBudgetUpdated" />
 
     <!-- History Modal -->
-    <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto relative">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">Budget Change History</h3>
-          <button 
-            @click="showHistoryModal = false" 
-            class="text-gray-400 hover:text-gray-600 transition-colors"
-            title="Close modal">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <div class="space-y-2">
-          <div v-for="change in budgetHistory" :key="change.id" 
-               class="flex justify-between items-center py-2 px-4 bg-gray-50 rounded">
-            <div>
-              <span class="font-medium">{{ change.budgetName }}</span>
-              <span class="text-gray-500">- {{ change.month }} {{ change.year }}</span>
-            </div>
-            <div>
-              <span class="text-red-600">{{ formatHistoryValue(change.oldValue) }}</span>
-              <span class="mx-2">→</span>
-              <span class="text-green-600">{{ formatHistoryValue(change.newValue) }}</span>
-            </div>
-            <div class="text-xs text-gray-500">{{ change.timestamp }}</div>
-          </div>
-        </div>
-        <div class="flex justify-end mt-4">
-          <button @click="showHistoryModal = false" class="btn-secondary">Close</button>
-        </div>
-      </div>
-    </div>
+    <HistoryModal v-model="showHistoryModal" />
   </div>
 </template>
 
@@ -713,6 +681,7 @@
   import { useAuthStore } from '@/stores/auth.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import EditBudgetModal from '@/components/EditBudgetModal.vue'
+  import HistoryModal from '@/components/HistoryModal.vue'
 
   // Stores
   const budgetStore = useBudgetStore()
@@ -825,9 +794,6 @@
     console.log('Budget item updated successfully:', budgetItem)
   }
 
-  // Budget history from store
-  const budgetHistory = computed(() => budgetStore.budgetHistory)
-
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -835,10 +801,6 @@
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(Math.abs(amount || 0))
-  }
-
-  const formatHistoryValue = (value) => {
-    return formatCurrency(value)
   }
 
 
@@ -858,7 +820,7 @@
   const hasChanges = (budgetId, monthIndex) => {
     if (!budgetId) return false
     // Check if this month/budget combination has been modified
-    return budgetHistory.value?.some(change => 
+    return budgetStore.budgetHistory?.some(change => 
       change.budgetId === budgetId && 
       change.monthIndex === monthIndex
     ) || false
