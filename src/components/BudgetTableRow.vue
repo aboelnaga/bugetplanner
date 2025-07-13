@@ -126,10 +126,8 @@ const props = defineProps({
 
 // Use budget table row composable
 const {
-  budgetTypeStyling,
   budgetTypeLabel,
   isIncomeType,
-  isExpenseType,
   getTypeBadgeClasses,
   getMonthlyCellClasses,
   getYearlyTotalCellClasses,

@@ -49,7 +49,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import { SUMMARY_ROWS } from '@/constants/budgetConstants.js'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
 
 // Props

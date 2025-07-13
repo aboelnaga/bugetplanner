@@ -38,6 +38,7 @@
 
 <script setup>
 import { computed } from 'vue'
+import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
 
 // Props
@@ -102,7 +103,7 @@ const {
   formatSummaryValue
 } = useBudgetSummaries(
   null, // budgetItems not needed for this component
-  computed(() => 'all'), // selectedTypeFilter not needed for expense summaries
+  computed(() => FILTER_OPTIONS.ALL), // selectedTypeFilter not needed for expense summaries
   computed(() => false), // hasIncomeData not needed
   computed(() => props.hasExpenseData),
   computed(() => false), // hasInvestmentData not needed

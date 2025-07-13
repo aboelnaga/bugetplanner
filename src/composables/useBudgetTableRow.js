@@ -6,11 +6,6 @@ import { BUDGET_TYPE_STYLES, TABLE_CELL_STYLES, ACTION_BUTTONS } from '@/constan
 import { tableUtils } from '@/utils/budgetUtils.js'
 
 export function useBudgetTableRow(budget) {
-  // Get budget type styling
-  const budgetTypeStyling = computed(() => {
-    return tableUtils.getBudgetTypeStyling(budget.value)
-  })
-
   // Get budget type label
   const budgetTypeLabel = computed(() => {
     return tableUtils.getBudgetTypeLabel(budget.value)
@@ -20,12 +15,6 @@ export function useBudgetTableRow(budget) {
   const isIncomeType = computed(() => {
     return budget.value.type === 'income' || 
            (budget.value.type === 'investment' && budget.value.investment_direction === 'incoming')
-  })
-
-  // Check if budget is expense type (including investment outgoing)
-  const isExpenseType = computed(() => {
-    return budget.value.type === 'expense' || 
-           (budget.value.type === 'investment' && budget.value.investment_direction === 'outgoing')
   })
 
   // Get type badge classes
@@ -73,10 +62,8 @@ export function useBudgetTableRow(budget) {
 
   return {
     // Budget type information
-    budgetTypeStyling,
     budgetTypeLabel,
     isIncomeType,
-    isExpenseType,
     
     // Styling functions
     getTypeBadgeClasses,

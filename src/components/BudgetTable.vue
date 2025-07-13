@@ -141,7 +141,6 @@
 
 <script setup>
 import { computed } from 'vue'
-import BudgetTableRow from './BudgetTableRow.vue'
 import BudgetTableGrouped from './BudgetTableGrouped.vue'
 import BudgetTableList from './BudgetTableList.vue'
 import BudgetTableSummary from './BudgetTableSummary.vue'
