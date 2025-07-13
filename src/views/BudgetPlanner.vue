@@ -663,182 +663,11 @@
       @budget-added="handleBudgetAdded" />
 
     <!-- Edit Budget Modal -->
-    <div v-if="showEditBudgetModal && editingBudget" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">Edit Budget Item</h3>
-          <button 
-            @click="cancelEdit" 
-            :disabled="isUpdatingBudget"
-            class="text-gray-400 hover:text-gray-600 disabled:text-gray-300 disabled:cursor-not-allowed transition-colors"
-            title="Close modal">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <form @submit.prevent="updateBudgetItem">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Name</label>
-              <input v-model="editingBudget.name" type="text" required 
-                     class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Budget Type</label>
-              <select v-model="editingBudget.type" @change="updateEditCategoryOnTypeChange"
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                <option value="expense">Expense</option>
-                <option value="income">Income</option>
-                <option value="investment">Investment</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Category</label>
-              <select v-model="editingBudget.category" 
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                <!-- Income Categories -->
-                <optgroup v-if="editingBudget.type === 'income'" label="Income Categories">
-                  <option value="Salary">Salary</option>
-                  <option value="Freelance">Freelance</option>
-                  <option value="Business">Business</option>
-                  <option value="Bonus">Bonus</option>
-                  <option value="Side Hustle">Side Hustle</option>
-                  <option value="Other Income">Other Income</option>
-                </optgroup>
-                <!-- Investment Categories -->
-                <optgroup v-else-if="editingBudget.type === 'investment'" label="Investment Categories">
-                  <option value="Real Estate Purchase">Real Estate Purchase</option>
-                  <option value="Real Estate Installment">Real Estate Installment</option>
-                  <option value="Rental Income">Rental Income</option>
-                  <option value="Stock Purchase">Stock Purchase</option>
-                  <option value="Stock Dividends">Stock Dividends</option>
-                  <option value="Gold Purchase">Gold Purchase</option>
-                  <option value="Gold Sale">Gold Sale</option>
-                  <option value="Mutual Funds">Mutual Funds</option>
-                  <option value="Retirement Fund">Retirement Fund</option>
-                  <option value="Crypto Purchase">Crypto Purchase</option>
-                  <option value="Crypto Sale">Crypto Sale</option>
-                  <option value="Investment Returns">Investment Returns</option>
-                  <option value="Capital Gains">Capital Gains</option>
-                  <option value="Other Investment">Other Investment</option>
-                </optgroup>
-                <!-- Expense Categories -->
-                <optgroup v-else label="Expense Categories">
-                  <option value="Essential">Essential</option>
-                  <option value="Lifestyle">Lifestyle</option>
-                  <option value="Savings">Savings</option>
-                  <option value="Investment">Investment</option>
-                  <option value="Education">Education</option>
-                  <option value="Transportation">Transportation</option>
-                  <option value="Healthcare">Healthcare</option>
-                  <option value="Food & Dining">Food & Dining</option>
-                  <option value="Housing">Housing</option>
-                  <option value="Utilities">Utilities</option>
-                  <option value="Entertainment">Entertainment</option>
-                  <option value="Shopping">Shopping</option>
-                  <option value="Travel">Travel</option>
-                  <option value="Insurance">Insurance</option>
-                  <option value="Debt Payments">Debt Payments</option>
-                  <option value="Charity">Charity</option>
-                  <option value="Other">Other</option>
-                </optgroup>
-              </select>
-            </div>
-            <div v-if="editingBudget.type === 'investment'">
-              <label class="block text-sm font-medium text-gray-700">Investment Direction</label>
-              <select v-model="editingBudget.investment_direction" 
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                <option value="outgoing">Outgoing (Purchase/Contribution)</option>
-                <option value="incoming">Incoming (Returns/Sales)</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Default Amount</label>
-              <input 
-                :value="formatNumberWithCommas(editingBudget.defaultAmount)"
-                @input="handleAmountInput($event, 'editingBudget')"
-                @keypress="allowOnlyNumbers($event)"
-                type="text" 
-                required 
-                class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-                placeholder="0" />
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700">Recurrence</label>
-              <select v-model="editingBudget.recurrence" @change="updateEditSchedule"
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly (Q1, Q2, Q3, Q4)</option>
-                <option value="bi-annual">Bi-Annual (Jan & Jul)</option>
-                <option value="school-terms">School Terms (Jan & Sep)</option>
-                <option value="custom">Custom Months</option>
-                <option value="one-time">One Time</option>
-              </select>
-            </div>
-            <div v-if="editingBudget.recurrence !== 'one-time' && editingBudget.recurrence !== 'custom'">
-              <label class="block text-sm font-medium text-gray-700">Start Month</label>
-              <select v-model="editingBudget.startMonth" 
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                <option v-for="(monthIndex, arrayIndex) in availableStartMonthIndices" :key="monthIndex" :value="monthIndex">
-                  {{ months[monthIndex] }} {{ getMonthLabel(monthIndex) }}
-                </option>
-              </select>
-              <p class="text-xs text-gray-500 mt-1">
-                <span v-if="editingBudget.recurrence === 'monthly'">Budget will start from this month and continue monthly until December</span>
-                <span v-else-if="editingBudget.recurrence === 'quarterly'">Budget will start from the first quarter at or after this month</span>
-                <span v-else-if="editingBudget.recurrence === 'bi-annual'">Budget will start from the first bi-annual period at or after this month</span>
-                <span v-else-if="editingBudget.recurrence === 'school-terms'">Budget will start from the first school term at or after this month</span>
-                <span v-else>Budget will start from this month and continue based on recurrence pattern</span>
-                <br>
-                <span v-if="selectedYear === budgetStore.currentYear" class="text-orange-600">Only current and future months are available for {{ budgetStore.currentYear }}</span>
-                <span v-else-if="selectedYear > budgetStore.currentYear" class="text-green-600">All months are available for future year {{ selectedYear }}</span>
-                <span v-else class="text-blue-600">All months are available for past year {{ selectedYear }}</span>
-              </p>
-            </div>
-            <div v-if="editingBudget.recurrence === 'custom'">
-              <label class="block text-sm font-medium text-gray-700">Select Months</label>
-              <div class="grid grid-cols-3 gap-2 mt-2">
-                <label v-for="(month, index) in months" :key="month" class="flex items-center">
-                  <input type="checkbox" v-model="editingBudget.customMonths" :value="index" class="mr-1" />
-                  <span class="text-sm">{{ month }}</span>
-                </label>
-              </div>
-            </div>
-            <div v-if="editingBudget.recurrence === 'one-time'">
-              <label class="block text-sm font-medium text-gray-700">Month</label>
-              <select v-model="editingBudget.oneTimeMonth" 
-                      class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-                <option v-for="(month, index) in months" :key="month" :value="index">{{ month }}</option>
-              </select>
-            </div>
-            <div class="bg-blue-50 p-3 rounded-md">
-              <p class="text-sm text-gray-700">
-                <strong>Note:</strong> Amounts will be recalculated from the start month onwards based on the new recurrence pattern.
-                Past months (before start month) will be preserved.
-              </p>
-            </div>
-          </div>
-          <div class="flex justify-end space-x-3 mt-6">
-            <button type="button" @click="cancelEdit" 
-                    :disabled="isUpdatingBudget" 
-                    class="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
-            <button type="submit" 
-                    :disabled="isUpdatingBudget" 
-                    class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-              <span v-if="isUpdatingBudget" class="flex items-center">
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Updating...
-              </span>
-              <span v-else>Update Budget</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <EditBudgetModal 
+      v-model="showEditBudgetModal"
+      :budget="editingBudget"
+      :selected-year="selectedYear"
+      @budget-updated="handleBudgetUpdated" />
 
     <!-- History Modal -->
     <div v-if="showHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -883,6 +712,7 @@
   import { useBudgetStore } from '@/stores/budget.js'
   import { useAuthStore } from '@/stores/auth.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
+  import EditBudgetModal from '@/components/EditBudgetModal.vue'
 
   // Stores
   const budgetStore = useBudgetStore()
@@ -897,7 +727,7 @@
   const selectedCategoryFilter = ref('all')
   const groupByCategory = ref(false)
 
-  const isUpdatingBudget = ref(false)
+
 
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -976,16 +806,7 @@
 
 
 
-  // Ensure edit start month is valid for the selected year
-  const ensureValidEditStartMonth = () => {
-    if (!editingBudget.value) return
-    
-    if (selectedYear.value === budgetStore.currentYear && editingBudget.value.startMonth < currentMonth.value) {
-      editingBudget.value.startMonth = currentMonth.value
-    } else if (selectedYear.value !== budgetStore.currentYear && editingBudget.value.startMonth < 0) {
-      editingBudget.value.startMonth = 0 // Default to January for non-current years
-    }
-  }
+
 
   // Open add budget modal with validation
   const openAddBudgetModal = () => {
@@ -996,6 +817,12 @@
     // Budget was successfully added, no additional action needed
     // The store will automatically update the budget items list
     console.log('Budget item added successfully:', budgetItem)
+  }
+
+  const handleBudgetUpdated = (budgetItem) => {
+    // Budget was successfully updated, no additional action needed
+    // The store will automatically update the budget items list
+    console.log('Budget item updated successfully:', budgetItem)
   }
 
   // Budget history from store
@@ -1014,45 +841,9 @@
     return formatCurrency(value)
   }
 
-  // Format number with commas every 3 digits
-  const formatNumberWithCommas = (value) => {
-    if (value === null || value === undefined || value === '') return ''
-    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-  }
 
-  // Parse formatted number back to numeric value
-  const parseFormattedNumber = (value) => {
-    if (value === null || value === undefined || value === '') return 0
-    return parseFloat(value.toString().replace(/,/g, '')) || 0
-  }
 
-  // Allow only numbers and specific keys (backspace, delete, arrow keys, etc.)
-  const allowOnlyNumbers = (event) => {
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
-    const allowedChars = /[0-9]/
-    
-    if (allowedKeys.includes(event.key) || allowedChars.test(event.key)) {
-      return true
-    }
-    
-    event.preventDefault()
-    return false
-  }
 
-  // Handle amount input with validation and formatting
-  const handleAmountInput = (event, target) => {
-    const input = event.target.value
-    const rawValue = input.replace(/,/g, '')
-    
-    // Only allow numbers
-    if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
-      const numericValue = parseFloat(rawValue) || 0
-      
-      if (target === 'editingBudget') {
-        editingBudget.value.defaultAmount = numericValue
-      }
-    }
-  }
 
   const isScheduledMonth = (budget, monthIndex) => {
     if (!budget || !budget.schedule) return false
@@ -1205,162 +996,16 @@
   }
 
   const editBudget = (budget) => {
-    // Create a deep copy of the budget for editing with proper field mapping
-    editingBudget.value = {
-      ...budget,
-      // Map snake_case database fields to camelCase frontend fields
-      defaultAmount: budget.default_amount || budget.defaultAmount || 0,
-      investment_direction: budget.investment_direction || budget.investment_direction || 'outgoing',
-      startMonth: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
-      amounts: [...budget.amounts],
-      schedule: [...budget.schedule],
-      customMonths: budget.customMonths ? [...budget.customMonths] : [],
-      oneTimeMonth: budget.oneTimeMonth || 0
-    }
-    
-    // Set custom months for custom recurrence
-    if (budget.recurrence === 'custom' && budget.schedule) {
-      editingBudget.value.customMonths = [...budget.schedule]
-    }
-    
-    // Set one-time month
-    if (budget.recurrence === 'one-time' && budget.schedule && budget.schedule.length > 0) {
-      editingBudget.value.oneTimeMonth = budget.schedule[0]
-    }
-    
-    // Ensure start month is valid for the current year context
-    ensureValidEditStartMonth()
-    
+    // Set the budget to edit - the modal component will handle form initialization
+    editingBudget.value = budget
     showEditBudgetModal.value = true
   }
 
-  const updateBudgetItem = async () => {
-    try {
-      isUpdatingBudget.value = true
-      
-      const originalBudget = budgetItems.value.find(b => b.id === editingBudget.value.id)
-      
-      if (!originalBudget) {
-        alert('Budget item not found. Please try again.')
-        return
-      }
-      
-      // Preserve existing amounts and only update from start month onwards
-      let newSchedule = []
-      let newAmounts = [...editingBudget.value.amounts] // Preserve existing amounts
-      
-      // Calculate schedule with start month consideration
-      const startMonth = editingBudget.value.startMonth
-      
-      // Clear amounts from start month onwards first
-      for (let i = startMonth; i < 12; i++) {
-        newAmounts[i] = 0
-      }
-      
-      switch (editingBudget.value.recurrence) {
-        case 'monthly':
-          // Start from specified month and continue for remaining months in the year
-          for (let month = startMonth; month < 12; month++) {
-            newSchedule.push(month)
-          }
-          break
-        case 'quarterly':
-          // Start from the first quarter that includes or comes after startMonth
-          const quarters = [0, 3, 6, 9] // Q1, Q2, Q3, Q4
-          newSchedule = quarters.filter(quarter => quarter >= startMonth)
-          break
-        case 'bi-annual':
-          // Start from the first bi-annual period that includes or comes after startMonth
-          const biAnnual = [0, 6] // January and July
-          newSchedule = biAnnual.filter(month => month >= startMonth)
-          break
-        case 'school-terms':
-          // Start from the first school term that includes or comes after startMonth
-          const schoolTerms = [0, 8] // January and September
-          newSchedule = schoolTerms.filter(month => month >= startMonth)
-          break
-        case 'custom':
-          newSchedule = [...editingBudget.value.customMonths]
-          break
-        case 'one-time':
-          newSchedule = [editingBudget.value.oneTimeMonth]
-          break
-      }
-      
-      // Set amounts for scheduled months
-      newSchedule.forEach(month => {
-        newAmounts[month] = editingBudget.value.defaultAmount
-      })
-      
-      // Create update data object
-      const updateData = {
-        name: editingBudget.value.name,
-        type: editingBudget.value.type,
-        category: editingBudget.value.category,
-        recurrence: editingBudget.value.recurrence,
-        default_amount: editingBudget.value.defaultAmount,
-        amounts: newAmounts,
-        schedule: newSchedule,
-        start_month: editingBudget.value.startMonth
-      }
-      
-      if (editingBudget.value.type === 'investment') {
-        updateData.investment_direction = editingBudget.value.investment_direction
-      }
-      
-      // Update via store
-      const result = await budgetStore.updateBudgetItem(editingBudget.value.id, updateData)
-      
-      if (result) {
-        // Close modal and reset
-        showEditBudgetModal.value = false
-        editingBudget.value = null
-      } else {
-        // Show error message
-        alert('Failed to update budget item. Please try again.')
-      }
-    } catch (error) {
-      console.error('Error updating budget item:', error)
-      alert('Error updating budget item: ' + (error.message || 'Unknown error'))
-    } finally {
-      isUpdatingBudget.value = false
-    }
-  }
 
-  const cancelEdit = () => {
-    showEditBudgetModal.value = false
-    editingBudget.value = null
-  }
 
-  const updateEditCategoryOnTypeChange = () => {
-    if (editingBudget.value.type === 'income') {
-      editingBudget.value.category = 'Salary'
-    } else if (editingBudget.value.type === 'investment') {
-      editingBudget.value.category = 'Real Estate Purchase'
-    } else {
-      editingBudget.value.category = 'Essential'
-    }
-    // Reset start month based on selected year
-    if (selectedYear.value === budgetStore.currentYear) {
-      editingBudget.value.startMonth = budgetStore.currentMonth
-    } else {
-      editingBudget.value.startMonth = 0 // Default to January for non-current years
-    }
-    ensureValidEditStartMonth()
-  }
 
-  const updateEditSchedule = () => {
-    // Reset custom selections when recurrence changes
-    editingBudget.value.customMonths = []
-    editingBudget.value.oneTimeMonth = 0
-    // Reset start month based on selected year
-    if (selectedYear.value === budgetStore.currentYear) {
-      editingBudget.value.startMonth = budgetStore.currentMonth
-    } else {
-      editingBudget.value.startMonth = 0 // Default to January for non-current years
-    }
-    ensureValidEditStartMonth()
-  }
+
+
 
   const duplicateBudget = async (budget) => {
     // Create a copy of the budget item
@@ -1569,31 +1214,7 @@
     }
   }
 
-  // Watch for year changes and adjust start month accordingly
-  watch(selectedYear, (newYear, oldYear) => {
-    // Handle edit budget modal
-    if (showEditBudgetModal.value && editingBudget.value) {
-      // Adjust start month when year changes while edit modal is open
-      if (newYear === budgetStore.currentYear) {
-        // Switching to current year: ensure start month is not in the past
-        if (editingBudget.value.startMonth < currentMonth.value) {
-          editingBudget.value.startMonth = currentMonth.value
-        }
-      } else if (newYear > budgetStore.currentYear) {
-        // Switching to future year: default to January if current selection is not valid
-        if (oldYear === budgetStore.currentYear && editingBudget.value.startMonth >= currentMonth.value) {
-          // Keep relative position from current month, but start from January
-          const monthsFromCurrent = editingBudget.value.startMonth - currentMonth.value
-          editingBudget.value.startMonth = Math.min(monthsFromCurrent, 11)
-        } else if (editingBudget.value.startMonth < 0 || editingBudget.value.startMonth > 11) {
-          editingBudget.value.startMonth = 0 // Default to January
-        }
-      } else {
-        // Switching to past year: default to January
-        editingBudget.value.startMonth = 0
-      }
-    }
-  })
+
 
   // Watch for authentication changes
   watch(() => authStore.isAuthenticated, (isAuthenticated) => {
