@@ -47,7 +47,7 @@ export const SUMMARY_ROWS = {
     bgColor: 'bg-indigo-50',
     textColor: 'text-indigo-600',
     stickyBgColor: 'bg-indigo-50',
-    showCondition: (hasInvestmentData) => hasInvestmentData
+    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentData
   },
   TOTAL_INCOME: {
     id: 'total-income',
@@ -56,7 +56,7 @@ export const SUMMARY_ROWS = {
     bgColor: 'bg-green-50',
     textColor: 'text-green-600',
     stickyBgColor: 'bg-green-50',
-    showCondition: (hasIncomeData) => hasIncomeData
+    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'income') && hasIncomeData
   },
   INVESTMENT_RETURNS: {
     id: 'investment-returns',
@@ -65,7 +65,7 @@ export const SUMMARY_ROWS = {
     bgColor: 'bg-green-50',
     textColor: 'text-green-600',
     stickyBgColor: 'bg-green-50',
-    showCondition: (hasInvestmentIncomingData) => hasInvestmentIncomingData
+    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentIncomingData
   },
   TOTAL_EXPENSES: {
     id: 'total-expenses',
@@ -74,7 +74,7 @@ export const SUMMARY_ROWS = {
     bgColor: 'bg-red-50',
     textColor: 'text-red-600',
     stickyBgColor: 'bg-red-50',
-    showCondition: (hasExpenseData) => hasExpenseData
+    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData, hasExpenseData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'expense') && hasExpenseData
   },
   INVESTMENT_PURCHASES: {
     id: 'investment-purchases',
@@ -83,7 +83,7 @@ export const SUMMARY_ROWS = {
     bgColor: 'bg-red-50',
     textColor: 'text-red-600',
     stickyBgColor: 'bg-red-50',
-    showCondition: (hasInvestmentOutgoingData) => hasInvestmentOutgoingData
+    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData, hasExpenseData, hasInvestmentOutgoingData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentOutgoingData
   }
 }
 

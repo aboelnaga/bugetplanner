@@ -59,6 +59,10 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  selectedTypeFilter: {
+    type: String,
+    required: true
+  },
   
   // Computed properties
   hasIncomeData: {
@@ -103,7 +107,7 @@ const {
   formatSummaryValue
 } = useBudgetSummaries(
   null, // budgetItems not needed for this component
-  computed(() => FILTER_OPTIONS.ALL), // selectedTypeFilter not needed for income summaries
+  computed(() => props.selectedTypeFilter),
   computed(() => props.hasIncomeData),
   computed(() => false), // hasExpenseData not needed
   computed(() => false), // hasInvestmentData not needed
