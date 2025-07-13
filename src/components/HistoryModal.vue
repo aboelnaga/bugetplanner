@@ -1,11 +1,22 @@
 <template>
-  <div v-if="modelValue" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[80vh] overflow-y-auto relative">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Budget Change History</h3>
+  <div v-if="modelValue" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[85vh] overflow-hidden flex flex-col">
+      <!-- Header -->
+      <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-blue-100 rounded-lg">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">Budget Change History</h3>
+            <p class="text-sm text-gray-600">Track all modifications to your budget items</p>
+          </div>
+        </div>
         <button 
           @click="closeModal" 
-          class="text-gray-400 hover:text-gray-600 transition-colors"
+          class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-200"
           title="Close modal">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -13,39 +24,170 @@
         </button>
       </div>
       
-      <!-- History Content -->
-      <div v-if="historyItems.length > 0" class="space-y-2">
-        <div v-for="change in historyItems" :key="change.id" 
-             class="flex justify-between items-center py-2 px-4 bg-gray-50 rounded hover:bg-gray-100 transition-colors">
-          <div class="flex-1">
-            <span class="font-medium text-gray-900">{{ getBudgetItemName(change.budget_item_id) }}</span>
-            <span class="text-gray-500 ml-2">- Month {{ change.month_index + 1 }}</span>
+      <!-- Content -->
+      <div class="flex-1 overflow-y-auto p-6">
+        <!-- History Content -->
+        <div v-if="historyItems.length > 0" class="space-y-4">
+          <!-- Summary Stats -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-green-600">Total Changes</p>
+                  <p class="text-2xl font-bold text-green-700">{{ historyItems.length }}</p>
+                </div>
+                <div class="p-2 bg-green-100 rounded-lg">
+                  <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-blue-600">Unique Items</p>
+                  <p class="text-2xl font-bold text-blue-700">{{ uniqueBudgetItems }}</p>
+                </div>
+                <div class="p-2 bg-blue-100 rounded-lg">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-purple-600">Latest Change</p>
+                  <p class="text-sm font-semibold text-purple-700">{{ latestChangeTime }}</p>
+                </div>
+                <div class="p-2 bg-purple-100 rounded-lg">
+                  <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-red-600 font-medium">{{ formatHistoryValue(change.old_amount) }}</span>
-            <span class="text-gray-400">→</span>
-            <span class="text-green-600 font-medium">{{ formatHistoryValue(change.new_amount) }}</span>
-          </div>
-          <div class="text-xs text-gray-500 ml-4">
-            {{ formatTimestamp(change.changed_at) }}
+
+          <!-- History List -->
+          <div class="space-y-3">
+            <div v-for="change in historyItems" :key="change.id" 
+                 class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-200 hover:border-blue-300">
+              <div class="flex items-start justify-between">
+                <!-- Left side: Item info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center space-x-3 mb-2">
+                    <div class="p-1.5 bg-blue-100 rounded-md">
+                      <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                    </div>
+                    <h4 class="font-semibold text-gray-900 truncate">{{ getBudgetItemName(change.budget_item_id) }}</h4>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      Month {{ change.month_index + 1 }}
+                    </span>
+                  </div>
+                  
+                  <!-- Change details -->
+                  <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm text-gray-500">From:</span>
+                      <span class="font-medium text-red-600">{{ formatHistoryValue(change.old_amount) }}</span>
+                    </div>
+                    <div class="flex items-center">
+                      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                      </svg>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm text-gray-500">To:</span>
+                      <span class="font-medium text-green-600">{{ formatHistoryValue(change.new_amount) }}</span>
+                    </div>
+                    
+                    <!-- Change indicator -->
+                    <div class="flex items-center space-x-1">
+                      <span v-if="change.new_amount > change.old_amount" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                        </svg>
+                        Increased
+                      </span>
+                      <span v-else-if="change.new_amount < change.old_amount" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                        Decreased
+                      </span>
+                      <span v-else class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path>
+                        </svg>
+                        No Change
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Right side: Timestamp -->
+                <div class="flex flex-col items-end space-y-1 ml-4">
+                  <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>{{ formatTimestamp(change.changed_at) }}</span>
+                  </div>
+                  <div class="text-xs text-gray-400">
+                    {{ formatFullDate(change.changed_at) }}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Empty State -->
-      <div v-else class="text-center py-8">
-        <div class="text-gray-400 mb-4">
-          <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
+        
+        <!-- Empty State -->
+        <div v-else class="text-center py-12">
+          <div class="max-w-md mx-auto">
+            <div class="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+              <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h4 class="text-xl font-semibold text-gray-900 mb-2">No Changes Yet</h4>
+            <p class="text-gray-600 mb-6">Budget changes will appear here once you start modifying amounts in your budget planner.</p>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div class="flex items-start space-x-3">
+                <div class="p-1 bg-blue-100 rounded">
+                  <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div class="text-sm text-blue-800">
+                  <p class="font-medium mb-1">How to see changes:</p>
+                  <ul class="space-y-1 text-blue-700">
+                    <li>• Edit budget items and save changes</li>
+                    <li>• Modify monthly amounts in the table</li>
+                    <li>• All changes are automatically tracked</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <h4 class="text-lg font-medium text-gray-900 mb-2">No Changes Yet</h4>
-        <p class="text-gray-500">Budget changes will appear here once you start modifying amounts.</p>
       </div>
       
       <!-- Footer -->
-      <div class="flex justify-end mt-6 pt-4 border-t border-gray-200">
-        <button @click="closeModal" class="btn-secondary">Close</button>
+      <div class="flex justify-between items-center p-6 border-t border-gray-200 bg-gray-50">
+        <div class="text-sm text-gray-600">
+          Showing {{ historyItems.length }} change{{ historyItems.length !== 1 ? 's' : '' }}
+        </div>
+        <button @click="closeModal" class="btn-primary">
+          Close
+        </button>
       </div>
     </div>
   </div>
@@ -77,6 +219,19 @@ const getBudgetItemName = (budgetItemId) => {
   const budgetItem = budgetStore.budgetItems.find(item => item.id === budgetItemId)
   return budgetItem ? budgetItem.name : `Budget Item #${budgetItemId}`
 }
+
+// Get unique budget items count
+const uniqueBudgetItems = computed(() => {
+  const uniqueIds = new Set(historyItems.value.map(item => item.budget_item_id))
+  return uniqueIds.size
+})
+
+// Get latest change time
+const latestChangeTime = computed(() => {
+  if (historyItems.value.length === 0) return 'No changes'
+  const latest = historyItems.value[0] // Already sorted by changed_at desc
+  return formatTimestamp(latest.changed_at)
+})
 
 // Format currency for history values
 const formatCurrency = (amount) => {
@@ -118,6 +273,25 @@ const formatTimestamp = (timestamp) => {
     }
   } catch (error) {
     // Fallback to original timestamp if parsing fails
+    return timestamp
+  }
+}
+
+// Format full date for detailed view
+const formatFullDate = (timestamp) => {
+  if (!timestamp) return ''
+  
+  try {
+    const date = new Date(timestamp)
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (error) {
     return timestamp
   }
 }
