@@ -1,7 +1,7 @@
 // Budget utilities
 // Formatting functions, validation helpers, date utilities
 
-import { BUDGET_TYPE_ICONS, BUDGET_TYPES, SUMMARY_VALUE_STYLES } from '@/constants/budgetConstants.js'
+import { BUDGET_TYPE_ICONS, BUDGET_TYPES, SUMMARY_VALUE_STYLES, BUDGET_TYPE_STYLES, TABLE_CELL_STYLES } from '@/constants/budgetConstants.js'
 
 // Currency formatting
 export const formatCurrency = (amount) => {
@@ -240,5 +240,89 @@ export const tableUtils = {
   // Get table scroll container classes
   getTableScrollClasses: () => {
     return 'overflow-auto max-h-[calc(100vh-6rem-100px)]'
+  },
+
+  // Get budget type styling based on budget object
+  getBudgetTypeStyling: (budget) => {
+    if (budget.type === 'income') {
+      return BUDGET_TYPE_STYLES.INCOME
+    } else if (budget.type === 'expense') {
+      return BUDGET_TYPE_STYLES.EXPENSE
+    } else if (budget.type === 'investment') {
+      return budget.investment_direction === 'incoming' 
+        ? BUDGET_TYPE_STYLES.INVESTMENT_INCOMING 
+        : BUDGET_TYPE_STYLES.INVESTMENT_OUTGOING
+    }
+    return BUDGET_TYPE_STYLES.EXPENSE // fallback
+  },
+
+  // Get category type styling based on group
+  getCategoryTypeStyling: (group, getCategoryType) => {
+    const categoryType = getCategoryType(group)
+    if (categoryType === 'income' || categoryType === 'investment-incoming') {
+      return { textColor: 'text-green-700' }
+    } else {
+      return { textColor: 'text-red-700' }
+    }
+  },
+
+  // Get monthly amount cell classes
+  getMonthlyAmountCellClasses: (budget, selectedYear, currentYear, currentMonth, monthIndex, isScheduledMonth, getBudgetAmount) => {
+    const baseClasses = 'w-full text-center py-2 px-2 rounded text-sm min-h-[2rem] flex items-center justify-center'
+    const typeStyling = tableUtils.getBudgetTypeStyling(budget)
+    const amount = getBudgetAmount(budget, monthIndex)
+    
+    let bgClasses = ''
+    let textClasses = ''
+    
+    // Background classes
+    if (selectedYear === currentYear && monthIndex < currentMonth) {
+      bgClasses = TABLE_CELL_STYLES.PAST_MONTH.bgColor
+      textClasses = TABLE_CELL_STYLES.PAST_MONTH.textColor
+    } else if (selectedYear === currentYear && monthIndex === currentMonth) {
+      bgClasses = `${TABLE_CELL_STYLES.CURRENT_MONTH.amountBgColor} ${TABLE_CELL_STYLES.CURRENT_MONTH.borderColor} ${TABLE_CELL_STYLES.CURRENT_MONTH.shadow}`
+    } else if (isScheduledMonth(budget, monthIndex)) {
+      bgClasses = typeStyling.amountBgColor
+    } else {
+      bgClasses = TABLE_CELL_STYLES.DEFAULT.bgColor
+    }
+    
+    // Text classes
+    if (amount > 0) {
+      textClasses = `font-semibold ${typeStyling.amountTextColor}`
+    } else {
+      textClasses = 'text-gray-400'
+    }
+    
+    return `${baseClasses} ${bgClasses} ${textClasses}`
+  },
+
+  // Get yearly total cell classes
+  getYearlyTotalCellClasses: (budget, calculateYearlyTotal) => {
+    const baseClasses = 'px-4 py-4 text-center font-semibold'
+    const typeStyling = tableUtils.getBudgetTypeStyling(budget)
+    const total = calculateYearlyTotal(budget)
+    
+    if (total > 0) {
+      return `${baseClasses} ${typeStyling.amountTextColor}`
+    } else {
+      return `${baseClasses} text-gray-400`
+    }
+  },
+
+  // Format amount with sign based on budget type
+  formatAmountWithSign: (amount, budget, formatCurrency) => {
+    if (amount <= 0) return '—'
+    
+    const isExpense = budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')
+    const sign = isExpense ? '-' : ''
+    return `${sign}${formatCurrency(amount)}`
+  },
+
+  // Get budget type label
+  getBudgetTypeLabel: (budget) => {
+    if (budget.type === 'income') return 'Income'
+    if (budget.type === 'investment') return 'Investment'
+    return 'Expense'
   }
 } 

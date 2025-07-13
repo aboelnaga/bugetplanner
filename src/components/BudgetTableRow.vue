@@ -5,14 +5,10 @@
       <div>
         <div class="flex items-center">
           <div class="font-semibold">{{ budget.name }}</div>
-          <span :class="[
-            'ml-2 px-2 py-1 text-xs rounded-full flex items-center',
-            budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          ]">
-            <TrendingUp v-if="budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming')" class="w-3 h-3 mr-1" />
+          <span :class="getTypeBadgeClasses()">
+            <TrendingUp v-if="isIncomeType" class="w-3 h-3 mr-1" />
             <TrendingDown v-else class="w-3 h-3 mr-1" />
-            {{ budget.type === 'income' ? 'Income' : 
-               budget.type === 'investment' ? 'Investment' : 'Expense' }}
+            {{ budgetTypeLabel }}
           </span>
         </div>
         <div class="text-xs text-gray-500">{{ budget.category }}</div>
@@ -20,7 +16,7 @@
           <Repeat class="w-3 h-3 mr-1" />
           {{ budget.recurrence }}
         </div>
-        <div v-if="budget.startMonth && budget.startMonth > 0 && budget.startMonth < months.length" class="text-xs text-orange-600 flex items-center">
+        <div v-if="shouldShowStartMonth(months)" class="text-xs text-orange-600 flex items-center">
           <Calendar class="w-3 h-3 mr-1" />
           Starts: {{ months[budget.startMonth] }}
         </div>
@@ -34,21 +30,9 @@
           selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : ''
         ]">
       <div class="relative">
-        <div :class="[
-          'w-full text-center py-2 px-2 rounded text-sm min-h-[2rem] flex items-center justify-center',
-          selectedYear === currentYear && index < currentMonth ? 
-            'bg-gray-100 text-gray-400' :
-            selectedYear === currentYear && index === currentMonth ? 
-              'bg-blue-50 border border-blue-200 shadow-sm' :
-              isScheduledMonth(budget, index) ? 
-                (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'bg-green-50' : 'bg-red-50') 
-                : 'bg-gray-50',
-          getBudgetAmount(budget, index) > 0 ? 
-            (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'font-semibold text-green-700' : 'font-semibold text-red-700') 
-            : 'text-gray-400'
-        ]">
+        <div :class="getMonthlyCellClasses(selectedYear, currentYear, currentMonth, index, isScheduledMonth, getBudgetAmount)">
           <span v-if="getBudgetAmount(budget, index) > 0">
-            {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')) ? '-' : '' }}{{ formatCurrency(getBudgetAmount(budget, index)) }}
+            {{ formatAmountWithSign(getBudgetAmount(budget, index), formatCurrency) }}
           </span>
           <span v-else class="text-gray-400">—</span>
         </div>
@@ -59,14 +43,9 @@
     </td>
 
     <!-- Yearly Total Cell -->
-    <td :class="[
-      'px-4 py-4 text-center font-semibold',
-      calculateYearlyTotal(budget) > 0 ? 
-        (budget.type === 'income' || (budget.type === 'investment' && budget.investment_direction === 'incoming') ? 'text-green-700' : 'text-red-700') 
-        : 'text-gray-400'
-    ]">
+    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)">
       <span v-if="calculateYearlyTotal(budget) > 0">
-        {{ (budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')) ? '-' : '' }}{{ formatCurrency(calculateYearlyTotal(budget)) }}
+        {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
       </span>
       <span v-else>—</span>
     </td>
@@ -75,18 +54,18 @@
     <td class="px-4 py-4 text-center sticky right-0 bg-white z-10">
       <div class="flex justify-center space-x-1">
         <button @click="$emit('edit-budget', budget)" 
-                title="Edit budget settings"
-                class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors">
+                :title="getActionButtonConfig('EDIT').title"
+                :class="`p-2 ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} rounded-md transition-colors`">
           <Edit class="w-5 h-5" />
         </button>
         <button @click="$emit('duplicate-budget', budget)" 
-                title="Duplicate this budget item"
-                class="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors">
+                :title="getActionButtonConfig('DUPLICATE').title"
+                :class="`p-2 ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} rounded-md transition-colors`">
           <Copy class="w-5 h-5" />
         </button>
         <button @click="$emit('delete-budget', budget.id)" 
-                title="Delete budget item"
-                class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors">
+                :title="getActionButtonConfig('DELETE').title"
+                :class="`p-2 ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} rounded-md transition-colors`">
           <Trash2 class="w-5 h-5" />
         </button>
       </div>
@@ -95,7 +74,9 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { Edit, Copy, Trash2, TrendingDown, TrendingUp, Calendar, Repeat } from 'lucide-vue-next'
+import { useBudgetTableRow } from '@/composables/useBudgetTableRow.js'
 
 // Props
 const props = defineProps({
@@ -142,6 +123,20 @@ const props = defineProps({
     required: true
   }
 })
+
+// Use budget table row composable
+const {
+  budgetTypeStyling,
+  budgetTypeLabel,
+  isIncomeType,
+  isExpenseType,
+  getTypeBadgeClasses,
+  getMonthlyCellClasses,
+  getYearlyTotalCellClasses,
+  formatAmountWithSign,
+  getActionButtonConfig,
+  shouldShowStartMonth
+} = useBudgetTableRow(computed(() => props.budget))
 
 // Emits
 const emit = defineEmits([

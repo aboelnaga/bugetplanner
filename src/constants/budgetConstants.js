@@ -199,6 +199,90 @@ export const VIEW_MODES = {
 
 // Default values
 
+// Budget type styling configurations
+export const BUDGET_TYPE_STYLES = {
+  INCOME: {
+    bgColor: 'bg-green-100',
+    textColor: 'text-green-800',
+    amountTextColor: 'text-green-700',
+    amountBgColor: 'bg-green-50',
+    icon: 'TrendingUp',
+    label: 'Income'
+  },
+  EXPENSE: {
+    bgColor: 'bg-red-100',
+    textColor: 'text-red-800',
+    amountTextColor: 'text-red-700',
+    amountBgColor: 'bg-red-50',
+    icon: 'TrendingDown',
+    label: 'Expense'
+  },
+  INVESTMENT_INCOMING: {
+    bgColor: 'bg-green-100',
+    textColor: 'text-green-800',
+    amountTextColor: 'text-green-700',
+    amountBgColor: 'bg-green-50',
+    icon: 'TrendingUp',
+    label: 'Investment'
+  },
+  INVESTMENT_OUTGOING: {
+    bgColor: 'bg-red-100',
+    textColor: 'text-red-800',
+    amountTextColor: 'text-red-700',
+    amountBgColor: 'bg-red-50',
+    icon: 'TrendingDown',
+    label: 'Investment'
+  }
+}
+
+// Table cell styling configurations
+export const TABLE_CELL_STYLES = {
+  CURRENT_MONTH: {
+    bgColor: 'bg-blue-100',
+    amountBgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+    shadow: 'shadow-sm'
+  },
+  PAST_MONTH: {
+    bgColor: 'bg-gray-100',
+    textColor: 'text-gray-400'
+  },
+  SCHEDULED_MONTH: {
+    incomeBgColor: 'bg-green-50',
+    expenseBgColor: 'bg-red-50'
+  },
+  DEFAULT: {
+    bgColor: 'bg-gray-50'
+  },
+  CHANGES_INDICATOR: {
+    bgColor: 'bg-orange-500',
+    borderColor: 'border-white',
+    shadow: 'shadow-sm'
+  }
+}
+
+// Action button configurations
+export const ACTION_BUTTONS = {
+  EDIT: {
+    color: 'text-blue-600',
+    hoverColor: 'hover:text-blue-800',
+    hoverBg: 'hover:bg-blue-50',
+    title: 'Edit budget settings'
+  },
+  DUPLICATE: {
+    color: 'text-green-600',
+    hoverColor: 'hover:text-green-800',
+    hoverBg: 'hover:bg-green-50',
+    title: 'Duplicate this budget item'
+  },
+  DELETE: {
+    color: 'text-red-600',
+    hoverColor: 'hover:text-red-800',
+    hoverBg: 'hover:bg-red-50',
+    title: 'Delete budget item'
+  }
+}
+
 // Empty state configurations
 export const EMPTY_STATES = {
   LOADING: {

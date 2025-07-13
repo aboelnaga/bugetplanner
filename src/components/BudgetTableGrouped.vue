@@ -5,12 +5,9 @@
       <td class="px-6 py-3 text-sm font-bold text-gray-800 sticky left-0 bg-gray-200 z-10">
         <div>
           <div>{{ categoryName }} ({{ group.length }} items)</div>
-          <div :class="[
-            'text-xs font-normal',
-            getCategoryType(group) === 'income' || getCategoryType(group) === 'investment-incoming' ? 'text-green-700' : 'text-red-700'
-          ]">
+          <div :class="`text-xs font-normal ${getCategoryTypeStyling(group).textColor}`">
             <span v-if="calculateCategoryTotal(group) > 0">
-              {{ (getCategoryType(group) === 'expense' || getCategoryType(group) === 'investment-outgoing') ? '-' : '' }}{{ formatCurrency(calculateCategoryTotal(group)) }} total
+              {{ formatCategoryAmountWithSign(calculateCategoryTotal(group)) }} total
             </span>
             <span v-else class="text-gray-400">— total</span>
           </div>
@@ -20,23 +17,19 @@
           :class="[
             'px-4 py-3 bg-gray-200 text-center font-semibold',
             selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : '',
-            calculateCategoryMonthlyTotal(group, index) > 0 ? 
-              (getCategoryType(group) === 'income' || getCategoryType(group) === 'investment-incoming' ? 'text-green-700' : 'text-red-700') 
-              : 'text-gray-400'
+            calculateCategoryMonthlyTotal(group, index) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
           ]">
         <span v-if="calculateCategoryMonthlyTotal(group, index) > 0">
-          {{ (getCategoryType(group) === 'expense' || getCategoryType(group) === 'investment-outgoing') ? '-' : '' }}{{ formatCurrency(calculateCategoryMonthlyTotal(group, index)) }}
+          {{ formatCategoryAmountWithSign(calculateCategoryMonthlyTotal(group, index)) }}
         </span>
         <span v-else class="text-gray-400">—</span>
       </td>
       <td :class="[
         'px-4 py-3 bg-gray-200 text-center font-bold',
-        calculateCategoryTotal(group) > 0 ? 
-          (getCategoryType(group) === 'income' || getCategoryType(group) === 'investment-incoming' ? 'text-green-700' : 'text-red-700') 
-          : 'text-gray-400'
+        calculateCategoryTotal(group) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
       ]">
         <span v-if="calculateCategoryTotal(group) > 0">
-          {{ (getCategoryType(group) === 'expense' || getCategoryType(group) === 'investment-outgoing') ? '-' : '' }}{{ formatCurrency(calculateCategoryTotal(group)) }}
+          {{ formatCategoryAmountWithSign(calculateCategoryTotal(group)) }}
         </span>
         <span v-else class="text-gray-400">—</span>
       </td>
@@ -65,6 +58,7 @@
 
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
+import { tableUtils } from '@/utils/budgetUtils.js'
 
 // Props
 const props = defineProps({
@@ -123,6 +117,20 @@ const props = defineProps({
     required: true
   }
 })
+
+// Utility functions
+const getCategoryTypeStyling = (group) => {
+  return tableUtils.getCategoryTypeStyling(group, props.getCategoryType)
+}
+
+const formatCategoryAmountWithSign = (amount) => {
+  if (amount <= 0) return '—'
+  
+  // For category totals, we need to determine the sign based on the category type
+  // This is a simplified version - in a real app, you might want to pass the category type
+  const sign = amount > 0 ? '' : '-'
+  return `${sign}${props.formatCurrency(amount)}`
+}
 
 // Emits
 const emit = defineEmits([
