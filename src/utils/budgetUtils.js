@@ -59,17 +59,26 @@ export const summaryUtils = {
     
     let classes = baseClasses
     
+    // Apply current month styling first (highest priority)
+    if (isCurrentMonth) {
+      classes += ` ${SUMMARY_VALUE_STYLES.CURRENT_MONTH.bgColor}`
+    }
+    
     // Use summary row styling if provided (for expense/investment purchase rows)
     if (summaryRowStyling) {
-      classes += ` ${summaryRowStyling.textColor} ${summaryRowStyling.bgColor}`
+      classes += ` ${summaryRowStyling.textColor}`
+      // Only apply summary row background if not current month
+      if (!isCurrentMonth) {
+        classes += ` ${summaryRowStyling.bgColor}`
+      }
     } else {
       // Use value-based styling for other summary rows
       const valueStyles = summaryUtils.getValueStyles(value)
-      classes += ` ${valueStyles.textColor} ${valueStyles.bgColor}`
-    }
-    
-    if (isCurrentMonth) {
-      classes += ` ${SUMMARY_VALUE_STYLES.CURRENT_MONTH.bgColor}`
+      classes += ` ${valueStyles.textColor}`
+      // Only apply value-based background if not current month
+      if (!isCurrentMonth) {
+        classes += ` ${valueStyles.bgColor}`
+      }
     }
     
     return classes

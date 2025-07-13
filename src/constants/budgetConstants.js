@@ -105,7 +105,7 @@ export const SUMMARY_VALUE_STYLES = {
     borderColor: 'border-gray-300'
   },
   CURRENT_MONTH: {
-    bgColor: 'bg-blue-400'
+    bgColor: 'bg-blue-100'
   }
 }
 
