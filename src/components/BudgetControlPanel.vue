@@ -49,7 +49,7 @@
             @change="$emit('update:selectedTypeFilter', $event.target.value)"
             class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white hover:border-gray-400 focus:border-blue-500"
           >
-            <option value="all">All Types</option>
+            <option :value="FILTER_OPTIONS.ALL">All Types</option>
             <option v-for="(label, type) in BUDGET_TYPE_LABELS" :key="type" :value="type">{{ getBudgetTypeIcon(type) }} {{ label }}</option>
           </select>
         </div>
@@ -59,7 +59,7 @@
           @change="$emit('update:selectedCategoryFilter', $event.target.value)"
           class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white hover:border-gray-400 focus:border-blue-500"
         >
-          <option value="all">All Categories</option>
+          <option :value="FILTER_OPTIONS.ALL">All Categories</option>
           <option v-for="category in uniqueCategories" :key="category" :value="category">{{ category }}</option>
         </select>
       </div>
@@ -102,28 +102,28 @@
     </div>
     
     <!-- Active Filters Row (only show when filters are active) -->
-    <div v-if="selectedTypeFilter !== 'all' || selectedCategoryFilter !== 'all'" class="mt-3 pt-3 border-t border-gray-200">
+    <div v-if="selectedTypeFilter !== FILTER_OPTIONS.ALL || selectedCategoryFilter !== FILTER_OPTIONS.ALL" class="mt-3 pt-3 border-t border-gray-200">
       <div class="flex items-center space-x-2">
         <span class="text-xs font-medium text-gray-500">Filters:</span>
         <span 
-          v-if="selectedTypeFilter !== 'all'" 
+          v-if="selectedTypeFilter !== FILTER_OPTIONS.ALL" 
           class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
         >
           {{ getBudgetTypeIcon(selectedTypeFilter) }}
           <button 
-            @click="$emit('update:selectedTypeFilter', 'all')" 
+            @click="$emit('update:selectedTypeFilter', FILTER_OPTIONS.ALL)" 
             class="ml-1 text-blue-600 hover:text-blue-800"
           >
             ×
           </button>
         </span>
         <span 
-          v-if="selectedCategoryFilter !== 'all'" 
+          v-if="selectedCategoryFilter !== FILTER_OPTIONS.ALL" 
           class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
         >
           {{ selectedCategoryFilter }}
           <button 
-            @click="$emit('update:selectedCategoryFilter', 'all')" 
+            @click="$emit('update:selectedCategoryFilter', FILTER_OPTIONS.ALL)" 
             class="ml-1 text-green-600 hover:text-green-800"
           >
             ×
@@ -145,7 +145,7 @@ import { computed } from 'vue'
 import { Calendar, Copy, Settings } from 'lucide-vue-next'
 
 // Import constants and utilities
-import { BUDGET_TYPE_LABELS } from '@/constants/budgetConstants.js'
+import { BUDGET_TYPES, BUDGET_TYPE_LABELS, FILTER_OPTIONS } from '@/constants/budgetConstants.js'
 import { getBudgetTypeIcon } from '@/utils/budgetUtils.js'
 
 // Props
@@ -197,18 +197,14 @@ const emit = defineEmits([
 
 // Computed properties for quick stats
 const incomeCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === 'income').length
+  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.INCOME).length
 })
 
 const expenseCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === 'expense').length
+  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.EXPENSE).length
 })
 
 const investmentCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === 'investment').length
-})
-
-const totalCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b).length
+  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.INVESTMENT).length
 })
 </script> 
