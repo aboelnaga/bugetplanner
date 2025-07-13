@@ -11,108 +11,24 @@
       </div>
     </div>
 
-    <!-- Compact Control Panel -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
-      <div class="flex flex-wrap items-center justify-between gap-4">
-        
-        <!-- Left: Year & Actions -->
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <Calendar class="w-4 h-4 text-blue-600" />
-            <span class="text-sm font-medium text-gray-700">Year:</span>
-            <select v-model="selectedYear" class="border border-gray-300 rounded-md px-3 py-1 text-sm font-semibold text-blue-600 bg-white hover:border-gray-400 focus:border-blue-500">
-              <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
-            </select>
-          </div>
-          
-          <div class="flex items-center space-x-2">
-            <button @click="addNewYear" 
-                    title="Add a new year to plan"
-                    class="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-md transition-colors">
-              <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-              </svg>
-              Add Year
-            </button>
-            
-            <button v-if="budgetItems.length === 0 && canCopyFromPreviousYear" 
-                    @click="copyFromPreviousYear" 
-                    title="Copy budget items from previous year"
-                    class="inline-flex items-center px-3 py-1 text-xs font-medium text-green-600 hover:bg-green-50 rounded-md transition-colors">
-              <Copy class="w-3 h-3 mr-1" />
-              Copy {{ selectedYear - 1 }}
-            </button>
-          </div>
-        </div>
-        
-        <!-- Center: Filters -->
-        <div class="flex items-center space-x-4">
-          <div class="flex items-center space-x-2">
-            <Settings class="w-4 h-4 text-gray-500" />
-            <select v-model="selectedTypeFilter" class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white hover:border-gray-400 focus:border-blue-500">
-              <option value="all">All Types</option>
-              <option value="income">💰 Income</option>
-              <option value="expense">💸 Expenses</option>
-              <option value="investment">📈 Investments</option>
-            </select>
-          </div>
-          
-          <select v-model="selectedCategoryFilter" class="border border-gray-300 rounded-md px-3 py-1 text-sm bg-white hover:border-gray-400 focus:border-blue-500">
-            <option value="all">All Categories</option>
-            <option v-for="category in uniqueCategories" :key="category" :value="category">{{ category }}</option>
-          </select>
-        </div>
-        
-        <!-- Right: View & Stats -->
-        <div class="flex items-center space-x-4">
-          <!-- Quick Stats -->
-          <div class="flex items-center space-x-4">
-            <span class="text-sm text-gray-600">
-              <span class="text-green-600 font-semibold">{{ (budgetItems || []).filter(b => b && b.type === 'income').length }} income</span>
-              <span class="mx-2">•</span>
-              <span class="text-red-600 font-semibold">{{ (budgetItems || []).filter(b => b && b.type === 'expense').length }} expenses</span>
-              <span class="mx-2">•</span>
-              <span class="text-purple-600 font-semibold">
-                {{ (budgetItems || []).filter(b => b && b.type === 'investment').length }} investment
-              </span>
-              <span class="text-blue-600 font-semibold">{{ (budgetItems || []).filter(b => b).length }}</span>
-            </span>
-            
-            <!-- View Toggle -->
-            <div class="flex items-center bg-gray-100 rounded-md p-0.5">
-              <button @click="groupByCategory = false" :class="[
-                'px-2 py-1 rounded text-xs font-medium transition-all duration-200',
-                !groupByCategory ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
-              ]">
-                List
-              </button>
-              <button @click="groupByCategory = true" :class="[
-                'px-2 py-1 rounded text-xs font-medium transition-all duration-200',
-                groupByCategory ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'
-              ]">
-                Grouped
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Active Filters Row (only show when filters are active) -->
-      <div v-if="selectedTypeFilter !== 'all' || selectedCategoryFilter !== 'all'" class="mt-3 pt-3 border-t border-gray-200">
-        <div class="flex items-center space-x-2">
-          <span class="text-xs font-medium text-gray-500">Filters:</span>
-          <span v-if="selectedTypeFilter !== 'all'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            {{ selectedTypeFilter === 'income' ? '💰' : selectedTypeFilter === 'expense' ? '💸' : '📈' }}
-            <button @click="selectedTypeFilter = 'all'" class="ml-1 text-blue-600 hover:text-blue-800">×</button>
-          </span>
-          <span v-if="selectedCategoryFilter !== 'all'" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            {{ selectedCategoryFilter }}
-            <button @click="selectedCategoryFilter = 'all'" class="ml-1 text-green-600 hover:text-green-800">×</button>
-          </span>
-          <button @click="clearAllFilters" class="text-xs text-gray-500 hover:text-gray-700 underline">Clear all</button>
-        </div>
-      </div>
-    </div>
+    <!-- Budget Control Panel -->
+    <BudgetControlPanel
+      :selected-year="selectedYear"
+      :available-years="availableYears"
+      :selected-type-filter="selectedTypeFilter"
+      :selected-category-filter="selectedCategoryFilter"
+      :unique-categories="uniqueCategories"
+      :can-copy-from-previous-year="canCopyFromPreviousYear"
+      :group-by-category="groupByCategory"
+      :budget-items="budgetItems"
+      @update:selected-year="(year) => selectedYear = year"
+      @update:selected-type-filter="(filter) => selectedTypeFilter = filter"
+      @update:selected-category-filter="(filter) => selectedCategoryFilter = filter"
+      @update:group-by-category="(grouped) => groupByCategory = grouped"
+      @add-year="addNewYear"
+      @copy-from-previous-year="copyFromPreviousYear"
+      @clear-filters="clearAllFilters"
+    />
 
     <!-- Budget Table -->
     <BudgetTable
@@ -191,6 +107,7 @@
   import EditBudgetModal from '@/components/EditBudgetModal.vue'
   import HistoryModal from '@/components/HistoryModal.vue'
   import BudgetTable from '@/components/BudgetTable.vue'
+  import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
 
   // Stores
   const budgetStore = useBudgetStore()
