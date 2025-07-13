@@ -7,9 +7,10 @@ import {
   RECURRENCE_TYPES, 
   INVESTMENT_DIRECTIONS, 
   SCHEDULE_PATTERNS,
-  DEFAULT_VALUES 
+  DEFAULT_VALUES,
+  CATEGORIES_BY_TYPE
 } from '@/constants/budgetConstants.js'
-import { dateUtils, validationHelpers } from '@/utils/budgetUtils.js'
+import { dateUtils, validationHelpers, scheduleUtils, formatCurrency } from '@/utils/budgetUtils.js'
 
 export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth) {
   // Modal state
@@ -38,12 +39,30 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     }
   }
 
+  // Get categories by type
+  const getCategoriesByType = (type) => {
+    return CATEGORIES_BY_TYPE[type] || CATEGORIES_BY_TYPE[BUDGET_TYPES.EXPENSE]
+  }
+
   // Update category when type changes
   const updateCategoryOnTypeChange = () => {
-    formData.value.category = DEFAULT_VALUES.CATEGORIES_BY_TYPE[formData.value.type]
+    const categories = getCategoriesByType(formData.value.type)
+    formData.value.category = categories[0]
     
     // Reset start month based on selected year
     formData.value.startMonth = dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
+    ensureValidStartMonth()
+  }
+
+  // Update schedule when recurrence changes
+  const updateSchedule = () => {
+    // Reset custom selections when recurrence changes
+    formData.value.customMonths = []
+    formData.value.oneTimeMonth = 0
+    
+    // Reset start month based on selected year
+    formData.value.startMonth = dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
+    ensureValidStartMonth()
   }
 
   // Ensure start month is valid for the selected year
@@ -56,45 +75,246 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     )
   }
 
-  // Generate schedule based on recurrence
-  const generateSchedule = (recurrence, startMonth, customMonths = [], oneTimeMonth = 0) => {
-    let schedule = []
-    let amounts = new Array(12).fill(0)
-    
-    switch (recurrence) {
-      case RECURRENCE_TYPES.MONTHLY:
-        // Start from specified month and continue for remaining months in the year
-        schedule = []
-        for (let month = startMonth; month < 12; month++) {
-          schedule.push(month)
-        }
-        break
-      case RECURRENCE_TYPES.QUARTERLY:
-        // Start from the first quarter that includes or comes after startMonth
-        schedule = SCHEDULE_PATTERNS[RECURRENCE_TYPES.QUARTERLY].filter(quarter => quarter >= startMonth)
-        break
-      case RECURRENCE_TYPES.BI_ANNUAL:
-        // Start from the first bi-annual period that includes or comes after startMonth
-        schedule = SCHEDULE_PATTERNS[RECURRENCE_TYPES.BI_ANNUAL].filter(month => month >= startMonth)
-        break
-      case RECURRENCE_TYPES.SCHOOL_TERMS:
-        // Start from the first school term that includes or comes after startMonth
-        schedule = SCHEDULE_PATTERNS[RECURRENCE_TYPES.SCHOOL_TERMS].filter(month => month >= startMonth)
-        break
-      case RECURRENCE_TYPES.CUSTOM:
-        schedule = [...customMonths]
-        break
-      case RECURRENCE_TYPES.ONE_TIME:
-        schedule = [oneTimeMonth]
-        break
+  // Get available start month indices
+  const getAvailableStartMonthIndices = () => {
+    return dateUtils.getAvailableStartMonthIndices(selectedYear.value, currentYear.value, currentMonth.value)
+  }
+
+  // Get month label based on selected year and current date
+  const getMonthLabel = (monthIndex) => {
+    if (selectedYear.value === currentYear.value) {
+      if (monthIndex === currentMonth.value) return '(Current)'
+      if (monthIndex === currentMonth.value + 1) return '(Next)'
+    } else if (selectedYear.value > currentYear.value) {
+      if (monthIndex === 0) return '(Jan of future year)'
+    } else {
+      return '(Past year)'
     }
+    return ''
+  }
 
-    // Populate amounts array
-    schedule.forEach(month => {
-      amounts[month] = formData.value.defaultAmount
-    })
+  // Generate schedule based on form data
+  const generateSchedule = () => {
+    return scheduleUtils.generateSchedule(
+      formData.value.recurrence,
+      formData.value.startMonth,
+      formData.value.customMonths,
+      formData.value.oneTimeMonth,
+      formData.value.defaultAmount
+    )
+  }
 
-    return { schedule, amounts }
+  // Get schedule preview class
+  const getSchedulePreviewClass = (monthIndex) => {
+    return scheduleUtils.getSchedulePreviewClass(
+      monthIndex,
+      formData.value.recurrence,
+      formData.value.startMonth,
+      formData.value.customMonths,
+      formData.value.oneTimeMonth
+    )
+  }
+
+  // Calculate total amount
+  const calculateTotalAmount = () => {
+    return scheduleUtils.calculateTotalAmount(
+      formData.value.recurrence,
+      formData.value.startMonth,
+      formData.value.customMonths,
+      formData.value.oneTimeMonth,
+      formData.value.defaultAmount
+    )
+  }
+
+  // Handle amount input with currency formatting
+  const handleAmountInput = (event) => {
+    const input = event.target
+    const value = input.value
+    
+    // Remove all non-numeric characters except decimal point
+    const numericValue = value.replace(/[^\d.]/g, '')
+    
+    // Ensure only one decimal point
+    const parts = numericValue.split('.')
+    const cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
+    
+    // Convert to number
+    const numberValue = parseFloat(cleanValue) || 0
+    
+    // Update form data
+    formData.value.defaultAmount = numberValue
+    
+    // Update input value with formatted display
+    input.value = formatCurrency(numberValue)
+  }
+
+  // Validate form data
+  const validateFormData = () => {
+    const errors = []
+    
+    if (!formData.value.name.trim()) {
+      errors.push('Name is required')
+    }
+    
+    if (formData.value.defaultAmount <= 0) {
+      errors.push('Default amount must be greater than 0')
+    }
+    
+    if (formData.value.recurrence === 'custom' && formData.value.customMonths.length === 0) {
+      errors.push('Please select at least one custom month')
+    }
+    
+    if (formData.value.recurrence === 'one-time' && formData.value.oneTimeMonth === undefined) {
+      errors.push('Please select a month for one-time recurrence')
+    }
+    
+    return errors
+  }
+
+  // Create budget data object for submission
+  const createBudgetData = () => {
+    const { schedule, amounts } = generateSchedule()
+
+    return {
+      name: formData.value.name,
+      type: formData.value.type,
+      category: formData.value.category,
+      recurrence: formData.value.recurrence,
+      default_amount: formData.value.defaultAmount,
+      amounts: amounts,
+      schedule: schedule,
+      investment_direction: formData.value.investment_direction,
+      start_month: formData.value.startMonth
+    }
+  }
+
+  // Handle form submission for add modal
+  const handleAddSubmit = async () => {
+    try {
+      isLoading.value = true
+      
+      const errors = validateFormData()
+      if (errors.length > 0) {
+        alert('Please fix the following errors:\n' + errors.join('\n'))
+        return false
+      }
+
+      const budgetData = createBudgetData()
+      console.log('Adding budget item with data:', budgetData)
+      
+      const result = await budgetStore.addBudgetItem(budgetData)
+      console.log('Store result:', result)
+      
+      if (result) {
+        resetFormData()
+        return result
+      } else {
+        alert('Failed to add budget item. Please try again.')
+        return false
+      }
+    } catch (error) {
+      console.error('Error adding budget item:', error)
+      alert('Error adding budget item: ' + (error.message || 'Unknown error'))
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Handle form submission for edit modal
+  const handleEditSubmit = async (budgetId) => {
+    try {
+      isLoading.value = true
+      
+      const errors = validateFormData()
+      if (errors.length > 0) {
+        alert('Please fix the following errors:\n' + errors.join('\n'))
+        return false
+      }
+
+      // Preserve existing amounts and only update from start month onwards
+      let newSchedule = []
+      let newAmounts = [...formData.value.amounts] // Preserve existing amounts
+      
+      // Calculate schedule with start month consideration
+      const startMonth = formData.value.startMonth
+      
+      // Clear amounts from start month onwards first
+      for (let i = startMonth; i < 12; i++) {
+        newAmounts[i] = 0
+      }
+      
+      const { schedule } = generateSchedule()
+      newSchedule = schedule
+      
+      // Set amounts for scheduled months
+      newSchedule.forEach(month => {
+        newAmounts[month] = formData.value.defaultAmount
+      })
+      
+      // Create update data object
+      const updateData = {
+        name: formData.value.name,
+        type: formData.value.type,
+        category: formData.value.category,
+        recurrence: formData.value.recurrence,
+        default_amount: formData.value.defaultAmount,
+        amounts: newAmounts,
+        schedule: newSchedule,
+        start_month: formData.value.startMonth
+      }
+      
+      if (formData.value.type === 'investment') {
+        updateData.investment_direction = formData.value.investment_direction
+      }
+      
+      console.log('Updating budget item with data:', updateData)
+      const result = await budgetStore.updateBudgetItem(budgetId, updateData)
+      console.log('Store result:', result)
+      
+      if (result) {
+        return result
+      } else {
+        alert('Failed to update budget item. Please try again.')
+        return false
+      }
+    } catch (error) {
+      console.error('Error updating budget item:', error)
+      alert('Error updating budget item: ' + (error.message || 'Unknown error'))
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Initialize form data when budget prop changes (for edit modal)
+  const initializeFormDataFromBudget = (budget) => {
+    if (budget) {
+      formData.value = {
+        ...budget,
+        // Map snake_case database fields to camelCase frontend fields
+        defaultAmount: budget.default_amount || budget.defaultAmount || 0,
+        investment_direction: budget.investment_direction || budget.investment_direction || 'outgoing',
+        startMonth: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
+        amounts: [...budget.amounts],
+        schedule: [...budget.schedule],
+        customMonths: budget.customMonths ? [...budget.customMonths] : [],
+        oneTimeMonth: budget.oneTimeMonth || 0
+      }
+      
+      // Set custom months for custom recurrence
+      if (budget.recurrence === 'custom' && budget.schedule) {
+        formData.value.customMonths = [...budget.schedule]
+      }
+      
+      // Set one-time month
+      if (budget.recurrence === 'one-time' && budget.schedule && budget.schedule.length > 0) {
+        formData.value.oneTimeMonth = budget.schedule[0]
+      }
+      
+      // Ensure start month is valid for the current year context
+      ensureValidStartMonth()
+    }
   }
 
   // Modal actions
@@ -111,6 +331,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const openEditBudgetModal = (budget) => {
     editingBudget.value = budget
     showEditBudgetModal.value = true
+    initializeFormDataFromBudget(budget)
   }
 
   const closeEditBudgetModal = () => {
@@ -139,6 +360,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const editBudget = (budget) => {
     editingBudget.value = budget
     showEditBudgetModal.value = true
+    initializeFormDataFromBudget(budget)
   }
 
   const duplicateBudget = async (budget) => {
@@ -280,13 +502,30 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     openHistoryModal,
     closeHistoryModal,
     
+    // Form management
+    initializeFormData,
+    resetFormData,
+    initializeFormDataFromBudget,
+    getCategoriesByType,
+    updateCategoryOnTypeChange,
+    updateSchedule,
+    ensureValidStartMonth,
+    getAvailableStartMonthIndices,
+    getMonthLabel,
+    generateSchedule,
+    getSchedulePreviewClass,
+    calculateTotalAmount,
+    handleAmountInput,
+    
+    // Form validation and submission
+    validateFormData,
+    createBudgetData,
+    handleAddSubmit,
+    handleEditSubmit,
+    
     // Form handlers
     handleBudgetAdded,
     handleBudgetUpdated,
-    updateCategoryOnTypeChange,
-    ensureValidStartMonth,
-    generateSchedule,
-    resetFormData,
     
     // Budget actions
     editBudget,

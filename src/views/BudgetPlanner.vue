@@ -88,7 +88,7 @@
       :selected-year="selectedYear"
       @budget-added="handleBudgetAdded" />
 
-      <!-- Edit Budget Modal -->
+    <!-- Edit Budget Modal -->
     <EditBudgetModal 
       v-model="showEditBudgetModal"
       :budget="editingBudget"

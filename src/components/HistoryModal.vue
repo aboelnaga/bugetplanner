@@ -34,7 +34,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-green-600">Total Changes</p>
-                  <p class="text-2xl font-bold text-green-700">{{ historyItems.length }}</p>
+                  <p class="text-2xl font-bold text-green-700">{{ historyStats.totalChanges }}</p>
                 </div>
                 <div class="p-2 bg-green-100 rounded-lg">
                   <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -48,7 +48,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-blue-600">Unique Items</p>
-                  <p class="text-2xl font-bold text-blue-700">{{ uniqueBudgetItems }}</p>
+                  <p class="text-2xl font-bold text-blue-700">{{ historyStats.uniqueItems }}</p>
                 </div>
                 <div class="p-2 bg-blue-100 rounded-lg">
                   <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-purple-600">Latest Change</p>
-                  <p class="text-sm font-semibold text-purple-700">{{ latestChangeTime }}</p>
+                  <p class="text-sm font-semibold text-purple-700">{{ historyStats.latestChange }}</p>
                 </div>
                 <div class="p-2 bg-purple-100 rounded-lg">
                   <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -110,23 +110,11 @@
                     
                     <!-- Change indicator -->
                     <div class="flex items-center space-x-1">
-                      <span v-if="change.new_amount > change.old_amount" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span :class="getChangeIndicator(change).classes" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium">
                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="getChangeIndicator(change).icon"></path>
                         </svg>
-                        Increased
-                      </span>
-                      <span v-else-if="change.new_amount < change.old_amount" class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                        </svg>
-                        Decreased
-                      </span>
-                      <span v-else class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path>
-                        </svg>
-                        No Change
+                        {{ getChangeIndicator(change).label }}
                       </span>
                     </div>
                   </div>
@@ -196,6 +184,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
+import { useBudgetHistory } from '@/composables/useBudgetHistory.js'
 
 // Props
 const props = defineProps({
@@ -211,90 +200,19 @@ const emit = defineEmits(['update:modelValue'])
 // Store
 const budgetStore = useBudgetStore()
 
+// History composable
+const {
+  historyItems,
+  getBudgetItemName,
+  formatHistoryValue,
+  formatTimestamp,
+  formatFullDate,
+  getChangeIndicator,
+  getHistoryStats
+} = useBudgetHistory(budgetStore)
+
 // Computed
-const historyItems = computed(() => budgetStore.budgetHistory || [])
-
-// Get budget item name by ID
-const getBudgetItemName = (budgetItemId) => {
-  const budgetItem = budgetStore.budgetItems.find(item => item.id === budgetItemId)
-  return budgetItem ? budgetItem.name : `Budget Item #${budgetItemId}`
-}
-
-// Get unique budget items count
-const uniqueBudgetItems = computed(() => {
-  const uniqueIds = new Set(historyItems.value.map(item => item.budget_item_id))
-  return uniqueIds.size
-})
-
-// Get latest change time
-const latestChangeTime = computed(() => {
-  if (historyItems.value.length === 0) return 'No changes'
-  const latest = historyItems.value[0] // Already sorted by changed_at desc
-  return formatTimestamp(latest.changed_at)
-})
-
-// Format currency for history values
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(amount || 0))
-}
-
-// Format history value (currently same as currency, but can be extended)
-const formatHistoryValue = (value) => {
-  return formatCurrency(value)
-}
-
-// Format timestamp for better readability
-const formatTimestamp = (timestamp) => {
-  if (!timestamp) return ''
-  
-  try {
-    const date = new Date(timestamp)
-    const now = new Date()
-    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60))
-    
-    if (diffInHours < 1) {
-      return 'Just now'
-    } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`
-    } else if (diffInHours < 48) {
-      return 'Yesterday'
-    } else {
-      return date.toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      })
-    }
-  } catch (error) {
-    // Fallback to original timestamp if parsing fails
-    return timestamp
-  }
-}
-
-// Format full date for detailed view
-const formatFullDate = (timestamp) => {
-  if (!timestamp) return ''
-  
-  try {
-    const date = new Date(timestamp)
-    return date.toLocaleDateString('en-US', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  } catch (error) {
-    return timestamp
-  }
-}
+const historyStats = computed(() => getHistoryStats())
 
 // Close modal
 const closeModal = () => {

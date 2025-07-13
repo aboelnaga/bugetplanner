@@ -1,185 +1,303 @@
 <template>
-  <div v-if="modelValue && budget" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto relative">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Edit Budget Item</h3>
-        <button 
-          @click="closeModal" 
-          :disabled="isLoading"
-          class="text-gray-400 hover:text-gray-600 disabled:text-gray-300 disabled:cursor-not-allowed transition-colors"
-          title="Close modal">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+  <BaseModal 
+    :modelValue="modelValue" 
+    :loading="isLoading"
+    @update:modelValue="$emit('update:modelValue', $event)">
+    
+    <!-- Header -->
+    <template #icon>
+      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+      </svg>
+    </template>
+    
+    <template #title>Edit Budget Item</template>
+    <template #subtitle>Modify budget item settings for {{ selectedYear }}</template>
+    
+    <!-- Content -->
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Basic Information Section -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-        </button>
-      </div>
-      <form @submit.prevent="handleSubmit">
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Name</label>
-            <input v-model="formData.name" type="text" required 
-                   class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Budget Type</label>
-            <select v-model="formData.type" @change="updateCategoryOnTypeChange"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="expense">Expense</option>
-              <option value="income">Income</option>
-              <option value="investment">Investment</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Category</label>
-            <select v-model="formData.category" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <!-- Income Categories -->
-              <optgroup v-if="formData.type === 'income'" label="Income Categories">
-                <option value="Salary">Salary</option>
-                <option value="Freelance">Freelance</option>
-                <option value="Business">Business</option>
-                <option value="Bonus">Bonus</option>
-                <option value="Side Hustle">Side Hustle</option>
-                <option value="Other Income">Other Income</option>
-              </optgroup>
-              <!-- Investment Categories -->
-              <optgroup v-else-if="formData.type === 'investment'" label="Investment Categories">
-                <option value="Real Estate Purchase">Real Estate Purchase</option>
-                <option value="Real Estate Installment">Real Estate Installment</option>
-                <option value="Rental Income">Rental Income</option>
-                <option value="Stock Purchase">Stock Purchase</option>
-                <option value="Stock Dividends">Stock Dividends</option>
-                <option value="Gold Purchase">Gold Purchase</option>
-                <option value="Gold Sale">Gold Sale</option>
-                <option value="Mutual Funds">Mutual Funds</option>
-                <option value="Retirement Fund">Retirement Fund</option>
-                <option value="Crypto Purchase">Crypto Purchase</option>
-                <option value="Crypto Sale">Crypto Sale</option>
-                <option value="Investment Returns">Investment Returns</option>
-                <option value="Capital Gains">Capital Gains</option>
-                <option value="Other Investment">Other Investment</option>
-              </optgroup>
-              <!-- Expense Categories -->
-              <optgroup v-else label="Expense Categories">
-                <option value="Essential">Essential</option>
-                <option value="Lifestyle">Lifestyle</option>
-                <option value="Savings">Savings</option>
-                <option value="Investment">Investment</option>
-                <option value="Education">Education</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Healthcare">Healthcare</option>
-                <option value="Food & Dining">Food & Dining</option>
-                <option value="Housing">Housing</option>
-                <option value="Utilities">Utilities</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Travel">Travel</option>
-                <option value="Insurance">Insurance</option>
-                <option value="Debt Payments">Debt Payments</option>
-                <option value="Charity">Charity</option>
-                <option value="Other">Other</option>
-              </optgroup>
-            </select>
-          </div>
-          <div v-if="formData.type === 'investment'">
-            <label class="block text-sm font-medium text-gray-700">Investment Direction</label>
-            <select v-model="formData.investment_direction" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="outgoing">Outgoing (Purchase/Contribution)</option>
-              <option value="incoming">Incoming (Returns/Sales)</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700">Default Amount</label>
+          Basic Information
+        </h4>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Name -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Name
+            </label>
             <input 
-              :value="formatNumberWithCommas(formData.defaultAmount)"
-              @input="handleAmountInput"
-              @keypress="allowOnlyNumbers"
+              v-model="formData.name" 
               type="text" 
               required 
-              class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2"
-              placeholder="0" />
+              placeholder="e.g., Monthly Salary, Car Expenses"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
           </div>
+          
+          <!-- Budget Type -->
           <div>
-            <label class="block text-sm font-medium text-gray-700">Recurrence</label>
-            <select v-model="formData.recurrence" @change="updateSchedule"
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly (Q1, Q2, Q3, Q4)</option>
-              <option value="bi-annual">Bi-Annual (Jan & Jul)</option>
-              <option value="school-terms">School Terms (Jan & Sep)</option>
-              <option value="custom">Custom Months</option>
-              <option value="one-time">One Time</option>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Budget Type
+            </label>
+            <select 
+              v-model="formData.type" 
+              @change="updateCategoryOnTypeChange"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, type) in BUDGET_TYPE_LABELS" :key="type" :value="type">
+                {{ label }}
+              </option>
             </select>
           </div>
-          <div v-if="formData.recurrence !== 'one-time' && formData.recurrence !== 'custom'">
-            <label class="block text-sm font-medium text-gray-700">Start Month</label>
-            <select v-model="formData.startMonth" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option v-for="(monthIndex, arrayIndex) in availableStartMonthIndices" :key="monthIndex" :value="monthIndex">
+          
+          <!-- Category -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Category
+            </label>
+            <select 
+              v-model="formData.category"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="category in getCategoriesByType(formData.type)" :key="category" :value="category">
+                {{ category }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financial Details Section -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+          </svg>
+          Financial Details
+        </h4>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Default Amount -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Default Amount
+            </label>
+            <div class="relative">
+              <input 
+                :value="formatCurrency(formData.defaultAmount)"
+                @input="handleAmountInput"
+                type="text" 
+                required 
+                placeholder="EGP 0"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+            </div>
+          </div>
+          
+          <!-- Investment Direction (only for investment type) -->
+          <div v-if="formData.type === BUDGET_TYPES.INVESTMENT">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Investment Direction
+            </label>
+            <select 
+              v-model="formData.investment_direction"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
+                {{ label }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Section -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Schedule & Timing
+        </h4>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Recurrence -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Recurrence
+            </label>
+            <select 
+              v-model="formData.recurrence" 
+              @change="updateSchedule"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, type) in RECURRENCE_LABELS" :key="type" :value="type">
+                {{ label }}
+              </option>
+            </select>
+          </div>
+          
+          <!-- Start Month (hidden for custom and one-time recurrence) -->
+          <div v-if="formData.recurrence !== RECURRENCE_TYPES.CUSTOM && formData.recurrence !== RECURRENCE_TYPES.ONE_TIME">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Start Month
+            </label>
+            <select 
+              v-model="formData.startMonth"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option 
+                v-for="monthIndex in getAvailableStartMonthIndices()" 
+                :key="monthIndex" 
+                :value="monthIndex">
                 {{ months[monthIndex] }} {{ getMonthLabel(monthIndex) }}
               </option>
             </select>
-            <p class="text-xs text-gray-500 mt-1">
-              <span v-if="formData.recurrence === 'monthly'">Budget will start from this month and continue monthly until December</span>
-              <span v-else-if="formData.recurrence === 'quarterly'">Budget will start from the first quarter at or after this month</span>
-              <span v-else-if="formData.recurrence === 'bi-annual'">Budget will start from the first bi-annual period at or after this month</span>
-              <span v-else-if="formData.recurrence === 'school-terms'">Budget will start from the first school term at or after this month</span>
-              <span v-else>Budget will start from this month and continue based on recurrence pattern</span>
-              <br>
-              <span v-if="selectedYear === currentYear" class="text-orange-600">Only current and future months are available for {{ currentYear }}</span>
-              <span v-else-if="selectedYear > currentYear" class="text-green-600">All months are available for future year {{ selectedYear }}</span>
-              <span v-else class="text-blue-600">All months are available for past year {{ selectedYear }}</span>
-            </p>
           </div>
-          <div v-if="formData.recurrence === 'custom'">
-            <label class="block text-sm font-medium text-gray-700">Select Months</label>
-            <div class="grid grid-cols-3 gap-2 mt-2">
-              <label v-for="(month, index) in months" :key="month" class="flex items-center">
-                <input type="checkbox" v-model="formData.customMonths" :value="index" class="mr-1" />
-                <span class="text-sm">{{ month }}</span>
-              </label>
+        </div>
+
+        <!-- Custom Months (for custom recurrence) -->
+        <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM" class="space-y-3">
+          <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <label 
+              v-for="(month, index) in months" 
+              :key="month" 
+              class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+              :class="{ 'bg-blue-50 border-blue-300': formData.customMonths.includes(index) }">
+              <input 
+                type="checkbox" 
+                :value="index" 
+                v-model="formData.customMonths"
+                class="mr-2 text-blue-600 focus:ring-blue-500" />
+              <span class="text-sm font-medium">{{ month }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- One Time Month (for one-time recurrence) -->
+        <div v-if="formData.recurrence === RECURRENCE_TYPES.ONE_TIME" class="space-y-3">
+          <label class="block text-sm font-medium text-gray-700">Select Month</label>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <label 
+              v-for="(month, index) in months" 
+              :key="month" 
+              class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+              :class="{ 'bg-blue-50 border-blue-300': formData.oneTimeMonth === index }">
+              <input 
+                type="radio" 
+                :value="index" 
+                v-model="formData.oneTimeMonth"
+                name="oneTimeMonth"
+                class="mr-2 text-blue-600 focus:ring-blue-500" />
+              <span class="text-sm font-medium">{{ month }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Current Values Section -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          </svg>
+          Current Monthly Values
+        </h4>
+        
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
+            <div 
+              v-for="(month, index) in months" 
+              :key="month"
+              class="text-center p-2 text-xs font-medium rounded"
+              :class="getCurrentValueClass(index)">
+              {{ month }}
             </div>
           </div>
-          <div v-if="formData.recurrence === 'one-time'">
-            <label class="block text-sm font-medium text-gray-700">Month</label>
-            <select v-model="formData.oneTimeMonth" 
-                    class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2">
-              <option v-for="(month, index) in months" :key="month" :value="index">{{ month }}</option>
-            </select>
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1">
+            <div 
+              v-for="(amount, index) in formData.amounts" 
+              :key="index"
+              class="text-center p-1 text-xs rounded"
+              :class="getAmountClass(amount)">
+              {{ formatCurrency(amount) }}
+            </div>
           </div>
-          <div class="bg-blue-50 p-3 rounded-md">
-            <p class="text-sm text-gray-700">
-              <strong>Note:</strong> Amounts will be recalculated from the start month onwards based on the new recurrence pattern.
-              Past months (before start month) will be preserved.
-            </p>
+          <p class="text-sm text-gray-600 mt-3">
+            <span class="font-medium">Current Total:</span> {{ formatCurrency(calculateCurrentTotal()) }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+          </svg>
+          New Schedule Preview
+        </h4>
+        
+        <div class="bg-gray-50 rounded-lg p-4">
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1">
+            <div 
+              v-for="(month, index) in months" 
+              :key="month"
+              class="text-center p-2 text-xs font-medium rounded"
+              :class="getSchedulePreviewClass(index)">
+              {{ month }}
+            </div>
           </div>
+          <p class="text-sm text-gray-600 mt-3">
+            <span class="font-medium">New Total:</span> {{ formatCurrency(calculateNewTotal()) }}
+          </p>
         </div>
-        <div class="flex justify-end space-x-3 mt-6">
-          <button type="button" @click="closeModal" 
-                  :disabled="isLoading" 
-                  class="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">Cancel</button>
-          <button type="submit" 
-                  :disabled="isLoading" 
-                  class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
-            <span v-if="isLoading" class="flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              Updating...
-            </span>
-            <span v-else>Update Budget</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+      </div>
+    </form>
+    
+    <!-- Footer -->
+    <template #footer>
+      <div class="flex justify-end space-x-3 w-full">
+        <button 
+          type="button" 
+          @click="closeModal" 
+          :disabled="isLoading" 
+          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          @click="handleSubmit"
+          :disabled="isLoading" 
+          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center">
+          <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span v-if="isLoading">Updating...</span>
+          <span v-else>Update Budget Item</span>
+        </button>
+      </div>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
+import { useBudgetModals } from '@/composables/useBudgetModals.js'
+import { 
+  MONTHS, 
+  BUDGET_TYPES, 
+  BUDGET_TYPE_LABELS, 
+  RECURRENCE_TYPES, 
+  RECURRENCE_LABELS, 
+  INVESTMENT_DIRECTIONS, 
+  INVESTMENT_DIRECTION_LABELS 
+} from '@/constants/budgetConstants.js'
+import { formatCurrency } from '@/utils/budgetUtils.js'
+import BaseModal from './BaseModal.vue'
 
 // Props
 const props = defineProps({
@@ -204,138 +322,56 @@ const emit = defineEmits(['update:modelValue', 'budget-updated'])
 const budgetStore = useBudgetStore()
 
 // Constants
-const months = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-]
+const months = MONTHS
 
 // Computed
 const currentYear = computed(() => budgetStore.currentYear)
 const currentMonth = computed(() => budgetStore.currentMonth)
 
-// Available months for start month (depends on selected year)
-const availableStartMonthIndices = computed(() => {
-  if (props.selectedYear > currentYear.value) {
-    // Future year: all month indices (0-11)
-    return Array.from({ length: 12 }, (_, i) => i)
-  } else if (props.selectedYear === currentYear.value) {
-    // Current year: only current month and future month indices
-    return Array.from({ length: 12 - currentMonth.value }, (_, i) => currentMonth.value + i)
+// Modal composable
+const {
+  formData,
+  isLoading,
+  initializeFormDataFromBudget,
+  getCategoriesByType,
+  updateCategoryOnTypeChange,
+  updateSchedule,
+  getAvailableStartMonthIndices,
+  getMonthLabel,
+  getSchedulePreviewClass,
+  calculateTotalAmount,
+  handleEditSubmit,
+  handleAmountInput
+} = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
+
+// Get current value class
+const getCurrentValueClass = (monthIndex) => {
+  if (props.selectedYear === currentYear.value && monthIndex === currentMonth.value) {
+    return 'bg-blue-100 text-blue-800 border border-blue-200'
+  } else if (props.selectedYear === currentYear.value && monthIndex < currentMonth.value) {
+    return 'bg-gray-200 text-gray-600'
   } else {
-    // Past year: all month indices (0-11)
-    return Array.from({ length: 12 }, (_, i) => i)
+    return 'bg-gray-100 text-gray-700'
   }
-})
+}
 
-// Form data
-const formData = ref({
-  name: '',
-  type: 'expense',
-  category: 'Essential',
-  defaultAmount: 0,
-  recurrence: 'monthly',
-  customMonths: [],
-  oneTimeMonth: 0,
-  investment_direction: 'outgoing',
-  startMonth: 0,
-  amounts: [],
-  schedule: []
-})
-
-// Loading state
-const isLoading = ref(false)
-
-// Get month label based on selected year and current date
-const getMonthLabel = (monthIndex) => {
-  if (props.selectedYear === currentYear.value) {
-    if (monthIndex === currentMonth.value) return '(Current)'
-    if (monthIndex === currentMonth.value + 1) return '(Next)'
-  } else if (props.selectedYear > currentYear.value) {
-    if (monthIndex === 0) return '(Jan of future year)'
+// Get amount class
+const getAmountClass = (amount) => {
+  if (amount > 0) {
+    return 'bg-green-100 text-green-800'
   } else {
-    return '(Past year)'
-  }
-  return ''
-}
-
-// Format number with commas every 3 digits
-const formatNumberWithCommas = (value) => {
-  if (value === null || value === undefined || value === '') return ''
-  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-}
-
-// Parse formatted number back to numeric value
-const parseFormattedNumber = (value) => {
-  if (value === null || value === undefined || value === '') return 0
-  return parseFloat(value.toString().replace(/,/g, '')) || 0
-}
-
-// Allow only numbers and specific keys
-const allowOnlyNumbers = (event) => {
-  const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
-  const allowedChars = /[0-9]/
-  
-  if (allowedKeys.includes(event.key) || allowedChars.test(event.key)) {
-    return true
-  }
-  
-  event.preventDefault()
-  return false
-}
-
-// Handle amount input with validation and formatting
-const handleAmountInput = (event) => {
-  const input = event.target.value
-  const rawValue = input.replace(/,/g, '')
-  
-  // Only allow numbers
-  if (rawValue === '' || /^\d*\.?\d*$/.test(rawValue)) {
-    const numericValue = parseFloat(rawValue) || 0
-    formData.value.defaultAmount = numericValue
+    return 'bg-gray-100 text-gray-500'
   }
 }
 
-// Update category when type changes
-const updateCategoryOnTypeChange = () => {
-  if (formData.value.type === 'income') {
-    formData.value.category = 'Salary'
-  } else if (formData.value.type === 'investment') {
-    formData.value.category = 'Real Estate Purchase'
-  } else {
-    formData.value.category = 'Essential'
-  }
-  
-  // Reset start month based on selected year
-  if (props.selectedYear === currentYear.value) {
-    formData.value.startMonth = currentMonth.value
-  } else {
-    formData.value.startMonth = 0 // Default to January for non-current years
-  }
-  ensureValidStartMonth()
+// Calculate current total
+const calculateCurrentTotal = () => {
+  return formData.value.amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
 }
 
-// Update schedule when recurrence changes
-const updateSchedule = () => {
-  // Reset custom selections when recurrence changes
-  formData.value.customMonths = []
-  formData.value.oneTimeMonth = 0
-  
-  // Reset start month based on selected year
-  if (props.selectedYear === currentYear.value) {
-    formData.value.startMonth = currentMonth.value
-  } else {
-    formData.value.startMonth = 0 // Default to January for non-current years
-  }
-  ensureValidStartMonth()
-}
-
-// Ensure start month is valid for the selected year
-const ensureValidStartMonth = () => {
-  if (props.selectedYear === currentYear.value && formData.value.startMonth < currentMonth.value) {
-    formData.value.startMonth = currentMonth.value
-  } else if (props.selectedYear !== currentYear.value && formData.value.startMonth < 0) {
-    formData.value.startMonth = 0 // Default to January for non-current years
-  }
+// Calculate new total
+const calculateNewTotal = () => {
+  return calculateTotalAmount()
 }
 
 // Close modal
@@ -345,136 +381,24 @@ const closeModal = () => {
 
 // Handle form submission
 const handleSubmit = async () => {
-  try {
-    isLoading.value = true
-    
-    // Preserve existing amounts and only update from start month onwards
-    let newSchedule = []
-    let newAmounts = [...formData.value.amounts] // Preserve existing amounts
-    
-    // Calculate schedule with start month consideration
-    const startMonth = formData.value.startMonth
-    
-    // Clear amounts from start month onwards first
-    for (let i = startMonth; i < 12; i++) {
-      newAmounts[i] = 0
-    }
-    
-    switch (formData.value.recurrence) {
-      case 'monthly':
-        // Start from specified month and continue for remaining months in the year
-        for (let month = startMonth; month < 12; month++) {
-          newSchedule.push(month)
-        }
-        break
-      case 'quarterly':
-        // Start from the first quarter that includes or comes after startMonth
-        const quarters = [0, 3, 6, 9] // Q1, Q2, Q3, Q4
-        newSchedule = quarters.filter(quarter => quarter >= startMonth)
-        break
-      case 'bi-annual':
-        // Start from the first bi-annual period that includes or comes after startMonth
-        const biAnnual = [0, 6] // January and July
-        newSchedule = biAnnual.filter(month => month >= startMonth)
-        break
-      case 'school-terms':
-        // Start from the first school term that includes or comes after startMonth
-        const schoolTerms = [0, 8] // January and September
-        newSchedule = schoolTerms.filter(month => month >= startMonth)
-        break
-      case 'custom':
-        newSchedule = [...formData.value.customMonths]
-        break
-      case 'one-time':
-        newSchedule = [formData.value.oneTimeMonth]
-        break
-    }
-    
-    // Set amounts for scheduled months
-    newSchedule.forEach(month => {
-      newAmounts[month] = formData.value.defaultAmount
-    })
-    
-    // Create update data object
-    const updateData = {
-      name: formData.value.name,
-      type: formData.value.type,
-      category: formData.value.category,
-      recurrence: formData.value.recurrence,
-      default_amount: formData.value.defaultAmount,
-      amounts: newAmounts,
-      schedule: newSchedule,
-      start_month: formData.value.startMonth
-    }
-    
-    if (formData.value.type === 'investment') {
-      updateData.investment_direction = formData.value.investment_direction
-    }
-    
-    // Update via store
-    console.log('Updating budget item with data:', updateData)
-    const result = await budgetStore.updateBudgetItem(formData.value.id, updateData)
-    console.log('Store result:', result)
-    
-    if (result) {
-      // Close modal
-      closeModal()
-      
-      // Emit success event
-      emit('budget-updated', result)
-    } else {
-      // Show error message
-      alert('Failed to update budget item. Please try again.')
-    }
-  } catch (error) {
-    console.error('Error updating budget item:', error)
-    alert('Error updating budget item: ' + (error.message || 'Unknown error'))
-  } finally {
-    isLoading.value = false
-  }
-}
-
-// Initialize form data when budget prop changes
-const initializeFormData = () => {
-  if (props.budget) {
-    formData.value = {
-      ...props.budget,
-      // Map snake_case database fields to camelCase frontend fields
-      defaultAmount: props.budget.default_amount || props.budget.defaultAmount || 0,
-      investment_direction: props.budget.investment_direction || props.budget.investment_direction || 'outgoing',
-      startMonth: props.budget.start_month !== undefined ? props.budget.start_month : (props.budget.startMonth !== undefined ? props.budget.startMonth : 0),
-      amounts: [...props.budget.amounts],
-      schedule: [...props.budget.schedule],
-      customMonths: props.budget.customMonths ? [...props.budget.customMonths] : [],
-      oneTimeMonth: props.budget.oneTimeMonth || 0
-    }
-    
-    // Set custom months for custom recurrence
-    if (props.budget.recurrence === 'custom' && props.budget.schedule) {
-      formData.value.customMonths = [...props.budget.schedule]
-    }
-    
-    // Set one-time month
-    if (props.budget.recurrence === 'one-time' && props.budget.schedule && props.budget.schedule.length > 0) {
-      formData.value.oneTimeMonth = props.budget.schedule[0]
-    }
-    
-    // Ensure start month is valid for the current year context
-    ensureValidStartMonth()
+  const result = await handleEditSubmit(formData.value.id)
+  if (result) {
+    closeModal()
+    emit('budget-updated', result)
   }
 }
 
 // Watch for budget changes to initialize form
 watch(() => props.budget, (newBudget) => {
   if (newBudget) {
-    initializeFormData()
+    initializeFormDataFromBudget(newBudget)
   }
 }, { immediate: true })
 
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen && props.budget) {
-    initializeFormData()
+    initializeFormDataFromBudget(props.budget)
   }
 })
 </script> 

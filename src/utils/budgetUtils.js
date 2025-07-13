@@ -335,3 +335,122 @@ export const tableUtils = {
     return 'Expense'
   }
 } 
+
+// Schedule generation utilities
+export const scheduleUtils = {
+  // Generate schedule based on recurrence
+  generateSchedule: (recurrence, startMonth, customMonths = [], oneTimeMonth = 0, defaultAmount = 0) => {
+    let schedule = []
+    let amounts = new Array(12).fill(0)
+    
+    switch (recurrence) {
+      case 'monthly':
+        // Start from specified month and continue for remaining months in the year
+        for (let month = startMonth; month < 12; month++) {
+          schedule.push(month)
+        }
+        break
+      case 'quarterly':
+        // Start from the first quarter that includes or comes after startMonth
+        const quarters = [0, 3, 6, 9] // Q1, Q2, Q3, Q4
+        schedule = quarters.filter(quarter => quarter >= startMonth)
+        break
+      case 'bi-annual':
+        // Start from the first bi-annual period that includes or comes after startMonth
+        const biAnnual = [0, 6] // January and July
+        schedule = biAnnual.filter(month => month >= startMonth)
+        break
+      case 'school-terms':
+        // Start from the first school term that includes or comes after startMonth
+        const schoolTerms = [0, 8] // January and September
+        schedule = schoolTerms.filter(month => month >= startMonth)
+        break
+      case 'custom':
+        schedule = [...customMonths]
+        break
+      case 'one-time':
+        schedule = [oneTimeMonth]
+        break
+    }
+
+    // Populate amounts array
+    schedule.forEach(month => {
+      amounts[month] = defaultAmount
+    })
+
+    return { schedule, amounts }
+  },
+
+  // Get schedule preview class
+  getSchedulePreviewClass: (monthIndex, recurrence, startMonth, customMonths = [], oneTimeMonth = 0) => {
+    const { schedule } = scheduleUtils.generateSchedule(recurrence, startMonth, customMonths, oneTimeMonth)
+    
+    if (schedule.includes(monthIndex)) {
+      return 'bg-blue-100 text-blue-800 border border-blue-200'
+    } else {
+      return 'bg-gray-100 text-gray-500'
+    }
+  },
+
+  // Calculate total amount for schedule
+  calculateTotalAmount: (recurrence, startMonth, customMonths = [], oneTimeMonth = 0, defaultAmount = 0) => {
+    const { schedule } = scheduleUtils.generateSchedule(recurrence, startMonth, customMonths, oneTimeMonth, defaultAmount)
+    return schedule.length * defaultAmount
+  }
+}
+
+// History formatting utilities
+export const historyUtils = {
+  // Format timestamp for better readability
+  formatTimestamp: (timestamp) => {
+    if (!timestamp) return ''
+    
+    try {
+      const date = new Date(timestamp)
+      const now = new Date()
+      const diffInHours = Math.floor((now - date) / (1000 * 60 * 60))
+      
+      if (diffInHours < 1) {
+        return 'Just now'
+      } else if (diffInHours < 24) {
+        return `${diffInHours}h ago`
+      } else if (diffInHours < 48) {
+        return 'Yesterday'
+      } else {
+        return date.toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      }
+    } catch (error) {
+      // Fallback to original timestamp if parsing fails
+      return timestamp
+    }
+  },
+
+  // Format full date for detailed view
+  formatFullDate: (timestamp) => {
+    if (!timestamp) return ''
+    
+    try {
+      const date = new Date(timestamp)
+      return date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch (error) {
+      return timestamp
+    }
+  },
+
+  // Format history value (currently same as currency, but can be extended)
+  formatHistoryValue: (value) => {
+    return formatCurrency(value)
+  }
+} 
