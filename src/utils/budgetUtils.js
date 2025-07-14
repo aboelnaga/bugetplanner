@@ -17,15 +17,15 @@ export const formatCurrency = (amount) => {
 export const formatCompactCurrency = (amount) => {
   const num = Math.abs(amount || 0)
   
-  if (num >= 1000000000) {
-    return `EGP ${(num / 1000000000).toFixed(1)}B`
-  } else if (num >= 1000000) {
-    return `EGP ${(num / 1000000).toFixed(1)}M`
-  } else if (num >= 1000) {
-    return `EGP ${(num / 1000).toFixed(1)}K`
-  } else {
-    return `EGP ${num.toLocaleString()}`
-  }
+  // Use Intl.NumberFormat with compact notation to avoid rounding issues
+  const formatter = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 1,
+    notation: 'compact',
+    compactDisplay: 'short'
+  })
+  
+  return `EGP ${formatter.format(num)}`
 }
 
 // Format number with commas every 3 digits
