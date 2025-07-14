@@ -126,9 +126,12 @@ export const SUMMARY_VALUE_STYLES = {
     fontWeight: 'font-normal'
   },
   CURRENT_MONTH: {
-    bgColor: 'bg-sky-100',
-    textColor: 'text-sky-900',
-    fontWeight: 'font-semibold'
+    bgColor: 'bg-blue-100',
+    textColor: 'text-blue-900',
+    fontWeight: 'font-bold',
+    borderColor: 'border-blue-300',
+    shadow: 'shadow-md',
+    ringColor: 'ring-2 ring-blue-400'
   }
 }
 
@@ -277,13 +280,19 @@ export const BUDGET_TYPE_STYLES = {
 // Enhanced table cell styling configurations
 export const TABLE_CELL_STYLES = {
   CURRENT_MONTH: {
-    bgColor: 'bg-sky-100',
-    amountBgColor: 'bg-sky-50',
-    borderColor: 'border-sky-200',
-    shadow: 'shadow-sm',
+    bgColor: 'bg-blue-100',
+    amountBgColor: 'bg-blue-50',
+    borderColor: 'border-blue-300',
+    shadow: 'shadow-md',
     // Enhanced typography for current month
-    fontWeight: 'font-semibold',
-    textColor: 'text-sky-900'
+    fontWeight: 'font-bold',
+    textColor: 'text-blue-900',
+    // Enhanced current month indicators
+    ringColor: 'ring-2 ring-blue-400',
+    borderWidth: 'border-2',
+    // Status indicator for current month
+    statusIndicator: 'bg-blue-500',
+    statusText: 'text-blue-700'
   },
   PAST_MONTH: {
     bgColor: 'bg-gray-50',
@@ -304,11 +313,15 @@ export const TABLE_CELL_STYLES = {
     fontWeight: 'font-normal'
   },
   CHANGES_INDICATOR: {
-    bgColor: 'bg-amber-500',
+    bgColor: 'bg-orange-500',
     borderColor: 'border-white',
-    shadow: 'shadow-sm',
+    shadow: 'shadow-lg',
     // Enhanced visibility
-    size: 'w-3 h-3'
+    size: 'w-4 h-4',
+    // Enhanced animation
+    animation: 'animate-pulse',
+    // Enhanced positioning
+    position: 'absolute -top-1.5 -right-1.5'
   }
 }
 
