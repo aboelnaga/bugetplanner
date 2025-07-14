@@ -2,9 +2,9 @@
   <tr class="hover:bg-gray-50 transition-colors duration-200">
     <!-- Budget Item Info Cell -->
     <td class="px-4 py-3 sticky left-0 bg-white z-10 border-r border-gray-100">
-      <div class="space-y-1.5">
+      <div class="space-y-1">
         <!-- Budget Name -->
-        <div class="font-semibold text-gray-900 text-base leading-tight truncate">{{ budget.name }}</div>
+        <div class="font-semibold text-gray-900 text-sm leading-tight truncate">{{ budget.name }}</div>
         
         <!-- Category -->
         <div class="text-xs text-gray-600 truncate">{{ budget.category }}</div>

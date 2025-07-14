@@ -2,7 +2,7 @@
   <!-- Income Line -->
   <tr v-if="shouldShowSummaryRow('TOTAL_INCOME')" :class="`${totalIncomeStyling.bgColor} border-t-2 border-gray-200`">
     <td :class="`px-6 py-3 text-sm font-semibold ${totalIncomeStyling.textColor} sticky left-0 ${totalIncomeStyling.stickyBgColor} z-20 border-r border-gray-200`">
-      <div class="flex items-center">
+      <div class="flex items-center truncate">
         <span :class="`text-lg font-bold ${totalIncomeStyling.textColor} mr-2`">{{ totalIncomeConfig.symbol }}</span>
         {{ totalIncomeConfig.label }}
       </div>
@@ -20,7 +20,7 @@
   <!-- Investment Returns Line -->
   <tr v-if="shouldShowSummaryRow('INVESTMENT_RETURNS')" :class="`${investmentReturnsStyling.bgColor} border-t-2 border-gray-200`">
     <td :class="`px-6 py-3 text-sm font-semibold ${investmentReturnsStyling.textColor} sticky left-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-r border-gray-200`">
-      <div class="flex items-center">
+      <div class="flex items-center truncate">
         <span :class="`text-lg font-bold ${investmentReturnsStyling.textColor} mr-2`">{{ investmentReturnsConfig.symbol }}</span>
         {{ investmentReturnsConfig.label }}
       </div>

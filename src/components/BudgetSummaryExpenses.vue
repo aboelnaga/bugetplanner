@@ -20,7 +20,7 @@
   <!-- Investment Purchases Line -->
   <tr v-if="shouldShowSummaryRow('INVESTMENT_PURCHASES')" :class="`${investmentPurchasesStyling.bgColor} border-t-2 border-gray-200`">
     <td :class="`px-6 py-3 text-sm font-semibold ${investmentPurchasesStyling.textColor} sticky left-0 ${investmentPurchasesStyling.stickyBgColor} z-20 border-r border-gray-200`">
-      <div class="flex items-center">
+      <div class="flex items-center truncate">
         <span :class="`text-lg font-bold ${investmentPurchasesStyling.textColor} mr-2`">{{ investmentPurchasesConfig.symbol }}</span>
         {{ investmentPurchasesConfig.label }}
       </div>
