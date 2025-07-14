@@ -131,23 +131,23 @@
                     :key="monthIndex"
                     class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white min-h-[60px] flex flex-col justify-center">
                     
-                    <!-- Find change for this month -->
-                    <div v-if="getChangeForMonth(itemChanges, monthIndex)" class="space-y-1">
-                      <div class="font-medium text-red-600">
-                        {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount) }}
-                      </div>
-                      <div class="flex items-center justify-center">
-                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                        </svg>
-                      </div>
-                      <div class="font-medium text-green-600">
-                        {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount) }}
-                      </div>
-                      <div class="text-xs text-gray-500">
-                        {{ formatTimestamp(getChangeForMonth(itemChanges, monthIndex).changed_at) }}
-                      </div>
-                    </div>
+                                         <!-- Find change for this month -->
+                     <div v-if="getChangeForMonth(itemChanges, monthIndex)" class="space-y-1">
+                       <div class="font-medium text-red-600" :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount)">
+                         {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount) }}
+                       </div>
+                       <div class="flex items-center justify-center">
+                         <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                         </svg>
+                       </div>
+                       <div class="font-medium text-green-600" :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount)">
+                         {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount) }}
+                       </div>
+                       <div class="text-xs text-gray-500">
+                         {{ formatTimestamp(getChangeForMonth(itemChanges, monthIndex).changed_at) }}
+                       </div>
+                     </div>
                     
                     <!-- No change for this month -->
                     <div v-else class="text-gray-400">

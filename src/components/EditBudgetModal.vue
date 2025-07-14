@@ -225,7 +225,8 @@
               v-for="(amount, index) in formData.amounts" 
               :key="index"
               class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
-              :class="getAmountClass(amount)">
+              :class="getAmountClass(amount)"
+              :title="formatCurrency(amount)">
               <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
             </div>
           </div>
@@ -267,13 +268,14 @@
           
           <!-- Amount values -->
           <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
-            <div 
-              v-for="(amount, index) in generateSchedule().amounts" 
-              :key="index"
-              class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
-              :class="getAmountClass(amount)">
-              <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
-            </div>
+                          <div 
+                v-for="(amount, index) in generateSchedule().amounts" 
+                :key="index"
+                class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
+                :class="getAmountClass(amount)"
+                :title="formatCurrency(amount)">
+                <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
+              </div>
           </div>
           
           <!-- Summary -->
