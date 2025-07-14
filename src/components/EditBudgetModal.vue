@@ -205,27 +205,38 @@
         </h4>
         
         <div class="bg-gray-50 rounded-lg p-4">
-          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
+          <!-- Month headers -->
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-2">
             <div 
               v-for="(month, index) in months" 
               :key="month"
-              class="text-center p-2 text-xs font-medium rounded"
+              class="text-center py-2 px-1 text-xs font-semibold text-gray-700 rounded"
               :class="getCurrentValueClass(index)">
               {{ month }}
             </div>
           </div>
-          <div class="grid grid-cols-6 md:grid-cols-12 gap-1">
+          
+          <!-- Amount values -->
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
             <div 
               v-for="(amount, index) in formData.amounts" 
               :key="index"
-              class="text-center p-1 text-xs rounded"
+              class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
               :class="getAmountClass(amount)">
-              {{ formatCurrency(amount) }}
+              <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
             </div>
           </div>
-          <p class="text-sm text-gray-600 mt-3">
-            <span class="font-medium">Current Total:</span> {{ formatCurrency(calculateCurrentTotal()) }}
-          </p>
+          
+          <!-- Summary -->
+          <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 pt-3 border-t border-gray-200">
+            <div class="text-sm text-gray-600">
+              <span class="font-medium">Current Total:</span> 
+              <span class="font-semibold text-gray-800">{{ formatCurrency(calculateCurrentTotal()) }}</span>
+            </div>
+            <div class="text-xs text-gray-500">
+              {{ getCurrentActiveMonthsCount() }} active month{{ getCurrentActiveMonthsCount() !== 1 ? 's' : '' }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -240,18 +251,38 @@
         </h4>
         
         <div class="bg-gray-50 rounded-lg p-4">
-          <div class="grid grid-cols-6 md:grid-cols-12 gap-1">
+          <!-- Month headers -->
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-2">
             <div 
               v-for="(month, index) in months" 
               :key="month"
-              class="text-center p-2 text-xs font-medium rounded"
+              class="text-center py-2 px-1 text-xs font-semibold text-gray-700 rounded"
               :class="getSchedulePreviewClass(index)">
               {{ month }}
             </div>
           </div>
-          <p class="text-sm text-gray-600 mt-3">
-            <span class="font-medium">New Total:</span> {{ formatCurrency(calculateNewTotal()) }}
-          </p>
+          
+          <!-- Amount values -->
+          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
+            <div 
+              v-for="(amount, index) in generateSchedule().amounts" 
+              :key="index"
+              class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
+              :class="getAmountClass(amount)">
+              <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
+            </div>
+          </div>
+          
+          <!-- Summary -->
+          <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 pt-3 border-t border-gray-200">
+            <div class="text-sm text-gray-600">
+              <span class="font-medium">New Total:</span> 
+              <span class="font-semibold text-gray-800">{{ formatCurrency(calculateNewTotal()) }}</span>
+            </div>
+            <div class="text-xs text-gray-500">
+              {{ getActiveMonthsCount() }} active month{{ getActiveMonthsCount() !== 1 ? 's' : '' }}
+            </div>
+          </div>
         </div>
       </div>
     </form>
@@ -296,7 +327,7 @@ import {
   INVESTMENT_DIRECTIONS, 
   INVESTMENT_DIRECTION_LABELS 
 } from '@/constants/budgetConstants.js'
-import { formatCurrency } from '@/utils/budgetUtils.js'
+import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
 
 // Props
@@ -341,7 +372,8 @@ const {
   getSchedulePreviewClass,
   calculateTotalAmount,
   handleEditSubmit,
-  handleAmountInput
+  handleAmountInput,
+  generateSchedule
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
 // Get current value class
@@ -358,9 +390,9 @@ const getCurrentValueClass = (monthIndex) => {
 // Get amount class
 const getAmountClass = (amount) => {
   if (amount > 0) {
-    return 'bg-green-100 text-green-800'
+    return 'text-green-800'
   } else {
-    return 'bg-gray-100 text-gray-500'
+    return 'text-gray-500'
   }
 }
 
@@ -372,6 +404,16 @@ const calculateCurrentTotal = () => {
 // Calculate new total
 const calculateNewTotal = () => {
   return calculateTotalAmount()
+}
+
+// Get active months count
+const getActiveMonthsCount = () => {
+  return generateSchedule().amounts.filter(amount => amount > 0).length
+}
+
+// Get current active months count
+const getCurrentActiveMonthsCount = () => {
+  return formData.value.amounts.filter(amount => amount > 0).length
 }
 
 // Close modal

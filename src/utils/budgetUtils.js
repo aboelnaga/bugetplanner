@@ -13,6 +13,19 @@ export const formatCurrency = (amount) => {
   }).format(Math.abs(amount || 0))
 }
 
+// Compact currency formatting for better display in small spaces
+export const formatCompactCurrency = (amount) => {
+  const num = Math.abs(amount || 0)
+  
+  if (num >= 1000000) {
+    return `EGP ${(num / 1000000).toFixed(1)}M`
+  } else if (num >= 1000) {
+    return `EGP ${(num / 1000).toFixed(1)}K`
+  } else {
+    return `EGP ${num.toLocaleString()}`
+  }
+}
+
 // Format number with commas every 3 digits
 export const formatNumberWithCommas = (value) => {
   if (value === null || value === undefined || value === '') return ''
