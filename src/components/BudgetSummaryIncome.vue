@@ -1,7 +1,7 @@
 <template>
   <!-- Income Line -->
-  <tr v-if="shouldShowSummaryRow('TOTAL_INCOME')" :class="totalIncomeStyling.bgColor">
-    <td :class="`px-6 py-3 text-sm font-semibold text-green-700 sticky left-0 ${totalIncomeStyling.stickyBgColor} z-10`">
+  <tr v-if="shouldShowSummaryRow('TOTAL_INCOME')" :class="`${totalIncomeStyling.bgColor} border-t-2 border-gray-200`">
+    <td :class="`px-6 py-3 text-sm font-semibold ${totalIncomeStyling.textColor} sticky left-0 ${totalIncomeStyling.stickyBgColor} z-20 border-r border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-lg font-bold ${totalIncomeStyling.textColor} mr-2`">{{ totalIncomeConfig.symbol }}</span>
         {{ totalIncomeConfig.label }}
@@ -14,12 +14,12 @@
     <td :class="getSummaryTotalClasses(calculateGrandTotalIncome())">
       {{ formatSummaryValue(calculateGrandTotalIncome(), formatCurrency) }}
     </td>
-    <td :class="`px-4 py-3 sticky right-0 ${totalIncomeStyling.stickyBgColor} z-10`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${totalIncomeStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
 
   <!-- Investment Returns Line -->
-  <tr v-if="shouldShowSummaryRow('INVESTMENT_RETURNS')" :class="investmentReturnsStyling.bgColor">
-    <td :class="`px-6 py-3 text-sm font-semibold text-green-700 sticky left-0 ${investmentReturnsStyling.stickyBgColor} z-10`">
+  <tr v-if="shouldShowSummaryRow('INVESTMENT_RETURNS')" :class="`${investmentReturnsStyling.bgColor} border-t-2 border-gray-200`">
+    <td :class="`px-6 py-3 text-sm font-semibold ${investmentReturnsStyling.textColor} sticky left-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-r border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-lg font-bold ${investmentReturnsStyling.textColor} mr-2`">{{ investmentReturnsConfig.symbol }}</span>
         {{ investmentReturnsConfig.label }}
@@ -32,7 +32,7 @@
     <td :class="getSummaryTotalClasses(calculateGrandTotalInvestmentIncoming())">
       {{ formatSummaryValue(calculateGrandTotalInvestmentIncoming(), formatCurrency) }}
     </td>
-    <td :class="`px-4 py-3 sticky right-0 ${investmentReturnsStyling.stickyBgColor} z-10`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
 </template>
 

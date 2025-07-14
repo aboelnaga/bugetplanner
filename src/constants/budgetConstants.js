@@ -28,15 +28,18 @@ export const BUDGET_TYPE_LABELS = {
   [BUDGET_TYPES.INVESTMENT]: 'Investments'
 }
 
-// Summary row types and configurations
+// Enhanced summary row types and configurations
 export const SUMMARY_ROWS = {
   NET_BALANCE: {
     id: 'net-balance',
     label: 'Net Monthly Balance',
     symbol: '=',
-    bgColor: 'bg-blue-50',
-    textColor: 'text-blue-600',
-    stickyBgColor: 'bg-blue-50',
+    bgColor: 'bg-slate-50',
+    textColor: 'text-slate-700',
+    stickyBgColor: 'bg-slate-50',
+    borderColor: 'border-slate-200',
+    fontWeight: 'font-bold',
+    fontSize: 'text-base',
     showCondition: (selectedTypeFilter, hasAnyData) => selectedTypeFilter === 'all' && hasAnyData
   },
   NET_INVESTMENT: {
@@ -44,68 +47,88 @@ export const SUMMARY_ROWS = {
     label: 'Net Investment',
     subtitle: '( Returns - Purchases)',
     symbol: '📈',
-    bgColor: 'bg-indigo-50',
-    textColor: 'text-indigo-600',
-    stickyBgColor: 'bg-indigo-50',
+    bgColor: 'bg-blue-50',
+    textColor: 'text-blue-700',
+    stickyBgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200',
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm',
     showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentData
   },
   TOTAL_INCOME: {
     id: 'total-income',
     label: 'Total Income',
     symbol: '+',
-    bgColor: 'bg-green-50',
-    textColor: 'text-green-600',
-    stickyBgColor: 'bg-green-50',
+    bgColor: 'bg-emerald-50',
+    textColor: 'text-emerald-700',
+    stickyBgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200',
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm',
     showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'income') && hasIncomeData
   },
   INVESTMENT_RETURNS: {
     id: 'investment-returns',
     label: 'Investment Returns',
     symbol: '+',
-    bgColor: 'bg-green-50',
-    textColor: 'text-green-600',
-    stickyBgColor: 'bg-green-50',
+    bgColor: 'bg-emerald-50',
+    textColor: 'text-emerald-700',
+    stickyBgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200',
+    fontWeight: 'font-medium',
+    fontSize: 'text-sm',
     showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentIncomingData
   },
   TOTAL_EXPENSES: {
     id: 'total-expenses',
     label: 'Total Expenses',
     symbol: '−',
-    bgColor: 'bg-red-50',
-    textColor: 'text-red-600',
-    stickyBgColor: 'bg-red-50',
+    bgColor: 'bg-rose-50',
+    textColor: 'text-rose-700',
+    stickyBgColor: 'bg-rose-50',
+    borderColor: 'border-rose-200',
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm',
     showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData, hasExpenseData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'expense') && hasExpenseData
   },
   INVESTMENT_PURCHASES: {
     id: 'investment-purchases',
     label: 'Investment Purchases',
     symbol: '−',
-    bgColor: 'bg-red-50',
-    textColor: 'text-red-600',
-    stickyBgColor: 'bg-red-50',
+    bgColor: 'bg-rose-50',
+    textColor: 'text-rose-700',
+    stickyBgColor: 'bg-rose-50',
+    borderColor: 'border-rose-200',
+    fontWeight: 'font-medium',
+    fontSize: 'text-sm',
     showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData, hasExpenseData, hasInvestmentOutgoingData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentOutgoingData
   }
 }
 
-// Summary value styling configurations
+// Enhanced summary value styling configurations
 export const SUMMARY_VALUE_STYLES = {
   POSITIVE: {
-    textColor: 'text-green-700',
-    bgColor: 'bg-green-50',
-    borderColor: 'border-green-300'
+    textColor: 'text-emerald-700',
+    bgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-300',
+    fontWeight: 'font-semibold'
   },
   NEGATIVE: {
-    textColor: 'text-red-700',
-    bgColor: 'bg-red-50',
-    borderColor: 'border-red-300'
+    textColor: 'text-rose-700',
+    bgColor: 'bg-rose-50',
+    borderColor: 'border-rose-300',
+    fontWeight: 'font-semibold'
   },
   NEUTRAL: {
-    textColor: 'text-gray-400',
+    textColor: 'text-gray-500',
     bgColor: 'bg-gray-50',
-    borderColor: 'border-gray-300'
+    borderColor: 'border-gray-300',
+    fontWeight: 'font-normal'
   },
   CURRENT_MONTH: {
-    bgColor: 'bg-blue-100'
+    bgColor: 'bg-sky-100',
+    textColor: 'text-sky-900',
+    fontWeight: 'font-semibold'
   }
 }
 
@@ -202,84 +225,127 @@ export const VIEW_MODES = {
 // Budget type styling configurations
 export const BUDGET_TYPE_STYLES = {
   INCOME: {
-    bgColor: 'bg-green-100',
-    textColor: 'text-green-800',
-    amountTextColor: 'text-green-700',
-    amountBgColor: 'bg-green-50',
+    bgColor: 'bg-emerald-100',
+    textColor: 'text-emerald-800',
+    amountTextColor: 'text-emerald-700',
+    amountBgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200',
     icon: 'TrendingUp',
-    label: 'Income'
+    label: 'Income',
+    // Enhanced typography
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm'
   },
   EXPENSE: {
-    bgColor: 'bg-red-100',
-    textColor: 'text-red-800',
-    amountTextColor: 'text-red-700',
-    amountBgColor: 'bg-red-50',
+    bgColor: 'bg-rose-100',
+    textColor: 'text-rose-800',
+    amountTextColor: 'text-rose-700',
+    amountBgColor: 'bg-rose-50',
+    borderColor: 'border-rose-200',
     icon: 'TrendingDown',
-    label: 'Expense'
+    label: 'Expense',
+    // Enhanced typography
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm'
   },
   INVESTMENT_INCOMING: {
-    bgColor: 'bg-green-100',
-    textColor: 'text-green-800',
-    amountTextColor: 'text-green-700',
-    amountBgColor: 'bg-green-50',
+    bgColor: 'bg-emerald-100',
+    textColor: 'text-emerald-800',
+    amountTextColor: 'text-emerald-700',
+    amountBgColor: 'bg-emerald-50',
+    borderColor: 'border-emerald-200',
     icon: 'TrendingUp',
-    label: 'Investment'
+    label: 'Investment',
+    // Enhanced typography
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm'
   },
   INVESTMENT_OUTGOING: {
-    bgColor: 'bg-red-100',
-    textColor: 'text-red-800',
-    amountTextColor: 'text-red-700',
-    amountBgColor: 'bg-red-50',
+    bgColor: 'bg-rose-100',
+    textColor: 'text-rose-800',
+    amountTextColor: 'text-rose-700',
+    amountBgColor: 'bg-rose-50',
+    borderColor: 'border-rose-200',
     icon: 'TrendingDown',
-    label: 'Investment'
+    label: 'Investment',
+    // Enhanced typography
+    fontWeight: 'font-semibold',
+    fontSize: 'text-sm'
   }
 }
 
-// Table cell styling configurations
+// Enhanced table cell styling configurations
 export const TABLE_CELL_STYLES = {
   CURRENT_MONTH: {
-    bgColor: 'bg-blue-100',
-    amountBgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    shadow: 'shadow-sm'
+    bgColor: 'bg-sky-100',
+    amountBgColor: 'bg-sky-50',
+    borderColor: 'border-sky-200',
+    shadow: 'shadow-sm',
+    // Enhanced typography for current month
+    fontWeight: 'font-semibold',
+    textColor: 'text-sky-900'
   },
   PAST_MONTH: {
-    bgColor: 'bg-gray-100',
-    textColor: 'text-gray-400'
+    bgColor: 'bg-gray-50',
+    textColor: 'text-gray-500',
+    // Enhanced typography for past months
+    fontWeight: 'font-normal',
+    opacity: 'opacity-75'
   },
   SCHEDULED_MONTH: {
-    incomeBgColor: 'bg-green-50',
-    expenseBgColor: 'bg-red-50'
+    incomeBgColor: 'bg-emerald-50',
+    expenseBgColor: 'bg-rose-50',
+    // Enhanced typography for scheduled months
+    fontWeight: 'font-medium'
   },
   DEFAULT: {
-    bgColor: 'bg-gray-50'
+    bgColor: 'bg-white',
+    // Enhanced typography for default cells
+    fontWeight: 'font-normal'
   },
   CHANGES_INDICATOR: {
-    bgColor: 'bg-orange-500',
+    bgColor: 'bg-amber-500',
     borderColor: 'border-white',
-    shadow: 'shadow-sm'
+    shadow: 'shadow-sm',
+    // Enhanced visibility
+    size: 'w-3 h-3'
   }
 }
 
-// Action button configurations
+// Enhanced action button configurations
 export const ACTION_BUTTONS = {
   EDIT: {
     color: 'text-blue-600',
     hoverColor: 'hover:text-blue-800',
     hoverBg: 'hover:bg-blue-50',
-    title: 'Edit budget settings'
+    title: 'Edit budget settings',
+    // Enhanced styling
+    size: 'w-6 h-6',
+    padding: 'p-2',
+    borderRadius: 'rounded-md',
+    transition: 'transition-all duration-200'
   },
   DUPLICATE: {
-    color: 'text-green-600',
-    hoverColor: 'hover:text-green-800',
-    hoverBg: 'hover:bg-green-50',
-    title: 'Duplicate this budget item'
+    color: 'text-emerald-600',
+    hoverColor: 'hover:text-emerald-800',
+    hoverBg: 'hover:bg-emerald-50',
+    title: 'Duplicate this budget item',
+    // Enhanced styling
+    size: 'w-6 h-6',
+    padding: 'p-2',
+    borderRadius: 'rounded-md',
+    transition: 'transition-all duration-200'
   },
   DELETE: {
-    color: 'text-red-600',
-    hoverColor: 'hover:text-red-800',
-    hoverBg: 'hover:bg-red-50',
-    title: 'Delete budget item'
+    color: 'text-rose-600',
+    hoverColor: 'hover:text-rose-800',
+    hoverBg: 'hover:bg-rose-50',
+    title: 'Delete budget item',
+    // Enhanced styling
+    size: 'w-6 h-6',
+    padding: 'p-2',
+    borderRadius: 'rounded-md',
+    transition: 'transition-all duration-200'
   }
 }
 

@@ -1,24 +1,31 @@
 <template>
-  <tr class="hover:bg-gray-50">
+  <tr class="hover:bg-gray-50 transition-colors duration-200 border-b border-gray-100">
     <!-- Budget Item Info Cell -->
-    <td class="px-6 py-4 text-sm font-medium text-gray-900 sticky left-0 bg-white z-10">
+    <td class="px-6 py-3 sticky left-0 bg-white z-20 border-r border-gray-200">
       <div>
-        <div class="flex items-center">
-          <div class="font-semibold">{{ budget.name }}</div>
+        <!-- Budget Name and Type Badge -->
+        <div class="flex items-center justify-between">
+          <div class="font-semibold text-gray-900 text-base leading-tight">{{ budget.name }}</div>
           <span :class="getTypeBadgeClasses()">
             <TrendingUp v-if="isIncomeType" class="w-3 h-3 mr-1" />
             <TrendingDown v-else class="w-3 h-3 mr-1" />
             {{ budgetTypeLabel }}
           </span>
         </div>
-        <div class="text-xs text-gray-500">{{ budget.category }}</div>
-        <div class="text-xs text-blue-600 flex items-center">
-          <Repeat class="w-3 h-3 mr-1" />
-          {{ budget.recurrence }}
-        </div>
-        <div v-if="shouldShowStartMonth(months)" class="text-xs text-orange-600 flex items-center">
-          <Calendar class="w-3 h-3 mr-1" />
-          Starts: {{ months[budget.startMonth] }}
+        
+        <!-- Category -->
+        <div class="text-sm text-gray-600 font-medium">{{ budget.category }}</div>
+        
+        <!-- Recurrence and Schedule Info -->
+        <div class="space-y-0.5">
+          <div class="text-xs text-blue-600 flex items-center font-medium">
+            <Repeat class="w-3 h-3 mr-1" />
+            {{ budget.recurrence }}
+          </div>
+          <div v-if="shouldShowStartMonth(months)" class="text-xs text-orange-600 flex items-center font-medium">
+            <Calendar class="w-3 h-3 mr-1" />
+            Starts: {{ months[budget.startMonth] }}
+          </div>
         </div>
       </div>
     </td>
@@ -26,47 +33,47 @@
     <!-- Monthly Amount Cells -->
     <td v-for="(month, index) in months" :key="month" 
         :class="[
-          'px-2 py-4 text-center',
-          selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : ''
+          'px-3 py-3 text-center border-r border-gray-100',
+          selectedYear === currentYear && index === currentMonth ? 'bg-sky-100' : ''
         ]">
       <div class="relative">
         <div :class="getMonthlyCellClasses(selectedYear, currentYear, currentMonth, index, isScheduledMonth, getBudgetAmount)">
-          <span v-if="getBudgetAmount(budget, index) > 0">
+          <span v-if="getBudgetAmount(budget, index) > 0" class="font-medium">
             {{ formatAmountWithSign(getBudgetAmount(budget, index), formatCurrency) }}
           </span>
-          <span v-else class="text-gray-400">—</span>
+          <span v-else class="text-gray-400 font-normal">—</span>
         </div>
         <div v-if="hasChanges(budget.id, index)" 
              title="This amount has been manually modified"
-             class="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full border border-white shadow-sm"></div>
+             class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-sm"></div>
       </div>
     </td>
 
     <!-- Yearly Total Cell -->
-    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)">
-      <span v-if="calculateYearlyTotal(budget) > 0">
+    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="px-3 py-3 text-center border-r border-gray-100">
+      <span v-if="calculateYearlyTotal(budget) > 0" class="font-semibold">
         {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
       </span>
-      <span v-else>—</span>
+      <span v-else class="text-gray-400 font-normal">—</span>
     </td>
 
     <!-- Actions Cell -->
-    <td class="px-4 py-4 text-center sticky right-0 bg-white z-10">
+    <td class="px-4 py-3 text-center sticky right-0 bg-white z-20 border-l border-gray-200">
       <div class="flex justify-center space-x-1">
         <button @click="$emit('edit-budget', budget)" 
                 :title="getActionButtonConfig('EDIT').title"
-                :class="`p-2 ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} rounded-md transition-colors`">
-          <Edit class="w-5 h-5" />
+                :class="`${getActionButtonConfig('EDIT').padding} ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} ${getActionButtonConfig('EDIT').borderRadius} ${getActionButtonConfig('EDIT').transition}`">
+          <Edit :class="getActionButtonConfig('EDIT').size" />
         </button>
         <button @click="$emit('duplicate-budget', budget)" 
                 :title="getActionButtonConfig('DUPLICATE').title"
-                :class="`p-2 ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} rounded-md transition-colors`">
-          <Copy class="w-5 h-5" />
+                :class="`${getActionButtonConfig('DUPLICATE').padding} ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} ${getActionButtonConfig('DUPLICATE').borderRadius} ${getActionButtonConfig('DUPLICATE').transition}`">
+          <Copy :class="getActionButtonConfig('DUPLICATE').size" />
         </button>
         <button @click="$emit('delete-budget', budget.id)" 
                 :title="getActionButtonConfig('DELETE').title"
-                :class="`p-2 ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} rounded-md transition-colors`">
-          <Trash2 class="w-5 h-5" />
+                :class="`${getActionButtonConfig('DELETE').padding} ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} ${getActionButtonConfig('DELETE').borderRadius} ${getActionButtonConfig('DELETE').transition}`">
+          <Trash2 :class="getActionButtonConfig('DELETE').size" />
         </button>
       </div>
     </td>

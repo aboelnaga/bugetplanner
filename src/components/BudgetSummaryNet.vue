@@ -8,8 +8,8 @@
   </tr>
 
   <!-- Net Balance Line -->
-  <tr v-if="shouldShowSummaryRow('NET_BALANCE')" :class="netBalanceStyling.bgColor + ' font-bold'">
-    <td :class="`px-6 py-4 text-sm font-bold text-gray-900 sticky left-0 ${netBalanceStyling.stickyBgColor} z-10`">
+  <tr v-if="shouldShowSummaryRow('NET_BALANCE')" :class="`${netBalanceStyling.bgColor} border-t-2 border-gray-200 font-bold`">
+    <td :class="`px-6 py-4 text-sm font-bold ${netBalanceStyling.textColor} sticky left-0 ${netBalanceStyling.stickyBgColor} z-20 border-r border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-xl font-bold ${netBalanceStyling.textColor} mr-2`">{{ netBalanceConfig.symbol }}</span>
         {{ netBalanceConfig.label }}
@@ -22,12 +22,12 @@
     <td :class="getSummaryTotalClasses(calculateGrandTotal(), true)">
       {{ formatSummaryValue(calculateGrandTotal(), formatCurrency) }}
     </td>
-    <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-10`"></td>
+    <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
 
   <!-- Net Investment Row -->
-  <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="netInvestmentStyling.bgColor">
-    <td :class="`px-6 py-3 text-sm font-semibold text-indigo-700 sticky left-0 ${netInvestmentStyling.stickyBgColor} z-10`">
+  <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="`${netInvestmentStyling.bgColor} border-t-2 border-gray-200`">
+    <td :class="`px-6 py-3 text-sm font-semibold ${netInvestmentStyling.textColor} sticky left-0 ${netInvestmentStyling.stickyBgColor} z-20 border-r border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-lg font-bold ${netInvestmentStyling.textColor} mr-2`">{{ netInvestmentConfig.symbol }}</span>
         {{ netInvestmentConfig.label }}
@@ -43,7 +43,7 @@
     <td :class="getSummaryTotalClasses(calculateGrandTotalInvestmentNet())">
       {{ formatSummaryValue(calculateGrandTotalInvestmentNet(), formatCurrency) }}
     </td>
-    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-10`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
 </template>
 

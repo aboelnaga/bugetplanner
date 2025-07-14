@@ -44,29 +44,31 @@
 
     <!-- Budget Table -->
     <div v-else :class="getTableContainerClasses()">
-      <div :class="getTableScrollClasses()">
+      <div :class="getTableScrollClasses()" class="border border-gray-200 rounded-lg">
         <table class="min-w-full">
-          <thead class="bg-gray-50 sticky top-0 z-30">
+          <thead class="bg-slate-50 sticky top-0 z-30 border-b border-gray-200">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider sticky left-0 bg-gray-50 z-40">
+              <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700 tracking-wider sticky left-0 bg-slate-50 z-40 border-r border-gray-200">
                 Budget Item
               </th>
               <th v-for="(month, index) in months" :key="month" 
-                  :class="getMonthHeaderClasses(currentYear, currentMonth, index)">
+                  :class="getMonthHeaderClasses(currentYear, currentMonth, index)"
+                  class="px-3 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider border-r border-gray-200">
                 {{ month }}
-                <span v-if="selectedYear === currentYear && index === currentMonth" class="block text-xs font-normal mt-1">
+                <span v-if="selectedYear === currentYear && index === currentMonth" 
+                      class="block text-xs font-medium text-sky-600 mt-1">
                   (Current)
                 </span>
               </th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+              <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider bg-slate-50 border-r border-gray-200">
                 Total
               </th>
-              <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 sticky right-0 z-40">
+              <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 tracking-wider bg-slate-50 sticky right-0 z-40 border-l border-gray-200">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="bg-white divide-y divide-gray-100">
             <!-- Regular table view -->
             <template v-if="!groupByCategory">
               <BudgetTableList
