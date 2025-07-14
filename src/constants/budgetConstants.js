@@ -320,7 +320,7 @@ export const ACTION_BUTTONS = {
     hoverBg: 'hover:bg-blue-50',
     title: 'Edit budget settings',
     // Enhanced styling
-    size: 'w-6 h-6',
+    size: 'w-4 h-4',
     padding: 'p-2',
     borderRadius: 'rounded-md',
     transition: 'transition-all duration-200'
@@ -331,7 +331,7 @@ export const ACTION_BUTTONS = {
     hoverBg: 'hover:bg-emerald-50',
     title: 'Duplicate this budget item',
     // Enhanced styling
-    size: 'w-6 h-6',
+    size: 'w-4 h-4',
     padding: 'p-2',
     borderRadius: 'rounded-md',
     transition: 'transition-all duration-200'
@@ -342,7 +342,7 @@ export const ACTION_BUTTONS = {
     hoverBg: 'hover:bg-rose-50',
     title: 'Delete budget item',
     // Enhanced styling
-    size: 'w-6 h-6',
+    size: 'w-4 h-4',
     padding: 'p-2',
     borderRadius: 'rounded-md',
     transition: 'transition-all duration-200'
