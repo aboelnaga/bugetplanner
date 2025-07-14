@@ -94,6 +94,9 @@
                 placeholder="EGP 0"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
             </div>
+            <p class="text-xs text-gray-500 mt-1">
+              Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
+            </p>
           </div>
           
           <!-- Investment Direction (only for investment type) -->
@@ -280,7 +283,8 @@ import {
   RECURRENCE_TYPES, 
   RECURRENCE_LABELS, 
   INVESTMENT_DIRECTIONS, 
-  INVESTMENT_DIRECTION_LABELS 
+  INVESTMENT_DIRECTION_LABELS,
+  DATABASE_LIMITS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'

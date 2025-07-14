@@ -337,4 +337,10 @@ export const SCHEDULE_PATTERNS = {
   [RECURRENCE_TYPES.QUARTERLY]: [0, 3, 6, 9], // Q1, Q2, Q3, Q4
   [RECURRENCE_TYPES.BI_ANNUAL]: [0, 6], // January and July
   [RECURRENCE_TYPES.SCHOOL_TERMS]: [0, 8] // January and September
+}
+
+// Database limits (precision 12, scale 2)
+export const DATABASE_LIMITS = {
+  MAX_AMOUNT: 9999999999, // Maximum amount allowed by database
+  MAX_AMOUNT_FORMATTED: 'EGP 9,999,999,999'
 } 

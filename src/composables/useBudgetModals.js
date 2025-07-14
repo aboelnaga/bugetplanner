@@ -8,7 +8,8 @@ import {
   INVESTMENT_DIRECTIONS, 
   SCHEDULE_PATTERNS,
   DEFAULT_VALUES,
-  CATEGORIES_BY_TYPE
+  CATEGORIES_BY_TYPE,
+  DATABASE_LIMITS
 } from '@/constants/budgetConstants.js'
 import { dateUtils, validationHelpers, scheduleUtils, formatCurrency } from '@/utils/budgetUtils.js'
 
@@ -136,10 +137,27 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    const cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
+    let cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
+    
+    // Check if the integer part exceeds the maximum length
+    const maxLength = DATABASE_LIMITS.MAX_AMOUNT.toString().length // 10 digits
+    if (parts[0].length > maxLength) {
+      // Trim the integer part to max length
+      cleanValue = parts[0].substring(0, maxLength) + (parts.length > 1 ? '.' + parts[1] : '')
+    }
     
     // Convert to number
-    const numberValue = parseFloat(cleanValue) || 0
+    let numberValue = parseFloat(cleanValue) || 0
+    
+    // Apply database limits (precision 12, scale 2 = max 9,999,999,999.99)
+    if (numberValue > DATABASE_LIMITS.MAX_AMOUNT) {
+      numberValue = DATABASE_LIMITS.MAX_AMOUNT
+      // Show warning to user
+      if (!window.amountLimitWarningShown) {
+        alert(`Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`)
+        window.amountLimitWarningShown = true
+      }
+    }
     
     // Update form data
     formData.value.defaultAmount = numberValue
@@ -158,6 +176,11 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     if (formData.value.defaultAmount <= 0) {
       errors.push('Default amount must be greater than 0')
+    }
+    
+    // Check for database limits (precision 12, scale 2 = max 9,999,999,999.99)
+    if (formData.value.defaultAmount > DATABASE_LIMITS.MAX_AMOUNT) {
+      errors.push(`Default amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations`)
     }
     
     if (formData.value.recurrence === 'custom' && formData.value.customMonths.length === 0) {
