@@ -342,23 +342,29 @@ export const ACTION_BUTTONS = {
     color: 'text-emerald-600',
     hoverColor: 'hover:text-emerald-800',
     hoverBg: 'hover:bg-emerald-50',
-    title: 'Duplicate this budget item',
+    title: 'Duplicate this budget item to create a copy',
+    label: 'Duplicate',
     // Enhanced styling
     size: 'w-4 h-4',
     padding: 'p-2',
     borderRadius: 'rounded-md',
-    transition: 'transition-all duration-200'
+    transition: 'transition-all duration-200',
+    // Enhanced accessibility
+    ariaLabel: 'Duplicate budget item'
   },
   DELETE: {
     color: 'text-rose-600',
     hoverColor: 'hover:text-rose-800',
     hoverBg: 'hover:bg-rose-50',
-    title: 'Delete budget item',
+    title: 'Delete this budget item permanently',
+    label: 'Delete',
     // Enhanced styling
     size: 'w-4 h-4',
     padding: 'p-2',
     borderRadius: 'rounded-md',
-    transition: 'transition-all duration-200'
+    transition: 'transition-all duration-200',
+    // Enhanced accessibility
+    ariaLabel: 'Delete budget item'
   }
 }
 

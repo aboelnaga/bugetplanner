@@ -19,10 +19,10 @@ export function useBudgetTableRow(budget) {
 
   // Get type badge classes
   const getTypeBadgeClasses = () => {
-    const baseClasses = 'ml-2 px-2 py-1 text-xs rounded-full flex items-center'
+    const baseClasses = 'px-2.5 py-1 text-xs rounded-full flex items-center font-semibold border shadow-sm'
     return isIncomeType.value 
-      ? `${baseClasses} ${BUDGET_TYPE_STYLES.INCOME.bgColor} ${BUDGET_TYPE_STYLES.INCOME.textColor}`
-      : `${baseClasses} ${BUDGET_TYPE_STYLES.EXPENSE.bgColor} ${BUDGET_TYPE_STYLES.EXPENSE.textColor}`
+      ? `${baseClasses} ${BUDGET_TYPE_STYLES.INCOME.bgColor} ${BUDGET_TYPE_STYLES.INCOME.textColor} ${BUDGET_TYPE_STYLES.INCOME.borderColor}`
+      : `${baseClasses} ${BUDGET_TYPE_STYLES.EXPENSE.bgColor} ${BUDGET_TYPE_STYLES.EXPENSE.textColor} ${BUDGET_TYPE_STYLES.EXPENSE.borderColor}`
   }
 
   // Get monthly cell classes

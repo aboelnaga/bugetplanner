@@ -346,7 +346,7 @@ export const tableUtils = {
   // Get budget type label
   getBudgetTypeLabel: (budget) => {
     if (budget.type === 'income') return 'Income'
-    if (budget.type === 'investment') return 'Investment'
+    if (budget.type === 'investment') return 'Invest'
     return 'Expense'
   }
 } 
