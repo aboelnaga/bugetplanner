@@ -13,6 +13,11 @@ export const useBudgetStore = defineStore('budget', () => {
   const loading = ref(false)
   const error = ref(null)
   const selectedYear = ref(new Date().getFullYear())
+  
+  // Separate loading states for different operations
+  const addLoading = ref(false)
+  const editLoading = ref(false)
+  const deleteLoading = ref(false)
 
   // Computed properties
   const currentYear = computed(() => new Date().getFullYear())
@@ -54,7 +59,7 @@ export const useBudgetStore = defineStore('budget', () => {
     if (!authStore.isAuthenticated || !authStore.userId) return null
     
     try {
-      loading.value = true
+      addLoading.value = true
       error.value = null
       
       console.log('Store: Creating budget item with data:', { ...budgetData, user_id: authStore.userId, year: selectedYear.value })
@@ -65,7 +70,7 @@ export const useBudgetStore = defineStore('budget', () => {
       })
       console.log('Store: API returned data:', data)
       
-      // Add to local state
+      // Add to local state immediately - no need for general loading state
       budgetItems.value.push(data)
       
       return data
@@ -74,7 +79,7 @@ export const useBudgetStore = defineStore('budget', () => {
       console.error('Error adding budget item:', err)
       return null
     } finally {
-      loading.value = false
+      addLoading.value = false
     }
   }
 
@@ -83,7 +88,7 @@ export const useBudgetStore = defineStore('budget', () => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
     
     try {
-      loading.value = true
+      editLoading.value = true
       error.value = null
       
       // Get the current budget item to compare amounts
@@ -92,7 +97,7 @@ export const useBudgetStore = defineStore('budget', () => {
       
       const data = await budgetAPI.updateBudgetItem(id, updates)
       
-      // Update local state
+      // Update local state immediately - no need for general loading state
       const index = budgetItems.value.findIndex(item => item.id === id)
       if (index !== -1) {
         budgetItems.value[index] = { ...budgetItems.value[index], ...data }
@@ -119,7 +124,7 @@ export const useBudgetStore = defineStore('budget', () => {
       console.error('Error updating budget item:', err)
       return false
     } finally {
-      loading.value = false
+      editLoading.value = false
     }
   }
 
@@ -128,12 +133,12 @@ export const useBudgetStore = defineStore('budget', () => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
     
     try {
-      loading.value = true
+      deleteLoading.value = true
       error.value = null
       
       await budgetAPI.deleteBudgetItem(id)
       
-      // Remove from local state
+      // Remove from local state immediately - no need for general loading state
       budgetItems.value = budgetItems.value.filter(item => item.id !== id)
       
       return true
@@ -142,7 +147,7 @@ export const useBudgetStore = defineStore('budget', () => {
       console.error('Error deleting budget item:', err)
       return false
     } finally {
-      loading.value = false
+      deleteLoading.value = false
     }
   }
 
@@ -289,6 +294,11 @@ export const useBudgetStore = defineStore('budget', () => {
     error,
     selectedYear,
     
+    // Loading states
+    addLoading,
+    editLoading,
+    deleteLoading,
+    
     // Computed
     currentYear,
     currentMonth,
@@ -304,6 +314,9 @@ export const useBudgetStore = defineStore('budget', () => {
     fetchBudgetHistory,
     copyFromPreviousYear,
     initialize,
-    watchAuth
+    watchAuth,
+    addLoading,
+    editLoading,
+    deleteLoading
   }
 }) 
