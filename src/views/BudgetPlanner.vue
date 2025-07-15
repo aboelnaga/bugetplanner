@@ -118,6 +118,7 @@
   import { useBudgetFilters } from '@/composables/useBudgetFilters.js'
   import { useBudgetModals } from '@/composables/useBudgetModals.js'
   import { useBudgetCalculations } from '@/composables/useBudgetCalculations.js'
+  import { ref } from 'vue'
 
   // Stores
   const budgetStore = useBudgetStore()
@@ -202,23 +203,42 @@
   } = useBudgetCalculations(budgetItems, budgetStore)
 
   // Year management
+  const previousYearHasData = ref(false)
+  
   const canCopyFromPreviousYear = computed(() => {
     const previousYear = selectedYear.value - 1
-    // For now, return false since we don't have the old budgetData structure
-    // This will be updated when we implement the copy functionality with Supabase
-    return false
+    return previousYear >= 2020 && previousYearHasData.value
   })
+
+  // Check if previous year has data
+  const checkPreviousYearData = async () => {
+    const previousYear = selectedYear.value - 1
+    if (previousYear >= 2020) {
+      previousYearHasData.value = await budgetStore.hasBudgetItemsForYear(previousYear)
+    } else {
+      previousYearHasData.value = false
+    }
+  }
 
   // Watch for authentication changes
   watch(() => authStore.isAuthenticated, (isAuthenticated) => {
     if (isAuthenticated) {
       budgetStore.initialize()
+      checkPreviousYearData()
     } else {
       // Clear data when not authenticated
       budgetStore.budgetItems = []
       budgetStore.monthlyAmounts = []
       budgetStore.budgetHistory = []
       budgetStore.error = null
+      previousYearHasData.value = false
+    }
+  })
+
+  // Watch for selected year changes
+  watch(() => selectedYear.value, () => {
+    if (authStore.isAuthenticated) {
+      checkPreviousYearData()
     }
   })
 
@@ -231,6 +251,7 @@
     
     if (authStore.isAuthenticated) {
       budgetStore.initialize()
+      checkPreviousYearData()
     }
   })
 </script>

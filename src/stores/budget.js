@@ -257,6 +257,19 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
+  // Check if a specific year has budget items
+  const hasBudgetItemsForYear = async (year) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return false
+    
+    try {
+      const data = await budgetAPI.getBudgetItems(authStore.userId, year)
+      return data && data.length > 0
+    } catch (err) {
+      console.error('Error checking budget items for year:', err)
+      return false
+    }
+  }
+
   // Initialize store
   const initialize = async () => {
     console.log('Store: Initializing, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
@@ -313,6 +326,7 @@ export const useBudgetStore = defineStore('budget', () => {
     addBudgetHistory,
     fetchBudgetHistory,
     copyFromPreviousYear,
+    hasBudgetItemsForYear,
     initialize,
     watchAuth,
     addLoading,

@@ -393,11 +393,11 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       type: budget.type,
       category: budget.category,
       recurrence: budget.recurrence,
-      default_amount: budget.defaultAmount || 0,
+      default_amount: budget.default_amount || budget.defaultAmount || 0,
       amounts: [...budget.amounts],
       schedule: [...budget.schedule],
       investment_direction: budget.investment_direction,
-      start_month: budget.startMonth
+      start_month: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0)
     }
 
     // Add to store
@@ -412,7 +412,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     const hasAnyValues = budget.amounts.some(amount => amount > 0)
     
     // If it's a future year, allow full deletion
-    if (selectedYear.value > currentYear.value) {
+    if (selectedYear.value > currentYear) {
       if (confirm('Are you sure you want to delete this budget item?')) {
         await budgetStore.deleteBudgetItem(budgetId)
       }
