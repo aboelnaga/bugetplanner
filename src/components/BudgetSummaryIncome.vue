@@ -1,17 +1,17 @@
 <template>
   <!-- Income Line -->
-  <tr v-if="shouldShowSummaryRow('TOTAL_INCOME')" :class="`${totalIncomeStyling.bgColor} border-t-2 border-gray-200`">
-    <td :class="`px-6 py-3 text-sm font-semibold ${totalIncomeStyling.textColor} sticky left-0 ${totalIncomeStyling.stickyBgColor} z-20 border-r border-gray-200`">
+  <tr v-if="shouldShowSummaryRow('TOTAL_INCOME')" :class="`${totalIncomeStyling.bgColor}`">
+    <td :class="`px-6 py-3 text-sm font-semibold ${totalIncomeStyling.textColor} sticky left-0 ${totalIncomeStyling.stickyBgColor} z-20 border-r border-t-2 border-gray-200`">
       <div class="flex items-center truncate">
         <span :class="`text-lg font-bold ${totalIncomeStyling.textColor} mr-2`">{{ totalIncomeConfig.symbol }}</span>
         {{ totalIncomeConfig.label }}
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-income-${month}`" 
-        :class="getSummaryCellClasses(calculateMonthlyIncome(index), selectedYear, currentYear, currentMonth, index)">
+        :class="`${getSummaryCellClasses(calculateMonthlyIncome(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
       {{ formatSummaryValue(calculateMonthlyIncome(index), formatCurrency) }}
     </td>
-    <td :class="getSummaryTotalClasses(calculateGrandTotalIncome())">
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalIncome())} border-t-2 border-l-2 border-gray-200`">
       {{ formatSummaryValue(calculateGrandTotalIncome(), formatCurrency) }}
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${totalIncomeStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
@@ -19,17 +19,17 @@
 
   <!-- Investment Returns Line -->
   <tr v-if="shouldShowSummaryRow('INVESTMENT_RETURNS')" :class="`${investmentReturnsStyling.bgColor} border-t-2 border-gray-200`">
-    <td :class="`px-6 py-3 text-sm font-semibold ${investmentReturnsStyling.textColor} sticky left-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-r border-gray-200`">
+    <td :class="`px-6 py-3 text-sm font-semibold ${investmentReturnsStyling.textColor} sticky left-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-r border-t-2 border-gray-200`">
       <div class="flex items-center truncate">
         <span :class="`text-lg font-bold ${investmentReturnsStyling.textColor} mr-2`">{{ investmentReturnsConfig.symbol }}</span>
         {{ investmentReturnsConfig.label }}
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-inv-in-${month}`" 
-        :class="getSummaryCellClasses(calculateMonthlyInvestmentIncoming(index), selectedYear, currentYear, currentMonth, index)">
+        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentIncoming(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
       {{ formatSummaryValue(calculateMonthlyInvestmentIncoming(index), formatCurrency) }}
     </td>
-    <td :class="getSummaryTotalClasses(calculateGrandTotalInvestmentIncoming())">
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentIncoming())} border-t-2 border-l-2 border-gray-200`">
       {{ formatSummaryValue(calculateGrandTotalInvestmentIncoming(), formatCurrency) }}
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>

@@ -1,9 +1,9 @@
 <template>
   <!-- Divider Line -->
   <tr v-if="shouldShowSummaryRow('NET_BALANCE')" class="bg-gray-100">
-    <td class="p-0 border-t-2 border-gray-400"></td>
-    <td v-for="(month, index) in months" :key="`divider-${month}`" class="p-0 border-t-2 border-gray-400"></td>
-    <td class="p-0 border-t-2 border-gray-400"></td>
+    <td class="p-0 border-t-2 border-gray-200"></td>
+    <td v-for="(month, index) in months" :key="`divider-${month}`" class="p-0 border-t-2 border-gray-200"></td>
+    <td class="p-0 border-t-2 border-gray-200"></td>
     <td class="p-0"></td>
   </tr>
 
@@ -26,8 +26,8 @@
   </tr>
 
   <!-- Net Investment Row -->
-  <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="`${netInvestmentStyling.bgColor} border-t-2 border-gray-200`">
-    <td :class="`px-6 py-3 text-sm font-semibold ${netInvestmentStyling.textColor} sticky left-0 ${netInvestmentStyling.stickyBgColor} z-20 border-r border-gray-200`">
+  <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="`${netInvestmentStyling.bgColor} text-sm`">
+    <td :class="`px-6 py-3 text-sm font-semibold ${netInvestmentStyling.textColor} sticky left-0 ${netInvestmentStyling.stickyBgColor} z-20 border-r border-t-2 border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-lg font-bold ${netInvestmentStyling.textColor} mr-2`">{{ netInvestmentConfig.symbol }}</span>
         {{ netInvestmentConfig.label }}
@@ -37,13 +37,13 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`net-inv-${month}`" 
-        :class="getSummaryCellClasses(calculateMonthlyInvestmentNet(index), selectedYear, currentYear, currentMonth, index)">
+        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentNet(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
       {{ formatSummaryValue(calculateMonthlyInvestmentNet(index), formatCurrency) }}
     </td>
-    <td :class="getSummaryTotalClasses(calculateGrandTotalInvestmentNet())">
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentNet())} border-t-2 border-l-2 border-gray-200`">
       {{ formatSummaryValue(calculateGrandTotalInvestmentNet(), formatCurrency) }}
     </td>
-    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-20 border-l border-gray-200 border-t-2`"></td>
   </tr>
 </template>
 

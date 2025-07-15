@@ -102,13 +102,13 @@ export const summaryUtils = {
   // Get summary total cell classes
   getSummaryTotalClasses: (value, isGrandTotal = false) => {
     const baseClasses = isGrandTotal 
-      ? 'px-4 py-4 text-right text-lg font-bold border-2'
+      ? 'px-4 py-4 text-right text-lg font-bold border-l-2 border-gray-200'
       : 'px-4 py-3 text-right text-sm font-bold'
     
     const valueStyles = summaryUtils.getValueStyles(value)
     
     if (isGrandTotal) {
-      return `${baseClasses} ${valueStyles.textColor} ${valueStyles.bgColor} ${valueStyles.borderColor}`
+      return `${baseClasses} ${valueStyles.textColor} ${valueStyles.bgColor}`
     }
     
     return `${baseClasses} ${valueStyles.textColor}`
@@ -323,7 +323,7 @@ export const tableUtils = {
 
   // Get yearly total cell classes
   getYearlyTotalCellClasses: (budget, calculateYearlyTotal) => {
-    const baseClasses = 'px-4 py-4 text-center font-semibold'
+    const baseClasses = 'px-4 py-4 text-right font-semibold'
     const typeStyling = tableUtils.getBudgetTypeStyling(budget)
     const total = calculateYearlyTotal(budget)
     

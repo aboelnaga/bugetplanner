@@ -41,7 +41,7 @@
     </td>
 
     <!-- Yearly Total Cell -->
-    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="border-r border-gray-100 text-sm">
+    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="border-l-2 border-gray-150 text-sm">
       <span v-if="calculateYearlyTotal(budget) > 0" class="font-medium">
         {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
       </span>
