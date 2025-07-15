@@ -428,7 +428,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     }
     
     // If current year and has values, check if there are past values
-    if (selectedYear.value === currentYear.value) {
+    if (selectedYear.value === currentYear) {
       const hasPastValues = budget.amounts.slice(0, currentMonth.value).some(amount => amount > 0)
       const hasFutureValues = budget.amounts.slice(currentMonth.value).some(amount => amount > 0)
       
@@ -450,7 +450,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
           await budgetStore.deleteBudgetItem(budgetId)
         }
       }
-    } else if (selectedYear.value < currentYear.value) {
+    } else if (selectedYear.value < currentYear) {
       // Past year with values - don't allow deletion
       alert('Cannot delete budget items from past years that contain data.')
     }
