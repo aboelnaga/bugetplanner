@@ -193,6 +193,28 @@ export const INVESTMENT_DIRECTION_LABELS = {
   [INVESTMENT_DIRECTIONS.INCOMING]: 'Incoming (Returns/Sales)'
 }
 
+// Payment schedule options
+export const PAYMENT_SCHEDULES = {
+  START_OF_MONTH: 'start_of_month',
+  THROUGHOUT_MONTH: 'throughout_month',
+  END_OF_MONTH: 'end_of_month',
+  CUSTOM_DATES: 'custom_dates'
+}
+
+export const PAYMENT_SCHEDULE_LABELS = {
+  [PAYMENT_SCHEDULES.START_OF_MONTH]: 'Start of Month',
+  [PAYMENT_SCHEDULES.THROUGHOUT_MONTH]: 'Throughout Month',
+  [PAYMENT_SCHEDULES.END_OF_MONTH]: 'End of Month',
+  [PAYMENT_SCHEDULES.CUSTOM_DATES]: 'Custom Dates'
+}
+
+export const PAYMENT_SCHEDULE_DESCRIPTIONS = {
+  [PAYMENT_SCHEDULES.START_OF_MONTH]: 'Paid once at the beginning of the month',
+  [PAYMENT_SCHEDULES.THROUGHOUT_MONTH]: 'Spent gradually throughout the month',
+  [PAYMENT_SCHEDULES.END_OF_MONTH]: 'Paid once at the end of the month',
+  [PAYMENT_SCHEDULES.CUSTOM_DATES]: 'Paid on specific dates (1-31)'
+}
+
 // Recurrence types
 export const RECURRENCE_TYPES = {
   MONTHLY: 'monthly',
@@ -408,7 +430,12 @@ export const DEFAULT_VALUES = {
     customMonths: [],
     oneTimeMonth: 0,
     investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
-    startMonth: 0
+    startMonth: 0,
+    payment_schedule: PAYMENT_SCHEDULES.THROUGHOUT_MONTH,
+    due_date: null,
+    is_fixed_expense: false,
+    reminder_enabled: false,
+    reminder_days_before: 3
   },
   CATEGORIES_BY_TYPE: {
     [BUDGET_TYPES.INCOME]: 'Salary',
