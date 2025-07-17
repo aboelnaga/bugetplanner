@@ -145,6 +145,7 @@ const isCollapsed = ref(false)
 const navigation = [
   { name: 'BudgetPlanner', label: 'Budget Planner', path: '/', icon: Calendar },
   { name: 'BudgetActionCenter', label: 'Action Center', path: '/action-center', icon: Receipt },
+  { name: 'Transactions', label: 'Transactions', path: '/transactions', icon: CreditCard },
   // { name: 'Dashboard', label: 'Dashboard', path: '/dashboard', icon: BarChart3 },
   // { name: 'Income', label: 'Income', path: '/income', icon: DollarSign },
   // { name: 'Expenses', label: 'Expenses', path: '/expenses', icon: CreditCard },
