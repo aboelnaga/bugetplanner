@@ -306,6 +306,10 @@ const props = defineProps({
   modelValue: {
     type: Boolean,
     default: false
+  },
+  budgetItem: {
+    type: Object,
+    default: null
   }
 })
 
@@ -375,6 +379,16 @@ const handleSubmit = async () => {
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     initializeFormData()
+    
+    // Pre-fill form if budget item is provided
+    if (props.budgetItem) {
+      formData.value.budget_item_id = props.budgetItem.id
+      formData.value.type = props.budgetItem.type
+      formData.value.category = props.budgetItem.category
+      formData.value.amount = props.budgetItem.amount
+      formData.value.description = props.budgetItem.name
+      formData.value.date = new Date().toISOString().split('T')[0] // Today's date
+    }
   }
 })
 </script> 

@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase, budgetAPI } from '@/lib/supabase.js'
 import { useAuthStore } from './auth.js'
+import { useTransactionStore } from './transactions.js'
 
 export const useBudgetStore = defineStore('budget', () => {
   const authStore = useAuthStore()
+  const transactionStore = useTransactionStore()
   
   // State
   const budgetItems = ref([])
@@ -270,6 +272,28 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
+  // Get budget items for a specific month with transactions
+  const getBudgetItemsForMonth = (month, year) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return []
+    
+    // Filter budget items for the specified year
+    const yearItems = budgetItems.value.filter(item => item.year === year)
+    
+    // For now, return all items for the year since we don't have month-specific filtering
+    // In the future, we could add month-specific logic based on payment schedules
+    return yearItems.map(item => {
+      // Get transactions for this budget item
+      const itemTransactions = transactionStore?.transactions?.value?.filter(t => 
+        t.budget_item_id === item.id
+      ) || []
+      
+      return {
+        ...item,
+        transactions: itemTransactions
+      }
+    })
+  }
+
   // Initialize store
   const initialize = async () => {
     console.log('Store: Initializing, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
@@ -327,6 +351,7 @@ export const useBudgetStore = defineStore('budget', () => {
     fetchBudgetHistory,
     copyFromPreviousYear,
     hasBudgetItemsForYear,
+    getBudgetItemsForMonth,
     initialize,
     watchAuth,
     addLoading,
