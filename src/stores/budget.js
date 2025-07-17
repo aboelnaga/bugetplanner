@@ -273,17 +273,30 @@ export const useBudgetStore = defineStore('budget', () => {
   }
 
   // Get budget items for a specific month with transactions
-  const getBudgetItemsForMonth = (month, year) => {
-    if (!authStore.isAuthenticated || !authStore.userId) return []
+  const getBudgetItemsForMonth = async (month, year) => {
+    console.log('getBudgetItemsForMonth called with month:', month, 'year:', year)
+    console.log('Auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
+    
+    if (!authStore.isAuthenticated || !authStore.userId) {
+      console.log('Not authenticated, returning empty array')
+      return []
+    }
+    
+    // Always fetch data for the specified year to ensure we have the latest
+    console.log('Fetching budget items for year:', year)
+    await fetchBudgetItems(year)
+    
+    console.log('Current budgetItems:', budgetItems.value.length)
     
     // Filter budget items for the specified year
     const yearItems = budgetItems.value.filter(item => item.year === year)
+    console.log('Year items:', yearItems.length)
     
     // For now, return all items for the year since we don't have month-specific filtering
     // In the future, we could add month-specific logic based on payment schedules
     return yearItems.map(item => {
       // Get transactions for this budget item
-      const itemTransactions = transactionStore?.transactions?.value?.filter(t => 
+      const itemTransactions = transactionStore?.transactions?.filter(t => 
         t.budget_item_id === item.id
       ) || []
       

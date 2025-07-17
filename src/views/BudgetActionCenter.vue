@@ -559,9 +559,18 @@ const availableYears = computed(() => {
   return years
 })
 
-const budgetItems = computed(() => {
-  return budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
-})
+const budgetItems = ref([])
+
+const loadBudgetItems = async () => {
+  console.log('Loading budget items for month:', selectedMonth.value, 'year:', selectedYear.value)
+  try {
+    budgetItems.value = await budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
+    console.log('Loaded budget items:', budgetItems.value.length)
+  } catch (error) {
+    console.error('Error loading budget items:', error)
+    budgetItems.value = []
+  }
+}
 
 const availableCategories = computed(() => {
   const categories = new Set()
@@ -609,12 +618,15 @@ const overdueCount = computed(() => {
 
 // Methods
 const loadData = async () => {
+  console.log('loadData called')
   isLoading.value = true
   try {
+    console.log('Loading transactions...')
     await Promise.all([
-      budgetStore.loadBudgetItems(),
-      transactionStore.loadTransactions()
+      transactionStore.fetchTransactions(selectedYear.value)
     ])
+    console.log('Loading budget items...')
+    await loadBudgetItems()
   } catch (error) {
     console.error('Error loading data:', error)
   } finally {
@@ -646,12 +658,12 @@ const goToCurrentMonth = () => {
   selectedYear.value = now.getFullYear()
 }
 
-const onMonthChange = () => {
-  // Month changed, data will be filtered automatically
+const onMonthChange = async () => {
+  await loadBudgetItems()
 }
 
-const onYearChange = () => {
-  // Year changed, data will be filtered automatically
+const onYearChange = async () => {
+  await loadBudgetItems()
 }
 
 const clearFilters = () => {
@@ -819,7 +831,7 @@ const confirmSkip = async () => {
 }
 
 const onTransactionAdded = async () => {
-  await loadData()
+  await loadBudgetItems()
   selectedBudgetItem.value = null
 }
 
@@ -828,8 +840,5 @@ onMounted(() => {
   loadData()
 })
 
-// Watch for month/year changes to reload data
-watch([selectedMonth, selectedYear], () => {
-  // Data will be filtered automatically by computed properties
-})
+
 </script> 

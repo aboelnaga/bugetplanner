@@ -448,7 +448,7 @@ const filteredTransactions = computed(() => {
 const loadData = async () => {
   isLoading.value = true
   try {
-    await transactionStore.loadTransactions()
+    await transactionStore.fetchTransactions()
   } catch (error) {
     console.error('Error loading transactions:', error)
   } finally {
