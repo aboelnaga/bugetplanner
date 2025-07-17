@@ -72,6 +72,7 @@ const routes = [
   //   component: Zakat,
   //   meta: { requiresAuth: true }
   // },
+
 ]
 
 const router = createRouter({
@@ -87,6 +88,11 @@ router.beforeEach(async (to, from, next) => {
   // Initialize auth if not already done
   if (!authStore.user && !authStore.loading) {
     await authStore.initAuth()
+  }
+  
+  // Wait a bit for auth to settle if still loading
+  if (authStore.loading) {
+    await new Promise(resolve => setTimeout(resolve, 100))
   }
   
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
