@@ -135,7 +135,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { BarChart3, Calendar, DollarSign, CreditCard, Users, TrendingUp, Calculator, LogOut, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { BarChart3, Calendar, DollarSign, CreditCard, Users, TrendingUp, Calculator, Receipt, LogOut, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth.js'
 
 const router = useRouter()
@@ -143,13 +143,14 @@ const authStore = useAuthStore()
 const isCollapsed = ref(false)
 
 const navigation = [
-  { name: 'Dashboard', label: 'Dashboard', path: '/', icon: BarChart3 },
-  { name: 'BudgetPlanner', label: 'Budget Planner', path: '/planner', icon: Calendar },
-  { name: 'Income', label: 'Income', path: '/income', icon: DollarSign },
-  { name: 'Expenses', label: 'Expenses', path: '/expenses', icon: CreditCard },
-  { name: 'Family', label: 'Family Budget', path: '/family', icon: Users },
-  { name: 'Investments', label: 'Investments', path: '/investments', icon: TrendingUp },
-  { name: 'Zakat', label: 'Zakat Calculator', path: '/zakat', icon: Calculator },
+  { name: 'BudgetPlanner', label: 'Budget Planner', path: '/', icon: Calendar },
+  { name: 'Transactions', label: 'Transactions', path: '/transactions', icon: Receipt },
+  // { name: 'Dashboard', label: 'Dashboard', path: '/dashboard', icon: BarChart3 },
+  // { name: 'Income', label: 'Income', path: '/income', icon: DollarSign },
+  // { name: 'Expenses', label: 'Expenses', path: '/expenses', icon: CreditCard },
+  // { name: 'Family', label: 'Family Budget', path: '/family', icon: Users },
+  // { name: 'Investments', label: 'Investments', path: '/investments', icon: TrendingUp },
+  // { name: 'Zakat', label: 'Zakat Calculator', path: '/zakat', icon: Calculator },
 ]
 
 const userInitials = computed(() => {

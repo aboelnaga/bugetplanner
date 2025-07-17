@@ -189,6 +189,20 @@ export const dateUtils = {
   }
 }
 
+// Format date for display
+export const formatDate = (dateString) => {
+  if (!dateString) return ''
+  
+  const date = new Date(dateString)
+  if (isNaN(date.getTime())) return ''
+  
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  }).format(date)
+}
+
 // Input handling utilities
 export const inputUtils = {
   // Handle amount input with validation and formatting

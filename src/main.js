@@ -7,6 +7,7 @@ import './style.css'
 // Import views
 // import Dashboard from './views/Dashboard.vue'
 import BudgetPlanner from './views/BudgetPlanner.vue'
+import Transactions from './views/Transactions.vue'
 // import Income from './views/Income.vue'
 // import Expenses from './views/Expenses.vue'
 // import Family from './views/Family.vue'
@@ -26,6 +27,12 @@ const routes = [
     path: '/', 
     name: 'BudgetPlanner', 
     component: BudgetPlanner,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/transactions', 
+    name: 'Transactions', 
+    component: Transactions,
     meta: { requiresAuth: true }
   },
   // { 

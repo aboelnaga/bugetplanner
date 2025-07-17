@@ -455,4 +455,78 @@ export const SCHEDULE_PATTERNS = {
 export const DATABASE_LIMITS = {
   MAX_AMOUNT: 9999999999, // Maximum amount allowed by database
   MAX_AMOUNT_FORMATTED: 'EGP 9,999,999,999'
+}
+
+// Transaction types
+export const TRANSACTION_TYPES = {
+  INCOME: 'income',
+  EXPENSE: 'expense',
+  TRANSFER: 'transfer'
+}
+
+export const TRANSACTION_TYPE_LABELS = {
+  [TRANSACTION_TYPES.INCOME]: 'Income',
+  [TRANSACTION_TYPES.EXPENSE]: 'Expense',
+  [TRANSACTION_TYPES.TRANSFER]: 'Transfer'
+}
+
+export const TRANSACTION_TYPE_ICONS = {
+  [TRANSACTION_TYPES.INCOME]: '💰',
+  [TRANSACTION_TYPES.EXPENSE]: '💸',
+  [TRANSACTION_TYPES.TRANSFER]: '🔄'
+}
+
+// Transaction categories (extended from budget categories)
+export const TRANSACTION_CATEGORIES = {
+  [TRANSACTION_TYPES.INCOME]: [
+    'Salary',
+    'Freelance',
+    'Business',
+    'Bonus',
+    'Side Hustle',
+    'Investment Returns',
+    'Rental Income',
+    'Other Income'
+  ],
+  [TRANSACTION_TYPES.EXPENSE]: [
+    'Essential',
+    'Lifestyle',
+    'Savings',
+    'Investment',
+    'Education',
+    'Transportation',
+    'Healthcare',
+    'Food & Dining',
+    'Housing',
+    'Utilities',
+    'Entertainment',
+    'Shopping',
+    'Travel',
+    'Insurance',
+    'Debt Payments',
+    'Charity',
+    'Other'
+  ],
+  [TRANSACTION_TYPES.TRANSFER]: [
+    'Bank Transfer',
+    'Cash Withdrawal',
+    'Account Transfer',
+    'Investment Transfer',
+    'Other Transfer'
+  ]
+}
+
+// Default transaction values
+export const DEFAULT_TRANSACTION_VALUES = {
+  type: TRANSACTION_TYPES.EXPENSE,
+  category: 'Essential',
+  amount: 0,
+  date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+  description: '',
+  account_name: '',
+  tags: [],
+  notes: '',
+  gross_amount: null,
+  tax_amount: null,
+  net_amount: null
 } 
