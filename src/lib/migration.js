@@ -99,16 +99,10 @@ export const migrateBudgetData = async (userId) => {
         // Generate monthly amounts based on recurrence
         const amounts = generateMonthlyAmounts(item)
         
-        // Create budget amounts
-        for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
-          if (amounts[monthIndex] > 0) {
-            await budgetAPI.updateMonthlyAmount(
-              budgetItem.id,
-              monthIndex,
-              amounts[monthIndex]
-            )
-          }
-        }
+        // Update budget item with amounts array
+        await budgetAPI.updateBudgetItem(budgetItem.id, {
+          amounts: amounts
+        })
         
         console.log(`Created amounts for: ${item.name}`)
         

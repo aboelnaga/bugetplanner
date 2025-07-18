@@ -228,7 +228,7 @@
     } else {
       // Clear data when not authenticated
       budgetStore.budgetItems = []
-      budgetStore.monthlyAmounts = []
+  
       budgetStore.budgetHistory = []
       budgetStore.error = null
       previousYearHasData.value = false

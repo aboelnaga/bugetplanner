@@ -32,7 +32,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ### Tables Created:
 - **profiles**: User profile information
 - **budget_items**: Main budget item data
-- **budget_amounts**: Monthly amounts for each budget item
+
 - **budget_history**: Track changes to budget amounts
 
 ### Key Features:

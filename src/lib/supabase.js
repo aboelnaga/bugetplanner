@@ -63,22 +63,7 @@ export const budgetAPI = {
     if (error) throw error
   },
 
-  // Update monthly amounts
-  async updateMonthlyAmount(userId, budgetItemId, monthIndex, amount) {
-    const { data, error } = await supabase
-      .from('budget_amounts')
-      .upsert({
-        budget_item_id: budgetItemId,
-        month_index: monthIndex,
-        amount: amount,
-        is_modified: true
-      })
-      .select()
-      .single()
-    
-    if (error) throw error
-    return data
-  },
+
 
   // Get budget history
   async getBudgetHistory(userId, year) {
@@ -92,39 +77,7 @@ export const budgetAPI = {
     return data
   },
 
-  // Get monthly amounts for a budget item
-  async getMonthlyAmounts(userId, year) {
-    const { data, error } = await supabase
-      .from('budget_amounts')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('year', year)
-      .order('month_index', { ascending: true })
-    
-    if (error) throw error
-    return data
-  },
 
-  // Create monthly amounts for a budget item
-  async createMonthlyAmounts(userId, monthlyData) {
-    const { data, error } = await supabase
-      .from('budget_amounts')
-      .insert(monthlyData)
-      .select()
-    
-    if (error) throw error
-    return data
-  },
-
-  // Delete monthly amounts for a budget item
-  async deleteMonthlyAmounts(userId, budgetId) {
-    const { error } = await supabase
-      .from('budget_amounts')
-      .delete()
-      .eq('budget_item_id', budgetId)
-    
-    if (error) throw error
-  },
 
   // Create budget history entry
   async createBudgetHistory(userId, historyData) {

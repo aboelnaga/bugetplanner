@@ -10,7 +10,6 @@ export const useBudgetStore = defineStore('budget', () => {
   
   // State
   const budgetItems = ref([])
-  const monthlyAmounts = ref([])
   const budgetHistory = ref([])
   const loading = ref(false)
   const error = ref(null)
@@ -50,11 +49,7 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
-  // Get monthly amounts for selected year (no longer needed since amounts are in budget_items)
-  const fetchMonthlyAmounts = async (year = selectedYear.value) => {
-    // This function is kept for compatibility but no longer needed
-    monthlyAmounts.value = []
-  }
+
 
   // Add new budget item
   const addBudgetItem = async (budgetData) => {
@@ -191,7 +186,7 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
-  // These functions are no longer needed since amounts are stored directly in budget_items
+  
 
   // Add budget history entry
   const addBudgetHistory = async (budgetId, monthIndex, newAmount, oldAmount = null) => {
@@ -316,7 +311,6 @@ export const useBudgetStore = defineStore('budget', () => {
     } else {
       // Clear data when not authenticated
       budgetItems.value = []
-      monthlyAmounts.value = []
       budgetHistory.value = []
       error.value = null
     }
@@ -329,7 +323,6 @@ export const useBudgetStore = defineStore('budget', () => {
     } else {
       // Clear data when user logs out
       budgetItems.value = []
-      monthlyAmounts.value = []
       budgetHistory.value = []
       error.value = null
     }
@@ -338,7 +331,6 @@ export const useBudgetStore = defineStore('budget', () => {
   return {
     // State
     budgetItems,
-    monthlyAmounts,
     budgetHistory,
     loading,
     error,
@@ -355,7 +347,6 @@ export const useBudgetStore = defineStore('budget', () => {
     
     // Actions
     fetchBudgetItems,
-    fetchMonthlyAmounts,
     addBudgetItem,
     updateBudgetItem,
     deleteBudgetItem,
