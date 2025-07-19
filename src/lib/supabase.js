@@ -7,13 +7,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'supabase.auth.token'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'budgrt-vue'
+    }
+  }
+})
+
+
 
 // Helper functions for budget operations
 export const budgetAPI = {
   // Get all budget items for a user and year
   async getBudgetItems(userId, year) {
     console.log('API: Getting budget items for user:', userId, 'year:', year)
+    
     const { data, error } = await supabase
       .from('budget_items')
       .select('*')
@@ -156,6 +172,7 @@ export const transactionAPI = {
   // Get all transactions for a user and year
   async getTransactions(userId, year, month = null) {
     console.log('API: Getting transactions for user:', userId, 'year:', year, 'month:', month)
+    
     let query = supabase
       .from('transactions')
       .select(`
@@ -177,7 +194,7 @@ export const transactionAPI = {
     if (month !== null) {
       query = query.eq('month', month)
     }
-    
+
     const { data, error } = await query
     
     console.log('API: Supabase response for getTransactions:', { data, error })

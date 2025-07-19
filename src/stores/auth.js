@@ -26,11 +26,14 @@ export const useAuthStore = defineStore('auth', () => {
         await createProfileIfNeeded(session.user)
       }
 
-      // Listen for auth changes
-      supabase.auth.onAuthStateChange(async (event, session) => {
+      // Listen for auth changes (no await to prevent dead-lock)
+      supabase.auth.onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' && session?.user) {
           user.value = session.user
-          await createProfileIfNeeded(session.user)
+          // Create profile without await to prevent dead-lock
+          createProfileIfNeeded(session.user).catch(err => {
+            console.error('Error creating profile in auth state change:', err)
+          })
         } else if (event === 'SIGNED_OUT') {
           user.value = null
         }
