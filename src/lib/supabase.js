@@ -185,6 +185,14 @@ export const transactionAPI = {
           payment_schedule,
           due_date,
           is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
         )
       `)
       .eq('user_id', userId)
@@ -218,6 +226,14 @@ export const transactionAPI = {
           payment_schedule,
           due_date,
           is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
         )
       `)
       .single()
@@ -243,6 +259,14 @@ export const transactionAPI = {
           payment_schedule,
           due_date,
           is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
         )
       `)
       .single()
@@ -341,6 +365,69 @@ export const transactionAPI = {
   }
 }
 
+// Account API
+export const accountAPI = {
+  // Get all accounts for a user
+  async getAccounts(userId) {
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('user_id', userId)
+      .order('is_default', { ascending: false })
+      .order('name')
+    
+    if (error) throw error
+    return data
+  },
+
+  // Create a new account
+  async createAccount(account) {
+    const { data, error } = await supabase
+      .from('accounts')
+      .insert(account)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Update an account
+  async updateAccount(id, updates) {
+    const { data, error } = await supabase
+      .from('accounts')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Delete an account
+  async deleteAccount(id) {
+    const { error } = await supabase
+      .from('accounts')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Get account by ID
+  async getAccountById(id) {
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .eq('id', id)
+      .single()
+    
+    if (error) throw error
+    return data
+  }
+}
+
 // Real-time subscriptions for transactions
 export const subscribeToTransactionChanges = (userId, year, callback) => {
   return supabase
@@ -351,6 +438,22 @@ export const subscribeToTransactionChanges = (userId, year, callback) => {
         schema: 'public', 
         table: 'transactions',
         filter: `user_id=eq.${userId} AND year=eq.${year}`
+      },
+      callback
+    )
+    .subscribe()
+}
+
+// Real-time subscriptions for accounts
+export const subscribeToAccountChanges = (userId, callback) => {
+  return supabase
+    .channel('account_changes')
+    .on('postgres_changes', 
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'accounts',
+        filter: `user_id=eq.${userId}`
       },
       callback
     )

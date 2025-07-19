@@ -135,7 +135,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { BarChart3, Calendar, DollarSign, CreditCard, Users, TrendingUp, Calculator, Receipt, LogOut, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { BarChart3, Calendar, DollarSign, CreditCard, Users, TrendingUp, Calculator, Receipt, LogOut, ChevronLeft, ChevronRight, Building2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth.js'
 
 const router = useRouter()
@@ -146,6 +146,7 @@ const navigation = [
   { name: 'BudgetPlanner', label: 'Budget Planner', path: '/', icon: Calendar },
   { name: 'BudgetActionCenter', label: 'Action Center', path: '/action-center', icon: Receipt },
   { name: 'Transactions', label: 'Transactions', path: '/transactions', icon: CreditCard },
+  { name: 'Banking', label: 'Banking', path: '/banking', icon: Building2 },
   // { name: 'Dashboard', label: 'Dashboard', path: '/dashboard', icon: BarChart3 },
   // { name: 'Income', label: 'Income', path: '/income', icon: DollarSign },
   // { name: 'Expenses', label: 'Expenses', path: '/expenses', icon: CreditCard },

@@ -3,7 +3,7 @@
 ## Database Schema Changes
 
 ### 1. Create Accounts Table
-- [ ] Create `accounts` table with fields:
+- [x] Create `accounts` table with fields:
   - `id` (primary key)
   - `name` (account name)
   - `type` (checking, savings, credit_card, cash)
@@ -15,46 +15,46 @@
   - `updated_at` (timestamp)
 
 ### 2. Update Transactions Table
-- [ ] Add `account_id` field to existing `transactions` table
-- [ ] Add foreign key constraint to `accounts` table
-- [ ] Make `account_id` required (not nullable)
+- [x] Add `account_id` field to existing `transactions` table
+- [x] Add foreign key constraint to `accounts` table
+- [x] Make `account_id` required (not nullable)
 
 ### 3. Default Data Setup
-- [ ] Create migration to add default accounts for existing users
-- [ ] Create Cash account with $0 starting balance
-- [ ] Create Checking account with $0 starting balance
-- [ ] Set Checking as default account
+- [x] Create migration to add default accounts for existing users
+- [x] Create Cash account with $0 starting balance
+- [x] Create Checking account with $0 starting balance
+- [x] Set Checking as default account
 
 ## Backend/Store Changes
 
 ### 4. Update Stores
-- [ ] Create new `accounts` store (Pinia)
-- [ ] Add account management methods (CRUD operations)
-- [ ] Add balance calculation methods
-- [ ] Update `transactions` store to handle account_id
-- [ ] Add methods to update account balances when transactions change
+- [x] Create new `accounts` store (Pinia)
+- [x] Add account management methods (CRUD operations)
+- [x] Add balance calculation methods
+- [x] Update `transactions` store to handle account_id
+- [x] Add methods to update account balances when transactions change
 
 ### 5. Supabase Integration
-- [ ] Update Supabase client to handle accounts table
-- [ ] Add RLS policies for accounts table
-- [ ] Update transaction operations to include account_id
-- [ ] Add real-time subscriptions for account balance updates
+- [x] Update Supabase client to handle accounts table
+- [x] Add RLS policies for accounts table
+- [x] Update transaction operations to include account_id
+- [x] Add real-time subscriptions for account balance updates
 
 ## Frontend Components
 
 ### 6. Account Management Components
-- [ ] Create `AccountCard.vue` component for displaying account info
+- [x] Create `AccountCard.vue` component for displaying account info
 - [ ] Create `AccountList.vue` component for listing all accounts
-- [ ] Create `AddAccountModal.vue` for adding new accounts
+- [x] Create `AddAccountModal.vue` for adding new accounts
 - [ ] Create `EditAccountModal.vue` for editing account details
 - [ ] Create `AccountBalance.vue` component for displaying balances
 
 ### 7. Banking Page
-- [ ] Create new `Banking.vue` view
-- [ ] Add route for banking page in router
-- [ ] Display all accounts with current balances
+- [x] Create new `Banking.vue` view
+- [x] Add route for banking page in router
+- [x] Display all accounts with current balances
 - [ ] Show recent transactions for each account
-- [ ] Add account management interface
+- [x] Add account management interface
 
 ### 8. Update Existing Components
 - [ ] Update `AddTransactionModal.vue` to include account selection

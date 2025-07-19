@@ -10,6 +10,7 @@ import './style.css'
 import BudgetPlanner from './views/BudgetPlanner.vue'
 import BudgetActionCenter from './views/BudgetActionCenter.vue'
 import Transactions from './views/Transactions.vue'
+import Banking from './views/Banking.vue'
 // import Income from './views/Income.vue'
 // import Expenses from './views/Expenses.vue'
 // import Family from './views/Family.vue'
@@ -41,6 +42,12 @@ const routes = [
     path: '/transactions', 
     name: 'Transactions', 
     component: Transactions,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/banking', 
+    name: 'Banking', 
+    component: Banking,
     meta: { requiresAuth: true }
   },
   // { 
