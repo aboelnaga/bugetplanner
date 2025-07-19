@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuthStore } from './stores/auth.js'
 import App from './App.vue'
 import './style.css'
 
@@ -82,7 +83,6 @@ const router = createRouter({
 
 // Navigation guard
 router.beforeEach(async (to, from, next) => {
-  const { useAuthStore } = await import('./stores/auth.js')
   const authStore = useAuthStore()
   
   // Initialize auth if not already done
