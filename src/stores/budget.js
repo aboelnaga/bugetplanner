@@ -10,7 +10,7 @@ export const useBudgetStore = defineStore('budget', () => {
   
   // State
   const budgetItems = ref([])
-  const budgetHistory = ref([])
+  // const budgetHistory = ref([]) // History functionality commented out
   const loading = ref(false)
   const error = ref(null)
   const selectedYear = ref(new Date().getFullYear())
@@ -101,19 +101,19 @@ export const useBudgetStore = defineStore('budget', () => {
       }
       
       // Create history entries for any amount changes
-      if (updates.amounts && Array.isArray(updates.amounts)) {
-        for (let monthIndex = 0; monthIndex < updates.amounts.length; monthIndex++) {
-          const oldAmount = currentBudget.amounts[monthIndex] || 0
-          const newAmount = updates.amounts[monthIndex] || 0
-          
-          if (oldAmount !== newAmount) {
-            await addBudgetHistory(id, monthIndex, newAmount, oldAmount)
-          }
-        }
-      }
+      // if (updates.amounts && Array.isArray(updates.amounts)) {
+      //   for (let monthIndex = 0; monthIndex < updates.amounts.length; monthIndex++) {
+      //     const oldAmount = currentBudget.amounts[monthIndex] || 0
+      //     const newAmount = updates.amounts[monthIndex] || 0
+      //     
+      //     if (oldAmount !== newAmount) {
+      //       await addBudgetHistory(id, monthIndex, newAmount, oldAmount)
+      //     }
+      //   }
+      // }
       
       // Refresh history to show the new entries
-      await fetchBudgetHistory()
+      // await fetchBudgetHistory()
       
       return true
     } catch (err) {
@@ -176,7 +176,7 @@ export const useBudgetStore = defineStore('budget', () => {
         budget.amounts[monthIndex] = numericNewValue
         
         // Add to history
-        await addBudgetHistory(budgetId, monthIndex, numericNewValue)
+        // await addBudgetHistory(budgetId, monthIndex, numericNewValue)
       }
       
       return true
@@ -189,47 +189,47 @@ export const useBudgetStore = defineStore('budget', () => {
   
 
   // Add budget history entry
-  const addBudgetHistory = async (budgetId, monthIndex, newAmount, oldAmount = null) => {
-    if (!authStore.isAuthenticated || !authStore.userId) return
-    
-    try {
-      // If oldAmount is not provided, get it from the current budget
-      if (oldAmount === null) {
-        const budget = budgetItems.value.find(b => b.id === budgetId)
-        if (!budget) return
-        oldAmount = budget.amounts[monthIndex] || 0
-      }
-      
-      if (oldAmount !== newAmount) {
-        await budgetAPI.createBudgetHistory(authStore.userId, {
-          budget_item_id: budgetId,
-          month_index: monthIndex,
-          old_amount: oldAmount,
-          new_amount: newAmount,
-          user_id: authStore.userId
-        })
-      }
-    } catch (err) {
-      console.error('Error adding budget history:', err)
-    }
-  }
+  // const addBudgetHistory = async (budgetId, monthIndex, newAmount, oldAmount = null) => {
+  //   if (!authStore.isAuthenticated || !authStore.userId) return
+  //   
+  //   try {
+  //     // If oldAmount is not provided, get it from the current budget
+  //     if (oldAmount === null) {
+  //       const budget = budgetItems.value.find(b => b.id === budgetId)
+  //       if (!budget) return
+  //       oldAmount = budget.amounts[monthIndex] || 0
+  //     }
+  //     
+  //     if (oldAmount !== newAmount) {
+  //       await budgetAPI.createBudgetHistory(authStore.userId, {
+  //         budget_item_id: budgetId,
+  //         month_index: monthIndex,
+  //         old_amount: oldAmount,
+  //         new_amount: newAmount,
+  //         user_id: authStore.userId
+  //       })
+  //     }
+  //   } catch (err) {
+  //     console.error('Error adding budget history:', err)
+  //   }
+  // }
 
   // Fetch budget history
-  const fetchBudgetHistory = async () => {
-    if (!authStore.isAuthenticated || !authStore.userId) {
-      budgetHistory.value = []
-      return
-    }
-    
-    try {
-      const data = await budgetAPI.getBudgetHistory(authStore.userId, selectedYear.value)
-      
-      budgetHistory.value = data || []
-    } catch (err) {
-      console.error('Error fetching budget history:', err)
-      budgetHistory.value = []
-    }
-  }
+  // const fetchBudgetHistory = async () => {
+  //   if (!authStore.isAuthenticated || !authStore.userId) {
+  //     budgetHistory.value = []
+  //     return
+  //   }
+  //   
+  //   try {
+  //     const data = await budgetAPI.getBudgetHistory(authStore.userId, selectedYear.value)
+  //     
+  //     budgetHistory.value = data || []
+  //   } catch (err) {
+  //     console.error('Error fetching budget history:', err)
+  //     budgetHistory.value = []
+  //   }
+  // }
 
   // Copy budget items from previous year
   const copyFromPreviousYear = async (sourceYear, targetYear) => {
@@ -307,11 +307,11 @@ export const useBudgetStore = defineStore('budget', () => {
     console.log('Store: Initializing, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
     if (authStore.isAuthenticated && authStore.userId) {
       await fetchBudgetItems()
-      await fetchBudgetHistory()
+      // await fetchBudgetHistory() // History functionality commented out
     } else {
       // Clear data when not authenticated
       budgetItems.value = []
-      budgetHistory.value = []
+      // budgetHistory.value = [] // History functionality commented out
       error.value = null
     }
   }
@@ -323,7 +323,7 @@ export const useBudgetStore = defineStore('budget', () => {
     } else {
       // Clear data when user logs out
       budgetItems.value = []
-      budgetHistory.value = []
+      // budgetHistory.value = [] // History functionality commented out
       error.value = null
     }
   }
@@ -331,7 +331,7 @@ export const useBudgetStore = defineStore('budget', () => {
   return {
     // State
     budgetItems,
-    budgetHistory,
+    // budgetHistory, // History functionality commented out
     loading,
     error,
     selectedYear,
@@ -351,8 +351,8 @@ export const useBudgetStore = defineStore('budget', () => {
     updateBudgetItem,
     deleteBudgetItem,
     updateMonthlyAmount,
-    addBudgetHistory,
-    fetchBudgetHistory,
+    // addBudgetHistory, // History functionality commented out
+    // fetchBudgetHistory, // History functionality commented out
     copyFromPreviousYear,
     hasBudgetItemsForYear,
     getBudgetItemsForMonth,

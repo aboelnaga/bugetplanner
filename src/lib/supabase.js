@@ -66,30 +66,30 @@ export const budgetAPI = {
 
 
   // Get budget history
-  async getBudgetHistory(userId, year) {
-    const { data, error } = await supabase
-      .from('budget_history')
-      .select('*')
-      .eq('user_id', userId)
-      .order('changed_at', { ascending: false })
-    
-    if (error) throw error
-    return data
-  },
+  // async getBudgetHistory(userId, year) {
+  //   const { data, error } = await supabase
+  //     .from('budget_history')
+  //     .select('*')
+  //     .eq('user_id', userId)
+  //     .order('changed_at', { ascending: false })
+  //   
+  //   if (error) throw error
+  //   return data
+  // },
 
 
 
   // Create budget history entry
-  async createBudgetHistory(userId, historyData) {
-    const { data, error } = await supabase
-      .from('budget_history')
-      .insert(historyData)
-      .select()
-      .single()
-    
-    if (error) throw error
-    return data
-  },
+  // async createBudgetHistory(userId, historyData) {
+  //   const { data, error } = await supabase
+  //     .from('budget_history')
+  //     .insert(historyData)
+  //     .select()
+  //     .single()
+  //   
+  //   if (error) throw error
+  //   return data
+  // },
 
   // Copy budget items from one year to another
   async copyBudgetItems(userId, sourceYear, targetYear) {

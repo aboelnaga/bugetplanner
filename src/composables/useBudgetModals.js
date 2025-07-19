@@ -17,7 +17,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   // Modal state
   const showAddBudgetModal = ref(false)
   const showEditBudgetModal = ref(false)
-  const showHistoryModal = ref(false)
+  // const showHistoryModal = ref(false) // History functionality commented out
   const editingBudget = ref(null)
   const isLoading = ref(false)
 
@@ -378,13 +378,13 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     editingBudget.value = null
   }
 
-  const openHistoryModal = () => {
-    showHistoryModal.value = true
-  }
+  // const openHistoryModal = () => {
+  //   showHistoryModal.value = true
+  // }
 
-  const closeHistoryModal = () => {
-    showHistoryModal.value = false
-  }
+  // const closeHistoryModal = () => {
+  //   showHistoryModal.value = false
+  // }
 
   // Form submission handlers
   const handleBudgetAdded = (budgetItem) => {
@@ -533,7 +533,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     // Modal state
     showAddBudgetModal,
     showEditBudgetModal,
-    showHistoryModal,
+    // showHistoryModal, // History functionality commented out
     editingBudget,
     isLoading,
     formData,
@@ -543,8 +543,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     closeAddBudgetModal,
     openEditBudgetModal,
     closeEditBudgetModal,
-    openHistoryModal,
-    closeHistoryModal,
+    // openHistoryModal, // History functionality commented out
+    // closeHistoryModal, // History functionality commented out
     
     // Form management
     initializeFormData,

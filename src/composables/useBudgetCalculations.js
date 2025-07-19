@@ -16,12 +16,14 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
   }
 
   const hasChanges = (budgetId, monthIndex) => {
-    if (!budgetId) return false
-    // Check if this month/budget combination has been modified
-    return budgetStore.budgetHistory?.some(change => 
-      change.budgetId === budgetId && 
-      change.monthIndex === monthIndex
-    ) || false
+    // History functionality commented out
+    return false
+    // if (!budgetId) return false
+    // // Check if this month/budget combination has been modified
+    // return budgetStore.budgetHistory?.some(change => 
+    //   change.budgetId === budgetId && 
+    //   change.monthIndex === monthIndex
+    // ) || false
   }
 
   // Yearly total calculations

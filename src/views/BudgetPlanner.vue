@@ -8,7 +8,7 @@
         </div>
         <div class="flex space-x-3">
           <button @click="openAddBudgetModal" class="btn-primary">Add Budget Item</button>
-          <button @click="openHistoryModal" class="btn-secondary">View History</button>
+          <!-- <button @click="openHistoryModal" class="btn-secondary">View History</button> -->
         </div>
       </div>
 
@@ -96,7 +96,7 @@
       @budget-updated="handleBudgetUpdated" />
 
     <!-- History Modal -->
-    <HistoryModal v-model="showHistoryModal" />
+          <!-- <HistoryModal v-model="showHistoryModal" /> -->
   </div>
 </template>
 
@@ -106,7 +106,7 @@
   import { useAuthStore } from '@/stores/auth.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import EditBudgetModal from '@/components/EditBudgetModal.vue'
-  import HistoryModal from '@/components/HistoryModal.vue'
+  // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
   import BudgetTable from '@/components/BudgetTable.vue'
   import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
   
@@ -168,10 +168,10 @@
   const {
     showAddBudgetModal,
     showEditBudgetModal,
-    showHistoryModal,
+    // showHistoryModal, // History functionality commented out
     editingBudget,
     openAddBudgetModal,
-    openHistoryModal,
+    // openHistoryModal, // History functionality commented out
     handleBudgetAdded,
     handleBudgetUpdated,
     editBudget,
@@ -229,7 +229,7 @@
       // Clear data when not authenticated
       budgetStore.budgetItems = []
   
-      budgetStore.budgetHistory = []
+      // budgetStore.budgetHistory = [] // History functionality commented out
       budgetStore.error = null
       previousYearHasData.value = false
     }

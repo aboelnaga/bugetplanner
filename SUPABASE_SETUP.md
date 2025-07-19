@@ -33,7 +33,7 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 - **profiles**: User profile information
 - **budget_items**: Main budget item data
 
-- **budget_history**: Track changes to budget amounts
+- **budget_history**: Track changes to budget amounts (currently commented out)
 
 ### Key Features:
 - **Row Level Security (RLS)**: Users can only access their own data

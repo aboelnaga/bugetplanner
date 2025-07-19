@@ -34,9 +34,9 @@
           </span>
           <span v-else class="text-gray-400 font-normal">—</span>
         </div>
-        <div v-if="hasChanges(budget.id, index)" 
+        <!-- <div v-if="hasChanges(budget.id, index)" 
              title="This amount has been manually modified"
-             class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-sm"></div>
+             class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white shadow-sm"></div> -->
       </div>
     </td>
 
