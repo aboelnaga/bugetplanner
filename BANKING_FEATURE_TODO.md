@@ -57,19 +57,19 @@
 - [x] Add account management interface
 
 ### 8. Update Existing Components
-- [ ] Update `AddTransactionModal.vue` to include account selection
-- [ ] Update `EditTransactionModal.vue` to include account selection
-- [ ] Update `Transactions.vue` to show account information
-- [ ] Update `BudgetPlanner.vue` to show account balances
+- [x] Update `AddTransactionModal.vue` to include account selection
+- [x] Update `EditTransactionModal.vue` to include account selection
+- [x] Update `Transactions.vue` to show account information
+- [x] Update `BudgetPlanner.vue` to show account balances
 - [ ] Update `Dashboard.vue` to include account overview
 
 ## Transaction System Updates
 
 ### 9. Transaction Forms
-- [ ] Add account dropdown to transaction forms
-- [ ] Make account selection required
-- [ ] Add validation for account selection
-- [ ] Update transaction creation/editing logic
+- [x] Add account dropdown to transaction forms
+- [x] Make account selection required
+- [x] Add validation for account selection
+- [x] Update transaction creation/editing logic
 
 ### 10. Balance Calculations
 - [ ] Implement real-time balance updates

@@ -203,6 +203,10 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       errors.push('Date is required')
     }
     
+    if (!formData.value.account_id) {
+      errors.push('Account selection is required')
+    }
+    
     // Validate tax amounts consistency
     if (formData.value.gross_amount && formData.value.net_amount && formData.value.tax_amount) {
       const expectedGross = formData.value.net_amount + formData.value.tax_amount
@@ -223,7 +227,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       category: formData.value.category,
       date: formData.value.date,
       budget_item_id: formData.value.budget_item_id || null,
-      account_name: formData.value.account_name,
+      account_id: formData.value.account_id,
       tags: formData.value.tags,
       notes: formData.value.notes,
       gross_amount: formData.value.gross_amount,

@@ -523,7 +523,7 @@ export const DEFAULT_TRANSACTION_VALUES = {
   amount: 0,
   date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
   description: '',
-  account_name: '',
+  account_id: null,
   tags: [],
   notes: '',
   gross_amount: null,

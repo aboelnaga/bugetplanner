@@ -11,8 +11,15 @@
       </svg>
     </template>
     
-    <template #title>Add Transaction</template>
-    <template #subtitle>Record a new transaction for {{ selectedYear }}</template>
+    <template #title>{{ isEditMode ? 'Edit Transaction' : 'Add Transaction' }}</template>
+    <template #subtitle>
+      {{ isEditMode 
+        ? 'Update transaction details' 
+        : props.budgetItem && !props.budgetItem.account_id 
+          ? `Add transaction for "${props.budgetItem.name}"` 
+          : `Record a new transaction for ${selectedYear}` 
+      }}
+    </template>
     
     <!-- Content -->
     <form @submit.prevent="handleSubmit" class="space-y-6">
@@ -196,13 +203,17 @@
           <!-- Account -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              Account
+              <span class="text-red-500">*</span> Account
             </label>
-            <input 
-              v-model="formData.account_name" 
-              type="text" 
-              placeholder="e.g., Main Bank, Cash, Credit Card"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+            <select 
+              v-model="formData.account_id"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option value="">Select an account</option>
+              <option v-for="account in accountsStore.accounts" :key="account.id" :value="account.id">
+                {{ getAccountIcon(account.type) }} {{ account.name }} - {{ formatCurrency(account.balance) }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
@@ -280,8 +291,8 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span v-if="isLoading">Adding...</span>
-          <span v-else>Add Transaction</span>
+          <span v-if="isLoading">{{ isEditMode ? 'Updating...' : 'Adding...' }}</span>
+          <span v-else>{{ isEditMode ? 'Update Transaction' : 'Add Transaction' }}</span>
         </button>
       </div>
     </template>
@@ -289,9 +300,10 @@
 </template>
 
 <script setup>
-import { computed, watch, ref } from 'vue'
+import { computed, watch, ref, onMounted } from 'vue'
 import { useTransactionStore } from '@/stores/transactions.js'
 import { useBudgetStore } from '@/stores/budget.js'
+import { useAccountsStore } from '@/stores/accounts.js'
 import { useTransactionModals } from '@/composables/useTransactionModals.js'
 import { 
   TRANSACTION_TYPE_LABELS, 
@@ -314,11 +326,12 @@ const props = defineProps({
 })
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'transaction-added'])
+const emit = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated'])
 
 // Stores
 const transactionStore = useTransactionStore()
 const budgetStore = useBudgetStore()
+const accountsStore = useAccountsStore()
 
 // Computed
 const currentYear = computed(() => transactionStore.currentYear)
@@ -345,7 +358,9 @@ const {
   handleTaxAmountInput,
   handleGrossAmountInput,
   handleNetAmountInput,
-  handleAddSubmit
+  handleAddSubmit,
+  handleEditSubmit,
+  initializeFormDataFromTransaction
 } = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth)
 
 // Tag management
@@ -366,28 +381,61 @@ const closeModal = () => {
   emit('update:modelValue', false)
 }
 
+// Computed for edit mode - check if it's actually a transaction (has account_id)
+const isEditMode = computed(() => {
+  return !!props.budgetItem && props.budgetItem.id && props.budgetItem.account_id
+})
+
 // Handle form submission
 const handleSubmit = async () => {
-  const result = await handleAddSubmit()
-  if (result) {
-    closeModal()
-    emit('transaction-added', result)
+  let result
+  if (isEditMode.value) {
+    result = await handleEditSubmit(props.budgetItem.id)
+    if (result) {
+      closeModal()
+      emit('transaction-updated', result)
+    }
+  } else {
+    result = await handleAddSubmit()
+    if (result) {
+      closeModal()
+      emit('transaction-added', result)
+    }
   }
 }
+
+// Helper functions
+const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
+
+// Initialize accounts when component mounts
+onMounted(async () => {
+  await accountsStore.fetchAccounts()
+})
 
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
-    initializeFormData()
-    
-    // Pre-fill form if budget item is provided
-    if (props.budgetItem) {
-      formData.value.budget_item_id = props.budgetItem.id
-      formData.value.type = props.budgetItem.type
-      formData.value.category = props.budgetItem.category
-      formData.value.amount = props.budgetItem.amount
-      formData.value.description = props.budgetItem.name
-      formData.value.date = new Date().toISOString().split('T')[0] // Today's date
+    if (isEditMode.value) {
+      // Initialize form with transaction data for editing
+      initializeFormDataFromTransaction(props.budgetItem)
+    } else {
+      // Initialize form for new transaction
+      initializeFormData()
+      
+      // Pre-fill form if budget item is provided (for new transactions from budget items)
+      if (props.budgetItem && !props.budgetItem.account_id) {
+        formData.value.budget_item_id = props.budgetItem.id
+        formData.value.type = props.budgetItem.type
+        formData.value.category = props.budgetItem.category
+        formData.value.amount = props.budgetItem.amount
+        formData.value.description = props.budgetItem.name
+        formData.value.date = new Date().toISOString().split('T')[0] // Today's date
+      }
+      
+      // Set default account if available
+      if (accountsStore.defaultAccount && !formData.value.account_id) {
+        formData.value.account_id = accountsStore.defaultAccount.id
+      }
     }
   }
 })

@@ -448,6 +448,7 @@
       v-model="showAddTransactionModal"
       :budget-item="selectedBudgetItem"
       @transaction-added="onTransactionAdded"
+      @transaction-updated="onTransactionUpdated"
     />
 
     <!-- Skip Item Modal -->
@@ -831,6 +832,11 @@ const confirmSkip = async () => {
 }
 
 const onTransactionAdded = async () => {
+  await loadBudgetItems()
+  selectedBudgetItem.value = null
+}
+
+const onTransactionUpdated = async () => {
   await loadBudgetItems()
   selectedBudgetItem.value = null
 }

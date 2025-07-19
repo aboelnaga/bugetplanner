@@ -251,11 +251,11 @@
                       {{ formatDate(transaction.date) }}
                     </span>
                     
-                    <span v-if="transaction.account_name" class="flex items-center">
+                    <span v-if="transaction.accounts" class="flex items-center">
                       <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                       </svg>
-                      {{ transaction.account_name }}
+                      {{ transaction.accounts.name }}
                     </span>
                   </div>
                   
@@ -333,10 +333,12 @@
       </div>
     </div>
 
-    <!-- Add Transaction Modal -->
+    <!-- Add/Edit Transaction Modal -->
     <AddTransactionModal
       v-model="showAddTransactionModal"
+      :budget-item="editingTransaction"
       @transaction-added="onTransactionAdded"
+      @transaction-updated="onTransactionUpdated"
     />
   </div>
 </template>
@@ -353,6 +355,7 @@ const transactionStore = useTransactionStore()
 // Reactive data
 const isLoading = ref(false)
 const showAddTransactionModal = ref(false)
+const editingTransaction = ref(null)
 
 // Filters
 const filters = ref({
@@ -394,8 +397,8 @@ const availableCategories = computed(() => {
 const availableAccounts = computed(() => {
   const accounts = new Set()
   transactions.value.forEach(t => {
-    if (t.account_name) {
-      accounts.add(t.account_name)
+    if (t.accounts && t.accounts.name) {
+      accounts.add(t.accounts.name)
     }
   })
   return Array.from(accounts).sort()
@@ -413,7 +416,7 @@ const filteredTransactions = computed(() => {
   }
 
   if (filters.value.account) {
-    items = items.filter(t => t.account_name === filters.value.account)
+    items = items.filter(t => t.accounts && t.accounts.name === filters.value.account)
   }
 
   if (filters.value.dateRange) {
@@ -484,8 +487,8 @@ const getTypeBadgeColor = (type) => {
 }
 
 const editTransaction = (transaction) => {
-  // TODO: Implement edit functionality
-  console.log('Edit transaction:', transaction)
+  editingTransaction.value = transaction
+  showAddTransactionModal.value = true
 }
 
 const deleteTransaction = async (transaction) => {
@@ -499,6 +502,11 @@ const deleteTransaction = async (transaction) => {
 }
 
 const onTransactionAdded = async () => {
+  await loadData()
+}
+
+const onTransactionUpdated = async () => {
+  editingTransaction.value = null
   await loadData()
 }
 
