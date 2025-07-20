@@ -46,15 +46,16 @@
 - [x] Create `AccountCard.vue` component for displaying account info
 - [ ] Create `AccountList.vue` component for listing all accounts
 - [x] Create `AddAccountModal.vue` for adding new accounts
-- [ ] Create `EditAccountModal.vue` for editing account details
+- [x] Create `EditAccountModal.vue` for editing account details
 - [ ] Create `AccountBalance.vue` component for displaying balances
 
 ### 7. Banking Page
 - [x] Create new `Banking.vue` view
 - [x] Add route for banking page in router
 - [x] Display all accounts with current balances
-- [ ] Show recent transactions for each account
+- [x] Show recent transactions for each account
 - [x] Add account management interface
+- [x] Add transaction functionality from account cards
 
 ### 8. Update Existing Components
 - [x] Update `AddTransactionModal.vue` to include account selection
@@ -72,9 +73,9 @@
 - [x] Update transaction creation/editing logic
 
 ### 10. Balance Calculations
-- [ ] Implement real-time balance updates
-- [ ] Add balance validation (prevent negative balances for non-credit accounts)
-- [ ] Handle credit card available credit calculations
+- [x] Implement real-time balance updates
+- [x] Add balance validation (prevent negative balances for non-credit accounts)
+- [x] Handle credit card available credit calculations
 - [ ] Add balance history tracking
 
 ## UI/UX Enhancements
@@ -86,16 +87,16 @@
 - [ ] Add quick account switching
 
 ### 12. Balance Display
-- [ ] Add balance display in navigation/header
-- [ ] Show account balances in transaction lists
-- [ ] Add balance formatting (currency, colors for negative)
+- [x] Add balance display in navigation/header
+- [x] Show account balances in transaction lists
+- [x] Add balance formatting (currency, colors for negative)
 - [ ] Add balance change indicators
 
 ### 13. Banking Dashboard
-- [ ] Create account overview cards
+- [x] Create account overview cards
 - [ ] Add account balance charts (future enhancement)
-- [ ] Show account transaction history
-- [ ] Add quick actions (add transaction, transfer, etc.)
+- [x] Show account transaction history
+- [x] Add quick actions (add transaction, transfer, etc.)
 
 ## Integration Features
 
@@ -126,9 +127,15 @@
 ## Future Enhancements (Not in Initial Implementation)
 
 ### 18. Transfer System
-- [ ] Decide on transfer implementation approach
-- [ ] Create transfer transaction type or separate transactions
-- [ ] Add transfer interface
+- [x] Decide on transfer implementation approach
+- [x] Create transfer transaction type or separate transactions
+- [x] Add transfer interface
+- [x] Add transfer modal component
+- [x] Implement transfer validation (prevent transfers to same account)
+- [x] Add transfer confirmation and success feedback
+- [x] Support account-to-account transfers
+- [x] Support cash withdrawals and deposits
+- [x] Create separate TransferModal component
 
 ### 19. Advanced Features
 - [ ] Account statements (monthly summaries)
@@ -136,6 +143,11 @@
 - [ ] Automatic fee calculations
 - [ ] Interest calculations
 - [ ] Payment due date tracking for credit cards
+- [ ] Account archiving (instead of deletion)
+- [ ] Account notes/description field
+- [ ] Account categories (Personal, Business, Joint)
+- [ ] Account search and filtering
+- [ ] Account sorting options
 
 ### 20. Mobile/Responsive
 - [ ] Ensure banking features work on mobile

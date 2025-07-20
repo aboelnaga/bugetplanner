@@ -337,6 +337,7 @@
     <AddTransactionModal
       v-model="showAddTransactionModal"
       :budget-item="editingTransaction"
+      :selected-account="selectedAccount"
       @transaction-added="onTransactionAdded"
       @transaction-updated="onTransactionUpdated"
     />
@@ -344,18 +345,23 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useTransactionStore } from '../stores/transactions'
+import { useAccountsStore } from '../stores/accounts'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
 
 // Store
 const transactionStore = useTransactionStore()
+const accountsStore = useAccountsStore()
+const route = useRoute()
 
 // Reactive data
 const isLoading = ref(false)
 const showAddTransactionModal = ref(false)
 const editingTransaction = ref(null)
+const selectedAccount = ref(null)
 
 // Filters
 const filters = ref({
@@ -502,16 +508,36 @@ const deleteTransaction = async (transaction) => {
 }
 
 const onTransactionAdded = async () => {
+  selectedAccount.value = null
   await loadData()
 }
 
 const onTransactionUpdated = async () => {
   editingTransaction.value = null
+  selectedAccount.value = null
   await loadData()
 }
 
+// Watch for route changes to handle query parameters
+watch(() => route.query, (query) => {
+  if (query.action === 'add' && query.account) {
+    // Pre-select account and open modal
+    const accountId = query.account
+    const account = accountsStore.getAccountById(accountId)
+    if (account) {
+      // Set the selected account
+      selectedAccount.value = account
+      // Set the account filter
+      filters.value.account = account.name
+      // Open the add transaction modal
+      showAddTransactionModal.value = true
+    }
+  }
+}, { immediate: true })
+
 // Lifecycle
-onMounted(() => {
-  loadData()
+onMounted(async () => {
+  await loadData()
+  await accountsStore.fetchAccounts()
 })
 </script> 

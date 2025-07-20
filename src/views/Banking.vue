@@ -8,7 +8,7 @@
           <p class="text-gray-600 mt-2">Manage your accounts and track balances</p>
         </div>
         <button
-          @click="showAddModal = true"
+          @click="handleAddAccountClick"
           class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,8 +46,9 @@
         :key="account.id"
         :account="account"
         @edit="handleEditAccount"
-        @add-transaction="handleAddTransaction"
+        @transfer="handleTransfer"
         @set-default="handleSetDefault"
+        @delete="handleDeleteAccount"
       />
     </div>
 
@@ -98,40 +99,70 @@
       @account-added="handleAccountAdded"
     />
 
-    <!-- Edit Account Modal (placeholder for future implementation) -->
-    <!-- <EditAccountModal
+    <!-- Edit Account Modal -->
+    <EditAccountModal
+      v-if="selectedAccount"
       :is-open="showEditModal"
       :account="selectedAccount"
-      @close="showEditModal = false"
+      @close="handleCloseEditModal"
       @account-updated="handleAccountUpdated"
-    /> -->
+    />
+
+    <!-- Transfer Modal -->
+    <TransferModal
+      v-model="showTransferModal"
+      :from-account="transferFromAccount"
+      @transfer-completed="handleTransferCompleted"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAccountsStore } from '../stores/accounts'
+import { useTransactionStore } from '../stores/transactions'
 import AccountCard from '../components/AccountCard.vue'
 import AddAccountModal from '../components/AddAccountModal.vue'
+import EditAccountModal from '../components/EditAccountModal.vue'
+import TransferModal from '../components/TransferModal.vue'
 
+const router = useRouter()
 const accountsStore = useAccountsStore()
+const transactionStore = useTransactionStore()
 const showAddModal = ref(false)
 const showEditModal = ref(false)
+const showTransferModal = ref(false)
 const selectedAccount = ref(null)
+const transferFromAccount = ref(null)
 
 onMounted(async () => {
   await accountsStore.fetchAccounts()
+  await transactionStore.fetchTransactions()
 })
 
 const handleEditAccount = (account) => {
+  console.log('Edit account clicked:', account)
   selectedAccount.value = account
   showEditModal.value = true
+  console.log('Modal state:', { showEditModal: showEditModal.value, selectedAccount: selectedAccount.value })
 }
 
-const handleAddTransaction = (account) => {
-  // Navigate to transactions page with account pre-selected
-  // This will be implemented when we update the transaction forms
-  console.log('Add transaction for account:', account.name)
+const handleCloseEditModal = () => {
+  console.log('Closing edit modal')
+  showEditModal.value = false
+  selectedAccount.value = null
+}
+
+const handleAddAccountClick = () => {
+  console.log('Add account button clicked')
+  showAddModal.value = true
+}
+
+const handleTransfer = (account) => {
+  console.log('Transfer from account:', account.name)
+  transferFromAccount.value = account
+  showTransferModal.value = true
 }
 
 const handleSetDefault = async (account) => {
@@ -145,6 +176,32 @@ const handleSetDefault = async (account) => {
 const handleAccountAdded = (account) => {
   console.log('Account added:', account)
   // The account is already added to the store by the modal
+}
+
+const handleAccountUpdated = (account) => {
+  console.log('Account updated:', account)
+  // The account is already updated in the store by the modal
+  handleCloseEditModal()
+}
+
+const handleTransferCompleted = (transactions) => {
+  console.log('Transfer completed:', transactions)
+  // Refresh accounts to show updated balances
+  accountsStore.fetchAccounts()
+}
+
+const handleDeleteAccount = async (account) => {
+  if (!confirm(`Are you sure you want to delete "${account.name}"? This action cannot be undone.`)) {
+    return
+  }
+  
+  try {
+    await accountsStore.deleteAccount(account.id)
+    console.log('Account deleted:', account.name)
+  } catch (error) {
+    console.error('Error deleting account:', error)
+    alert(`Failed to delete account: ${error.message}`)
+  }
 }
 
 const formatCurrency = (amount) => {

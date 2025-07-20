@@ -1,7 +1,7 @@
 <template>
   <BaseModal
-    :is-open="isOpen"
-    @close="$emit('close')"
+    :modelValue="isOpen"
+    @update:modelValue="$emit('close')"
     title="Add New Account"
   >
     <form @submit.prevent="handleSubmit" class="space-y-6">

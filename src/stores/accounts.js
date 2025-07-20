@@ -94,6 +94,20 @@ export const useAccountsStore = defineStore('accounts', () => {
     error.value = null
     
     try {
+      // If we're setting this account as default, unset all other accounts first
+      if (updates.is_default === true) {
+        for (const account of accounts.value) {
+          if (account.is_default && account.id !== id) {
+            await accountAPI.updateAccount(account.id, { is_default: false })
+            // Update local state
+            const index = accounts.value.findIndex(acc => acc.id === account.id)
+            if (index !== -1) {
+              accounts.value[index] = { ...accounts.value[index], is_default: false }
+            }
+          }
+        }
+      }
+      
       const data = await accountAPI.updateAccount(id, updates)
       
       const index = accounts.value.findIndex(account => account.id === id)
@@ -142,6 +156,19 @@ export const useAccountsStore = defineStore('accounts', () => {
 
   const setDefaultAccount = async (id) => {
     try {
+      // First, set all accounts to not default
+      for (const account of accounts.value) {
+        if (account.is_default && account.id !== id) {
+          await accountAPI.updateAccount(account.id, { is_default: false })
+          // Update local state
+          const index = accounts.value.findIndex(acc => acc.id === account.id)
+          if (index !== -1) {
+            accounts.value[index] = { ...accounts.value[index], is_default: false }
+          }
+        }
+      }
+      
+      // Then set the selected account as default
       await updateAccount(id, { is_default: true })
     } catch (err) {
       console.error('Error setting default account:', err)

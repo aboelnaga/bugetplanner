@@ -322,6 +322,10 @@ const props = defineProps({
   budgetItem: {
     type: Object,
     default: null
+  },
+  selectedAccount: {
+    type: Object,
+    default: null
   }
 })
 
@@ -432,9 +436,13 @@ watch(() => props.modelValue, (isOpen) => {
         formData.value.date = new Date().toISOString().split('T')[0] // Today's date
       }
       
-      // Set default account if available
-      if (accountsStore.defaultAccount && !formData.value.account_id) {
-        formData.value.account_id = accountsStore.defaultAccount.id
+      // Set account based on priority: selectedAccount > defaultAccount
+      if (!formData.value.account_id) {
+        if (props.selectedAccount) {
+          formData.value.account_id = props.selectedAccount.id
+        } else if (accountsStore.defaultAccount) {
+          formData.value.account_id = accountsStore.defaultAccount.id
+        }
       }
     }
   }

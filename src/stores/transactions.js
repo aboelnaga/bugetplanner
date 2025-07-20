@@ -223,6 +223,14 @@ export const useTransactionStore = defineStore('transactions', () => {
     })
   }
 
+  // Get recent transactions by account
+  const getRecentTransactionsByAccount = (accountId, limit = 5) => {
+    return transactions.value
+      .filter(transaction => transaction.account_id === accountId)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, limit)
+  }
+
   // Initialize store
   const initialize = async () => {
     console.log('Store: Initializing, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
@@ -292,6 +300,7 @@ export const useTransactionStore = defineStore('transactions', () => {
     getTransactionsByType,
     getTransactionsByCategory,
     getTransactionsByDateRange,
+    getRecentTransactionsByAccount,
     initialize,
     watchAuth
   }
