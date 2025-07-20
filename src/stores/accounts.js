@@ -131,11 +131,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     
     try {
       // Check if account has transactions
-      const { data: transactions, error: checkError } = await supabase
-        .from('transactions')
-        .select('id')
-        .eq('account_id', id)
-        .limit(1)
+      const { data: transactions, error: checkError } = await accountAPI.checkAccountTransactions(id)
 
       if (checkError) throw checkError
       

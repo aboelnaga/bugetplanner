@@ -425,6 +425,17 @@ export const accountAPI = {
     
     if (error) throw error
     return data
+  },
+
+  // Check if account has transactions (for deletion validation)
+  async checkAccountTransactions(accountId) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('id')
+      .eq('account_id', accountId)
+      .limit(1)
+    
+    return { data, error }
   }
 }
 
