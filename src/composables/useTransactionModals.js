@@ -45,6 +45,13 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const updateCategoryOnTypeChange = () => {
     const categories = getCategoriesByType(formData.value.type)
     formData.value.category = categories[0]
+    
+    // Reset investment direction when type changes
+    if (formData.value.type === 'investment') {
+      formData.value.investment_direction = 'outgoing' // Default to outgoing
+    } else {
+      formData.value.investment_direction = null
+    }
   }
 
   // Handle amount input with currency formatting
@@ -199,6 +206,11 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       errors.push(`Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations`)
     }
     
+    // Validate investment direction for investment transactions
+    if (formData.value.type === 'investment' && !formData.value.investment_direction) {
+      errors.push('Investment direction is required for investment transactions')
+    }
+    
     if (!formData.value.date) {
       errors.push('Date is required')
     }
@@ -232,7 +244,8 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       notes: formData.value.notes,
       gross_amount: formData.value.gross_amount,
       tax_amount: formData.value.tax_amount,
-      net_amount: formData.value.net_amount
+      net_amount: formData.value.net_amount,
+      investment_direction: formData.value.type === 'investment' ? formData.value.investment_direction : null
     }
   }
 

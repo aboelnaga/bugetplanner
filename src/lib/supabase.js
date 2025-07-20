@@ -305,7 +305,7 @@ export const transactionAPI = {
     const stats = {
       totalIncome: 0,
       totalExpenses: 0,
-      totalTransfers: 0,
+      totalInvestments: 0,
       netAmount: 0,
       categoryBreakdown: {},
       typeBreakdown: {}
@@ -334,8 +334,8 @@ export const transactionAPI = {
         case 'expense':
           stats.totalExpenses += amount
           break
-        case 'transfer':
-          stats.totalTransfers += amount
+        case 'investment':
+          stats.totalInvestments += amount
           break
       }
     })

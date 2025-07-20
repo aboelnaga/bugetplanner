@@ -74,6 +74,20 @@
               </option>
             </select>
           </div>
+          
+          <!-- Investment Direction (only for investment type) -->
+          <div v-if="formData.type === 'investment'">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Investment Direction
+            </label>
+            <select 
+              v-model="formData.investment_direction"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
+                {{ label }}
+              </option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -308,6 +322,8 @@ import { useTransactionModals } from '@/composables/useTransactionModals.js'
 import { 
   TRANSACTION_TYPE_LABELS, 
   TRANSACTION_TYPE_ICONS,
+  INVESTMENT_DIRECTIONS,
+  INVESTMENT_DIRECTION_LABELS,
   DATABASE_LIMITS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'

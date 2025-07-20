@@ -457,26 +457,26 @@ export const DATABASE_LIMITS = {
   MAX_AMOUNT_FORMATTED: 'EGP 9,999,999,999'
 }
 
-// Transaction types
+// Transaction types (matching budget types)
 export const TRANSACTION_TYPES = {
   INCOME: 'income',
   EXPENSE: 'expense',
-  TRANSFER: 'transfer'
+  INVESTMENT: 'investment'
 }
 
 export const TRANSACTION_TYPE_LABELS = {
   [TRANSACTION_TYPES.INCOME]: 'Income',
   [TRANSACTION_TYPES.EXPENSE]: 'Expense',
-  [TRANSACTION_TYPES.TRANSFER]: 'Transfer'
+  [TRANSACTION_TYPES.INVESTMENT]: 'Investment'
 }
 
 export const TRANSACTION_TYPE_ICONS = {
   [TRANSACTION_TYPES.INCOME]: '💰',
   [TRANSACTION_TYPES.EXPENSE]: '💸',
-  [TRANSACTION_TYPES.TRANSFER]: '🔄'
+  [TRANSACTION_TYPES.INVESTMENT]: '📈'
 }
 
-// Transaction categories (extended from budget categories)
+// Transaction categories (matching budget categories)
 export const TRANSACTION_CATEGORIES = {
   [TRANSACTION_TYPES.INCOME]: [
     'Salary',
@@ -507,12 +507,21 @@ export const TRANSACTION_CATEGORIES = {
     'Charity',
     'Other'
   ],
-  [TRANSACTION_TYPES.TRANSFER]: [
-    'Bank Transfer',
-    'Cash Withdrawal',
-    'Account Transfer',
-    'Investment Transfer',
-    'Other Transfer'
+  [TRANSACTION_TYPES.INVESTMENT]: [
+    'Real Estate Purchase',
+    'Real Estate Installment',
+    'Rental Income',
+    'Stock Purchase',
+    'Stock Dividends',
+    'Gold Purchase',
+    'Gold Sale',
+    'Mutual Funds',
+    'Retirement Fund',
+    'Crypto Purchase',
+    'Crypto Sale',
+    'Investment Returns',
+    'Capital Gains',
+    'Other Investment'
   ]
 }
 
@@ -528,5 +537,6 @@ export const DEFAULT_TRANSACTION_VALUES = {
   notes: '',
   gross_amount: null,
   tax_amount: null,
-  net_amount: null
+  net_amount: null,
+  investment_direction: null
 } 

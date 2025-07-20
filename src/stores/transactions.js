@@ -11,7 +11,7 @@ export const useTransactionStore = defineStore('transactions', () => {
   const transactionStats = ref({
     totalIncome: 0,
     totalExpenses: 0,
-    totalTransfers: 0,
+    totalInvestments: 0,
     netAmount: 0,
     categoryBreakdown: {},
     typeBreakdown: {}
@@ -62,7 +62,7 @@ export const useTransactionStore = defineStore('transactions', () => {
       transactionStats.value = {
         totalIncome: 0,
         totalExpenses: 0,
-        totalTransfers: 0,
+        totalInvestments: 0,
         netAmount: 0,
         categoryBreakdown: {},
         typeBreakdown: {}
@@ -85,7 +85,7 @@ export const useTransactionStore = defineStore('transactions', () => {
       transactionStats.value = {
         totalIncome: 0,
         totalExpenses: 0,
-        totalTransfers: 0,
+        totalInvestments: 0,
         netAmount: 0,
         categoryBreakdown: {},
         typeBreakdown: {}
@@ -243,7 +243,7 @@ export const useTransactionStore = defineStore('transactions', () => {
       transactionStats.value = {
         totalIncome: 0,
         totalExpenses: 0,
-        totalTransfers: 0,
+        totalInvestments: 0,
         netAmount: 0,
         categoryBreakdown: {},
         typeBreakdown: {}
@@ -262,7 +262,7 @@ export const useTransactionStore = defineStore('transactions', () => {
       transactionStats.value = {
         totalIncome: 0,
         totalExpenses: 0,
-        totalTransfers: 0,
+        totalInvestments: 0,
         netAmount: 0,
         categoryBreakdown: {},
         typeBreakdown: {}
