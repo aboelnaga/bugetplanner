@@ -5,12 +5,24 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-bold text-gray-900">Transactions</h1>
+            <h1 class="text-2xl font-bold text-gray-900">
+              {{ selectedAccountName ? `${selectedAccountName} Transactions` : 'Transactions' }}
+            </h1>
             <div class="text-sm text-gray-500">
-              Track all your income, expenses, and transfers
+              {{ selectedAccountName ? `Transaction history for ${selectedAccountName}` : 'Track all your income, expenses, and transfers' }}
             </div>
           </div>
           <div class="flex items-center space-x-3">
+            <button
+              v-if="selectedAccountName"
+              @click="clearAccountFilter"
+              class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+              </svg>
+              Back to All
+            </button>
             <button
               @click="showAddTransactionModal = true"
               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -126,7 +138,7 @@
                 <option value="">All Types</option>
                 <option value="income">Income</option>
                 <option value="expense">Expense</option>
-                <option value="transfer">Transfer</option>
+                <option value="investment">Investment</option>
               </select>
             </div>
             
@@ -165,8 +177,8 @@
                 class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">All Accounts</option>
-                <option v-for="account in availableAccounts" :key="account" :value="account">
-                  {{ account }}
+                <option v-for="account in accountsStore.accounts" :key="account.id" :value="account.id">
+                  {{ getAccountIcon(account.type) }} {{ account.name }} - {{ formatCurrency(account.balance) }}
                 </option>
               </select>
             </div>
@@ -346,7 +358,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useTransactionStore } from '../stores/transactions'
 import { useAccountsStore } from '../stores/accounts'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
@@ -356,6 +368,7 @@ import { formatCurrency, formatDate } from '../utils/budgetUtils'
 const transactionStore = useTransactionStore()
 const accountsStore = useAccountsStore()
 const route = useRoute()
+const router = useRouter()
 
 // Reactive data
 const isLoading = ref(false)
@@ -390,6 +403,14 @@ const netBalance = computed(() => {
   return totalIncome.value - totalExpenses.value
 })
 
+const selectedAccountName = computed(() => {
+  if (filters.value.account) {
+    const account = accountsStore.getAccountById(filters.value.account)
+    return account ? account.name : null
+  }
+  return null
+})
+
 const availableCategories = computed(() => {
   const categories = new Set()
   transactions.value.forEach(t => {
@@ -400,15 +421,16 @@ const availableCategories = computed(() => {
   return Array.from(categories).sort()
 })
 
-const availableAccounts = computed(() => {
-  const accounts = new Set()
-  transactions.value.forEach(t => {
-    if (t.accounts && t.accounts.name) {
-      accounts.add(t.accounts.name)
-    }
-  })
-  return Array.from(accounts).sort()
-})
+// Helper function to get account icon
+const getAccountIcon = (type) => {
+  const icons = {
+    checking: '🏦',
+    savings: '💰',
+    credit_card: '💳',
+    cash: '💵'
+  }
+  return icons[type] || '🏦'
+}
 
 const filteredTransactions = computed(() => {
   let items = transactions.value
@@ -422,7 +444,7 @@ const filteredTransactions = computed(() => {
   }
 
   if (filters.value.account) {
-    items = items.filter(t => t.accounts && t.accounts.name === filters.value.account)
+    items = items.filter(t => t.account_id === filters.value.account)
   }
 
   if (filters.value.dateRange) {
@@ -474,11 +496,17 @@ const clearFilters = () => {
   }
 }
 
+const clearAccountFilter = () => {
+  filters.value.account = ''
+  // Update URL to remove the account filter
+  router.push({ name: 'Transactions' })
+}
+
 const getTransactionTypeColor = (type) => {
   const colors = {
     income: 'bg-green-500',
     expense: 'bg-red-500',
-    transfer: 'bg-blue-500'
+    investment: 'bg-blue-500'
   }
   return colors[type] || 'bg-gray-500'
 }
@@ -487,7 +515,7 @@ const getTypeBadgeColor = (type) => {
   const colors = {
     income: 'bg-green-100 text-green-800',
     expense: 'bg-red-100 text-red-800',
-    transfer: 'bg-blue-100 text-blue-800'
+    investment: 'bg-blue-100 text-blue-800'
   }
   return colors[type] || 'bg-gray-100 text-gray-800'
 }
@@ -528,9 +556,19 @@ watch(() => route.query, (query) => {
       // Set the selected account
       selectedAccount.value = account
       // Set the account filter
-      filters.value.account = account.name
+      filters.value.account = account.id
       // Open the add transaction modal
       showAddTransactionModal.value = true
+    }
+  } else if (query.action === 'history' && query.account) {
+    // Pre-filter by account for history view
+    const accountId = query.account
+    const account = accountsStore.getAccountById(accountId)
+    if (account) {
+      // Set the account filter
+      filters.value.account = account.id
+      // Update page title to show account name
+      document.title = `Transactions - ${account.name}`
     }
   }
 }, { immediate: true })

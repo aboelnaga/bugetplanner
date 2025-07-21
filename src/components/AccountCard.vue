@@ -88,6 +88,12 @@
           Transfer
         </button>
         <button
+          @click="$emit('history', account)"
+          class="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+        >
+          History
+        </button>
+        <button
           v-if="!account.is_default"
           @click="$emit('set-default', account)"
           class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
@@ -111,7 +117,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['edit', 'set-default', 'delete', 'transfer'])
+const emit = defineEmits(['edit', 'set-default', 'delete', 'transfer', 'history'])
 
 const accountsStore = useAccountsStore()
 const transactionStore = useTransactionStore()

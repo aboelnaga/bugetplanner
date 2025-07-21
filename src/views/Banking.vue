@@ -47,6 +47,7 @@
         :account="account"
         @edit="handleEditAccount"
         @transfer="handleTransfer"
+        @history="handleAccountHistory"
         @set-default="handleSetDefault"
         @delete="handleDeleteAccount"
       />
@@ -163,6 +164,18 @@ const handleTransfer = (account) => {
   console.log('Transfer from account:', account.name)
   transferFromAccount.value = account
   showTransferModal.value = true
+}
+
+const handleAccountHistory = (account) => {
+  console.log('View history for account:', account.name)
+  // Navigate to transactions page with account pre-filtered
+  router.push({
+    name: 'Transactions',
+    query: { 
+      account: account.id,
+      action: 'history'
+    }
+  })
 }
 
 const handleSetDefault = async (account) => {
