@@ -348,7 +348,7 @@
               
               <!-- Due -->
               <div class="text-right flex-shrink-0 w-24">
-                <div v-if="item.dueDate" :class="getDueDateColor(item)" class="text-sm font-medium">
+                <div v-if="calculateDueDate(item)" :class="getDueDateColor(item)" class="text-sm font-medium" :title="formatDate(calculateDueDate(item))">
                   {{ getDueDateText(item) }}
                 </div>
                 <div v-else class="text-sm text-gray-500">
@@ -534,7 +534,7 @@
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                 </svg>
-                {{ formatDate(item.dueDate) }}
+                {{ formatDate(calculateDueDate(item)) }}
               </div>
               <div v-if="item.transactions && item.transactions.length > 0" class="flex items-center">
                 <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -898,8 +898,8 @@ const getItemStatus = (item) => {
   }
   
   // Check if overdue
-  if (item.dueDate) {
-    const dueDate = new Date(item.dueDate)
+  const dueDate = calculateDueDate(item)
+  if (dueDate) {
     const today = new Date()
     if (dueDate < today && totalAmount === 0) {
       return 'overdue'
@@ -1019,9 +1019,9 @@ const getCategoryBadgeColor = (category) => {
 }
 
 const getDueDateText = (item) => {
-  if (!item.dueDate) return 'No due date'
+  const dueDate = calculateDueDate(item)
+  if (!dueDate) return 'No due date'
   
-  const dueDate = new Date(item.dueDate)
   const today = new Date()
   const diffTime = dueDate.getTime() - today.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -1038,9 +1038,9 @@ const getDueDateText = (item) => {
 }
 
 const getDueDateColor = (item) => {
-  if (!item.dueDate) return 'text-gray-500'
+  const dueDate = calculateDueDate(item)
+  if (!dueDate) return 'text-gray-500'
   
-  const dueDate = new Date(item.dueDate)
   const today = new Date()
   const diffTime = dueDate.getTime() - today.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
@@ -1051,6 +1051,44 @@ const getDueDateColor = (item) => {
     return 'text-orange-600' // Due soon
   } else {
     return 'text-gray-900' // Future
+  }
+}
+
+const calculateDueDate = (item) => {
+  if (!item.payment_schedule) return null
+  
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth()
+  
+  // Check if this budget item is active for the current month
+  const budgetAmount = getBudgetAmount(item)
+  if (budgetAmount === 0) return null
+  
+  switch (item.payment_schedule) {
+    case 'start_of_month':
+      // Due on the 1st of the current month
+      return new Date(currentYear, currentMonth, 1)
+      
+    case 'end_of_month':
+      // Due on the last day of the current month
+      return new Date(currentYear, currentMonth + 1, 0)
+      
+    case 'custom_dates':
+      // Due on the specific day of the current month
+      if (item.due_date && item.due_date >= 1 && item.due_date <= 31) {
+        // Get the last day of the current month
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+        // Use the minimum of due_date or last day of month
+        const dueDay = Math.min(item.due_date, lastDayOfMonth)
+        return new Date(currentYear, currentMonth, dueDay)
+      }
+      return null
+      
+    case 'throughout_month':
+    default:
+      // No specific due date for throughout_month
+      return null
   }
 }
 
