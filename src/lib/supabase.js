@@ -42,6 +42,18 @@ export const budgetAPI = {
     return data
   },
 
+  // Get a single budget item by ID
+  async getBudgetItem(budgetItemId) {
+    const { data, error } = await supabase
+      .from('budget_items')
+      .select('*')
+      .eq('id', budgetItemId)
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
   // Create a new budget item
   async createBudgetItem(budgetItem) {
     console.log('API: Creating budget item:', budgetItem)
@@ -62,6 +74,19 @@ export const budgetAPI = {
       .from('budget_items')
       .update(updates)
       .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Update actual amounts for a budget item
+  async updateActualAmounts(budgetItemId, amounts) {
+    const { data, error } = await supabase
+      .from('budget_items')
+      .update({ actual_amounts: amounts })
+      .eq('id', budgetItemId)
       .select()
       .single()
     

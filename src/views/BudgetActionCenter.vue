@@ -330,10 +330,10 @@
                 </div>
               </div>
               
-              <!-- Paid/Budget with Progress Bar -->
+              <!-- Actual/Budget with Progress Bar -->
               <div class="text-right flex-shrink-0 w-32">
                 <div class="text-sm font-medium text-gray-900">
-                  {{ formatCurrency(getTotalTransactions(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
+                  {{ formatCurrency(getActualAmount(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
                 </div>
                 <!-- Progress Bar -->
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
@@ -501,8 +501,8 @@
               <div class="text-lg font-bold text-gray-900 mb-1">
                 {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
-              <div v-if="item.transactions && item.transactions.length > 0" class="text-xs text-gray-500 mb-2">
-                {{ formatCurrency(getTotalTransactions(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
+              <div v-if="getActualAmount(item) > 0" class="text-xs text-gray-500 mb-2">
+                {{ formatCurrency(getActualAmount(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
               <!-- Progress Bar -->
               <div v-if="item.transactions && item.transactions.length > 0" class="mb-2">
@@ -878,22 +878,21 @@ const clearFilters = () => {
 }
 
 const getItemStatus = (item) => {
-  const transactions = item.transactions || []
-  const totalAmount = transactions.reduce((sum, t) => sum + t.amount, 0)
+  const actualAmount = getActualAmount(item)
   const budgetAmount = getBudgetAmount(item)
   
   // Check if completed (amount matches exactly)
-  if (totalAmount === budgetAmount) {
+  if (actualAmount === budgetAmount) {
     return 'completed'
   }
   
   // Check if exceeds budget
-  if (totalAmount > budgetAmount) {
+  if (actualAmount > budgetAmount) {
     return 'exceeds'
   }
   
   // Check if partial
-  if (totalAmount > 0 && totalAmount < budgetAmount) {
+  if (actualAmount > 0 && actualAmount < budgetAmount) {
     return 'partial'
   }
   
@@ -901,7 +900,7 @@ const getItemStatus = (item) => {
   const dueDate = calculateDueDate(item)
   if (dueDate) {
     const today = new Date()
-    if (dueDate < today && totalAmount === 0) {
+    if (dueDate < today && actualAmount === 0) {
       return 'overdue'
     }
   }
@@ -969,16 +968,21 @@ const getTotalTransactions = (item) => {
   return transactions.reduce((sum, t) => sum + t.amount, 0)
 }
 
+const getActualAmount = (item) => {
+  if (!item.actual_amounts || !Array.isArray(item.actual_amounts)) return 0
+  return parseFloat(item.actual_amounts[selectedMonth.value]) || 0
+}
+
 const getBudgetAmount = (item) => {
   if (!item || !item.amounts || !Array.isArray(item.amounts)) return 0
   return parseFloat(item.amounts[selectedMonth.value]) || 0
 }
 
 const getProgressPercentage = (item) => {
-  const total = getTotalTransactions(item)
+  const actual = getActualAmount(item)
   const budgetAmount = getBudgetAmount(item)
   if (budgetAmount === 0) return 0
-  const percentage = (total / budgetAmount) * 100
+  const percentage = (actual / budgetAmount) * 100
   return Math.min(percentage, 100)
 }
 
@@ -997,9 +1001,9 @@ const getProgressBarColor = (item) => {
 }
 
 const getRemainingAmount = (item) => {
-  const totalTransactions = getTotalTransactions(item)
+  const actualAmount = getActualAmount(item)
   const budgetAmount = getBudgetAmount(item)
-  return budgetAmount - totalTransactions
+  return budgetAmount - actualAmount
 }
 
 const getCategoryBadgeColor = (category) => {

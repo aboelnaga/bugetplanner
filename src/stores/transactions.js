@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { transactionAPI, subscribeToTransactionChanges } from '@/lib/supabase.js'
+import { transactionAPI, budgetAPI, subscribeToTransactionChanges } from '@/lib/supabase.js'
 import { useAuthStore } from './auth.js'
 
 export const useTransactionStore = defineStore('transactions', () => {
@@ -118,6 +118,11 @@ export const useTransactionStore = defineStore('transactions', () => {
       // Add to local state immediately
       transactions.value.unshift(data)
       
+      // Update budget item actual amounts if linked
+      if (data.budget_item_id) {
+        await updateBudgetItemActuals(data.budget_item_id, data.amount, 'add', data.date)
+      }
+      
       // Refresh stats
       await fetchTransactionStats()
       
@@ -139,6 +144,10 @@ export const useTransactionStore = defineStore('transactions', () => {
       editLoading.value = true
       error.value = null
       
+      // Get the original transaction to calculate the difference
+      const originalTransaction = transactions.value.find(t => t.id === id)
+      if (!originalTransaction) return false
+      
       // Update year and month if date changed
       if (updates.date) {
         updates.year = new Date(updates.date).getFullYear()
@@ -151,6 +160,25 @@ export const useTransactionStore = defineStore('transactions', () => {
       const index = transactions.value.findIndex(item => item.id === id)
       if (index !== -1) {
         transactions.value[index] = { ...transactions.value[index], ...data }
+      }
+      
+      // Update budget item actual amounts if linked
+      if (data.budget_item_id) {
+        // Remove old amount from old month
+        if (originalTransaction.budget_item_id === data.budget_item_id) {
+          // Same budget item, just update the amount difference
+          const amountDiff = data.amount - originalTransaction.amount
+          if (amountDiff !== 0) {
+            await updateBudgetItemActuals(data.budget_item_id, Math.abs(amountDiff), amountDiff > 0 ? 'add' : 'delete', data.date)
+          }
+        } else {
+          // Different budget item - remove from old, add to new
+          await updateBudgetItemActuals(originalTransaction.budget_item_id, originalTransaction.amount, 'delete', originalTransaction.date)
+          await updateBudgetItemActuals(data.budget_item_id, data.amount, 'add', data.date)
+        }
+      } else if (originalTransaction.budget_item_id) {
+        // Transaction unlinked from budget item
+        await updateBudgetItemActuals(originalTransaction.budget_item_id, originalTransaction.amount, 'delete', originalTransaction.date)
       }
       
       // Refresh stats
@@ -174,10 +202,18 @@ export const useTransactionStore = defineStore('transactions', () => {
       deleteLoading.value = true
       error.value = null
       
+      // Get the transaction before deleting to update budget actuals
+      const transaction = transactions.value.find(t => t.id === id)
+      
       await transactionAPI.deleteTransaction(id)
       
       // Remove from local state immediately
       transactions.value = transactions.value.filter(item => item.id !== id)
+      
+      // Update budget item actual amounts if linked
+      if (transaction && transaction.budget_item_id) {
+        await updateBudgetItemActuals(transaction.budget_item_id, transaction.amount, 'delete', transaction.date)
+      }
       
       // Refresh stats
       await fetchTransactionStats()
@@ -229,6 +265,36 @@ export const useTransactionStore = defineStore('transactions', () => {
       .filter(transaction => transaction.account_id === accountId)
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, limit)
+  }
+
+  // Update budget item actual amounts when transactions change
+  const updateBudgetItemActuals = async (budgetItemId, amount, operation = 'add', date = null) => {
+    try {
+      // Get current budget item
+      const budgetItem = await budgetAPI.getBudgetItem(budgetItemId)
+      if (!budgetItem) return
+
+      const month = date ? new Date(date).getMonth() : new Date().getMonth()
+      const newAmounts = [...(budgetItem.actual_amounts || [0,0,0,0,0,0,0,0,0,0,0,0])]
+
+      // Update the specific month
+      switch (operation) {
+        case 'add':
+          newAmounts[month] = (newAmounts[month] || 0) + amount
+          break
+        case 'update':
+          // For updates, we need the old amount - this will be handled in updateTransaction
+          break
+        case 'delete':
+          newAmounts[month] = Math.max(0, (newAmounts[month] || 0) - amount)
+          break
+      }
+
+      // Update the budget item
+      await budgetAPI.updateActualAmounts(budgetItemId, newAmounts)
+    } catch (error) {
+      console.error('Error updating budget item actual amounts:', error)
+    }
   }
 
   // Initialize store
