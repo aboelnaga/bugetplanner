@@ -168,12 +168,37 @@
         <div class="px-6 py-4 border-b border-gray-200">
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-medium text-gray-900">Filters</h3>
-            <button
-              @click="clearFilters"
-              class="text-sm text-indigo-600 hover:text-indigo-800"
-            >
-              Clear All
-            </button>
+            <div class="flex items-center space-x-3">
+              <!-- View Toggle -->
+              <div class="flex items-center space-x-1 bg-gray-100 rounded-md p-1">
+                <button
+                  @click="viewMode = 'list'"
+                  :class="viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                  title="List View"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                  </svg>
+                </button>
+                <button
+                  @click="viewMode = 'grid'"
+                  :class="viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'"
+                  class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                  title="Grid View"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                  </svg>
+                </button>
+              </div>
+              <button
+                @click="clearFilters"
+                class="text-sm text-indigo-600 hover:text-indigo-800"
+              >
+                Clear All
+              </button>
+            </div>
           </div>
         </div>
         <div class="px-6 py-4">
@@ -255,166 +280,160 @@
           </p>
         </div>
         
-        <div v-else class="divide-y divide-gray-200">
+        <!-- List View -->
+        <div v-if="viewMode === 'list'" class="divide-y divide-gray-200">
           <div
             v-for="item in filteredItems"
             :key="item.id"
-            class="p-6 hover:bg-gray-50 transition-colors"
+            class="hover:bg-gray-50 transition-colors"
           >
-            <div class="flex items-start justify-between">
-              <!-- Item Info -->
-              <div class="flex-1">
-                <div class="flex items-center space-x-3">
-                  <div class="flex-shrink-0">
-                    <div
-                      :class="getStatusColor(item).bg"
-                      class="w-3 h-3 rounded-full"
-                    ></div>
-                  </div>
-                  
-                  <div class="flex-1 min-w-0">
-                    <div class="flex items-center space-x-2">
-                      <h4 class="text-lg font-medium text-gray-900 truncate">
-                        {{ item.name }}
-                      </h4>
-                      <span
-                        :class="getTypeBadgeColor(item.type)"
-                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      >
-                        {{ item.type }}
-                      </span>
-                    </div>
-                    
-                    <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
-                      <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                        </svg>
-                        {{ formatCurrency(item.amount) }}
-                      </span>
-                      
-                      <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                        </svg>
-                        {{ item.category }}
-                      </span>
-                      
-                      <span v-if="item.dueDate" class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                        {{ formatDate(item.dueDate) }}
-                      </span>
-                      
-                      <span class="flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        {{ item.paymentSchedule }}
-                      </span>
-                    </div>
-                    
-                    <!-- Status and Progress -->
-                    <div class="mt-3">
-                      <div class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                          <span
-                            :class="getStatusBadgeColor(getItemStatus(item))"
-                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                          >
-                            {{ getStatusLabel(getItemStatus(item)) }}
-                          </span>
-                          
-                          <span v-if="item.transactions && item.transactions.length > 0" class="text-sm text-gray-500">
-                            {{ item.transactions.length }} transaction{{ item.transactions.length !== 1 ? 's' : '' }}
-                          </span>
-                        </div>
-                        
-                        <div v-if="item.transactions && item.transactions.length > 0" class="text-sm text-gray-500">
-                                                  <span class="font-medium">{{ formatCurrency(getTotalTransactions(item)) }}</span>
-                        <span class="mx-1">/</span>
-                        <span>{{ formatCurrency(item.amount) }}</span>
-                        </div>
-                      </div>
-                      
-                      <!-- Progress Bar -->
-                      <div v-if="item.transactions && item.transactions.length > 0" class="mt-2">
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                          <div
-                            :class="getProgressBarColor(item)"
-                            :style="{ width: getProgressPercentage(item) + '%' }"
-                            class="h-2 rounded-full transition-all duration-300"
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+            <!-- Main Row -->
+            <div class="flex items-center space-x-4 p-4">
+              <!-- Status -->
+              <div class="flex items-center space-x-2 flex-shrink-0">
+                <div
+                  :class="getStatusColor(item).bg"
+                  class="w-2 h-2 rounded-full"
+                ></div>
+                <span
+                  :class="getStatusBadgeColor(getItemStatus(item))"
+                  class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
+                  :title="getStatusLabel(getItemStatus(item))"
+                >
+                  {{ getStatusLabel(getItemStatus(item)) }}
+                </span>
+              </div>
+              
+              <!-- Name -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2">
+                  <h4 class="text-sm font-medium text-gray-900 truncate">
+                    {{ item.name }}
+                  </h4>
+                  <span
+                    :class="getTypeBadgeColor(item.type)"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0"
+                  >
+                    {{ item.type }}
+                  </span>
+                  <span
+                    :class="getCategoryBadgeColor(item.category)"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0"
+                  >
+                    {{ item.category }}
+                  </span>
+                  <span v-if="item.notes" class="text-gray-400" title="Has Notes">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Paid/Budget with Progress Bar -->
+              <div class="text-right flex-shrink-0 w-32">
+                <div class="text-sm font-medium text-gray-900">
+                  {{ formatCurrency(getTotalTransactions(item)) }} / {{ formatCurrency(item.amount) }}
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                  <div
+                    :class="getProgressBarColor(item)"
+                    :style="{ width: getProgressPercentage(item) + '%' }"
+                    class="h-1.5 rounded-full transition-all duration-300"
+                    :title="`${Math.round(getProgressPercentage(item))}% complete`"
+                  ></div>
+                </div>
+              </div>
+              
+              <!-- Due -->
+              <div class="text-right flex-shrink-0 w-24">
+                <div v-if="item.dueDate" :class="getDueDateColor(item)" class="text-sm font-medium">
+                  {{ getDueDateText(item) }}
+                </div>
+                <div v-else class="text-sm text-gray-500">
+                  No due date
                 </div>
               </div>
               
               <!-- Actions -->
-              <div class="flex items-center space-x-2 ml-4">
+              <div class="flex items-center space-x-1 flex-shrink-0">
                 <button
+                  v-if="item.is_fixed_expense"
                   @click="markAsPaid(item)"
-                  class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                  class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  title="Mark as Paid"
                 >
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                   </svg>
-                  Mark Paid
+                  Paid
                 </button>
                 
                 <button
                   @click="addTransaction(item)"
-                  class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  title="Add Transaction"
                 >
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                   </svg>
-                  Add Transaction
+                  Add
                 </button>
                 
                 <button
                   @click="skipItem(item)"
-                  class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  title="Skip Item"
                 >
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                   </svg>
                   Skip
                 </button>
                 
+                <!-- Transaction Count -->
+                <span v-if="item.transactions && item.transactions.length > 0" class="text-xs text-gray-500 px-1">
+                  {{ item.transactions.length }}
+                </span>
+                
+                <!-- Expand Arrow -->
                 <button
                   @click="toggleHistory(item)"
-                  class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  :title="expandedItems.includes(item.id) ? 'Hide History' : 'Show History'"
                 >
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  <svg 
+                    class="w-3 h-3 transition-transform duration-200" 
+                    :class="expandedItems.includes(item.id) ? 'rotate-180' : ''"
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                   </svg>
-                  History
                 </button>
               </div>
             </div>
             
             <!-- Transaction History (Collapsible) -->
-            <div v-if="expandedItems.includes(item.id)" class="mt-4 pl-6 border-l-2 border-gray-200">
-              <div class="bg-gray-50 rounded-lg p-4">
-                <h5 class="text-sm font-medium text-gray-900 mb-3">Transaction History</h5>
+            <div v-if="expandedItems.includes(item.id)" class="px-4 pb-4">
+              <div class="bg-gray-50 rounded p-3 mt-2">
+                <h5 class="text-xs font-medium text-gray-900 mb-2">Transaction History</h5>
                 
-                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-3">
+                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-2">
                   <div
                     v-for="transaction in item.transactions"
                     :key="transaction.id"
-                    class="flex items-center justify-between p-3 bg-white rounded-md shadow-sm"
+                    class="flex items-center justify-between p-2 bg-white rounded shadow-sm"
                   >
-                    <div class="flex items-center space-x-3">
+                    <div class="flex items-center space-x-2">
                       <div
                         :class="getTransactionTypeColor(transaction.type)"
-                        class="w-2 h-2 rounded-full"
+                        class="w-1.5 h-1.5 rounded-full"
                       ></div>
                       <div>
-                        <p class="text-sm font-medium text-gray-900">
+                        <p class="text-xs font-medium text-gray-900">
                           {{ transaction.description || 'Transaction' }}
                         </p>
                         <p class="text-xs text-gray-500">
@@ -425,7 +444,7 @@
                     <div class="text-right">
                       <p
                         :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-                        class="text-sm font-medium"
+                        class="text-xs font-medium"
                       >
                         {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                       </p>
@@ -433,8 +452,189 @@
                   </div>
                 </div>
                 
-                <div v-else class="text-sm text-gray-500 text-center py-4">
+                <div v-else class="text-xs text-gray-500 text-center py-2">
                   No transactions yet for this budget item.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Grid View -->
+        <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div
+            v-for="item in filteredItems"
+            :key="item.id"
+            class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
+          >
+            <!-- Header -->
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center space-x-2 mb-1">
+                  <div
+                    :class="getStatusColor(item).bg"
+                    class="w-2 h-2 rounded-full flex-shrink-0"
+                  ></div>
+                  <h4 class="text-sm font-medium text-gray-900 truncate">
+                    {{ item.name }}
+                  </h4>
+                </div>
+                <div class="flex items-center space-x-1">
+                  <span
+                    :class="getTypeBadgeColor(item.type)"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
+                  >
+                    {{ item.type }}
+                  </span>
+                  <span
+                    :class="getStatusBadgeColor(getItemStatus(item))"
+                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
+                  >
+                    {{ getStatusLabel(getItemStatus(item)) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Amount and Progress -->
+            <div class="mb-3">
+              <div class="text-lg font-bold text-gray-900 mb-1">
+                {{ formatCurrency(item.amount) }}
+              </div>
+              <div v-if="item.transactions && item.transactions.length > 0" class="text-xs text-gray-500 mb-2">
+                {{ formatCurrency(getTotalTransactions(item)) }} / {{ formatCurrency(item.amount) }}
+              </div>
+              <!-- Progress Bar -->
+              <div v-if="item.transactions && item.transactions.length > 0" class="mb-2">
+                <div class="w-full bg-gray-200 rounded-full h-1.5">
+                  <div
+                    :class="getProgressBarColor(item)"
+                    :style="{ width: getProgressPercentage(item) + '%' }"
+                    class="h-1.5 rounded-full transition-all duration-300"
+                  ></div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Details -->
+            <div class="space-y-1 mb-3 text-xs text-gray-500">
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                </svg>
+                {{ item.category }}
+              </div>
+              <div class="flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ item.paymentSchedule }}
+              </div>
+              <div v-if="item.dueDate" class="flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                {{ formatDate(item.dueDate) }}
+              </div>
+              <div v-if="item.transactions && item.transactions.length > 0" class="flex items-center">
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                {{ item.transactions.length }} transactions
+              </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="mb-3">
+              <div class="text-xs text-gray-500">
+                <span v-if="getRemainingAmount(item) > 0" class="text-orange-600 font-medium">
+                  Remaining: {{ formatCurrency(getRemainingAmount(item)) }}
+                </span>
+                <span v-else-if="getRemainingAmount(item) < 0" class="text-red-600 font-medium">
+                  Over: {{ formatCurrency(Math.abs(getRemainingAmount(item))) }}
+                </span>
+                <span v-else class="text-green-600 font-medium">
+                  Complete
+                </span>
+              </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex flex-wrap gap-1">
+              <button
+                @click="markAsPaid(item)"
+                class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
+                title="Mark as Paid"
+              >
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Paid
+              </button>
+              
+              <button
+                @click="addTransaction(item)"
+                class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                title="Add Transaction"
+              >
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add
+              </button>
+              
+              <button
+                @click="toggleHistory(item)"
+                class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                title="View History"
+              >
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                History
+              </button>
+              
+              <button
+                @click="skipItem(item)"
+                class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                title="Skip Item"
+              >
+                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                Skip
+              </button>
+            </div>
+            
+            <!-- Transaction History (Collapsible) -->
+            <div v-if="expandedItems.includes(item.id)" class="mt-3 pt-3 border-t border-gray-100">
+              <div class="bg-gray-50 rounded p-2">
+                <h5 class="text-xs font-medium text-gray-900 mb-2">Transaction History</h5>
+                
+                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-1">
+                  <div
+                    v-for="transaction in item.transactions"
+                    :key="transaction.id"
+                    class="flex items-center justify-between p-1 bg-white rounded text-xs"
+                  >
+                    <div class="flex items-center space-x-1">
+                      <div
+                        :class="getTransactionTypeColor(transaction.type)"
+                        class="w-1 h-1 rounded-full"
+                      ></div>
+                      <span class="truncate">{{ transaction.description || 'Transaction' }}</span>
+                    </div>
+                    <span
+                      :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                      class="font-medium ml-1"
+                    >
+                      {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                    </span>
+                  </div>
+                </div>
+                
+                <div v-else class="text-xs text-gray-500 text-center py-1">
+                  No transactions yet.
                 </div>
               </div>
             </div>
@@ -516,6 +716,7 @@ const showAddTransactionModal = ref(false)
 const showSkipModal = ref(false)
 const selectedBudgetItem = ref(null)
 const skipReason = ref('')
+const viewMode = ref('list')
 
 // Filters
 const filters = ref({
@@ -774,15 +975,74 @@ const getProgressPercentage = (item) => {
 }
 
 const getProgressBarColor = (item) => {
-  const status = getItemStatus(item)
-  const colors = {
-    completed: 'bg-green-500',
-    exceeds: 'bg-red-500',
-    partial: 'bg-blue-500',
-    pending: 'bg-yellow-500',
-    overdue: 'bg-red-400'
+  const percentage = getProgressPercentage(item)
+  
+  if (percentage >= 100) {
+    return 'bg-green-500' // Complete
+  } else if (percentage >= 90) {
+    return 'bg-orange-500' // Approaching limit
+  } else if (percentage > 0) {
+    return 'bg-blue-500' // On track
+  } else {
+    return 'bg-gray-300' // No progress
   }
-  return colors[status] || 'bg-gray-500'
+}
+
+const getRemainingAmount = (item) => {
+  const totalTransactions = getTotalTransactions(item)
+  return item.amount - totalTransactions
+}
+
+const getCategoryBadgeColor = (category) => {
+  const colors = {
+    'Essential': 'bg-red-100 text-red-800',
+    'Housing': 'bg-blue-100 text-blue-800',
+    'Transportation': 'bg-green-100 text-green-800',
+    'Food': 'bg-yellow-100 text-yellow-800',
+    'Utilities': 'bg-purple-100 text-purple-800',
+    'Healthcare': 'bg-pink-100 text-pink-800',
+    'Entertainment': 'bg-indigo-100 text-indigo-800',
+    'Education': 'bg-teal-100 text-teal-800',
+    'Savings': 'bg-emerald-100 text-emerald-800',
+    'Investment': 'bg-cyan-100 text-cyan-800'
+  }
+  return colors[category] || 'bg-gray-100 text-gray-800'
+}
+
+const getDueDateText = (item) => {
+  if (!item.dueDate) return 'No due date'
+  
+  const dueDate = new Date(item.dueDate)
+  const today = new Date()
+  const diffTime = dueDate.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 0) {
+    return `Overdue ${Math.abs(diffDays)} days`
+  } else if (diffDays === 0) {
+    return 'Due today'
+  } else if (diffDays === 1) {
+    return 'Due tomorrow'
+  } else {
+    return `Due in ${diffDays} days`
+  }
+}
+
+const getDueDateColor = (item) => {
+  if (!item.dueDate) return 'text-gray-500'
+  
+  const dueDate = new Date(item.dueDate)
+  const today = new Date()
+  const diffTime = dueDate.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  
+  if (diffDays < 0) {
+    return 'text-red-600' // Overdue
+  } else if (diffDays <= 7) {
+    return 'text-orange-600' // Due soon
+  } else {
+    return 'text-gray-900' // Future
+  }
 }
 
 const toggleHistory = (item) => {
