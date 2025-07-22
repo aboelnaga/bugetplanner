@@ -30,6 +30,9 @@ export const budgetAPI = {
   async getBudgetItems(userId, year) {
     console.log('API: Getting budget items for user:', userId, 'year:', year)
     
+    // Check and auto-close months if needed
+    const autoCloseResult = await this.checkAndAutoCloseMonths(userId)
+    
     const { data, error } = await supabase
       .from('budget_items')
       .select('*')
@@ -39,7 +42,12 @@ export const budgetAPI = {
     
     console.log('API: Supabase response for getBudgetItems:', { data, error })
     if (error) throw error
-    return data
+    
+    // Return both budget items and auto-close result
+    return {
+      budgetItems: data,
+      autoCloseResult: autoCloseResult
+    }
   },
 
   // Get a single budget item by ID
@@ -92,6 +100,103 @@ export const budgetAPI = {
     
     if (error) throw error
     return data
+  },
+
+  // Month closure functions
+  async closeMonth(userId, year, month) {
+    const { data, error } = await supabase
+      .from('closed_months')
+      .insert({
+        user_id: userId,
+        year: year,
+        month: month,
+        closed_by: userId
+      })
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  async getClosedMonths(userId, year) {
+    const { data, error } = await supabase
+      .from('closed_months')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('year', year)
+      .order('month', { ascending: true })
+    
+    if (error) throw error
+    return data
+  },
+
+  async isMonthClosed(userId, year, month) {
+    const { data, error } = await supabase
+      .from('closed_months')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('year', year)
+      .eq('month', month)
+      .single()
+    
+    if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
+    return !!data
+  },
+
+  async autoCloseMonth(userId, year, month) {
+    // Check if month is already closed
+    const isClosed = await this.isMonthClosed(userId, year, month)
+    if (isClosed) return null
+    
+    // Close the month
+    return await this.closeMonth(userId, year, month)
+  },
+
+  // Check and auto-close months that should be closed
+  async checkAndAutoCloseMonths(userId) {
+    try {
+      const currentDate = new Date()
+      const currentYear = currentDate.getFullYear()
+      const currentMonth = currentDate.getMonth()
+      const currentDay = currentDate.getDate()
+      
+      // Only auto-close if we're 7+ days into the new month
+      if (currentDay >= 7) {
+        // Calculate the previous month that should be auto-closed
+        let previousMonth, previousYear
+        
+        if (currentMonth === 0) {
+          // January -> December of previous year
+          previousMonth = 11
+          previousYear = currentYear - 1
+        } else {
+          // Other months -> previous month of same year
+          previousMonth = currentMonth - 1
+          previousYear = currentYear
+        }
+        
+        // Check if the previous month should be auto-closed
+        const isClosed = await this.isMonthClosed(userId, previousYear, previousMonth)
+        if (!isClosed) {
+          console.log(`API: Auto-closing month ${previousMonth}/${previousYear} for user ${userId}`)
+          await this.autoCloseMonth(userId, previousYear, previousMonth)
+          
+          // Return info about the auto-closed month for notification
+          return {
+            year: previousYear,
+            month: previousMonth,
+            autoClosed: true
+          }
+        }
+      }
+      
+      return { autoClosed: false }
+    } catch (error) {
+      console.error('Error in checkAndAutoCloseMonths:', error)
+      // Don't throw error to prevent blocking the main request
+      return { autoClosed: false, error: error.message }
+    }
   },
 
   // Delete a budget item

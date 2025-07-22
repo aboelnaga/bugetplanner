@@ -126,6 +126,8 @@
         :get-budget-amount="getBudgetAmount"
         :has-changes="hasChanges"
         :format-currency="formatCurrency"
+        :closed-months="closedMonths"
+        :get-actual-amount="getActualAmount"
         @retry="budgetStore.fetchBudgetItems()"
         @add-first-budget="openAddBudgetModal"
         @copy-from-previous-year="copyFromPreviousYear"
@@ -133,7 +135,8 @@
         @add-budget="openAddBudgetModal"
         @edit-budget="editBudget"
         @duplicate-budget="duplicateBudget"
-        @delete-budget="deleteBudget" />
+        @delete-budget="deleteBudget"
+        @close-month="handleCloseMonth" />
     </div>
 
     <!-- Add Budget Modal -->
@@ -266,6 +269,10 @@
     return previousYear >= 2020 && previousYearHasData.value
   })
 
+  // Month closure state
+  const closedMonths = ref([])
+  const loadingClosedMonths = ref(false)
+
   // Check if previous year has data
   const checkPreviousYearData = async () => {
     const previousYear = selectedYear.value - 1
@@ -276,12 +283,51 @@
     }
   }
 
+  // Month closure functions
+  const fetchClosedMonths = async () => {
+    if (!authStore.isAuthenticated || !authStore.userId) return
+    
+    try {
+      loadingClosedMonths.value = true
+      const data = await budgetStore.getClosedMonths(selectedYear.value)
+      closedMonths.value = data || []
+    } catch (error) {
+      console.error('Error fetching closed months:', error)
+      closedMonths.value = []
+    } finally {
+      loadingClosedMonths.value = false
+    }
+  }
+
+  const handleCloseMonth = async (year, month) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return
+    
+    try {
+      const success = await budgetStore.closeMonth(year, month)
+      if (success) {
+        // Refresh closed months
+        await fetchClosedMonths()
+        // TODO: Show success notification
+        console.log(`Month ${month}/${year} closed successfully`)
+      }
+    } catch (error) {
+      console.error('Error closing month:', error)
+      // TODO: Show error notification
+    }
+  }
+
+  const getActualAmount = (budget, monthIndex) => {
+    if (!budget.actual_amounts || !Array.isArray(budget.actual_amounts)) return 0
+    return parseFloat(budget.actual_amounts[monthIndex]) || 0
+  }
+
   // Watch for authentication changes
   watch(() => authStore.isAuthenticated, (isAuthenticated) => {
     if (isAuthenticated) {
       budgetStore.initialize()
       accountsStore.fetchAccounts()
       checkPreviousYearData()
+      fetchClosedMonths()
     } else {
       // Clear data when not authenticated
       budgetStore.budgetItems = []
@@ -291,6 +337,7 @@
       budgetStore.error = null
       accountsStore.error = null
       previousYearHasData.value = false
+      closedMonths.value = []
     }
   })
 
@@ -298,6 +345,7 @@
   watch(() => selectedYear.value, () => {
     if (authStore.isAuthenticated) {
       checkPreviousYearData()
+      fetchClosedMonths()
     }
   })
 
@@ -326,6 +374,7 @@
       budgetStore.initialize()
       accountsStore.fetchAccounts()
       checkPreviousYearData()
+      fetchClosedMonths()
     }
   })
 </script>

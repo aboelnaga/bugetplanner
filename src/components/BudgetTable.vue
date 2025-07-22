@@ -54,11 +54,24 @@
               <th v-for="(month, index) in months" :key="month" 
                   :class="getMonthHeaderClasses(currentYear, currentMonth, index)"
                   class="px-3 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider border-r border-gray-200">
-                {{ month }}
-                <span v-if="selectedYear === currentYear && index === currentMonth" 
-                      class="block text-xs font-medium text-sky-600 mt-1">
-                  (Current)
-                </span>
+                <div class="space-y-1">
+                  <div>{{ month }}</div>
+                  <div v-if="selectedYear === currentYear && index === currentMonth" 
+                       class="text-xs font-medium text-sky-600">
+                    (Current)
+                  </div>
+                  <div v-else-if="isMonthClosed(index)" 
+                       class="text-xs font-medium text-green-600">
+                    ✓ Closed
+                  </div>
+                  <div v-else-if="canCloseMonth(index)" 
+                       class="text-xs">
+                    <button @click="handleCloseMonth(index)" 
+                            class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
+                      Close Month
+                    </button>
+                  </div>
+                </div>
               </th>
               <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider bg-slate-50 border-r border-gray-200">
                 Total
@@ -82,6 +95,8 @@
                 :has-changes="hasChanges"
                 :calculate-yearly-total="calculateYearlyTotal"
                 :format-currency="formatCurrency"
+                :closed-months="closedMonths"
+                :get-actual-amount="getActualAmount"
                 @edit-budget="$emit('edit-budget', $event)"
                 @duplicate-budget="$emit('duplicate-budget', $event)"
                 @delete-budget="$emit('delete-budget', $event)" />
@@ -312,6 +327,16 @@ const props = defineProps({
   formatCurrency: {
     type: Function,
     required: true
+  },
+  
+  // Month closure props
+  closedMonths: {
+    type: Array,
+    default: () => []
+  },
+  getActualAmount: {
+    type: Function,
+    default: null
   }
 })
 
@@ -337,6 +362,46 @@ const {
   computed(() => props.canCopyFromPreviousYear)
 )
 
+// Month closure logic
+const isMonthClosed = (monthIndex) => {
+  return props.closedMonths.some(closedMonth => closedMonth.month === monthIndex)
+}
+
+const canCloseMonth = (monthIndex) => {
+  // Can only close months that are not current or future
+  if (props.selectedYear === props.currentYear && monthIndex >= props.currentMonth) {
+    return false
+  }
+  
+  // Can only close months that are not already closed
+  if (isMonthClosed(monthIndex)) {
+    return false
+  }
+  
+  // Can only close months that are at least 7 days old
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth()
+  const currentDay = currentDate.getDate()
+  
+  // If we're in the same year and month, check if it's been 7+ days
+  if (props.selectedYear === currentYear && monthIndex === currentMonth) {
+    return currentDay >= 7
+  }
+  
+  // If it's a previous month, it can be closed
+  if (props.selectedYear < currentYear || 
+      (props.selectedYear === currentYear && monthIndex < currentMonth)) {
+    return true
+  }
+  
+  return false
+}
+
+const handleCloseMonth = (monthIndex) => {
+  emit('close-month', props.selectedYear, monthIndex)
+}
+
 // Emits
 const emit = defineEmits([
   'retry',
@@ -346,6 +411,7 @@ const emit = defineEmits([
   'add-budget',
   'edit-budget',
   'duplicate-budget',
-  'delete-budget'
+  'delete-budget',
+  'close-month'
 ])
 </script> 

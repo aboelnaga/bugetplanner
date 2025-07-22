@@ -36,10 +36,21 @@ export const useBudgetStore = defineStore('budget', () => {
       error.value = null
       
       console.log('Store: Fetching budget items for user:', authStore.userId, 'year:', year)
-      const data = await budgetAPI.getBudgetItems(authStore.userId, year)
-      console.log('Store: Fetched budget items:', data)
+      const response = await budgetAPI.getBudgetItems(authStore.userId, year)
+      console.log('Store: Fetched budget items:', response)
       
-      budgetItems.value = data || []
+      budgetItems.value = response.budgetItems || []
+      
+      // Check if any months were auto-closed and show notification
+      if (response.autoCloseResult && response.autoCloseResult.autoClosed) {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December']
+        const monthName = monthNames[response.autoCloseResult.month]
+        const message = `${monthName} ${response.autoCloseResult.year} has been automatically closed`
+        
+        // TODO: Show toaster notification
+        console.log('Auto-closed month:', message)
+      }
     } catch (err) {
       error.value = err.message
       console.error('Error fetching budget items:', err)
@@ -302,6 +313,44 @@ export const useBudgetStore = defineStore('budget', () => {
     })
   }
 
+  // Month closure functions
+  const closeMonth = async (year, month) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return false
+    
+    try {
+      const result = await budgetAPI.closeMonth(authStore.userId, year, month)
+      console.log('Month closed successfully:', result)
+      return true
+    } catch (err) {
+      error.value = err.message
+      console.error('Error closing month:', err)
+      return false
+    }
+  }
+
+  const getClosedMonths = async (year) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return []
+    
+    try {
+      const data = await budgetAPI.getClosedMonths(authStore.userId, year)
+      return data || []
+    } catch (err) {
+      console.error('Error fetching closed months:', err)
+      return []
+    }
+  }
+
+  const isMonthClosed = async (year, month) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return false
+    
+    try {
+      return await budgetAPI.isMonthClosed(authStore.userId, year, month)
+    } catch (err) {
+      console.error('Error checking if month is closed:', err)
+      return false
+    }
+  }
+
   // Initialize store
   const initialize = async () => {
     console.log('Store: Initializing, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
@@ -356,6 +405,9 @@ export const useBudgetStore = defineStore('budget', () => {
     copyFromPreviousYear,
     hasBudgetItemsForYear,
     getBudgetItemsForMonth,
+    closeMonth,
+    getClosedMonths,
+    isMonthClosed,
     initialize,
     watchAuth,
     addLoading,

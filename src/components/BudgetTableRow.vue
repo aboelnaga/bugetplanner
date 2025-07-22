@@ -29,10 +29,12 @@
         ]">
       <div class="relative">
         <div :class="getMonthlyCellClasses(selectedYear, currentYear, currentMonth, index, isScheduledMonth, getBudgetAmount)">
-          <span v-if="getBudgetAmount(budget, index) > 0" class="font-medium">
-            {{ formatAmountWithSign(getBudgetAmount(budget, index), formatCurrency) }}
-          </span>
-          <span v-else class="text-gray-400 font-normal">—</span>
+          <div v-if="getSmartDefaultAmount(budget, index) > 0" 
+               :title="getSmartDefaultTooltip(budget, index)"
+               class="font-medium cursor-help">
+            {{ formatAmountWithSign(getSmartDefaultAmount(budget, index), formatCurrency) }}
+          </div>
+          <div v-else class="text-gray-400 font-normal">—</div>
         </div>
         <!-- <div v-if="hasChanges(budget.id, index)" 
              title="This amount has been manually modified"
@@ -122,6 +124,16 @@ const props = defineProps({
   formatCurrency: {
     type: Function,
     required: true
+  },
+  
+  // Month closure props for smart defaults
+  closedMonths: {
+    type: Array,
+    default: () => []
+  },
+  getActualAmount: {
+    type: Function,
+    default: null
   }
 })
 
@@ -136,6 +148,70 @@ const {
   getActionButtonConfig,
   shouldShowStartMonth
 } = useBudgetTableRow(computed(() => props.budget))
+
+// Smart defaults logic
+const isMonthClosed = (monthIndex) => {
+  return props.closedMonths.some(closedMonth => closedMonth.month === monthIndex)
+}
+
+const getSmartDefaultAmount = (budget, monthIndex) => {
+  const plannedAmount = props.getBudgetAmount(budget, monthIndex)
+  const actualAmount = props.getActualAmount ? props.getActualAmount(budget, monthIndex) : 0
+  
+  // Closed months: Show actual amounts
+  if (isMonthClosed(monthIndex)) {
+    return actualAmount
+  }
+  
+  // Current month: Show planned unless actual exceeds planned
+  if (props.selectedYear === props.currentYear && monthIndex === props.currentMonth) {
+    return actualAmount > plannedAmount ? actualAmount : plannedAmount
+  }
+  
+  // Future months: Show planned amounts
+  if (props.selectedYear > props.currentYear || 
+      (props.selectedYear === props.currentYear && monthIndex > props.currentMonth)) {
+    return plannedAmount
+  }
+  
+  // Past months (not closed): Show planned amounts
+  return plannedAmount
+}
+
+const getSmartDefaultTooltip = (budget, monthIndex) => {
+  const plannedAmount = props.getBudgetAmount(budget, monthIndex)
+  const actualAmount = props.getActualAmount ? props.getActualAmount(budget, monthIndex) : 0
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                     'July', 'August', 'September', 'October', 'November', 'December']
+  const monthName = monthNames[monthIndex]
+  
+  // Closed months
+  if (isMonthClosed(monthIndex)) {
+    const variance = actualAmount - plannedAmount
+    const variancePercent = plannedAmount > 0 ? (variance / plannedAmount) * 100 : 0
+    const varianceText = variance >= 0 ? `+${variancePercent.toFixed(1)}%` : `${variancePercent.toFixed(1)}%`
+    return `Actual: ${props.formatCurrency(actualAmount)} | Planned: ${props.formatCurrency(plannedAmount)} | Variance: ${varianceText}`
+  }
+  
+  // Current month
+  if (props.selectedYear === props.currentYear && monthIndex === props.currentMonth) {
+    const remaining = plannedAmount - actualAmount
+    if (actualAmount > plannedAmount) {
+      return `Actual: ${props.formatCurrency(actualAmount)} | Planned: ${props.formatCurrency(plannedAmount)} | Overspent: ${props.formatCurrency(actualAmount - plannedAmount)}`
+    } else {
+      return `Planned: ${props.formatCurrency(plannedAmount)} | Actual so far: ${props.formatCurrency(actualAmount)} | Remaining: ${props.formatCurrency(remaining)}`
+    }
+  }
+  
+  // Future months
+  if (props.selectedYear > props.currentYear || 
+      (props.selectedYear === props.currentYear && monthIndex > props.currentMonth)) {
+    return `Planned: ${props.formatCurrency(plannedAmount)} | Based on: Previous month average`
+  }
+  
+  // Past months (not closed)
+  return `Planned: ${props.formatCurrency(plannedAmount)} | Month not yet closed`
+}
 
 // Emits
 const emit = defineEmits([
