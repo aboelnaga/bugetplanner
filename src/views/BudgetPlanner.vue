@@ -152,6 +152,15 @@
       :selected-year="selectedYear"
       @budget-updated="handleBudgetUpdated" />
 
+    <!-- Close Month Modal -->
+    <CloseMonthModal
+      v-model="showCloseMonthModal"
+      :year="closingMonthYear"
+      :month="closingMonthIndex"
+      :budget-items-count="budgetItems.length"
+      :transactions-count="transactionsCount"
+      @confirm="confirmCloseMonth" />
+
     <!-- History Modal -->
           <!-- <HistoryModal v-model="showHistoryModal" /> -->
   </div>
@@ -164,6 +173,7 @@
   import { useAccountsStore } from '@/stores/accounts.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import EditBudgetModal from '@/components/EditBudgetModal.vue'
+  import CloseMonthModal from '@/components/CloseMonthModal.vue'
   // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
   import BudgetTable from '@/components/BudgetTable.vue'
   import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
@@ -272,6 +282,9 @@
   // Month closure state
   const closedMonths = ref([])
   const loadingClosedMonths = ref(false)
+  const showCloseMonthModal = ref(false)
+  const closingMonthYear = ref(0)
+  const closingMonthIndex = ref(0)
 
   // Check if previous year has data
   const checkPreviousYearData = async () => {
@@ -302,17 +315,43 @@
   const handleCloseMonth = async (year, month) => {
     if (!authStore.isAuthenticated || !authStore.userId) return
     
+    // Show confirmation dialog
+    closingMonthYear.value = year
+    closingMonthIndex.value = month
+    showCloseMonthModal.value = true
+  }
+
+  const confirmCloseMonth = async (year, month) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return
+    
     try {
       const success = await budgetStore.closeMonth(year, month)
       if (success) {
         // Refresh closed months
         await fetchClosedMonths()
-        // TODO: Show success notification
-        console.log(`Month ${month}/${year} closed successfully`)
+        
+        // Show success notification
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December']
+        const monthName = monthNames[month]
+        
+        if (window.$toaster) {
+          window.$toaster.success(
+            'Month Closed Successfully',
+            `${monthName} ${year} has been closed and actual amounts are now displayed.`
+          )
+        }
       }
     } catch (error) {
       console.error('Error closing month:', error)
-      // TODO: Show error notification
+      
+      // Show error notification
+      if (window.$toaster) {
+        window.$toaster.error(
+          'Error Closing Month',
+          'There was an error closing the month. Please try again.'
+        )
+      }
     }
   }
 
@@ -320,6 +359,13 @@
     if (!budget.actual_amounts || !Array.isArray(budget.actual_amounts)) return 0
     return parseFloat(budget.actual_amounts[monthIndex]) || 0
   }
+
+  // Get total transactions count for the selected year
+  const transactionsCount = computed(() => {
+    // This would need to be implemented based on your transaction store
+    // For now, returning a placeholder
+    return 0
+  })
 
   // Watch for authentication changes
   watch(() => authStore.isAuthenticated, (isAuthenticated) => {

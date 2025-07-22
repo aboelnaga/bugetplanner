@@ -130,6 +130,9 @@
       </div>
     </main>
   </div>
+
+  <!-- Toaster Notifications -->
+  <Toaster />
 </template>
 
 <script setup>
@@ -137,6 +140,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { BarChart3, Calendar, DollarSign, CreditCard, Users, TrendingUp, Calculator, Receipt, LogOut, ChevronLeft, ChevronRight, Building2 } from 'lucide-vue-next'
 import { useAuthStore } from '@/stores/auth.js'
+import Toaster from '@/components/Toaster.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

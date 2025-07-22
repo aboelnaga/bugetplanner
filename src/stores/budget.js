@@ -46,10 +46,14 @@ export const useBudgetStore = defineStore('budget', () => {
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                            'July', 'August', 'September', 'October', 'November', 'December']
         const monthName = monthNames[response.autoCloseResult.month]
-        const message = `${monthName} ${response.autoCloseResult.year} has been automatically closed`
         
-        // TODO: Show toaster notification
-        console.log('Auto-closed month:', message)
+        // Show auto-closure notification
+        if (window.$toaster) {
+          window.$toaster.info(
+            'Month Auto-Closed',
+            `${monthName} ${response.autoCloseResult.year} has been automatically closed. Actual amounts are now displayed.`
+          )
+        }
       }
     } catch (err) {
       error.value = err.message

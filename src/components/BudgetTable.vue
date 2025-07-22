@@ -61,16 +61,22 @@
                     (Current)
                   </div>
                   <div v-else-if="isMonthClosed(index)" 
-                       class="text-xs font-medium text-green-600">
-                    ✓ Closed
+                       class="text-xs font-medium text-green-600 flex items-center justify-center">
+                    <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    Closed
                   </div>
-                  <div v-else-if="canCloseMonth(index)" 
-                       class="text-xs">
-                    <button @click="handleCloseMonth(index)" 
-                            class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors">
-                      Close Month
-                    </button>
-                  </div>
+                                      <div v-else-if="canCloseMonth(index)" 
+                         class="text-xs">
+                      <button @click="handleCloseMonth(index)" 
+                              class="text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 px-2 py-1 rounded transition-colors flex items-center">
+                        <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                        </svg>
+                        Close Month
+                      </button>
+                    </div>
                 </div>
               </th>
               <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider bg-slate-50 border-r border-gray-200">
