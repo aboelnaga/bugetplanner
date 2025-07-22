@@ -52,7 +52,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { CheckCircleIcon, ExclamationTriangleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/vue/24/outline'
+import { CheckCircle, AlertTriangle, Info, XCircle } from 'lucide-vue-next'
 
 // Toast types
 const TOAST_TYPES = {
@@ -70,14 +70,14 @@ let nextId = 1
 const getToastIcon = (type) => {
   switch (type) {
     case TOAST_TYPES.SUCCESS:
-      return CheckCircleIcon
+      return CheckCircle
     case TOAST_TYPES.ERROR:
-      return XCircleIcon
+      return XCircle
     case TOAST_TYPES.WARNING:
-      return ExclamationTriangleIcon
+      return AlertTriangle
     case TOAST_TYPES.INFO:
     default:
-      return InformationCircleIcon
+      return Info
   }
 }
 

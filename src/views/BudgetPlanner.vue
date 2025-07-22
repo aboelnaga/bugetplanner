@@ -1,5 +1,10 @@
 <template>
   <div>
+    <!-- Smart Refresh Loading Indicator -->
+    <div v-if="isRefreshing" class="fixed top-0 left-0 right-0 z-50">
+      <div class="bg-blue-600 h-1 transition-all duration-300" :style="{ width: refreshProgress + '%' }"></div>
+    </div>
+    
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex justify-between items-center">
@@ -186,6 +191,8 @@
   import { useBudgetFilters } from '@/composables/useBudgetFilters.js'
   import { useBudgetModals } from '@/composables/useBudgetModals.js'
   import { useBudgetCalculations } from '@/composables/useBudgetCalculations.js'
+  import { useSmartRefresh } from '@/composables/useSmartRefresh.js'
+  import { useErrorHandler } from '@/composables/useErrorHandler.js'
   import { ref } from 'vue'
 
   // Stores
@@ -286,6 +293,12 @@
   const closingMonthYear = ref(0)
   const closingMonthIndex = ref(0)
 
+  // Smart refresh
+  const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } = useSmartRefresh()
+
+  // Error handling
+  const { handleError, retryWithBackoff, clearErrors } = useErrorHandler()
+
   // Check if previous year has data
   const checkPreviousYearData = async () => {
     const previousYear = selectedYear.value - 1
@@ -302,10 +315,17 @@
     
     try {
       loadingClosedMonths.value = true
-      const data = await budgetStore.getClosedMonths(selectedYear.value)
+      const data = await retryWithBackoff(() => budgetStore.getClosedMonths(selectedYear.value))
       closedMonths.value = data || []
     } catch (error) {
-      console.error('Error fetching closed months:', error)
+      await handleError(error, 'fetching closed months', {
+        showNotification: true,
+        onRecovery: async (errorEntry) => {
+          if (errorEntry.recovery.action === 'retry') {
+            await fetchClosedMonths()
+          }
+        }
+      })
       closedMonths.value = []
     } finally {
       loadingClosedMonths.value = false
@@ -325,7 +345,7 @@
     if (!authStore.isAuthenticated || !authStore.userId) return
     
     try {
-      const success = await budgetStore.closeMonth(year, month)
+      const success = await retryWithBackoff(() => budgetStore.closeMonth(year, month))
       if (success) {
         // Refresh closed months
         await fetchClosedMonths()
@@ -343,15 +363,14 @@
         }
       }
     } catch (error) {
-      console.error('Error closing month:', error)
-      
-      // Show error notification
-      if (window.$toaster) {
-        window.$toaster.error(
-          'Error Closing Month',
-          'There was an error closing the month. Please try again.'
-        )
-      }
+      await handleError(error, 'closing month', {
+        showNotification: true,
+        onRecovery: async (errorEntry) => {
+          if (errorEntry.recovery.action === 'retry') {
+            await confirmCloseMonth(year, month)
+          }
+        }
+      })
     }
   }
 

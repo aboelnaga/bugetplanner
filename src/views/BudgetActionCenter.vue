@@ -76,6 +76,27 @@
           </div>
           
           <div class="flex items-center space-x-2">
+            <!-- Month Closure Status -->
+            <div v-if="isMonthClosed" class="flex items-center space-x-2 px-3 py-1 bg-green-100 rounded-md">
+              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-sm font-medium text-green-700">Month Closed</span>
+            </div>
+            
+            <!-- Close Month Button -->
+            <button
+              v-else-if="canCloseMonth"
+              @click="handleCloseMonth"
+              class="flex items-center space-x-2 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
+              :disabled="isLoading"
+            >
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+              </svg>
+              <span class="text-sm font-medium">Close Month</span>
+            </button>
+            
             <button
               @click="goToCurrentMonth"
               class="text-sm text-indigo-600 hover:text-indigo-800"
@@ -699,6 +720,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useBudgetStore } from '../stores/budget'
 import { useTransactionStore } from '../stores/transactions'
+import { useAuthStore } from '../stores/auth'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import BaseModal from '../components/BaseModal.vue'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
@@ -706,6 +728,7 @@ import { formatCurrency, formatDate } from '../utils/budgetUtils'
 // Stores
 const budgetStore = useBudgetStore()
 const transactionStore = useTransactionStore()
+const authStore = useAuthStore()
 
 // Reactive data
 const isLoading = ref(false)
@@ -825,7 +848,8 @@ const loadData = async () => {
   try {
     console.log('Loading transactions...')
     await Promise.all([
-      transactionStore.fetchTransactions(selectedYear.value)
+      transactionStore.fetchTransactions(selectedYear.value),
+      fetchClosedMonths()
     ])
     console.log('Loading budget items...')
     await loadBudgetItems()
@@ -976,6 +1000,97 @@ const getActualAmount = (item) => {
 const getBudgetAmount = (item) => {
   if (!item || !item.amounts || !Array.isArray(item.amounts)) return 0
   return parseFloat(item.amounts[selectedMonth.value]) || 0
+}
+
+// Month closure logic
+const closedMonths = ref([])
+const loadingClosedMonths = ref(false)
+
+const isMonthClosed = computed(() => {
+  return closedMonths.value.some(closedMonth => 
+    closedMonth.month === selectedMonth.value && closedMonth.year === selectedYear.value
+  )
+})
+
+const canCloseMonth = computed(() => {
+  // Can only close months that are not current or future
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth()
+  
+  if (selectedYear.value === currentYear && selectedMonth.value >= currentMonth) {
+    return false
+  }
+  
+  // Can only close months that are not already closed
+  if (isMonthClosed.value) {
+    return false
+  }
+  
+  // Can only close months that are at least 7 days old
+  const currentDay = currentDate.getDate()
+  
+  // If we're in the same year and month, check if it's been 7+ days
+  if (selectedYear.value === currentYear && selectedMonth.value === currentMonth) {
+    return currentDay >= 7
+  }
+  
+  // If it's a previous month, it can be closed
+  if (selectedYear.value < currentYear || 
+      (selectedYear.value === currentYear && selectedMonth.value < currentMonth)) {
+    return true
+  }
+  
+  return false
+})
+
+const fetchClosedMonths = async () => {
+  if (!authStore.isAuthenticated || !authStore.userId) return
+  
+  try {
+    loadingClosedMonths.value = true
+    const data = await budgetStore.getClosedMonths(selectedYear.value)
+    closedMonths.value = data || []
+  } catch (error) {
+    console.error('Error fetching closed months:', error)
+    closedMonths.value = []
+  } finally {
+    loadingClosedMonths.value = false
+  }
+}
+
+const handleCloseMonth = async () => {
+  if (!authStore.isAuthenticated || !authStore.userId) return
+  
+  try {
+    const success = await budgetStore.closeMonth(selectedYear.value, selectedMonth.value)
+    if (success) {
+      // Refresh closed months
+      await fetchClosedMonths()
+      
+      // Show success notification
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                         'July', 'August', 'September', 'October', 'November', 'December']
+      const monthName = monthNames[selectedMonth.value]
+      
+      if (window.$toaster) {
+        window.$toaster.success(
+          'Month Closed Successfully',
+          `${monthName} ${selectedYear.value} has been closed and actual amounts are now displayed.`
+        )
+      }
+    }
+  } catch (error) {
+    console.error('Error closing month:', error)
+    
+    // Show error notification
+    if (window.$toaster) {
+      window.$toaster.error(
+        'Error Closing Month',
+        'There was an error closing the month. Please try again.'
+      )
+    }
+  }
 }
 
 const getProgressPercentage = (item) => {
