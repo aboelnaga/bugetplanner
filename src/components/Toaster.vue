@@ -9,7 +9,6 @@
         v-for="toast in toasts"
         :key="toast.id"
         :class="getToastClasses(toast.type)"
-        class="max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden"
       >
         <div class="p-4">
           <div class="flex items-start">
@@ -83,7 +82,7 @@ const getToastIcon = (type) => {
 
 // Toast classes
 const getToastClasses = (type) => {
-  const baseClasses = 'max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden'
+  const baseClasses = 'w-96 bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden'
   
   switch (type) {
     case TOAST_TYPES.SUCCESS:

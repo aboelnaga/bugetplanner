@@ -3,10 +3,18 @@ import { ref, computed } from 'vue'
 import { supabase, budgetAPI } from '@/lib/supabase.js'
 import { useAuthStore } from './auth.js'
 import { useTransactionStore } from './transactions.js'
+import { useAutoCloseFeedback } from '@/composables/useAutoCloseFeedback.js'
 
 export const useBudgetStore = defineStore('budget', () => {
   const authStore = useAuthStore()
   const transactionStore = useTransactionStore()
+  const { 
+    handleAutoCloseResult,
+    isAutoClosing,
+    autoCloseProgress,
+    showHeaderBadge,
+    headerBadgeText
+  } = useAutoCloseFeedback()
   
   // State
   const budgetItems = ref([])
@@ -41,19 +49,17 @@ export const useBudgetStore = defineStore('budget', () => {
       
       budgetItems.value = response.budgetItems || []
       
-      // Check if any months were auto-closed and show notification
-      if (response.autoCloseResult && response.autoCloseResult.autoClosed) {
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                           'July', 'August', 'September', 'October', 'November', 'December']
-        const monthName = monthNames[response.autoCloseResult.month]
-        
-        // Show auto-closure notification
-        if (window.$toaster) {
-          window.$toaster.info(
-            'Month Auto-Closed',
-            `${monthName} ${response.autoCloseResult.year} has been automatically closed. Actual amounts are now displayed.`
-          )
+      // Handle auto-close feedback using the composable
+      if (response.autoCloseResult) {
+        // Define completion callback to refresh data
+        const onAutoCloseComplete = async (year, month) => {
+          // Refresh budget items to show updated actual amounts
+          await fetchBudgetItems(year)
+          // Refresh closed months list
+          await getClosedMonths(year)
         }
+        
+        handleAutoCloseResult(response.autoCloseResult, onAutoCloseComplete)
       }
     } catch (err) {
       error.value = err.message
@@ -393,6 +399,12 @@ export const useBudgetStore = defineStore('budget', () => {
     addLoading,
     editLoading,
     deleteLoading,
+    
+    // Auto-close feedback state
+    isAutoClosing,
+    autoCloseProgress,
+    showHeaderBadge,
+    headerBadgeText,
     
     // Computed
     currentYear,

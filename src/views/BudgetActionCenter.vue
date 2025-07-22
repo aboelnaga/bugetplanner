@@ -1,5 +1,10 @@
 <template>
   <div class="min-h-screen bg-gray-50">
+    <!-- Auto-Close Loading Indicator -->
+    <div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
+      <div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }"></div>
+    </div>
+    
     <!-- Header -->
     <div class="bg-white shadow-sm border-b">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -8,6 +13,13 @@
             <h1 class="text-2xl font-bold text-gray-900">Budget Action Center</h1>
             <div class="text-sm text-gray-500">
               Manage your budget items and track progress
+            </div>
+            <!-- Auto-close Header Badge -->
+            <div v-if="budgetStore.showHeaderBadge" class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>{{ budgetStore.headerBadgeText }}</span>
             </div>
           </div>
           <div class="flex items-center space-x-3">
