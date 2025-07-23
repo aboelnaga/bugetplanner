@@ -19,9 +19,13 @@
             selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : '',
             calculateCategoryMonthlyTotal(group, index) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
           ]">
-        <span v-if="calculateCategoryMonthlyTotal(group, index) > 0">
-          {{ formatCategoryAmountWithSign(calculateCategoryMonthlyTotal(group, index)) }}
-        </span>
+        <div v-if="calculateCategoryMonthlyTotal(group, index) > 0">
+          <BaseTooltip :content="getCategoryTooltip(group, index)" position="top">
+            <div class="cursor-help">
+              {{ formatCategoryAmountWithSign(calculateCategoryMonthlyTotal(group, index)) }}
+            </div>
+          </BaseTooltip>
+        </div>
         <span v-else class="text-gray-400">—</span>
       </td>
       <td :class="[
@@ -61,6 +65,7 @@
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
 import { tableUtils } from '@/utils/budgetUtils.js'
+import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
 const props = defineProps({
@@ -142,6 +147,17 @@ const formatCategoryAmountWithSign = (amount) => {
   // This is a simplified version - in a real app, you might want to pass the category type
   const sign = amount > 0 ? '' : '-'
   return `${sign}${props.formatCurrency(amount)}`
+}
+
+// Tooltip function for category monthly totals
+const getCategoryTooltip = (group, monthIndex) => {
+  const monthName = props.months[monthIndex]
+  const totalAmount = props.calculateCategoryMonthlyTotal(group, monthIndex)
+  const formattedAmount = props.formatCurrency(totalAmount)
+  
+  return `${monthName} ${group[0]?.category || 'Category'} Total:
+${formattedAmount}
+(${group.length} items)`
 }
 
 // Emits

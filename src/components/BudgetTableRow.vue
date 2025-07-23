@@ -29,10 +29,12 @@
         ]">
       <div class="relative">
         <div :class="getMonthlyCellClasses(selectedYear, currentYear, currentMonth, index, isScheduledMonth, getBudgetAmount)">
-          <div v-if="getSmartDefaultAmount(budget, index) > 0" 
-               :title="getSmartDefaultTooltip(budget, index)"
-               class="font-medium cursor-help">
-            {{ formatAmountWithSign(getSmartDefaultAmount(budget, index), formatCurrency) }}
+          <div v-if="getSmartDefaultAmount(budget, index) > 0">
+            <BaseTooltip :content="getSmartDefaultTooltip(budget, index)" position="top">
+              <div class="font-medium cursor-help">
+                {{ formatAmountWithSign(getSmartDefaultAmount(budget, index), formatCurrency) }}
+              </div>
+            </BaseTooltip>
           </div>
           <div v-else class="text-gray-400 font-normal">—</div>
         </div>
@@ -44,9 +46,13 @@
 
     <!-- Yearly Total Cell -->
     <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="border-l-2 border-gray-150 text-sm">
-      <span v-if="calculateYearlyTotal(budget) > 0" class="font-medium">
-        {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
-      </span>
+      <div v-if="calculateYearlyTotal(budget) > 0">
+        <BaseTooltip :content="getYearlyTotalTooltip(budget)" position="top">
+          <div class="font-medium cursor-help">
+            {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
+          </div>
+        </BaseTooltip>
+      </div>
       <span v-else class="text-gray-400 font-normal">—</span>
     </td>
 
@@ -80,6 +86,7 @@
 import { computed } from 'vue'
 import { Edit, Copy, Trash2, TrendingDown, TrendingUp, Calendar, Repeat } from 'lucide-vue-next'
 import { useBudgetTableRow } from '@/composables/useBudgetTableRow.js'
+import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
 const props = defineProps({
@@ -211,6 +218,15 @@ const getSmartDefaultTooltip = (budget, monthIndex) => {
   
   // Past months (not closed)
   return `Planned: ${props.formatCurrency(plannedAmount)} | Month not yet closed`
+}
+
+const getYearlyTotalTooltip = (budget) => {
+  const yearlyTotal = props.calculateYearlyTotal(budget)
+  const formattedTotal = props.formatCurrency(yearlyTotal)
+  
+  return `${budget.name} - Yearly Total:
+${formattedTotal}
+(${budget.category})`
 }
 
 // Emits
