@@ -168,28 +168,19 @@ const getNetBalanceTooltip = (monthIndex) => {
   const displayedAmount = props.calculateMonthlyTotal(monthIndex)
   const plannedAmount = props.calculateMonthlyPlannedTotal(monthIndex)
   const actualAmount = displayedAmount - plannedAmount
+  const variance = actualAmount
   
-  const monthName = props.months[monthIndex]
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  const plannedFormatted = props.formatCurrency(plannedAmount)
-  const actualFormatted = props.formatCurrency(actualAmount)
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
-  return `${monthName} Net Balance Summary:
-Displayed: ${displayedFormatted}
-Planned: ${plannedFormatted}
-Actual: ${actualFormatted}`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 
 const getNetInvestmentTooltip = (monthIndex) => {
-  // For investment net, we need to calculate from the individual components
-  // since we don't have a direct planned calculation for net investment
-  const monthName = props.months[monthIndex]
   const displayedAmount = props.calculateMonthlyInvestmentNet(monthIndex)
   const displayedFormatted = props.formatCurrency(displayedAmount)
   
-  return `${monthName} Net Investment Summary:
-Displayed: ${displayedFormatted}
-(Investment Returns - Investment Purchases)`
+  return `Net: <span class="text-green-300">${displayedFormatted}</span><br>(Returns - Purchases)`
 }
 
 const getNetBalanceYearlyTooltip = () => {
@@ -198,23 +189,18 @@ const getNetBalanceYearlyTooltip = () => {
   const displayedAmount = props.calculateGrandTotal()
   const plannedAmount = props.calculateGrandTotalPlanned()
   const actualAmount = displayedAmount - plannedAmount
+  const variance = actualAmount
   
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  const plannedFormatted = props.formatCurrency(plannedAmount)
-  const actualFormatted = props.formatCurrency(actualAmount)
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
-  return `Yearly Net Balance Summary:
-Displayed: ${displayedFormatted}
-Planned: ${plannedFormatted}
-Actual: ${actualFormatted}`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 
 const getNetInvestmentYearlyTooltip = () => {
   const displayedAmount = props.calculateGrandTotalInvestmentNet()
   const displayedFormatted = props.formatCurrency(displayedAmount)
   
-  return `Yearly Net Investment Summary:
-Displayed: ${displayedFormatted}
-(Investment Returns - Investment Purchases)`
+  return `Net: <span class="text-green-300">${displayedFormatted}</span><br>(Returns - Purchases)`
 }
 </script> 

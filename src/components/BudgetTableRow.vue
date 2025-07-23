@@ -188,45 +188,41 @@ const getSmartDefaultAmount = (budget, monthIndex) => {
 const getSmartDefaultTooltip = (budget, monthIndex) => {
   const plannedAmount = props.getBudgetAmount(budget, monthIndex)
   const actualAmount = props.getActualAmount ? props.getActualAmount(budget, monthIndex) : 0
-  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                     'July', 'August', 'September', 'October', 'November', 'December']
-  const monthName = monthNames[monthIndex]
+  const variance = actualAmount - plannedAmount
   
   // Closed months
   if (isMonthClosed(monthIndex)) {
-    const variance = actualAmount - plannedAmount
-    const variancePercent = plannedAmount > 0 ? (variance / plannedAmount) * 100 : 0
-    const varianceText = variance >= 0 ? `+${variancePercent.toFixed(1)}%` : `${variancePercent.toFixed(1)}%`
-    return `Actual: ${props.formatCurrency(actualAmount)} | Planned: ${props.formatCurrency(plannedAmount)} | Variance: ${varianceText}`
+    const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
   }
   
   // Current month
   if (props.selectedYear === props.currentYear && monthIndex === props.currentMonth) {
-    const remaining = plannedAmount - actualAmount
     if (actualAmount > plannedAmount) {
-      return `Actual: ${props.formatCurrency(actualAmount)} | Planned: ${props.formatCurrency(plannedAmount)} | Overspent: ${props.formatCurrency(actualAmount - plannedAmount)}`
+      const overspent = actualAmount - plannedAmount
+      return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Overspent: <span class="text-red-300">${props.formatCurrency(overspent)}</span>`
     } else {
-      return `Planned: ${props.formatCurrency(plannedAmount)} | Actual so far: ${props.formatCurrency(actualAmount)} | Remaining: ${props.formatCurrency(remaining)}`
+      const remaining = plannedAmount - actualAmount
+      return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Remaining: <span class="text-yellow-300">${props.formatCurrency(remaining)}</span>`
     }
   }
   
   // Future months
   if (props.selectedYear > props.currentYear || 
       (props.selectedYear === props.currentYear && monthIndex > props.currentMonth)) {
-    return `Planned: ${props.formatCurrency(plannedAmount)} | Based on: Previous month average`
+    return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span>`
   }
   
   // Past months (not closed)
-  return `Planned: ${props.formatCurrency(plannedAmount)} | Month not yet closed`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span>`
 }
 
 const getYearlyTotalTooltip = (budget) => {
   const yearlyTotal = props.calculateYearlyTotal(budget)
   const formattedTotal = props.formatCurrency(yearlyTotal)
   
-  return `${budget.name} - Yearly Total:
-${formattedTotal}
-(${budget.category})`
+  return `Total: <span class="text-green-300">${formattedTotal}</span><br>Category: <span class="text-blue-300">${budget.category}</span>`
 }
 
 // Emits

@@ -166,16 +166,12 @@ const getIncomeTooltip = (monthIndex) => {
   const displayedAmount = props.calculateMonthlyIncome(monthIndex)
   const plannedAmount = props.calculateMonthlyPlannedIncome(monthIndex)
   const actualAmount = displayedAmount - plannedAmount
+  const variance = actualAmount
   
-  const monthName = props.months[monthIndex]
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  const plannedFormatted = props.formatCurrency(plannedAmount)
-  const actualFormatted = props.formatCurrency(actualAmount)
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
-  return `${monthName} Income Summary:
-Displayed: ${displayedFormatted}
-Planned: ${plannedFormatted}
-Actual: ${actualFormatted}`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 
 const getInvestmentIncomingTooltip = (monthIndex) => {
@@ -184,16 +180,12 @@ const getInvestmentIncomingTooltip = (monthIndex) => {
   const displayedAmount = props.calculateMonthlyInvestmentIncoming(monthIndex)
   const plannedAmount = props.calculateMonthlyPlannedInvestmentIncoming(monthIndex)
   const actualAmount = displayedAmount - plannedAmount
+  const variance = actualAmount
   
-  const monthName = props.months[monthIndex]
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  const plannedFormatted = props.formatCurrency(plannedAmount)
-  const actualFormatted = props.formatCurrency(actualAmount)
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
-  return `${monthName} Investment Returns Summary:
-Displayed: ${displayedFormatted}
-Planned: ${plannedFormatted}
-Actual: ${actualFormatted}`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 
 const getIncomeYearlyTooltip = () => {
@@ -202,15 +194,12 @@ const getIncomeYearlyTooltip = () => {
   const displayedAmount = props.calculateGrandTotalIncome()
   const plannedAmount = props.calculateGrandTotalPlannedIncome()
   const actualAmount = displayedAmount - plannedAmount
+  const variance = actualAmount
   
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  const plannedFormatted = props.formatCurrency(plannedAmount)
-  const actualFormatted = props.formatCurrency(actualAmount)
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
-  return `Yearly Income Summary:
-Displayed: ${displayedFormatted}
-Planned: ${plannedFormatted}
-Actual: ${actualFormatted}`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 
 const getInvestmentIncomingYearlyTooltip = () => {
@@ -219,14 +208,11 @@ const getInvestmentIncomingYearlyTooltip = () => {
   const displayedAmount = props.calculateGrandTotalInvestmentIncoming()
   const plannedAmount = props.calculateGrandTotalPlannedInvestmentIncoming()
   const actualAmount = displayedAmount - plannedAmount
+  const variance = actualAmount
   
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  const plannedFormatted = props.formatCurrency(plannedAmount)
-  const actualFormatted = props.formatCurrency(actualAmount)
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
-    return `Yearly Investment Returns Summary:
-Displayed: ${displayedFormatted}
-Planned: ${plannedFormatted}
-Actual: ${actualFormatted}`
+  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 </script> 

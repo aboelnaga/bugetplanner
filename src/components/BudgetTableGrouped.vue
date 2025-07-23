@@ -151,13 +151,10 @@ const formatCategoryAmountWithSign = (amount) => {
 
 // Tooltip function for category monthly totals
 const getCategoryTooltip = (group, monthIndex) => {
-  const monthName = props.months[monthIndex]
   const totalAmount = props.calculateCategoryMonthlyTotal(group, monthIndex)
   const formattedAmount = props.formatCurrency(totalAmount)
   
-  return `${monthName} ${group[0]?.category || 'Category'} Total:
-${formattedAmount}
-(${group.length} items)`
+  return `Total: <span class="text-green-300">${formattedAmount}</span><br>Items: <span class="text-blue-300">${group.length}</span>`
 }
 
 // Emits
