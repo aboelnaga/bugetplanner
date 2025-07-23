@@ -145,6 +145,16 @@
         :format-currency="formatCurrency"
         :closed-months="closedMonths"
         :get-actual-amount="getActualAmount"
+        :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
+        :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
+        :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
+        :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
+        :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
+        :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
+        :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
+        :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+        :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
+        :calculate-grand-total-planned="calculateGrandTotalPlanned"
         @retry="budgetStore.fetchBudgetItems()"
         @add-first-budget="openAddBudgetModal"
         @copy-from-previous-year="copyFromPreviousYear"
@@ -269,9 +279,19 @@
     copyFromPreviousYear
   } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth)
 
+  // Month closure state
+  const closedMonths = ref([])
+  const loadingClosedMonths = ref(false)
+  const showCloseMonthModal = ref(false)
+  const closingMonthYear = ref(0)
+  const closingMonthIndex = ref(0)
+
   const {
     isScheduledMonth,
     getBudgetAmount,
+    getActualAmount,
+    isMonthClosed,
+    getSmartDefaultAmount,
     hasChanges,
     calculateYearlyTotal,
     calculateMonthlyTotal,
@@ -286,9 +306,27 @@
     calculateGrandTotalInvestmentIncoming,
     calculateGrandTotalInvestmentOutgoing,
     calculateGrandTotalInvestmentNet,
+    // Planned calculations for tooltips
+    calculateMonthlyPlannedIncome,
+    calculateMonthlyPlannedExpenses,
+    calculateMonthlyPlannedInvestmentIncoming,
+    calculateMonthlyPlannedInvestmentOutgoing,
+    calculateMonthlyPlannedTotal,
+    calculateGrandTotalPlannedIncome,
+    calculateGrandTotalPlannedExpenses,
+    calculateGrandTotalPlannedInvestmentIncoming,
+    calculateGrandTotalPlannedInvestmentOutgoing,
+    calculateGrandTotalPlanned,
     calculateCategoryTotal,
     calculateCategoryMonthlyTotal
-  } = useBudgetCalculations(budgetItems, budgetStore)
+  } = useBudgetCalculations(
+    budgetItems, 
+    budgetStore, 
+    closedMonths, 
+    budgetStore.currentYear, 
+    budgetStore.currentMonth, 
+    selectedYear
+  )
 
   // Year management
   const previousYearHasData = ref(false)
@@ -297,13 +335,6 @@
     const previousYear = selectedYear.value - 1
     return previousYear >= 2020 && previousYearHasData.value
   })
-
-  // Month closure state
-  const closedMonths = ref([])
-  const loadingClosedMonths = ref(false)
-  const showCloseMonthModal = ref(false)
-  const closingMonthYear = ref(0)
-  const closingMonthIndex = ref(0)
 
   // Smart refresh
   const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } = useSmartRefresh()
@@ -386,10 +417,7 @@
     }
   }
 
-  const getActualAmount = (budget, monthIndex) => {
-    if (!budget.actual_amounts || !Array.isArray(budget.actual_amounts)) return 0
-    return parseFloat(budget.actual_amounts[monthIndex]) || 0
-  }
+  // getActualAmount is now imported from useBudgetCalculations composable
 
   // Get total transactions count for the selected year
   const transactionsCount = computed(() => {

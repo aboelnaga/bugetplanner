@@ -3,7 +3,7 @@
 
 import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
 
-export function useBudgetCalculations(budgetItems, budgetStore) {
+export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
   // Basic budget amount calculations
   const isScheduledMonth = (budget, monthIndex) => {
     if (!budget || !budget.schedule) return false
@@ -13,6 +13,42 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
   const getBudgetAmount = (budget, monthIndex) => {
     if (!budget || !budget.amounts || !Array.isArray(budget.amounts)) return 0
     return parseFloat(budget.amounts[monthIndex]) || 0
+  }
+
+  const getActualAmount = (budget, monthIndex) => {
+    if (!budget || !budget.actual_amounts || !Array.isArray(budget.actual_amounts)) return 0
+    return parseFloat(budget.actual_amounts[monthIndex]) || 0
+  }
+
+  // Smart defaults logic - same as BudgetTableRow
+  const isMonthClosed = (monthIndex) => {
+    // Handle both ref and direct array
+    const monthsArray = closedMonths?.value || closedMonths || []
+    return monthsArray.some(closedMonth => closedMonth.month === monthIndex)
+  }
+
+  const getSmartDefaultAmount = (budget, monthIndex) => {
+    const plannedAmount = getBudgetAmount(budget, monthIndex)
+    const actualAmount = getActualAmount(budget, monthIndex)
+    
+    // Closed months: Show actual amounts
+    if (isMonthClosed(monthIndex)) {
+      return actualAmount
+    }
+    
+    // Current month: Show max(actual, planned)
+    if (selectedYear === currentYear && monthIndex === currentMonth) {
+      return Math.max(actualAmount, plannedAmount)
+    }
+    
+    // Future months: Show max(actual, planned) - in case there are actuals entered
+    if (selectedYear > currentYear || 
+        (selectedYear === currentYear && monthIndex > currentMonth)) {
+      return Math.max(actualAmount, plannedAmount)
+    }
+    
+    // Past months (not closed): Show max(actual, planned) - in case there are actuals entered
+    return Math.max(actualAmount, plannedAmount)
   }
 
   const hasChanges = (budgetId, monthIndex) => {
@@ -33,24 +69,24 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
     return budget.type === BUDGET_TYPES.INCOME ? total : total
   }
 
-  // Monthly total calculations - these now work with the reactive budgetItems
+  // Monthly total calculations - these now work with the reactive budgetItems and use smart defaults
   const calculateMonthlyTotal = (monthIndex) => {
     const income = budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.INCOME) {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
     }, 0)
     
     const expenses = budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.EXPENSE) {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
     }, 0)
@@ -61,7 +97,7 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
   const calculateMonthlyIncome = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.INCOME) {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
     }, 0)
@@ -70,7 +106,7 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
   const calculateMonthlyExpenses = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.EXPENSE) {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
     }, 0)
@@ -79,7 +115,7 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
   const calculateMonthlyInvestmentIncoming = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
     }, 0)
@@ -88,7 +124,7 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
   const calculateMonthlyInvestmentOutgoing = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
-        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+        return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
     }, 0)
@@ -98,49 +134,132 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
     return calculateMonthlyInvestmentIncoming(monthIndex) - calculateMonthlyInvestmentOutgoing(monthIndex)
   }
 
-  // Grand total calculations - these now work with the reactive budgetItems
+  // Grand total calculations - these now work with the reactive budgetItems and use smart defaults
   const calculateGrandTotal = () => {
     return calculateGrandTotalIncome() + calculateGrandTotalInvestmentIncoming() - calculateGrandTotalExpenses() - calculateGrandTotalInvestmentOutgoing()
   }
 
   const calculateGrandTotalIncome = () => {
-    return budgetItems.value.reduce((total, budget) => {
-      if (budget.type === BUDGET_TYPES.INCOME) {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
+    // Sum all monthly smart default amounts for income items
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyIncome(monthIndex)
+    }
+    return total
   }
 
   const calculateGrandTotalExpenses = () => {
-    return budgetItems.value.reduce((total, budget) => {
-      if (budget.type === BUDGET_TYPES.EXPENSE) {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
+    // Sum all monthly smart default amounts for expense items
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyExpenses(monthIndex)
+    }
+    return total
   }
 
   const calculateGrandTotalInvestmentIncoming = () => {
-    return budgetItems.value.reduce((total, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
+    // Sum all monthly smart default amounts for incoming investment items
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyInvestmentIncoming(monthIndex)
+    }
+    return total
   }
 
   const calculateGrandTotalInvestmentOutgoing = () => {
-    return budgetItems.value.reduce((total, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
-        return total + calculateYearlyTotal(budget)
-      }
-      return total
-    }, 0)
+    // Sum all monthly smart default amounts for outgoing investment items
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyInvestmentOutgoing(monthIndex)
+    }
+    return total
   }
 
   const calculateGrandTotalInvestmentNet = () => {
     return calculateGrandTotalInvestmentIncoming() - calculateGrandTotalInvestmentOutgoing()
+  }
+
+  // Planned amount calculations for tooltips
+  const calculateMonthlyPlannedIncome = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INCOME) {
+        return sum + getBudgetAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyPlannedExpenses = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.EXPENSE) {
+        return sum + getBudgetAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyPlannedInvestmentIncoming = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+        return sum + getBudgetAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyPlannedInvestmentOutgoing = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+        return sum + getBudgetAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyPlannedTotal = (monthIndex) => {
+    const plannedIncome = calculateMonthlyPlannedIncome(monthIndex)
+    const plannedInvestmentIncoming = calculateMonthlyPlannedInvestmentIncoming(monthIndex)
+    const plannedExpenses = calculateMonthlyPlannedExpenses(monthIndex)
+    const plannedInvestmentOutgoing = calculateMonthlyPlannedInvestmentOutgoing(monthIndex)
+    
+    return (plannedIncome + plannedInvestmentIncoming) - (plannedExpenses + plannedInvestmentOutgoing)
+  }
+
+  // Grand total planned calculations for tooltips
+  const calculateGrandTotalPlannedIncome = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyPlannedIncome(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalPlannedExpenses = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyPlannedExpenses(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalPlannedInvestmentIncoming = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyPlannedInvestmentIncoming(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalPlannedInvestmentOutgoing = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyPlannedInvestmentOutgoing(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalPlanned = () => {
+    return calculateGrandTotalPlannedIncome() + calculateGrandTotalPlannedInvestmentIncoming() - calculateGrandTotalPlannedExpenses() - calculateGrandTotalPlannedInvestmentOutgoing()
   }
 
   // Category calculations
@@ -176,6 +295,9 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
     // Basic calculations
     isScheduledMonth,
     getBudgetAmount,
+    getActualAmount,
+    isMonthClosed,
+    getSmartDefaultAmount,
     hasChanges,
     calculateYearlyTotal,
     
@@ -194,6 +316,18 @@ export function useBudgetCalculations(budgetItems, budgetStore) {
     calculateGrandTotalInvestmentIncoming,
     calculateGrandTotalInvestmentOutgoing,
     calculateGrandTotalInvestmentNet,
+    
+    // Planned calculations for tooltips
+    calculateMonthlyPlannedIncome,
+    calculateMonthlyPlannedExpenses,
+    calculateMonthlyPlannedInvestmentIncoming,
+    calculateMonthlyPlannedInvestmentOutgoing,
+    calculateMonthlyPlannedTotal,
+    calculateGrandTotalPlannedIncome,
+    calculateGrandTotalPlannedExpenses,
+    calculateGrandTotalPlannedInvestmentIncoming,
+    calculateGrandTotalPlannedInvestmentOutgoing,
+    calculateGrandTotalPlanned,
     
     // Category calculations
     calculateCategoryTotal,

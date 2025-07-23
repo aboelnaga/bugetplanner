@@ -50,6 +50,8 @@
       :has-changes="hasChanges"
       :calculate-yearly-total="calculateYearlyTotal"
       :format-currency="formatCurrency"
+      :closed-months="closedMonths"
+      :get-actual-amount="getActualAmount"
       @edit-budget="$emit('edit-budget', $event)"
       @duplicate-budget="$emit('duplicate-budget', $event)"
       @delete-budget="$emit('delete-budget', $event)" />
@@ -115,6 +117,16 @@ const props = defineProps({
   formatCurrency: {
     type: Function,
     required: true
+  },
+  
+  // Month closure props for smart defaults
+  closedMonths: {
+    type: Array,
+    default: () => []
+  },
+  getActualAmount: {
+    type: Function,
+    default: null
   }
 })
 

@@ -124,6 +124,8 @@
                 :has-changes="hasChanges"
                 :calculate-yearly-total="calculateYearlyTotal"
                 :format-currency="formatCurrency"
+                :closed-months="closedMonths"
+                :get-actual-amount="getActualAmount"
                 @edit-budget="$emit('edit-budget', $event)"
                 @duplicate-budget="$emit('duplicate-budget', $event)"
                 @delete-budget="$emit('delete-budget', $event)" />
@@ -154,7 +156,17 @@
               :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
               :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
               :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
-              :format-currency="formatCurrency" />
+              :format-currency="formatCurrency"
+              :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
+              :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
+              :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
+              :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
+              :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
+              :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
+              :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
+              :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+              :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
+              :calculate-grand-total-planned="calculateGrandTotalPlanned" />
           </tbody>
         </table>
       </div>
@@ -341,6 +353,48 @@ const props = defineProps({
     default: () => []
   },
   getActualAmount: {
+    type: Function,
+    default: null
+  },
+  
+  // Planned calculation props for tooltips
+  calculateMonthlyPlannedIncome: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedExpenses: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedTotal: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedIncome: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedExpenses: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlanned: {
     type: Function,
     default: null
   }

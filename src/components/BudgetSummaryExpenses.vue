@@ -8,10 +8,12 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-expense-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyExpenses(index), selectedYear, currentYear, currentMonth, index, 'TOTAL_EXPENSES')} border-t-2 border-gray-200`">
+        :class="`${getSummaryCellClasses(calculateMonthlyExpenses(index), selectedYear, currentYear, currentMonth, index, 'TOTAL_EXPENSES')} border-t-2 border-gray-200 relative group cursor-help`"
+        :title="getExpensesTooltip(index)">
       {{ formatSummaryValue(calculateMonthlyExpenses(index), formatCurrency) }}
     </td>
-    <td :class="`${getSummaryTotalClasses(-1 * calculateGrandTotalExpenses())} border-t-2 border-l-2 border-gray-200`">
+    <td :class="`${getSummaryTotalClasses(-1 * calculateGrandTotalExpenses())} border-t-2 border-l-2 border-gray-200 relative group cursor-help`"
+        :title="getExpensesYearlyTooltip()">
       {{ formatSummaryValue(calculateGrandTotalExpenses(), formatCurrency) }}
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${totalExpensesStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
@@ -26,10 +28,12 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-inv-out-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentOutgoing(index), selectedYear, currentYear, currentMonth, index, 'INVESTMENT_PURCHASES')} border-t-2 border-gray-200`">
+        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentOutgoing(index), selectedYear, currentYear, currentMonth, index, 'INVESTMENT_PURCHASES')} border-t-2 border-gray-200 relative group cursor-help`"
+        :title="getInvestmentOutgoingTooltip(index)">
       {{ formatSummaryValue(calculateMonthlyInvestmentOutgoing(index), formatCurrency) }}
     </td>
-    <td :class="`${getSummaryTotalClasses(-1 * calculateGrandTotalInvestmentOutgoing())} border-t-2 border-l-2 border-gray-200`">
+    <td :class="`${getSummaryTotalClasses(-1 * calculateGrandTotalInvestmentOutgoing())} border-t-2 border-l-2 border-gray-200 relative group cursor-help`"
+        :title="getInvestmentOutgoingYearlyTooltip()">
       {{ formatSummaryValue(calculateGrandTotalInvestmentOutgoing(), formatCurrency) }}
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${investmentPurchasesStyling.stickyBgColor} z-20 border-l border-gray-200 border-t-2`"></td>
@@ -94,6 +98,24 @@ const props = defineProps({
   formatCurrency: {
     type: Function,
     required: true
+  },
+  
+  // Planned calculation props for tooltips
+  calculateMonthlyPlannedExpenses: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedExpenses: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
   }
 })
 
@@ -123,4 +145,75 @@ const investmentPurchasesConfig = computed(() => getSummaryRowConfig('INVESTMENT
 // Get row styling
 const totalExpensesStyling = computed(() => getSummaryRowStyling('TOTAL_EXPENSES'))
 const investmentPurchasesStyling = computed(() => getSummaryRowStyling('INVESTMENT_PURCHASES'))
+
+// Tooltip functions
+const getExpensesTooltip = (monthIndex) => {
+  if (!props.calculateMonthlyPlannedExpenses) return ''
+  
+  const displayedAmount = props.calculateMonthlyExpenses(monthIndex)
+  const plannedAmount = props.calculateMonthlyPlannedExpenses(monthIndex)
+  const actualAmount = displayedAmount - plannedAmount
+  
+  const monthName = props.months[monthIndex]
+  const displayedFormatted = props.formatCurrency(displayedAmount)
+  const plannedFormatted = props.formatCurrency(plannedAmount)
+  const actualFormatted = props.formatCurrency(actualAmount)
+  
+  return `${monthName} Expenses Summary:
+Displayed: ${displayedFormatted}
+Planned: ${plannedFormatted}
+Actual: ${actualFormatted}`
+}
+
+const getInvestmentOutgoingTooltip = (monthIndex) => {
+  if (!props.calculateMonthlyPlannedInvestmentOutgoing) return ''
+  
+  const displayedAmount = props.calculateMonthlyInvestmentOutgoing(monthIndex)
+  const plannedAmount = props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex)
+  const actualAmount = displayedAmount - plannedAmount
+  
+  const monthName = props.months[monthIndex]
+  const displayedFormatted = props.formatCurrency(displayedAmount)
+  const plannedFormatted = props.formatCurrency(plannedAmount)
+  const actualFormatted = props.formatCurrency(actualAmount)
+  
+  return `${monthName} Investment Purchases Summary:
+Displayed: ${displayedFormatted}
+Planned: ${plannedFormatted}
+Actual: ${actualFormatted}`
+}
+
+const getExpensesYearlyTooltip = () => {
+  if (!props.calculateGrandTotalPlannedExpenses) return ''
+  
+  const displayedAmount = props.calculateGrandTotalExpenses()
+  const plannedAmount = props.calculateGrandTotalPlannedExpenses()
+  const actualAmount = displayedAmount - plannedAmount
+  
+  const displayedFormatted = props.formatCurrency(displayedAmount)
+  const plannedFormatted = props.formatCurrency(plannedAmount)
+  const actualFormatted = props.formatCurrency(actualAmount)
+  
+  return `Yearly Expenses Summary:
+Displayed: ${displayedFormatted}
+Planned: ${plannedFormatted}
+Actual: ${actualFormatted}`
+}
+
+const getInvestmentOutgoingYearlyTooltip = () => {
+  if (!props.calculateGrandTotalPlannedInvestmentOutgoing) return ''
+  
+  const displayedAmount = props.calculateGrandTotalInvestmentOutgoing()
+  const plannedAmount = props.calculateGrandTotalPlannedInvestmentOutgoing()
+  const actualAmount = displayedAmount - plannedAmount
+  
+  const displayedFormatted = props.formatCurrency(displayedAmount)
+  const plannedFormatted = props.formatCurrency(plannedAmount)
+  const actualFormatted = props.formatCurrency(actualAmount)
+  
+  return `Yearly Investment Purchases Summary:
+Displayed: ${displayedFormatted}
+Planned: ${plannedFormatted}
+Actual: ${actualFormatted}`
+}
 </script> 
