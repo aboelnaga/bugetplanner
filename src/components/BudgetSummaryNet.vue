@@ -16,13 +16,19 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-net-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyTotal(index), selectedYear, currentYear, currentMonth, index)} relative group cursor-help`"
-        :title="getNetBalanceTooltip(index)">
-      {{ formatSummaryValue(calculateMonthlyTotal(index), formatCurrency) }}
+        :class="`${getSummaryCellClasses(calculateMonthlyTotal(index), selectedYear, currentYear, currentMonth, index)}`">
+      <BaseTooltip :content="getNetBalanceTooltip(index)" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateMonthlyTotal(index), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotal(), true)} relative group cursor-help`"
-        :title="getNetBalanceYearlyTooltip()">
-      {{ formatSummaryValue(calculateGrandTotal(), formatCurrency) }}
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotal(), true)}`">
+      <BaseTooltip :content="getNetBalanceYearlyTooltip()" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateGrandTotal(), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
     <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
@@ -39,13 +45,19 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`net-inv-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentNet(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200 relative group cursor-help`"
-        :title="getNetInvestmentTooltip(index)">
-      {{ formatSummaryValue(calculateMonthlyInvestmentNet(index), formatCurrency) }}
+        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentNet(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
+      <BaseTooltip :content="getNetInvestmentTooltip(index)" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateMonthlyInvestmentNet(index), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentNet())} border-t-2 border-l-2 border-gray-200 relative group cursor-help`"
-        :title="getNetInvestmentYearlyTooltip()">
-      {{ formatSummaryValue(calculateGrandTotalInvestmentNet(), formatCurrency) }}
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentNet())} border-t-2 border-l-2 border-gray-200`">
+      <BaseTooltip :content="getNetInvestmentYearlyTooltip()" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateGrandTotalInvestmentNet(), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-20 border-l border-gray-200 border-t-2`"></td>
   </tr>
@@ -54,6 +66,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
+import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
 const props = defineProps({

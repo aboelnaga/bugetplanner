@@ -8,13 +8,19 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-income-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyIncome(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200 relative group cursor-help`"
-        :title="getIncomeTooltip(index)">
-      {{ formatSummaryValue(calculateMonthlyIncome(index), formatCurrency) }}
+        :class="`${getSummaryCellClasses(calculateMonthlyIncome(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
+      <BaseTooltip :content="getIncomeTooltip(index)" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateMonthlyIncome(index), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotalIncome())} border-t-2 border-l-2 border-gray-200 relative group cursor-help`"
-        :title="getIncomeYearlyTooltip()">
-      {{ formatSummaryValue(calculateGrandTotalIncome(), formatCurrency) }}
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalIncome())} border-t-2 border-l-2 border-gray-200`">
+      <BaseTooltip :content="getIncomeYearlyTooltip()" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateGrandTotalIncome(), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${totalIncomeStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
@@ -28,13 +34,19 @@
       </div>
     </td>
     <td v-for="(month, index) in months" :key="`eq-inv-in-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentIncoming(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200 relative group cursor-help`"
-        :title="getInvestmentIncomingTooltip(index)">
-      {{ formatSummaryValue(calculateMonthlyInvestmentIncoming(index), formatCurrency) }}
+        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentIncoming(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
+      <BaseTooltip :content="getInvestmentIncomingTooltip(index)" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateMonthlyInvestmentIncoming(index), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentIncoming())} border-t-2 border-l-2 border-gray-200 relative group cursor-help`"
-        :title="getInvestmentIncomingYearlyTooltip()">
-      {{ formatSummaryValue(calculateGrandTotalInvestmentIncoming(), formatCurrency) }}
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentIncoming())} border-t-2 border-l-2 border-gray-200`">
+      <BaseTooltip :content="getInvestmentIncomingYearlyTooltip()" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateGrandTotalInvestmentIncoming(), formatCurrency) }}
+        </div>
+      </BaseTooltip>
     </td>
     <td :class="`px-4 py-3 sticky right-0 ${investmentReturnsStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
   </tr>
@@ -44,6 +56,7 @@
 import { computed } from 'vue'
 import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
+import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
 const props = defineProps({
