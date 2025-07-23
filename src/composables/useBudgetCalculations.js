@@ -31,6 +31,11 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     const plannedAmount = getBudgetAmount(budget, monthIndex)
     const actualAmount = getActualAmount(budget, monthIndex)
     
+    // Previous year: Show actual amounts (for comparison)
+    if (selectedYear < currentYear) {
+      return actualAmount
+    }
+    
     // Closed months: Show actual amounts
     if (isMonthClosed(monthIndex)) {
       return actualAmount
@@ -41,10 +46,10 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
       return Math.max(actualAmount, plannedAmount)
     }
     
-    // Future months: Show max(actual, planned) - in case there are actuals entered
+    // Future months: Show planned amounts (not max)
     if (selectedYear > currentYear || 
         (selectedYear === currentYear && monthIndex > currentMonth)) {
-      return Math.max(actualAmount, plannedAmount)
+      return plannedAmount
     }
     
     // Past months (not closed): Show max(actual, planned) - in case there are actuals entered
@@ -275,6 +280,83 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     }, 0)
   }
 
+  // Previous year calculations - show actuals for previous year
+  const calculatePreviousYearIncomeTotal = () => {
+    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
+    
+    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INCOME) {
+        // Sum all actual amounts for the previous year (not planned)
+        const yearlyTotal = budget.actual_amounts ? 
+          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
+          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
+        return sum + yearlyTotal
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculatePreviousYearExpensesTotal = () => {
+    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
+    
+    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.EXPENSE) {
+        // Sum all actual amounts for the previous year (not planned)
+        const yearlyTotal = budget.actual_amounts ? 
+          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
+          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
+        return sum + yearlyTotal
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculatePreviousYearInvestmentIncomingTotal = () => {
+    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
+    
+    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+        // Sum all actual amounts for the previous year (not planned)
+        const yearlyTotal = budget.actual_amounts ? 
+          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
+          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
+        return sum + yearlyTotal
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculatePreviousYearInvestmentOutgoingTotal = () => {
+    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
+    
+    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+        // Sum all actual amounts for the previous year (not planned)
+        const yearlyTotal = budget.actual_amounts ? 
+          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
+          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
+        return sum + yearlyTotal
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculatePreviousYearNetTotal = () => {
+    const income = calculatePreviousYearIncomeTotal()
+    const expenses = calculatePreviousYearExpensesTotal()
+    const investmentIncoming = calculatePreviousYearInvestmentIncomingTotal()
+    const investmentOutgoing = calculatePreviousYearInvestmentOutgoingTotal()
+    
+    return (income + investmentIncoming) - (expenses + investmentOutgoing)
+  }
+
+  const calculatePreviousYearInvestmentNetTotal = () => {
+    const incoming = calculatePreviousYearInvestmentIncomingTotal()
+    const outgoing = calculatePreviousYearInvestmentOutgoingTotal()
+    
+    return incoming - outgoing
+  }
+
   // Budget amount updates
   const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
     const budget = budgetItems.value.find(b => b.id === budgetId)
@@ -332,6 +414,14 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     // Category calculations
     calculateCategoryTotal,
     calculateCategoryMonthlyTotal,
+    
+    // Previous year calculations
+    calculatePreviousYearIncomeTotal,
+    calculatePreviousYearExpensesTotal,
+    calculatePreviousYearInvestmentIncomingTotal,
+    calculatePreviousYearInvestmentOutgoingTotal,
+    calculatePreviousYearNetTotal,
+    calculatePreviousYearInvestmentNetTotal,
     
     // Budget updates
     updateBudgetAmount

@@ -33,19 +33,38 @@ export const budgetAPI = {
     // Check and auto-close months if needed
     const autoCloseResult = await this.checkAndAutoCloseMonths(userId)
     
-    const { data, error } = await supabase
+    // Get current year budget items
+    const { data: currentYearData, error: currentYearError } = await supabase
       .from('budget_items')
       .select('*')
       .eq('user_id', userId)
       .eq('year', year)
       .order('created_at', { ascending: true })
     
-    console.log('API: Supabase response for getBudgetItems:', { data, error })
-    if (error) throw error
+    if (currentYearError) throw currentYearError
     
-    // Return both budget items and auto-close result
+    // Get previous year budget items for comparison
+    const previousYear = year - 1
+    const { data: previousYearData, error: previousYearError } = await supabase
+      .from('budget_items')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('year', previousYear)
+      .order('created_at', { ascending: true })
+    
+    if (previousYearError) throw previousYearError
+    
+    console.log('API: Supabase response for getBudgetItems:', { 
+      currentYearData, 
+      previousYearData, 
+      currentYearError, 
+      previousYearError 
+    })
+    
+    // Return both current year, previous year, and auto-close result
     return {
-      budgetItems: data,
+      budgetItems: currentYearData,
+      previousYearItems: previousYearData || [],
       autoCloseResult: autoCloseResult
     }
   },

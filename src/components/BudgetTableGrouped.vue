@@ -13,6 +13,10 @@
           </div>
         </div>
       </td>
+      <!-- Previous Year Column (Empty for category headers) -->
+      <td class="px-3 py-3 text-center border-r border-gray-200 bg-gray-50">
+        <div class="text-gray-400 font-normal">—</div>
+      </td>
       <td v-for="(month, index) in months" :key="`header-${categoryName}-${month}`" 
           :class="[
             'px-4 py-3 bg-gray-200 text-center font-semibold',
@@ -56,6 +60,7 @@
       :format-currency="formatCurrency"
       :closed-months="closedMonths"
       :get-actual-amount="getActualAmount"
+
       @edit-budget="$emit('edit-budget', $event)"
       @duplicate-budget="$emit('duplicate-budget', $event)"
       @delete-budget="$emit('delete-budget', $event)" />
@@ -132,7 +137,9 @@ const props = defineProps({
   getActualAmount: {
     type: Function,
     default: null
-  }
+  },
+  
+
 })
 
 // Utility functions

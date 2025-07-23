@@ -51,6 +51,15 @@
               <th class="px-6 py-3 text-left text-sm font-semibold text-slate-700 tracking-wider sticky left-0 bg-slate-50 z-40 border-r border-gray-200">
                 Budget Item
               </th>
+              <th class="px-3 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider border-r border-gray-200 bg-gray-100">
+                <div class="space-y-1">
+                  <div>PY {{ selectedYear - 1 }}</div>
+                  <div class="text-xs font-medium text-gray-600">
+                    Previous Year
+                  </div>
+                </div>
+              </th>
+
               <th v-for="(month, index) in months" :key="month" 
                   :class="getMonthHeaderClasses(currentYear, currentMonth, index)"
                   class="px-3 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider border-r border-gray-200">
@@ -166,7 +175,13 @@
               :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
               :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
               :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
-              :calculate-grand-total-planned="calculateGrandTotalPlanned" />
+              :calculate-grand-total-planned="calculateGrandTotalPlanned"
+              :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
+              :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
+              :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
+              :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
+              :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
+              :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal" />
           </tbody>
         </table>
       </div>
@@ -395,6 +410,32 @@ const props = defineProps({
     default: null
   },
   calculateGrandTotalPlanned: {
+    type: Function,
+    default: null
+  },
+  
+
+  calculatePreviousYearIncomeTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearExpensesTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentIncomingTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentOutgoingTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearNetTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentNetTotal: {
     type: Function,
     default: null
   }

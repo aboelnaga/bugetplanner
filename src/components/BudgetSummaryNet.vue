@@ -2,6 +2,7 @@
   <!-- Divider Line -->
   <tr v-if="shouldShowSummaryRow('NET_BALANCE')" class="bg-gray-100">
     <td class="p-0 border-t-2 border-gray-200"></td>
+    <td class="p-0 border-t-2 border-gray-200"></td>
     <td v-for="(month, index) in months" :key="`divider-${month}`" class="p-0 border-t-2 border-gray-200"></td>
     <td class="p-0 border-t-2 border-gray-200"></td>
     <td class="p-0"></td>
@@ -14,6 +15,15 @@
         <span :class="`text-xl font-bold ${netBalanceStyling.textColor} mr-2`">{{ netBalanceConfig.symbol }}</span>
         {{ netBalanceConfig.label }}
       </div>
+    </td>
+    <!-- Previous Year Column -->
+    <td :class="`${getSummaryCellClasses(getPreviousYearNetTotal(), selectedYear, currentYear, currentMonth, -1)}`">
+      <BaseTooltip :content="getPreviousYearNetTooltip()" position="top">
+        <div v-if="getPreviousYearNetTotal() !== 0" class="cursor-help">
+          {{ formatSummaryValue(getPreviousYearNetTotal(), formatCurrency) }}
+        </div>
+        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
+      </BaseTooltip>
     </td>
     <td v-for="(month, index) in months" :key="`eq-net-${month}`" 
         :class="`${getSummaryCellClasses(calculateMonthlyTotal(index), selectedYear, currentYear, currentMonth, index)}`">
@@ -43,6 +53,15 @@
       <div class="text-xs text-gray-500 mt-1">
         {{ netInvestmentConfig.subtitle }}
       </div>
+    </td>
+    <!-- Previous Year Column -->
+    <td :class="`${getSummaryCellClasses(getPreviousYearInvestmentNetTotal(), selectedYear, currentYear, currentMonth, -1)} border-t-2 border-gray-200`">
+      <BaseTooltip :content="getPreviousYearInvestmentNetTooltip()" position="top">
+        <div v-if="getPreviousYearInvestmentNetTotal() !== 0" class="cursor-help">
+          {{ formatSummaryValue(getPreviousYearInvestmentNetTotal(), formatCurrency) }}
+        </div>
+        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
+      </BaseTooltip>
     </td>
     <td v-for="(month, index) in months" :key="`net-inv-${month}`" 
         :class="`${getSummaryCellClasses(calculateMonthlyInvestmentNet(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
@@ -131,6 +150,16 @@ const props = defineProps({
   calculateGrandTotalPlanned: {
     type: Function,
     default: null
+  },
+  
+
+  calculatePreviousYearNetTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentNetTotal: {
+    type: Function,
+    default: null
   }
 })
 
@@ -202,5 +231,30 @@ const getNetInvestmentYearlyTooltip = () => {
   const displayedFormatted = props.formatCurrency(displayedAmount)
   
   return `Net: <span class="text-green-300">${displayedFormatted}</span><br>(Returns - Purchases)`
+}
+
+// Previous year functions
+const getPreviousYearNetTotal = () => {
+  if (!props.calculatePreviousYearNetTotal) return 0
+  return props.calculatePreviousYearNetTotal()
+}
+
+const getPreviousYearInvestmentNetTotal = () => {
+  if (!props.calculatePreviousYearInvestmentNetTotal) return 0
+  return props.calculatePreviousYearInvestmentNetTotal()
+}
+
+const getPreviousYearNetTooltip = () => {
+  const total = getPreviousYearNetTotal()
+  const previousYear = props.selectedYear - 1
+  
+  return `PY ${previousYear} Net Balance (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
+}
+
+const getPreviousYearInvestmentNetTooltip = () => {
+  const total = getPreviousYearInvestmentNetTotal()
+  const previousYear = props.selectedYear - 1
+  
+  return `PY ${previousYear} Net Investment (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
 </script> 

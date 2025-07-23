@@ -16,7 +16,9 @@
     :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
     :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
     :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
-    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming" />
+    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+    :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
+    :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal" />
 
   <!-- Expenses Summary -->
   <BudgetSummaryExpenses
@@ -35,7 +37,9 @@
     :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
     :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
     :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
-    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing" />
+    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
+    :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
+    :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal" />
 
   <!-- Net Summary -->
   <BudgetSummaryNet
@@ -52,7 +56,9 @@
     :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
     :format-currency="formatCurrency"
     :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
-    :calculate-grand-total-planned="calculateGrandTotalPlanned" />
+    :calculate-grand-total-planned="calculateGrandTotalPlanned"
+    :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
+    :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal" />
 </template>
 
 <script setup>
@@ -201,6 +207,32 @@ const props = defineProps({
     default: null
   },
   calculateGrandTotalPlanned: {
+    type: Function,
+    default: null
+  },
+  
+
+  calculatePreviousYearIncomeTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearExpensesTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentIncomingTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentOutgoingTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearNetTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentNetTotal: {
     type: Function,
     default: null
   }

@@ -7,6 +7,15 @@
         {{ totalExpensesConfig.label }}
       </div>
     </td>
+    <!-- Previous Year Column -->
+    <td :class="`${getSummaryCellClasses(getPreviousYearExpensesTotal(), selectedYear, currentYear, currentMonth, -1, 'TOTAL_EXPENSES')} border-t-2 border-gray-200`">
+      <BaseTooltip :content="getPreviousYearExpensesTooltip()" position="top">
+        <div v-if="getPreviousYearExpensesTotal() > 0" class="cursor-help">
+          {{ formatSummaryValue(getPreviousYearExpensesTotal(), formatCurrency) }}
+        </div>
+        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
+      </BaseTooltip>
+    </td>
     <td v-for="(month, index) in months" :key="`eq-expense-${month}`" 
         :class="`${getSummaryCellClasses(calculateMonthlyExpenses(index), selectedYear, currentYear, currentMonth, index, 'TOTAL_EXPENSES')} border-t-2 border-gray-200`">
       <BaseTooltip :content="getExpensesTooltip(index)" position="top">
@@ -32,6 +41,15 @@
         <span :class="`text-lg font-bold ${investmentPurchasesStyling.textColor} mr-2`">{{ investmentPurchasesConfig.symbol }}</span>
         {{ investmentPurchasesConfig.label }}
       </div>
+    </td>
+    <!-- Previous Year Column -->
+    <td :class="`${getSummaryCellClasses(getPreviousYearInvestmentOutgoingTotal(), selectedYear, currentYear, currentMonth, -1, 'INVESTMENT_PURCHASES')} border-t-2 border-gray-200`">
+      <BaseTooltip :content="getPreviousYearInvestmentOutgoingTooltip()" position="top">
+        <div v-if="getPreviousYearInvestmentOutgoingTotal() > 0" class="cursor-help">
+          {{ formatSummaryValue(getPreviousYearInvestmentOutgoingTotal(), formatCurrency) }}
+        </div>
+        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
+      </BaseTooltip>
     </td>
     <td v-for="(month, index) in months" :key="`eq-inv-out-${month}`" 
         :class="`${getSummaryCellClasses(calculateMonthlyInvestmentOutgoing(index), selectedYear, currentYear, currentMonth, index, 'INVESTMENT_PURCHASES')} border-t-2 border-gray-200`">
@@ -129,6 +147,16 @@ const props = defineProps({
   calculateGrandTotalPlannedInvestmentOutgoing: {
     type: Function,
     default: null
+  },
+  
+
+  calculatePreviousYearExpensesTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentOutgoingTotal: {
+    type: Function,
+    default: null
   }
 })
 
@@ -214,5 +242,30 @@ const getInvestmentOutgoingYearlyTooltip = () => {
   const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
   
   return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
+}
+
+// Previous year functions
+const getPreviousYearExpensesTotal = () => {
+  if (!props.calculatePreviousYearExpensesTotal) return 0
+  return props.calculatePreviousYearExpensesTotal()
+}
+
+const getPreviousYearInvestmentOutgoingTotal = () => {
+  if (!props.calculatePreviousYearInvestmentOutgoingTotal) return 0
+  return props.calculatePreviousYearInvestmentOutgoingTotal()
+}
+
+const getPreviousYearExpensesTooltip = () => {
+  const total = getPreviousYearExpensesTotal()
+  const previousYear = props.selectedYear - 1
+  
+  return `PY ${previousYear} Expenses (Actual): <span class="text-red-300">${props.formatCurrency(total)}</span>`
+}
+
+const getPreviousYearInvestmentOutgoingTooltip = () => {
+  const total = getPreviousYearInvestmentOutgoingTotal()
+  const previousYear = props.selectedYear - 1
+  
+  return `PY ${previousYear} Investment Purchases (Actual): <span class="text-red-300">${props.formatCurrency(total)}</span>`
 }
 </script> 

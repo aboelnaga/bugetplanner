@@ -155,6 +155,12 @@
         :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
         :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
         :calculate-grand-total-planned="calculateGrandTotalPlanned"
+        :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
+        :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
+        :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
+        :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
+        :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
+        :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
         @retry="budgetStore.fetchBudgetItems()"
         @add-first-budget="openAddBudgetModal"
         @copy-from-previous-year="copyFromPreviousYear"
@@ -318,7 +324,14 @@
     calculateGrandTotalPlannedInvestmentOutgoing,
     calculateGrandTotalPlanned,
     calculateCategoryTotal,
-    calculateCategoryMonthlyTotal
+    calculateCategoryMonthlyTotal,
+    // Previous year calculations
+    calculatePreviousYearIncomeTotal,
+    calculatePreviousYearExpensesTotal,
+    calculatePreviousYearInvestmentIncomingTotal,
+    calculatePreviousYearInvestmentOutgoingTotal,
+    calculatePreviousYearNetTotal,
+    calculatePreviousYearInvestmentNetTotal
   } = useBudgetCalculations(
     budgetItems, 
     budgetStore, 

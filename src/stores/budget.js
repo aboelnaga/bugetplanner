@@ -18,6 +18,7 @@ export const useBudgetStore = defineStore('budget', () => {
   
   // State
   const budgetItems = ref([])
+  const previousYearItems = ref([])
   // const budgetHistory = ref([]) // History functionality commented out
   const loading = ref(false)
   const error = ref(null)
@@ -48,6 +49,7 @@ export const useBudgetStore = defineStore('budget', () => {
       console.log('Store: Fetched budget items:', response)
       
       budgetItems.value = response.budgetItems || []
+      previousYearItems.value = response.previousYearItems || []
       
       // Handle auto-close feedback using the composable
       if (response.autoCloseResult) {
@@ -323,6 +325,22 @@ export const useBudgetStore = defineStore('budget', () => {
     })
   }
 
+  // Get previous year data for a specific budget item
+  const getPreviousYearData = (budgetItem) => {
+    if (!previousYearItems.value || previousYearItems.value.length === 0) {
+      return null
+    }
+    
+    // Try to find matching item by name and category
+    const matchingItem = previousYearItems.value.find(item => 
+      item.name === budgetItem.name && 
+      item.category === budgetItem.category &&
+      item.type === budgetItem.type
+    )
+    
+    return matchingItem || null
+  }
+
   // Month closure functions
   const closeMonth = async (year, month) => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
@@ -390,6 +408,7 @@ export const useBudgetStore = defineStore('budget', () => {
   return {
     // State
     budgetItems,
+    previousYearItems,
     // budgetHistory, // History functionality commented out
     loading,
     error,
@@ -421,6 +440,7 @@ export const useBudgetStore = defineStore('budget', () => {
     copyFromPreviousYear,
     hasBudgetItemsForYear,
     getBudgetItemsForMonth,
+    getPreviousYearData,
     closeMonth,
     getClosedMonths,
     isMonthClosed,

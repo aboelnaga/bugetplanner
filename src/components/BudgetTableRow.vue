@@ -21,6 +21,12 @@
       </div>
     </td>
 
+
+    <!-- Previous Year Column (Empty for individual rows) -->
+    <td class="px-3 py-4 text-center border-r border-gray-200 bg-gray-50">
+      <div class="text-gray-400 font-normal">—</div>
+    </td>
+
     <!-- Monthly Amount Cells -->
     <td v-for="(month, index) in months" :key="month" 
         :class="[
@@ -141,7 +147,9 @@ const props = defineProps({
   getActualAmount: {
     type: Function,
     default: null
-  }
+  },
+  
+
 })
 
 // Use budget table row composable
@@ -224,6 +232,8 @@ const getYearlyTotalTooltip = (budget) => {
   
   return `Total: <span class="text-green-300">${formattedTotal}</span><br>Category: <span class="text-blue-300">${budget.category}</span>`
 }
+
+
 
 // Emits
 const emit = defineEmits([
