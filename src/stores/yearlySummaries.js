@@ -62,6 +62,31 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
            (parseFloat(summary.total_investment_outgoing_actual) || 0)
     }
   }
+
+  // Get detailed previous year values with both planned and actual
+  const getDetailedPreviousYearValues = () => {
+    const summary = getPreviousYearSummary()
+    if (!summary) return null
+
+    return {
+      income: {
+        planned: parseFloat(summary.total_income_planned) || 0,
+        actual: parseFloat(summary.total_income_actual) || 0
+      },
+      expenses: {
+        planned: parseFloat(summary.total_expenses_planned) || 0,
+        actual: parseFloat(summary.total_expenses_actual) || 0
+      },
+      investmentIncoming: {
+        planned: parseFloat(summary.total_investment_incoming_planned) || 0,
+        actual: parseFloat(summary.total_investment_incoming_actual) || 0
+      },
+      investmentOutgoing: {
+        planned: parseFloat(summary.total_investment_outgoing_planned) || 0,
+        actual: parseFloat(summary.total_investment_outgoing_actual) || 0
+      }
+    }
+  }
   
   // Fetch yearly summaries for a user
   const fetchYearlySummaries = async (startYear = null, endYear = null) => {
@@ -234,6 +259,7 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
     getYearlySummary,
     getPreviousYearSummary,
     getSmartPreviousYearValues,
+    getDetailedPreviousYearValues,
     fetchYearlySummaries,
     fetchYearlySummary,
     recalculateYearlySummary,

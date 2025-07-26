@@ -74,6 +74,7 @@
 import { computed } from 'vue'
 import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
@@ -259,6 +260,24 @@ const getPreviousYearExpensesTooltip = () => {
   const total = getPreviousYearExpensesTotal()
   const previousYear = props.selectedYear - 1
   
+  // Try to get detailed values from yearly summaries store
+  const yearlySummariesStore = useYearlySummariesStore()
+  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues()
+  
+  if (detailedValues && detailedValues.expenses) {
+    const planned = detailedValues.expenses.planned
+    const actual = detailedValues.expenses.actual
+    const variance = actual - planned
+    const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
+    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    
+    return `PY ${previousYear} Expenses<br>` +
+           `Planned: <span class="text-blue-300">${props.formatCurrency(planned)}</span><br>` +
+           `Actual: <span class="text-red-300">${props.formatCurrency(actual)}</span><br>` +
+           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+  }
+  
+  // Fallback to simple display
   return `PY ${previousYear} Expenses (Actual): <span class="text-red-300">${props.formatCurrency(total)}</span>`
 }
 
@@ -266,6 +285,24 @@ const getPreviousYearInvestmentOutgoingTooltip = () => {
   const total = getPreviousYearInvestmentOutgoingTotal()
   const previousYear = props.selectedYear - 1
   
+  // Try to get detailed values from yearly summaries store
+  const yearlySummariesStore = useYearlySummariesStore()
+  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues()
+  
+  if (detailedValues && detailedValues.investmentOutgoing) {
+    const planned = detailedValues.investmentOutgoing.planned
+    const actual = detailedValues.investmentOutgoing.actual
+    const variance = actual - planned
+    const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
+    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    
+    return `PY ${previousYear} Investment Purchases<br>` +
+           `Planned: <span class="text-blue-300">${props.formatCurrency(planned)}</span><br>` +
+           `Actual: <span class="text-red-300">${props.formatCurrency(actual)}</span><br>` +
+           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+  }
+  
+  // Fallback to simple display
   return `PY ${previousYear} Investment Purchases (Actual): <span class="text-red-300">${props.formatCurrency(total)}</span>`
 }
 </script> 

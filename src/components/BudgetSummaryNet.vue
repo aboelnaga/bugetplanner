@@ -85,6 +85,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
@@ -248,6 +249,33 @@ const getPreviousYearNetTooltip = () => {
   const total = getPreviousYearNetTotal()
   const previousYear = props.selectedYear - 1
   
+  // Try to get detailed values from yearly summaries store
+  const yearlySummariesStore = useYearlySummariesStore()
+  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues()
+  
+  if (detailedValues) {
+    const incomePlanned = detailedValues.income.planned
+    const incomeActual = detailedValues.income.actual
+    const expensesPlanned = detailedValues.expenses.planned
+    const expensesActual = detailedValues.expenses.actual
+    const investmentIncomingPlanned = detailedValues.investmentIncoming.planned
+    const investmentIncomingActual = detailedValues.investmentIncoming.actual
+    const investmentOutgoingPlanned = detailedValues.investmentOutgoing.planned
+    const investmentOutgoingActual = detailedValues.investmentOutgoing.actual
+    
+    const plannedNet = (incomePlanned + investmentIncomingPlanned) - (expensesPlanned + investmentOutgoingPlanned)
+    const actualNet = (incomeActual + investmentIncomingActual) - (expensesActual + investmentOutgoingActual)
+    const variance = actualNet - plannedNet
+    const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    
+    return `PY ${previousYear} Net Balance<br>` +
+           `Planned: <span class="text-blue-300">${props.formatCurrency(plannedNet)}</span><br>` +
+           `Actual: <span class="text-green-300">${props.formatCurrency(actualNet)}</span><br>` +
+           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+  }
+  
+  // Fallback to simple display
   return `PY ${previousYear} Net Balance (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
 
@@ -255,6 +283,29 @@ const getPreviousYearInvestmentNetTooltip = () => {
   const total = getPreviousYearInvestmentNetTotal()
   const previousYear = props.selectedYear - 1
   
+  // Try to get detailed values from yearly summaries store
+  const yearlySummariesStore = useYearlySummariesStore()
+  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues()
+  
+  if (detailedValues) {
+    const incomingPlanned = detailedValues.investmentIncoming.planned
+    const incomingActual = detailedValues.investmentIncoming.actual
+    const outgoingPlanned = detailedValues.investmentOutgoing.planned
+    const outgoingActual = detailedValues.investmentOutgoing.actual
+    
+    const plannedNet = incomingPlanned - outgoingPlanned
+    const actualNet = incomingActual - outgoingActual
+    const variance = actualNet - plannedNet
+    const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    
+    return `PY ${previousYear} Net Investment<br>` +
+           `Planned: <span class="text-blue-300">${props.formatCurrency(plannedNet)}</span><br>` +
+           `Actual: <span class="text-green-300">${props.formatCurrency(actualNet)}</span><br>` +
+           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+  }
+  
+  // Fallback to simple display
   return `PY ${previousYear} Net Investment (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
 </script> 

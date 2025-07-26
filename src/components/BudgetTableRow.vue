@@ -24,8 +24,12 @@
 
     <!-- Previous Year Column -->
     <td class="px-3 py-4 text-center border-r border-gray-200 bg-gray-50">
-      <div v-if="getPreviousYearAmount(budget) > 0" class="text-sm text-gray-600">
-        {{ formatCurrency(getPreviousYearAmount(budget)) }}
+      <div v-if="getPreviousYearAmount(budget) > 0">
+        <BaseTooltip :content="getPreviousYearTooltip(budget)" position="top">
+          <div class="text-sm text-gray-600 cursor-help">
+            {{ formatCurrency(getPreviousYearAmount(budget)) }}
+          </div>
+        </BaseTooltip>
       </div>
       <div v-else class="text-gray-400 font-normal">—</div>
     </td>
@@ -265,6 +269,38 @@ const getPreviousYearAmount = (budget) => {
   }
   
   return 0
+}
+
+const getPreviousYearTooltip = (budget) => {
+  // Get previous year budget items from the budget store
+  const previousYearItems = budgetStore.previousYearItems || []
+  
+  // Find matching budget item by name and category
+  const matchingItem = previousYearItems.find(item => 
+    item.name === budget.name && 
+    item.category === budget.category &&
+    item.type === budget.type
+  )
+  
+  if (!matchingItem) return 'No previous year data available'
+  
+  // Calculate planned and actual totals
+  const plannedTotal = matchingItem.amounts && Array.isArray(matchingItem.amounts) 
+    ? matchingItem.amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
+    : 0
+  
+  const actualTotal = matchingItem.actual_amounts && Array.isArray(matchingItem.actual_amounts)
+    ? matchingItem.actual_amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
+    : 0
+  
+  const variance = actualTotal - plannedTotal
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+  
+  return `Previous Year (${props.selectedYear - 1})<br>` +
+         `Planned: <span class="text-blue-300">${props.formatCurrency(plannedTotal)}</span><br>` +
+         `Actual: <span class="text-green-300">${props.formatCurrency(actualTotal)}</span><br>` +
+         `Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 
 const getYearlyTotalTooltip = (budget) => {
