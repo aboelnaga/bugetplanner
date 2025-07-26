@@ -22,9 +22,12 @@
     </td>
 
 
-    <!-- Previous Year Column (Empty for individual rows) -->
+    <!-- Previous Year Column -->
     <td class="px-3 py-4 text-center border-r border-gray-200 bg-gray-50">
-      <div class="text-gray-400 font-normal">—</div>
+      <div v-if="getPreviousYearAmount(budget) > 0" class="text-sm text-gray-600">
+        {{ formatCurrency(getPreviousYearAmount(budget)) }}
+      </div>
+      <div v-else class="text-gray-400 font-normal">—</div>
     </td>
 
     <!-- Monthly Amount Cells -->
@@ -93,6 +96,12 @@ import { computed } from 'vue'
 import { Edit, Copy, Trash2, TrendingDown, TrendingUp, Calendar, Repeat } from 'lucide-vue-next'
 import { useBudgetTableRow } from '@/composables/useBudgetTableRow.js'
 import BaseTooltip from '@/components/BaseTooltip.vue'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
+import { useBudgetStore } from '@/stores/budget.js'
+
+// Stores
+const yearlySummariesStore = useYearlySummariesStore()
+const budgetStore = useBudgetStore()
 
 // Props
 const props = defineProps({
@@ -224,6 +233,38 @@ const getSmartDefaultTooltip = (budget, monthIndex) => {
   
   // Past months (not closed)
   return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span>`
+}
+
+const getPreviousYearAmount = (budget) => {
+  // Get previous year budget items from the budget store
+  const previousYearItems = budgetStore.previousYearItems || []
+  
+  // Find matching budget item by name and category
+  const matchingItem = previousYearItems.find(item => 
+    item.name === budget.name && 
+    item.category === budget.category &&
+    item.type === budget.type
+  )
+  
+  if (!matchingItem) return 0
+  
+  // Use smart defaults logic for previous year amounts
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const previousYear = currentYear - 1
+  
+  // For previous years, always show actual amounts
+  if (previousYear < currentYear) {
+    if (matchingItem.actual_amounts && Array.isArray(matchingItem.actual_amounts)) {
+      return matchingItem.actual_amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
+    }
+    // Fallback to planned amounts if no actuals
+    if (matchingItem.amounts && Array.isArray(matchingItem.amounts)) {
+      return matchingItem.amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
+    }
+  }
+  
+  return 0
 }
 
 const getYearlyTotalTooltip = (budget) => {

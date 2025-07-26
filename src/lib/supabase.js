@@ -604,6 +604,71 @@ export const subscribeToTransactionChanges = (userId, year, callback) => {
     .subscribe()
 }
 
+// Yearly Summaries API
+export const yearlySummaryAPI = {
+  // Get yearly summary for a specific user and year
+  async getYearlySummary(userId, year) {
+    const { data, error } = await supabase
+      .from('yearly_summaries')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('year', year)
+      .single()
+    
+    if (error && error.code !== 'PGRST116') throw error // PGRST116 = no rows returned
+    return data
+  },
+
+  // Get yearly summaries for a user across multiple years
+  async getYearlySummaries(userId, startYear = null, endYear = null) {
+    let query = supabase
+      .from('yearly_summaries')
+      .select('*')
+      .eq('user_id', userId)
+      .order('year', { ascending: false })
+    
+    if (startYear !== null) {
+      query = query.gte('year', startYear)
+    }
+    
+    if (endYear !== null) {
+      query = query.lte('year', endYear)
+    }
+    
+    const { data, error } = await query
+    
+    if (error) throw error
+    return data || []
+  },
+
+  // Manually recalculate and update yearly summary for a specific year
+  async recalculateYearlySummary(userId, year) {
+    const { data, error } = await supabase
+      .rpc('update_yearly_summary', { user_uuid: userId, target_year: year })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get yearly summary statistics
+  async getYearlySummaryStats(userId) {
+    const { data, error } = await supabase
+      .from('yearly_summaries')
+      .select(`
+        year, 
+        total_income_actual, total_expenses_actual, 
+        total_investment_incoming_actual, total_investment_outgoing_actual,
+        total_income_planned, total_expenses_planned,
+        total_investment_incoming_planned, total_investment_outgoing_planned
+      `)
+      .eq('user_id', userId)
+      .order('year', { ascending: false })
+    
+    if (error) throw error
+    return data || []
+  }
+}
+
 // Real-time subscriptions for accounts
 export const subscribeToAccountChanges = (userId, callback) => {
   return supabase
@@ -613,6 +678,22 @@ export const subscribeToAccountChanges = (userId, callback) => {
         event: '*', 
         schema: 'public', 
         table: 'accounts',
+        filter: `user_id=eq.${userId}`
+      },
+      callback
+    )
+    .subscribe()
+}
+
+// Real-time subscriptions for yearly summaries
+export const subscribeToYearlySummaryChanges = (userId, callback) => {
+  return supabase
+    .channel('yearly_summary_changes')
+    .on('postgres_changes', 
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'yearly_summaries',
         filter: `user_id=eq.${userId}`
       },
       callback

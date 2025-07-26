@@ -204,6 +204,7 @@
   import { useBudgetStore } from '@/stores/budget.js'
   import { useAuthStore } from '@/stores/auth.js'
   import { useAccountsStore } from '@/stores/accounts.js'
+  import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import EditBudgetModal from '@/components/EditBudgetModal.vue'
   import CloseMonthModal from '@/components/CloseMonthModal.vue'
@@ -227,6 +228,7 @@
   const budgetStore = useBudgetStore()
   const authStore = useAuthStore()
   const accountsStore = useAccountsStore()
+  const yearlySummariesStore = useYearlySummariesStore()
 
   // Budget items from store
   const budgetItems = computed(() => budgetStore.budgetItems || [])
@@ -444,16 +446,19 @@
     if (isAuthenticated) {
       budgetStore.initialize()
       accountsStore.fetchAccounts()
+      yearlySummariesStore.initialize()
       checkPreviousYearData()
       fetchClosedMonths()
     } else {
       // Clear data when not authenticated
       budgetStore.budgetItems = []
       accountsStore.accounts = []
+      yearlySummariesStore.yearlySummaries = []
   
       // budgetStore.budgetHistory = [] // History functionality commented out
       budgetStore.error = null
       accountsStore.error = null
+      yearlySummariesStore.error = null
       previousYearHasData.value = false
       closedMonths.value = []
     }
@@ -499,6 +504,7 @@
     if (authStore.isAuthenticated) {
       budgetStore.initialize()
       accountsStore.fetchAccounts()
+      yearlySummariesStore.initialize()
       checkPreviousYearData()
       fetchClosedMonths()
     }

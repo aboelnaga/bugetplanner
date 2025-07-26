@@ -2,8 +2,10 @@
 // All calculation functions: monthly totals, yearly totals, investment calculations, grand totals
 
 import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 
 export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
+  const yearlySummariesStore = useYearlySummariesStore()
   // Basic budget amount calculations
   const isScheduledMonth = (budget, monthIndex) => {
     if (!budget || !budget.schedule) return false
@@ -280,81 +282,35 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     }, 0)
   }
 
-  // Previous year calculations - show actuals for previous year
+  // Previous year calculations - use yearly summaries with smart defaults
   const calculatePreviousYearIncomeTotal = () => {
-    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
-    
-    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INCOME) {
-        // Sum all actual amounts for the previous year (not planned)
-        const yearlyTotal = budget.actual_amounts ? 
-          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
-          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
-        return sum + yearlyTotal
-      }
-      return sum
-    }, 0)
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    return smartValues ? smartValues.income : 0
   }
 
   const calculatePreviousYearExpensesTotal = () => {
-    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
-    
-    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.EXPENSE) {
-        // Sum all actual amounts for the previous year (not planned)
-        const yearlyTotal = budget.actual_amounts ? 
-          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
-          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
-        return sum + yearlyTotal
-      }
-      return sum
-    }, 0)
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    return smartValues ? smartValues.expenses : 0
   }
 
   const calculatePreviousYearInvestmentIncomingTotal = () => {
-    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
-    
-    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
-        // Sum all actual amounts for the previous year (not planned)
-        const yearlyTotal = budget.actual_amounts ? 
-          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
-          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
-        return sum + yearlyTotal
-      }
-      return sum
-    }, 0)
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    return smartValues ? smartValues.investmentIncoming : 0
   }
 
   const calculatePreviousYearInvestmentOutgoingTotal = () => {
-    if (!budgetStore.previousYearItems || !budgetStore.previousYearItems.value) return 0
-    
-    return budgetStore.previousYearItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
-        // Sum all actual amounts for the previous year (not planned)
-        const yearlyTotal = budget.actual_amounts ? 
-          budget.actual_amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) :
-          budget.amounts.reduce((monthSum, amount) => monthSum + (parseFloat(amount) || 0), 0) // fallback to planned if no actuals
-        return sum + yearlyTotal
-      }
-      return sum
-    }, 0)
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    return smartValues ? smartValues.investmentOutgoing : 0
   }
 
   const calculatePreviousYearNetTotal = () => {
-    const income = calculatePreviousYearIncomeTotal()
-    const expenses = calculatePreviousYearExpensesTotal()
-    const investmentIncoming = calculatePreviousYearInvestmentIncomingTotal()
-    const investmentOutgoing = calculatePreviousYearInvestmentOutgoingTotal()
-    
-    return (income + investmentIncoming) - (expenses + investmentOutgoing)
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    return smartValues ? smartValues.net : 0
   }
 
   const calculatePreviousYearInvestmentNetTotal = () => {
-    const incoming = calculatePreviousYearInvestmentIncomingTotal()
-    const outgoing = calculatePreviousYearInvestmentOutgoingTotal()
-    
-    return incoming - outgoing
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    return smartValues ? smartValues.investmentIncoming - smartValues.investmentOutgoing : 0
   }
 
   // Budget amount updates
