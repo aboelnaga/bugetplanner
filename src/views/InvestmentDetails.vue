@@ -573,11 +573,20 @@
                     </button>
                     <button
                       @click="unlinkBudgetItem(budgetItem)"
-                      class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
+                      class="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-full transition-colors"
                       title="Unlink budget item"
                     >
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="deleteBudgetItem(budgetItem)"
+                      class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
+                      title="Delete budget item"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                   </div>
@@ -707,7 +716,7 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { investmentAssetsAPI } from '@/lib/supabase'
+import { investmentAssetsAPI, budgetAPI } from '@/lib/supabase'
 import AddBudgetModal from '@/components/AddBudgetModal.vue'
 import EditBudgetModal from '@/components/EditBudgetModal.vue'
 
@@ -986,6 +995,24 @@ const unlinkBudgetItem = async (budgetItem) => {
   } catch (err) {
     console.error('Error unlinking budget item:', err)
     error.value = err.message || 'Failed to unlink budget item'
+  }
+}
+
+const deleteBudgetItem = async (budgetItem) => {
+  if (!confirm(`Are you sure you want to delete "${budgetItem.name}"? This action cannot be undone and will also remove any linked transactions.`)) {
+    return
+  }
+  
+  try {
+    await budgetAPI.deleteBudgetItem(budgetItem.id)
+    
+    // Reload the investment data to update the linked budget items
+    await loadInvestment()
+    
+    console.log('Budget item deleted successfully')
+  } catch (err) {
+    console.error('Error deleting budget item:', err)
+    error.value = err.message || 'Failed to delete budget item'
   }
 }
 
