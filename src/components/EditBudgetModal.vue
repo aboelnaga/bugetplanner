@@ -115,6 +115,62 @@
         </div>
       </div>
 
+      <!-- Investment Linking Section -->
+      <div class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          Investment Linking
+        </h4>
+        
+        <div class="space-y-4">
+          <!-- Link to Existing Investment -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Link to Investment Asset
+            </label>
+            <div class="space-y-2">
+              <select 
+                v-model="formData.linked_investment_id"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option value="">No investment linked</option>
+                <option 
+                  v-for="investment in availableInvestments" 
+                  :key="investment.id" 
+                  :value="investment.id">
+                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
+                </option>
+              </select>
+              
+              <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-blue-900">
+                      {{ getLinkedInvestmentName() }}
+                    </p>
+                    <p class="text-xs text-blue-700">
+                      Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="formData.linked_investment_id = ''"
+                    class="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Unlink
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-1">
+              Link this budget item to an existing investment asset to track payments and returns.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Schedule Section -->
       <div class="space-y-4">
         <h4 class="text-lg font-semibold text-gray-900 flex items-center">
@@ -417,8 +473,9 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed, watch, ref, onMounted, nextTick } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
+import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetModals } from '@/composables/useBudgetModals.js'
 import { 
   MONTHS, 
@@ -457,9 +514,13 @@ const emit = defineEmits(['update:modelValue', 'budget-updated'])
 
 // Store
 const budgetStore = useBudgetStore()
+const investmentAssetsStore = useInvestmentAssetsStore()
 
 // Constants
 const months = MONTHS
+
+// Investment linking
+const availableInvestments = ref([])
 
 // Computed
 const currentYear = computed(() => budgetStore.currentYear)
@@ -533,6 +594,34 @@ const getDaySuffix = (day) => {
   }
 }
 
+// Investment linking helpers
+const formatInvestmentType = (type) => {
+  if (!type) return 'Unknown'
+  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+const getLinkedInvestmentName = () => {
+  if (!formData.value.linked_investment_id) return ''
+  const investment = availableInvestments.value.find(inv => inv.id === formData.value.linked_investment_id)
+  return investment?.name || ''
+}
+
+const getLinkedInvestmentPurchaseAmount = () => {
+  if (!formData.value.linked_investment_id) return 0
+  const investment = availableInvestments.value.find(inv => inv.id === formData.value.linked_investment_id)
+  return investment?.purchase_amount || 0
+}
+
+const loadAvailableInvestments = async () => {
+  try {
+    await investmentAssetsStore.fetchInvestmentAssets()
+    availableInvestments.value = investmentAssetsStore.investmentAssets || []
+  } catch (error) {
+    console.error('Error loading investments:', error)
+    availableInvestments.value = []
+  }
+}
+
 // Close modal
 const closeModal = () => {
   emit('update:modelValue', false)
@@ -557,7 +646,10 @@ watch(() => props.budget, (newBudget) => {
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen && props.budget) {
-    initializeFormDataFromBudget(props.budget)
+    nextTick(() => {
+      initializeFormDataFromBudget(props.budget)
+      loadAvailableInvestments()
+    })
   }
 })
 </script> 

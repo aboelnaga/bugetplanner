@@ -435,7 +435,8 @@ export const DEFAULT_VALUES = {
     due_date: null,
     is_fixed_expense: false,
     reminder_enabled: false,
-    reminder_days_before: 3
+    reminder_days_before: 3,
+    linked_investment_id: ''
   },
   CATEGORIES_BY_TYPE: {
     [BUDGET_TYPES.INCOME]: 'Salary',

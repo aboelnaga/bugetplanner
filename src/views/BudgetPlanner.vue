@@ -480,6 +480,8 @@
     }
   })
 
+
+
   // Account helper functions
   const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
   const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)

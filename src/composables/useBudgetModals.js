@@ -212,7 +212,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       due_date: formData.value.due_date,
       is_fixed_expense: formData.value.is_fixed_expense,
       reminder_enabled: formData.value.reminder_enabled,
-      reminder_days_before: formData.value.reminder_days_before
+      reminder_days_before: formData.value.reminder_days_before,
+      linked_investment_id: formData.value.linked_investment_id || null
     }
   }
 
@@ -294,7 +295,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         due_date: formData.value.due_date,
         is_fixed_expense: formData.value.is_fixed_expense,
         reminder_enabled: formData.value.reminder_enabled,
-        reminder_days_before: formData.value.reminder_days_before
+        reminder_days_before: formData.value.reminder_days_before,
+        linked_investment_id: formData.value.linked_investment_id || null
       }
       
       if (formData.value.type === 'investment') {
@@ -329,8 +331,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         defaultAmount: budget.default_amount || budget.defaultAmount || 0,
         investment_direction: budget.investment_direction || budget.investment_direction || 'outgoing',
         startMonth: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
-        amounts: [...budget.amounts],
-        schedule: [...budget.schedule],
+        amounts: budget.amounts ? [...budget.amounts] : [],
+        schedule: budget.schedule ? [...budget.schedule] : [],
         customMonths: budget.customMonths ? [...budget.customMonths] : [],
         oneTimeMonth: budget.oneTimeMonth || 0,
         // New payment schedule fields
@@ -338,12 +340,13 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         due_date: budget.due_date || null,
         is_fixed_expense: budget.is_fixed_expense || false,
         reminder_enabled: budget.reminder_enabled || false,
-        reminder_days_before: budget.reminder_days_before || 3
+        reminder_days_before: budget.reminder_days_before || 3,
+        linked_investment_id: budget.linked_investment_id || ''
       }
       
       // Set custom months for custom recurrence
       if (budget.recurrence === 'custom' && budget.schedule) {
-        formData.value.customMonths = [...budget.schedule]
+        formData.value.customMonths = budget.schedule ? [...budget.schedule] : []
       }
       
       // Set one-time month
@@ -410,8 +413,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       category: budget.category,
       recurrence: budget.recurrence,
       default_amount: budget.default_amount || budget.defaultAmount || 0,
-      amounts: [...budget.amounts],
-      schedule: [...budget.schedule],
+      amounts: budget.amounts ? [...budget.amounts] : [],
+      schedule: budget.schedule ? [...budget.schedule] : [],
       investment_direction: budget.investment_direction,
       start_month: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
       payment_schedule: budget.payment_schedule || 'throughout_month',

@@ -511,15 +511,26 @@
           <div class="px-6 py-4 border-b border-gray-200">
             <div class="flex items-center justify-between">
               <h2 class="text-lg font-medium text-gray-900">Linked Budget Items</h2>
-              <button
-                @click="showBudgetItemModal = true"
-                class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Link Budget Item
-              </button>
+              <div class="flex space-x-2">
+                <button
+                  @click="showCreateBudgetModal = true"
+                  class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  Create Budget Item
+                </button>
+                <button
+                  @click="goToBudgetItems"
+                  class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Link Existing
+                </button>
+              </div>
             </div>
           </div>
           <div class="p-6">
@@ -542,14 +553,34 @@
                     <h3 class="text-lg font-medium text-gray-900">{{ budgetItem.name }}</h3>
                     <p class="text-sm text-gray-600">{{ budgetItem.category }} - {{ budgetItem.type }}</p>
                   </div>
-                  <span :class="[
-                    'px-2 py-1 rounded-full text-xs font-medium',
-                    budgetItem.type === 'income' ? 'bg-green-100 text-green-800' :
-                    budgetItem.type === 'expense' ? 'bg-red-100 text-red-800' :
-                    'bg-blue-100 text-blue-800'
-                  ]">
-                    {{ budgetItem.type }}
-                  </span>
+                  <div class="flex items-center space-x-2">
+                    <span :class="[
+                      'px-2 py-1 rounded-full text-xs font-medium',
+                      budgetItem.type === 'income' ? 'bg-green-100 text-green-800' :
+                      budgetItem.type === 'expense' ? 'bg-red-100 text-red-800' :
+                      'bg-blue-100 text-blue-800'
+                    ]">
+                      {{ budgetItem.type }}
+                    </span>
+                    <button
+                      @click="editBudgetItem(budgetItem)"
+                      class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-colors"
+                      title="Edit budget item"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      @click="unlinkBudgetItem(budgetItem)"
+                      class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
+                      title="Unlink budget item"
+                    >
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 
                 <div class="mt-3 grid grid-cols-2 gap-4">
@@ -654,6 +685,21 @@
         </div>
       </div>
     </div>
+    
+    <!-- Create Budget Item Modal -->
+    <AddBudgetModal
+      v-model="showCreateBudgetModal"
+      :selected-year="new Date().getFullYear()"
+      @budget-added="handleBudgetItemCreated"
+    />
+    
+    <!-- Edit Budget Item Modal -->
+    <EditBudgetModal
+      v-model="showEditBudgetModal"
+      :budget="editingBudgetItem"
+      :selected-year="editingBudgetItem?.year || new Date().getFullYear()"
+      @budget-updated="handleBudgetItemUpdated"
+    />
   </div>
 </template>
 
@@ -662,6 +708,8 @@ import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { investmentAssetsAPI } from '@/lib/supabase'
+import AddBudgetModal from '@/components/AddBudgetModal.vue'
+import EditBudgetModal from '@/components/EditBudgetModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -675,7 +723,9 @@ const error = ref('')
 const investment = ref(null)
 const editMode = ref(false)
 const showDeleteConfirm = ref(false)
-const showBudgetItemModal = ref(false)
+const showCreateBudgetModal = ref(false)
+const showEditBudgetModal = ref(false)
+const editingBudgetItem = ref(null)
 const linkedBudgetItems = ref([])
 const relatedTransactions = ref([])
 const realEstateStatuses = ref([])
@@ -907,6 +957,62 @@ const deleteInvestment = async () => {
     showDeleteConfirm.value = false
   } finally {
     deleting.value = false
+  }
+}
+
+
+
+const goToBudgetItems = () => {
+  router.push('/')
+}
+
+const editBudgetItem = (budgetItem) => {
+  editingBudgetItem.value = budgetItem
+  showEditBudgetModal.value = true
+}
+
+const unlinkBudgetItem = async (budgetItem) => {
+  if (!confirm(`Are you sure you want to unlink "${budgetItem.name}" from this investment?`)) {
+    return
+  }
+  
+  try {
+    await investmentAssetsAPI.unlinkBudgetItemFromInvestment(budgetItem.id)
+    
+    // Reload the investment data to update the linked budget items
+    await loadInvestment()
+    
+    console.log('Budget item unlinked successfully')
+  } catch (err) {
+    console.error('Error unlinking budget item:', err)
+    error.value = err.message || 'Failed to unlink budget item'
+  }
+}
+
+const handleBudgetItemCreated = async (budgetItem) => {
+  try {
+    // Link the newly created budget item to this investment
+    await investmentAssetsAPI.linkToBudgetItem(investmentId.value, budgetItem.id)
+    
+    // Reload the investment data to show the linked budget item
+    await loadInvestment()
+    
+    console.log('Budget item created and linked successfully')
+  } catch (err) {
+    console.error('Error linking budget item to investment:', err)
+    error.value = err.message || 'Failed to link budget item to investment'
+  }
+}
+
+const handleBudgetItemUpdated = async (budgetItem) => {
+  try {
+    // Reload the investment data to show updated budget item
+    await loadInvestment()
+    
+    console.log('Budget item updated successfully')
+  } catch (err) {
+    console.error('Error updating budget item:', err)
+    error.value = err.message || 'Failed to update budget item'
   }
 }
 

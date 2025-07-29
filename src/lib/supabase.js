@@ -732,14 +732,27 @@ export const investmentAssetsAPI = {
       .from('investment_assets')
       .select(`
         *,
-        budget_items (
+        budget_items!linked_investment_id (
           id,
           name,
           category,
           type,
           investment_direction,
           amounts,
-          actual_amounts
+          actual_amounts,
+          schedule,
+          recurrence,
+          default_amount,
+          start_month,
+          custom_months,
+          one_time_month,
+          payment_schedule,
+          due_date,
+          is_fixed_expense,
+          reminder_enabled,
+          reminder_days_before,
+          linked_investment_id,
+          year
         )
       `)
       .eq('id', assetId)
@@ -803,9 +816,9 @@ export const investmentAssetsAPI = {
   // Link investment asset to budget item
   async linkToBudgetItem(assetId, budgetItemId) {
     const { data, error } = await supabase
-      .from('investment_assets')
-      .update({ budget_item_id: budgetItemId })
-      .eq('id', assetId)
+      .from('budget_items')
+      .update({ linked_investment_id: assetId })
+      .eq('id', budgetItemId)
       .select()
       .single()
     
@@ -816,9 +829,21 @@ export const investmentAssetsAPI = {
   // Unlink investment asset from budget item
   async unlinkFromBudgetItem(assetId) {
     const { data, error } = await supabase
-      .from('investment_assets')
-      .update({ budget_item_id: null })
-      .eq('id', assetId)
+      .from('budget_items')
+      .update({ linked_investment_id: null })
+      .eq('linked_investment_id', assetId)
+      .select()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Unlink specific budget item from investment
+  async unlinkBudgetItemFromInvestment(budgetItemId) {
+    const { data, error } = await supabase
+      .from('budget_items')
+      .update({ linked_investment_id: null })
+      .eq('id', budgetItemId)
       .select()
       .single()
     
@@ -879,14 +904,27 @@ export const investmentAssetsAPI = {
       .from('investment_assets')
       .select(`
         *,
-        budget_items (
+        budget_items!linked_investment_id (
           id,
           name,
           category,
           type,
           investment_direction,
           amounts,
-          actual_amounts
+          actual_amounts,
+          schedule,
+          recurrence,
+          default_amount,
+          start_month,
+          custom_months,
+          one_time_month,
+          payment_schedule,
+          due_date,
+          is_fixed_expense,
+          reminder_enabled,
+          reminder_days_before,
+          linked_investment_id,
+          year
         )
       `)
       .eq('user_id', userId)
@@ -902,14 +940,27 @@ export const investmentAssetsAPI = {
       .from('investment_assets')
       .select(`
         *,
-        budget_items (
+        budget_items!linked_investment_id (
           id,
           name,
           category,
           type,
           investment_direction,
           amounts,
-          actual_amounts
+          actual_amounts,
+          schedule,
+          recurrence,
+          default_amount,
+          start_month,
+          custom_months,
+          one_time_month,
+          payment_schedule,
+          due_date,
+          is_fixed_expense,
+          reminder_enabled,
+          reminder_days_before,
+          linked_investment_id,
+          year
         )
       `)
       .eq('user_id', userId)
@@ -926,14 +977,27 @@ export const investmentAssetsAPI = {
       .from('investment_assets')
       .select(`
         *,
-        budget_items (
+        budget_items!linked_investment_id (
           id,
           name,
           category,
           type,
           investment_direction,
           amounts,
-          actual_amounts
+          actual_amounts,
+          schedule,
+          recurrence,
+          default_amount,
+          start_month,
+          custom_months,
+          one_time_month,
+          payment_schedule,
+          due_date,
+          is_fixed_expense,
+          reminder_enabled,
+          reminder_days_before,
+          linked_investment_id,
+          year
         )
       `)
       .eq('user_id', userId)
