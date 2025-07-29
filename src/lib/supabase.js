@@ -319,8 +319,8 @@ export const subscribeToBudgetChanges = (userId, year, callback) => {
 // Transaction API
 export const transactionAPI = {
   // Get all transactions for a user and year
-  async getTransactions(userId, year, month = null) {
-    console.log('API: Getting transactions for user:', userId, 'year:', year, 'month:', month)
+  async getTransactions(userId, year, month = null, investmentId = null) {
+    console.log('API: Getting transactions for user:', userId, 'year:', year, 'month:', month, 'investmentId:', investmentId)
     
     let query = supabase
       .from('transactions')
@@ -342,6 +342,13 @@ export const transactionAPI = {
           balance,
           credit_limit,
           is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
         )
       `)
       .eq('user_id', userId)
@@ -350,6 +357,10 @@ export const transactionAPI = {
     
     if (month !== null) {
       query = query.eq('month', month)
+    }
+
+    if (investmentId !== null) {
+      query = query.eq('linked_investment_id', investmentId)
     }
 
     const { data, error } = await query
@@ -383,6 +394,13 @@ export const transactionAPI = {
           balance,
           credit_limit,
           is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
         )
       `)
       .single()
@@ -416,6 +434,13 @@ export const transactionAPI = {
           balance,
           credit_limit,
           is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
         )
       `)
       .single()
@@ -498,7 +523,33 @@ export const transactionAPI = {
   async getTransactionsByBudgetItem(userId, budgetItemId, year = null) {
     let query = supabase
       .from('transactions')
-      .select('*')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          type,
+          category,
+          payment_schedule,
+          due_date,
+          is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
+        )
+      `)
       .eq('user_id', userId)
       .eq('budget_item_id', budgetItemId)
       .order('date', { ascending: false })
@@ -508,6 +559,129 @@ export const transactionAPI = {
     }
     
     const { data, error } = await query
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get transactions by investment
+  async getTransactionsByInvestment(userId, investmentId, year = null) {
+    let query = supabase
+      .from('transactions')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          type,
+          category,
+          payment_schedule,
+          due_date,
+          is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('linked_investment_id', investmentId)
+      .order('date', { ascending: false })
+    
+    if (year !== null) {
+      query = query.eq('year', year)
+    }
+
+    const { data, error } = await query
+    
+    if (error) throw error
+    return data
+  },
+
+  // Link transaction to investment
+  async linkTransactionToInvestment(transactionId, investmentId) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .update({ linked_investment_id: investmentId })
+      .eq('id', transactionId)
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          type,
+          category,
+          payment_schedule,
+          due_date,
+          is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
+        )
+      `)
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Unlink transaction from investment
+  async unlinkTransactionFromInvestment(transactionId) {
+    const { data, error } = await supabase
+      .from('transactions')
+      .update({ linked_investment_id: null })
+      .eq('id', transactionId)
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          type,
+          category,
+          payment_schedule,
+          due_date,
+          is_fixed_expense
+        ),
+        accounts (
+          id,
+          name,
+          type,
+          balance,
+          credit_limit,
+          is_default
+        ),
+        investment_assets!linked_investment_id (
+          id,
+          name,
+          investment_type,
+          purchase_amount,
+          current_value
+        )
+      `)
+      .single()
     
     if (error) throw error
     return data
@@ -752,7 +926,18 @@ export const investmentAssetsAPI = {
           reminder_enabled,
           reminder_days_before,
           linked_investment_id,
-          year
+          year,
+          transactions (
+            id,
+            amount,
+            description,
+            date,
+            month,
+            year,
+            type,
+            budget_item_id,
+            account_id
+          )
         )
       `)
       .eq('id', assetId)

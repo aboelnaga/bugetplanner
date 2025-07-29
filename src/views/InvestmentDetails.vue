@@ -546,60 +546,102 @@
               <div
                 v-for="budgetItem in linkedBudgetItems"
                 :key="budgetItem.id"
-                class="border rounded-lg p-4"
+                class="border rounded-lg overflow-hidden"
               >
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="text-lg font-medium text-gray-900">{{ budgetItem.name }}</h3>
-                    <p class="text-sm text-gray-600">{{ budgetItem.category }} - {{ budgetItem.type }}</p>
-                  </div>
-                  <div class="flex items-center space-x-2">
-                    <span :class="[
-                      'px-2 py-1 rounded-full text-xs font-medium',
-                      budgetItem.type === 'income' ? 'bg-green-100 text-green-800' :
-                      budgetItem.type === 'expense' ? 'bg-red-100 text-red-800' :
-                      'bg-blue-100 text-blue-800'
-                    ]">
-                      {{ budgetItem.type }}
-                    </span>
-                    <button
-                      @click="editBudgetItem(budgetItem)"
-                      class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-colors"
-                      title="Edit budget item"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </button>
-                    <button
-                      @click="unlinkBudgetItem(budgetItem)"
-                      class="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-full transition-colors"
-                      title="Unlink budget item"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                    <button
-                      @click="deleteBudgetItem(budgetItem)"
-                      class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
-                      title="Delete budget item"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                <!-- Budget Item Header -->
+                <div class="p-4 bg-gray-50">
+                  <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                      <h3 class="text-lg font-medium text-gray-900">{{ budgetItem.name }}</h3>
+                      <p class="text-sm text-gray-600">{{ budgetItem.category }} • {{ budgetItem.type }}</p>
+                      <div class="mt-2 flex space-x-4">
+                        <div>
+                          <p class="text-sm text-gray-500">Planned Amount</p>
+                          <p class="text-lg font-semibold">{{ formatCurrency(calculateTotalAmount(budgetItem.amounts)) }}</p>
+                        </div>
+                        <div>
+                          <p class="text-sm text-gray-500">Actual Amount</p>
+                          <p class="text-lg font-semibold">{{ formatCurrency(calculateTotalAmount(budgetItem.actual_amounts)) }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                      <div class="flex items-center space-x-2">
+                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                          {{ getTransactionCount(budgetItem) }}
+                        </span>
+                        <button
+                          @click="toggleTransactions(budgetItem.id)"
+                          class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
+                          :title="expandedBudgetItems.includes(budgetItem.id) ? 'Hide transactions' : 'Show transactions'"
+                        >
+                          <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': expandedBudgetItems.includes(budgetItem.id) }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </button>
+                      </div>
+                      <button
+                        @click="editBudgetItem(budgetItem)"
+                        class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-colors"
+                        title="Edit budget item"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        @click="unlinkBudgetItem(budgetItem)"
+                        class="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-full transition-colors"
+                        title="Unlink budget item"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                      <button
+                        @click="deleteBudgetItem(budgetItem)"
+                        class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
+                        title="Delete budget item"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
-                <div class="mt-3 grid grid-cols-2 gap-4">
-                  <div>
-                    <p class="text-sm text-gray-500">Planned Amount</p>
-                    <p class="text-lg font-semibold">{{ formatCurrency(calculateTotalAmount(budgetItem.amounts)) }}</p>
-                  </div>
-                  <div>
-                    <p class="text-sm text-gray-500">Actual Amount</p>
-                    <p class="text-lg font-semibold">{{ formatCurrency(calculateTotalAmount(budgetItem.actual_amounts)) }}</p>
+                <!-- Transactions Accordion -->
+                <div v-if="expandedBudgetItems.includes(budgetItem.id)" class="border-t border-gray-200">
+                  <div class="p-4">
+                    <div v-if="!budgetItem.transactions || budgetItem.transactions.length === 0" class="text-center py-4">
+                      <p class="text-sm text-gray-500">No transactions for this budget item</p>
+                    </div>
+                    <div v-else class="space-y-3">
+                      <div
+                        v-for="transaction in budgetItem.transactions"
+                        :key="transaction.id"
+                        class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                      >
+                        <div class="flex-1">
+                          <p class="text-sm font-medium text-gray-900">{{ transaction.description }}</p>
+                          <p class="text-xs text-gray-500">{{ formatDate(transaction.date) }}</p>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                          <span :class="[
+                            'px-2 py-1 rounded-full text-xs font-medium',
+                            transaction.type === 'income' ? 'bg-green-100 text-green-800' :
+                            transaction.type === 'expense' ? 'bg-red-100 text-red-800' :
+                            'bg-blue-100 text-blue-800'
+                          ]">
+                            {{ transaction.type }}
+                          </span>
+                          <p class="text-sm font-semibold" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
+                            {{ formatCurrency(transaction.amount) }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -607,48 +649,7 @@
           </div>
         </div>
 
-        <!-- Related Transactions -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Related Transactions</h2>
-          </div>
-          <div class="p-6">
-            <div v-if="relatedTransactions.length === 0" class="text-center py-8">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No transactions found</h3>
-              <p class="mt-1 text-sm text-gray-500">Transactions linked to budget items will appear here.</p>
-            </div>
-            
-            <div v-else class="space-y-4">
-              <div
-                v-for="transaction in relatedTransactions"
-                :key="transaction.id"
-                class="border rounded-lg p-4"
-              >
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 class="text-lg font-medium text-gray-900">{{ transaction.description }}</h3>
-                    <p class="text-sm text-gray-600">{{ formatDate(transaction.date) }}</p>
-                  </div>
-                  <span :class="[
-                    'px-2 py-1 rounded-full text-xs font-medium',
-                    transaction.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  ]">
-                    {{ transaction.type }}
-                  </span>
-                </div>
-                
-                <div class="mt-2">
-                  <p class="text-lg font-semibold" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
-                    {{ formatCurrency(transaction.amount) }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        
       </div>
     </div>
     
@@ -738,6 +739,7 @@ const editingBudgetItem = ref(null)
 const linkedBudgetItems = ref([])
 const relatedTransactions = ref([])
 const realEstateStatuses = ref([])
+const expandedBudgetItems = ref([])
 
 // Edit form
 const editForm = reactive({
@@ -765,6 +767,8 @@ const editForm = reactive({
 
 // Computed
 const investmentId = computed(() => route.params.id)
+
+
 
 // Methods
 const formatCurrency = (amount) => {
@@ -1014,6 +1018,27 @@ const deleteBudgetItem = async (budgetItem) => {
     console.error('Error deleting budget item:', err)
     error.value = err.message || 'Failed to delete budget item'
   }
+}
+
+
+
+const getBudgetItemName = (budgetItemId) => {
+  const budgetItem = linkedBudgetItems.value.find(item => item.id === budgetItemId)
+  return budgetItem?.name || 'Unknown budget item'
+}
+
+const toggleTransactions = (budgetItemId) => {
+  const index = expandedBudgetItems.value.indexOf(budgetItemId)
+  if (index > -1) {
+    expandedBudgetItems.value.splice(index, 1)
+  } else {
+    expandedBudgetItems.value.push(budgetItemId)
+  }
+}
+
+const getTransactionCount = (budgetItem) => {
+  if (!budgetItem.transactions) return '0'
+  return budgetItem.transactions.length.toString()
 }
 
 const handleBudgetItemCreated = async (budgetItem) => {
