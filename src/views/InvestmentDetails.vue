@@ -44,6 +44,16 @@
               </svg>
               {{ saving ? 'Saving...' : 'Save Changes' }}
             </button>
+            
+            <button
+              @click="showDeleteConfirm = true"
+              class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            >
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Investment
+            </button>
           </div>
         </div>
       </div>
@@ -601,6 +611,49 @@
         </div>
       </div>
     </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900 mt-4">Delete Investment</h3>
+          <div class="mt-2 px-7 py-3">
+            <p class="text-sm text-gray-500">
+              Are you sure you want to delete "<strong>{{ investment?.name }}</strong>"? This action cannot be undone.
+            </p>
+            <p class="text-sm text-red-500 mt-2">
+              This will also remove any linked budget items and transactions.
+            </p>
+          </div>
+          <div class="items-center px-4 py-3">
+            <div class="flex justify-center space-x-3">
+              <button
+                @click="showDeleteConfirm = false"
+                class="px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-24 shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                @click="deleteInvestment"
+                :disabled="deleting"
+                class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-24 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
+              >
+                <svg v-if="deleting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                {{ deleting ? 'Deleting...' : 'Delete' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -617,9 +670,11 @@ const authStore = useAuthStore()
 // State
 const loading = ref(false)
 const saving = ref(false)
+const deleting = ref(false)
 const error = ref('')
 const investment = ref(null)
 const editMode = ref(false)
+const showDeleteConfirm = ref(false)
 const showBudgetItemModal = ref(false)
 const linkedBudgetItems = ref([])
 const relatedTransactions = ref([])
@@ -833,6 +888,25 @@ const saveChanges = async () => {
     error.value = err.message || 'Failed to save changes'
   } finally {
     saving.value = false
+  }
+}
+
+const deleteInvestment = async () => {
+  deleting.value = true
+  error.value = ''
+  
+  try {
+    await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
+    
+    // Navigate back to investments list
+    router.push('/investments')
+    
+  } catch (err) {
+    console.error('Error deleting investment:', err)
+    error.value = err.message || 'Failed to delete investment'
+    showDeleteConfirm.value = false
+  } finally {
+    deleting.value = false
   }
 }
 

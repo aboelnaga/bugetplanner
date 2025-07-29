@@ -84,7 +84,7 @@
         <div
           v-for="investment in filteredInvestments"
           :key="investment.id"
-          class="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer"
+          class="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer relative"
           @click="viewInvestment(investment.id)"
         >
           <div class="flex justify-between items-start mb-4">
@@ -92,12 +92,23 @@
               <h4 class="text-lg font-semibold">{{ investment.name }}</h4>
               <p class="text-gray-600 capitalize">{{ formatInvestmentType(investment.investment_type) }}</p>
             </div>
-            <span :class="[
-              'px-3 py-1 rounded-full text-sm font-medium',
-              getStatusColor(investment.real_estate_status || investment.status)
-            ]">
-              {{ formatStatus(investment.real_estate_status || investment.status) }}
-            </span>
+            <div class="flex items-center space-x-2">
+              <span :class="[
+                'px-3 py-1 rounded-full text-sm font-medium',
+                getStatusColor(investment.real_estate_status || investment.status)
+              ]">
+                {{ formatStatus(investment.real_estate_status || investment.status) }}
+              </span>
+              <button
+                @click.stop="deleteInvestment(investment)"
+                class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
+                title="Delete investment"
+              >
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
           </div>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -240,6 +251,25 @@ const getROIColor = (investment) => {
 
 const viewInvestment = (investmentId) => {
   router.push(`/investments/${investmentId}`)
+}
+
+const deleteInvestment = async (investment) => {
+  if (!confirm(`Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`)) {
+    return
+  }
+  
+  try {
+    const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
+    if (success) {
+      // The store will automatically update the list
+      console.log('Investment deleted successfully')
+    } else {
+      alert('Failed to delete investment. Please try again.')
+    }
+  } catch (error) {
+    console.error('Error deleting investment:', error)
+    alert('Failed to delete investment. Please try again.')
+  }
 }
 
 // Load data
