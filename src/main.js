@@ -14,7 +14,9 @@ import Banking from './views/Banking.vue'
 // import Income from './views/Income.vue'
 // import Expenses from './views/Expenses.vue'
 // import Family from './views/Family.vue'
-// import Investments from './views/Investments.vue'
+import Investments from './views/Investments.vue'
+import CreateInvestment from './views/CreateInvestment.vue'
+import InvestmentDetails from './views/InvestmentDetails.vue'
 // import Zakat from './views/Zakat.vue'
 import Auth from './views/Auth.vue'
 
@@ -68,12 +70,24 @@ const routes = [
   //   component: Family,
   //   meta: { requiresAuth: true }
   // },
-  // { 
-  //   path: '/investments', 
-  //   name: 'Investments', 
-  //   component: Investments,
-  //   meta: { requiresAuth: true }
-  // },
+  { 
+    path: '/investments', 
+    name: 'Investments', 
+    component: Investments,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/investments/create', 
+    name: 'CreateInvestment', 
+    component: CreateInvestment,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/investments/:id', 
+    name: 'InvestmentDetails', 
+    component: InvestmentDetails,
+    meta: { requiresAuth: true }
+  },
   // { 
   //   path: '/zakat', 
   //   name: 'Zakat', 

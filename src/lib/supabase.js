@@ -699,4 +699,443 @@ export const subscribeToYearlySummaryChanges = (userId, callback) => {
       callback
     )
     .subscribe()
+}
+
+// Investment Assets API
+export const investmentAssetsAPI = {
+  // Get all investment assets for a user
+  async getInvestmentAssets(userId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          category,
+          type,
+          investment_direction,
+          amounts,
+          actual_amounts
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get a single investment asset by ID
+  async getInvestmentAsset(assetId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          category,
+          type,
+          investment_direction,
+          amounts,
+          actual_amounts
+        )
+      `)
+      .eq('id', assetId)
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Create a new investment asset
+  async createInvestmentAsset(asset) {
+    // Handle both old 'type' and new 'investment_type' columns during transition
+    const assetData = { ...asset }
+    
+    // If we have investment_type, also set type for backward compatibility
+    if (assetData.investment_type && !assetData.type) {
+      assetData.type = assetData.investment_type
+    }
+    
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .insert(assetData)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Update an investment asset
+  async updateInvestmentAsset(id, updates) {
+    // Handle both old 'type' and new 'investment_type' columns during transition
+    const updateData = { ...updates }
+    
+    // If we have investment_type, also set type for backward compatibility
+    if (updateData.investment_type && !updateData.type) {
+      updateData.type = updateData.investment_type
+    }
+    
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Delete an investment asset
+  async deleteInvestmentAsset(id) {
+    const { error } = await supabase
+      .from('investment_assets')
+      .delete()
+      .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Link investment asset to budget item
+  async linkToBudgetItem(assetId, budgetItemId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .update({ budget_item_id: budgetItemId })
+      .eq('id', assetId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Unlink investment asset from budget item
+  async unlinkFromBudgetItem(assetId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .update({ budget_item_id: null })
+      .eq('id', assetId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get investment assets by type
+  async getInvestmentAssetsByType(userId, investmentType) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('investment_type', investmentType)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get investment assets by status
+  async getInvestmentAssetsByStatus(userId, status) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('real_estate_status', status)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Calculate total portfolio value
+  async getPortfolioValue(userId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select('current_value, purchase_amount, status')
+      .eq('user_id', userId)
+      .in('status', ['active', 'owned', 'finished_installments'])
+    
+    if (error) throw error
+    
+    const totalCurrentValue = data.reduce((sum, asset) => sum + (parseFloat(asset.current_value) || 0), 0)
+    const totalPurchaseValue = data.reduce((sum, asset) => sum + (parseFloat(asset.purchase_amount) || 0), 0)
+    
+    return {
+      totalCurrentValue,
+      totalPurchaseValue,
+      totalROI: totalCurrentValue - totalPurchaseValue,
+      totalROIPercentage: totalPurchaseValue > 0 ? ((totalCurrentValue - totalPurchaseValue) / totalPurchaseValue) * 100 : 0
+    }
+  },
+
+  // Get investment assets with type-specific data
+  async getInvestmentAssetsWithDetails(userId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          category,
+          type,
+          investment_direction,
+          amounts,
+          actual_amounts
+        )
+      `)
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get real estate investments
+  async getRealEstateInvestments(userId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          category,
+          type,
+          investment_direction,
+          amounts,
+          actual_amounts
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('investment_type', 'real_estate')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get precious metals investments
+  async getPreciousMetalsInvestments(userId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select(`
+        *,
+        budget_items (
+          id,
+          name,
+          category,
+          type,
+          investment_direction,
+          amounts,
+          actual_amounts
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('investment_type', 'precious_metals')
+      .order('created_at', { ascending: false })
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get precious metals portfolio summary
+  async getPreciousMetalsPortfolio(userId) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .select('metal_type, karat, amount, amount_unit, purchase_amount, current_value, status')
+      .eq('user_id', userId)
+      .eq('investment_type', 'precious_metals')
+      .in('status', ['active', 'owned'])
+    
+    if (error) throw error
+    
+    // Group by metal type and karat
+    const portfolio = {}
+    data.forEach(asset => {
+      const key = `${asset.metal_type}_${asset.karat}`
+      if (!portfolio[key]) {
+        portfolio[key] = {
+          metal_type: asset.metal_type,
+          karat: asset.karat,
+          total_amount: 0,
+          total_purchase_value: 0,
+          total_current_value: 0,
+          unit: asset.amount_unit
+        }
+      }
+      
+      portfolio[key].total_amount += parseFloat(asset.amount) || 0
+      portfolio[key].total_purchase_value += parseFloat(asset.purchase_amount) || 0
+      portfolio[key].total_current_value += parseFloat(asset.current_value) || 0
+    })
+    
+    return Object.values(portfolio)
+  },
+
+  // Update investment status
+  async updateInvestmentStatus(assetId, status) {
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .update({ real_estate_status: status })
+      .eq('id', assetId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Add document link to investment
+  async addDocumentLink(assetId, documentLink) {
+    const { data: asset, error: fetchError } = await supabase
+      .from('investment_assets')
+      .select('document_links')
+      .eq('id', assetId)
+      .single()
+    
+    if (fetchError) throw fetchError
+    
+    const currentLinks = asset.document_links || []
+    const updatedLinks = [...currentLinks, documentLink]
+    
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .update({ document_links: updatedLinks })
+      .eq('id', assetId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Remove document link from investment
+  async removeDocumentLink(assetId, linkIndex) {
+    const { data: asset, error: fetchError } = await supabase
+      .from('investment_assets')
+      .select('document_links')
+      .eq('id', assetId)
+      .single()
+    
+    if (fetchError) throw fetchError
+    
+    const currentLinks = asset.document_links || []
+    const updatedLinks = currentLinks.filter((_, index) => index !== linkIndex)
+    
+    const { data, error } = await supabase
+      .from('investment_assets')
+      .update({ document_links: updatedLinks })
+      .eq('id', assetId)
+      .select()
+      .single()
+    
+    if (error) throw error
+    return data
+  },
+
+  // Get investment types for dropdown
+  async getInvestmentTypes() {
+    return [
+      { value: 'real_estate', label: 'Real Estate' },
+      { value: 'precious_metals', label: 'Precious Metals' },
+      { value: 'foreign_currency', label: 'Foreign Currency' },
+      { value: 'stocks', label: 'Stocks' },
+      { value: 'bonds', label: 'Bonds' },
+      { value: 'cryptocurrency', label: 'Cryptocurrency' },
+      { value: 'business', label: 'Business' },
+      { value: 'other', label: 'Other' }
+    ]
+  },
+
+  // Get real estate statuses for dropdown
+  async getRealEstateStatuses() {
+    return [
+      { value: 'planned', label: 'Planned' },
+      { value: 'paying', label: 'Paying' },
+      { value: 'delivered', label: 'Delivered' },
+      { value: 'finished_installments', label: 'Finished Installments' },
+      { value: 'owned', label: 'Owned' }
+    ]
+  },
+
+  // Get metal types for dropdown
+  async getMetalTypes() {
+    return [
+      { value: 'gold', label: 'Gold' },
+      { value: 'silver', label: 'Silver' },
+      { value: 'platinum', label: 'Platinum' },
+      { value: 'palladium', label: 'Palladium' },
+      { value: 'rhodium', label: 'Rhodium' }
+    ]
+  },
+
+  // Get karat options for dropdown
+  async getKaratOptions() {
+    return [
+      { value: '24K', label: '24 Karat' },
+      { value: '22K', label: '22 Karat' },
+      { value: '21K', label: '21 Karat' },
+      { value: '18K', label: '18 Karat' },
+      { value: '14K', label: '14 Karat' },
+      { value: '10K', label: '10 Karat' },
+      { value: '9K', label: '9 Karat' }
+    ]
+  },
+
+  // Get condition options for dropdown
+  async getConditionOptions() {
+    return [
+      { value: 'new', label: 'New' },
+      { value: 'used', label: 'Used' }
+    ]
+  },
+
+  // Get form options for dropdown
+  async getFormOptions() {
+    return [
+      { value: 'bars', label: 'Bars' },
+      { value: 'jewelry', label: 'Jewelry' },
+      { value: 'coins', label: 'Coins' },
+      { value: 'other', label: 'Other' }
+    ]
+  },
+
+  // Get purpose options for dropdown
+  async getPurposeOptions() {
+    return [
+      { value: 'investment', label: 'Investment' },
+      { value: 'personal_use_for_zakat', label: 'Personal Use (Zakat Calculation)' }
+    ]
+  },
+
+  // Get amount unit options for dropdown
+  async getAmountUnitOptions() {
+    return [
+      { value: 'grams', label: 'Grams' },
+      { value: 'kilograms', label: 'Kilograms' },
+      { value: 'ounces', label: 'Ounces' },
+      { value: 'pounds', label: 'Pounds' }
+    ]
+  }
+}
+
+export const subscribeToInvestmentAssetChanges = (userId, callback) => {
+  return supabase
+    .channel('investment_assets_changes')
+    .on('postgres_changes', 
+      { 
+        event: '*', 
+        schema: 'public', 
+        table: 'investment_assets',
+        filter: `user_id=eq.${userId}`
+      },
+      callback
+    )
+    .subscribe()
 } 
