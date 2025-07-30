@@ -188,8 +188,11 @@ export const useBudgetStore = defineStore('budget', () => {
         createdItems.push(data)
       }
       
-      // Add all created items to local state
-      budgetItems.value.push(...createdItems)
+      // Add only current year items to local state
+      const currentYearItems = createdItems.filter(item => item.year === selectedYear.value)
+      budgetItems.value.push(...currentYearItems)
+      
+      console.log('Store: Added current year items to local state:', currentYearItems)
       
       return createdItems
     } catch (err) {

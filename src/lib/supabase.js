@@ -54,16 +54,44 @@ export const budgetAPI = {
     
     if (previousYearError) throw previousYearError
     
+    // Get linked multi-year budget items for current year items
+    let linkedMultiYearItems = []
+    if (currentYearData && currentYearData.length > 0) {
+      const linkedGroupIds = currentYearData
+        .filter(item => item.linked_group_id)
+        .map(item => item.linked_group_id)
+      
+      if (linkedGroupIds.length > 0) {
+        const { data: linkedData, error: linkedError } = await supabase
+          .from('budget_items')
+          .select('*')
+          .eq('user_id', userId)
+          .in('linked_group_id', linkedGroupIds)
+          .neq('year', year) // Exclude current year items (already fetched)
+          .order('year', { ascending: true })
+          .order('created_at', { ascending: true })
+        
+        if (!linkedError) {
+          linkedMultiYearItems = linkedData || []
+        }
+      }
+    }
+    
+    // Combine current year items with linked multi-year items
+    const allBudgetItems = [...(currentYearData || []), ...linkedMultiYearItems]
+    
     console.log('API: Supabase response for getBudgetItems:', { 
       currentYearData, 
       previousYearData, 
+      linkedMultiYearItems,
+      allBudgetItems,
       currentYearError, 
       previousYearError 
     })
     
-    // Return both current year, previous year, and auto-close result
+    // Return combined budget items, previous year items, and auto-close result
     return {
-      budgetItems: currentYearData,
+      budgetItems: allBudgetItems,
       previousYearItems: previousYearData || [],
       autoCloseResult: autoCloseResult
     }

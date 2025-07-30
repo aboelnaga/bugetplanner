@@ -136,6 +136,12 @@ Schedule & Timing
 4. Set `is_master: true` for first item
 5. Link all items with same `linked_group_id`
 
+#### Multi-Year Display
+- ✅ **Complete view**: Shows all linked items when viewing any year in the schedule
+- ✅ **Linked fetching**: API fetches items with same `linked_group_id`
+- ✅ **Year ordering**: Items displayed in chronological order
+- ✅ **Master identification**: First item marked as master for editing
+
 #### Multi-Year Management
 - ✅ **Edit**: Update all linked items simultaneously
 - ✅ **Delete**: Remove all linked items
