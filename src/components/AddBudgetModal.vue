@@ -368,6 +368,26 @@
             </select>
           </div>
 
+          <!-- Custom Months for Multi-Year (for custom recurrence) -->
+          <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM" class="space-y-3">
+            <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+              <label 
+                v-for="(month, index) in months" 
+                :key="month" 
+                class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                :class="{ 'bg-blue-50 border-blue-300': formData.customMonths.includes(index) }">
+                <input 
+                  type="checkbox" 
+                  :value="index" 
+                  v-model="formData.customMonths"
+                  @change="updateMultiYearPreview"
+                  class="mr-2 text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm font-medium">{{ month }}</span>
+              </label>
+            </div>
+          </div>
+
           <!-- Schedule Duration Preview -->
           <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
             <div class="flex items-center justify-between">
