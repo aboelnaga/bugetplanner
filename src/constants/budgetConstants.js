@@ -436,7 +436,12 @@ export const DEFAULT_VALUES = {
     is_fixed_expense: false,
     reminder_enabled: false,
     reminder_days_before: 3,
-    linked_investment_id: ''
+    linked_investment_id: '',
+    // Multi-year fields
+    is_multi_year: false,
+    start_year: null,
+    end_year: null,
+    end_month: null
   },
   CATEGORIES_BY_TYPE: {
     [BUDGET_TYPES.INCOME]: 'Salary',
@@ -540,4 +545,78 @@ export const DEFAULT_TRANSACTION_VALUES = {
   tax_amount: null,
   net_amount: null,
   investment_direction: null
+}
+
+// Multi-year budget constants
+export const MULTI_YEAR_CONSTANTS = {
+  MAX_DURATION_YEARS: 20,
+  DEFAULT_DURATION_YEARS: 5,
+  MIN_DURATION_YEARS: 1,
+  END_MONTH_OPTIONS: [
+    { value: null, label: 'Full Year (December)' },
+    { value: 0, label: 'January' },
+    { value: 1, label: 'February' },
+    { value: 2, label: 'March' },
+    { value: 3, label: 'April' },
+    { value: 4, label: 'May' },
+    { value: 5, label: 'June' },
+    { value: 6, label: 'July' },
+    { value: 7, label: 'August' },
+    { value: 8, label: 'September' },
+    { value: 9, label: 'October' },
+    { value: 10, label: 'November' },
+    { value: 11, label: 'December' }
+  ]
+}
+
+// Multi-year calculation helpers
+export const MULTI_YEAR_CALCULATION = {
+  // Calculate yearly amount for a specific year in a multi-year schedule
+  getYearlyAmountForYear: (defaultAmount, startYear, endYear, startMonth, endMonth, targetYear) => {
+    if (targetYear < startYear || targetYear > endYear) return 0
+    
+    const isFirstYear = targetYear === startYear
+    const isLastYear = targetYear === endYear
+    
+    if (isFirstYear && isLastYear) {
+      // Single year with custom start/end months
+      const monthsInYear = (endMonth || 11) - startMonth + 1
+      return defaultAmount * monthsInYear
+    } else if (isFirstYear) {
+      // First year: partial based on start month
+      const monthsInYear = 12 - startMonth
+      return defaultAmount * monthsInYear
+    } else if (isLastYear) {
+      // Last year: partial based on end month
+      const monthsInYear = (endMonth || 11) + 1
+      return defaultAmount * monthsInYear
+    } else {
+      // Middle years: full 12 months
+      return defaultAmount * 12
+    }
+  },
+  
+  // Calculate total amount across all years
+  calculateMultiYearTotalAmount: (defaultAmount, startYear, endYear, startMonth, endMonth) => {
+    let total = 0
+    for (let year = startYear; year <= endYear; year++) {
+      total += MULTI_YEAR_CALCULATION.getYearlyAmountForYear(defaultAmount, startYear, endYear, startMonth, endMonth, year)
+    }
+    return total
+  },
+  
+  // Generate yearly breakdown for preview
+  generateYearlyBreakdown: (defaultAmount, startYear, endYear, startMonth, endMonth) => {
+    const breakdown = []
+    for (let year = startYear; year <= endYear; year++) {
+      const yearlyAmount = MULTI_YEAR_CALCULATION.getYearlyAmountForYear(defaultAmount, startYear, endYear, startMonth, endMonth, year)
+      breakdown.push({
+        year,
+        amount: yearlyAmount,
+        isFirstYear: year === startYear,
+        isLastYear: year === endYear
+      })
+    }
+    return breakdown
+  }
 } 

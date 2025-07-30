@@ -214,6 +214,132 @@
           </div>
         </div>
 
+        <!-- Multi-Year Settings -->
+        <div class="space-y-4 pt-4 border-t border-gray-200">
+          <h5 class="text-md font-medium text-gray-900 flex items-center">
+            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Multi-Year Schedule
+          </h5>
+          
+          <!-- Multi-Year Toggle -->
+          <div class="flex items-center space-x-3">
+            <input 
+              type="checkbox" 
+              id="is_multi_year"
+              v-model="formData.is_multi_year"
+              @change="handleMultiYearToggle"
+              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <label for="is_multi_year" class="text-sm font-medium text-gray-700">
+              Multi-Year Budget Item
+            </label>
+            <div class="flex-1">
+              <p class="text-xs text-gray-500">
+                Create budget items across multiple years (e.g., 5-year loans, installments)
+              </p>
+            </div>
+          </div>
+
+          <!-- Multi-Year Configuration (only if enabled) -->
+          <div v-if="formData.is_multi_year" class="space-y-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <!-- Start Year -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <span class="text-red-500">*</span> Start Year
+                </label>
+                <select 
+                  v-model="formData.start_year"
+                  @change="updateMultiYearPreview"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option 
+                    v-for="year in getAvailableYears()" 
+                    :key="year" 
+                    :value="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
+              
+              <!-- End Year -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <span class="text-red-500">*</span> End Year
+                </label>
+                <select 
+                  v-model="formData.end_year"
+                  @change="updateMultiYearPreview"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option 
+                    v-for="year in getAvailableEndYears()" 
+                    :key="year" 
+                    :value="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
+              
+              <!-- End Month (Optional) -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  End Month (Optional)
+                </label>
+                <select 
+                  v-model="formData.end_month"
+                  @change="updateMultiYearPreview"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option 
+                    v-for="option in MULTI_YEAR_CONSTANTS.END_MONTH_OPTIONS" 
+                    :key="option.value" 
+                    :value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Schedule Duration Preview -->
+            <div class="bg-white border border-blue-300 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-blue-900">
+                    Schedule Duration
+                  </p>
+                  <p class="text-xs text-blue-700">
+                    From: {{ months[formData.startMonth] }} {{ formData.start_year }} 
+                    → To: {{ formData.end_month !== null ? months[formData.end_month] : 'December' }} {{ formData.end_year }}
+                  </p>
+                </div>
+                <div class="text-right">
+                  <p class="text-sm font-semibold text-blue-900">
+                    {{ multiYearPreview.duration }} year{{ multiYearPreview.duration !== 1 ? 's' : '' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Yearly Breakdown Preview -->
+            <div v-if="multiYearPreview.yearlyBreakdown.length > 0" class="bg-white border border-blue-300 rounded-lg p-3">
+              <p class="text-sm font-medium text-blue-900 mb-2">Yearly Breakdown</p>
+              <div class="space-y-2">
+                <div 
+                  v-for="year in multiYearPreview.yearlyBreakdown" 
+                  :key="year.year"
+                  class="flex items-center justify-between text-sm"
+                  :class="year.isFirstYear || year.isLastYear ? 'font-medium text-blue-800' : 'text-gray-700'">
+                  <span>
+                    {{ year.year }}
+                    <span v-if="year.isFirstYear" class="text-xs text-blue-600">(First)</span>
+                    <span v-if="year.isLastYear" class="text-xs text-blue-600">(Last)</span>
+                  </span>
+                  <span class="font-semibold">{{ formatCurrency(year.amount) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Custom Months (for custom recurrence) -->
         <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM" class="space-y-3">
           <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
@@ -358,10 +484,44 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
           </svg>
-          Schedule Preview
+          {{ formData.is_multi_year ? 'Multi-Year' : 'Schedule' }} Preview
         </h4>
         
-        <div class="bg-gray-50 rounded-lg p-4">
+        <!-- Multi-Year Preview -->
+        <div v-if="formData.is_multi_year" class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-blue-900">Total Multi-Year Amount</p>
+                <p class="text-xs text-blue-700">Across {{ multiYearPreview.duration }} year{{ multiYearPreview.duration !== 1 ? 's' : '' }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-blue-900">{{ formatCurrency(multiYearPreview.totalAmount) }}</p>
+              </div>
+            </div>
+            
+            <div v-if="multiYearPreview.yearlyBreakdown.length > 0" class="bg-white border border-blue-300 rounded-lg p-3">
+              <p class="text-sm font-medium text-blue-900 mb-2">Yearly Breakdown</p>
+              <div class="space-y-2">
+                <div 
+                  v-for="year in multiYearPreview.yearlyBreakdown" 
+                  :key="year.year"
+                  class="flex items-center justify-between text-sm"
+                  :class="year.isFirstYear || year.isLastYear ? 'font-medium text-blue-800' : 'text-gray-700'">
+                  <span>
+                    {{ year.year }}
+                    <span v-if="year.isFirstYear" class="text-xs text-blue-600">(First)</span>
+                    <span v-if="year.isLastYear" class="text-xs text-blue-600">(Last)</span>
+                  </span>
+                  <span class="font-semibold">{{ formatCurrency(year.amount) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Single Year Preview -->
+        <div v-else class="bg-gray-50 rounded-lg p-4">
           <!-- Month headers -->
           <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-2">
             <div 
@@ -419,7 +579,7 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
           <span v-if="isLoading">Adding...</span>
-          <span v-else>Add Budget Item</span>
+          <span v-else>{{ formData.is_multi_year ? 'Add Multi-Year Budget' : 'Add Budget Item' }}</span>
         </button>
       </div>
     </template>
@@ -442,7 +602,8 @@ import {
   PAYMENT_SCHEDULES,
   PAYMENT_SCHEDULE_LABELS,
   PAYMENT_SCHEDULE_DESCRIPTIONS,
-  DATABASE_LIMITS
+  DATABASE_LIMITS,
+  MULTI_YEAR_CONSTANTS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
@@ -491,7 +652,13 @@ const {
   calculateTotalAmount,
   handleAddSubmit,
   handleAmountInput,
-  generateSchedule
+  generateSchedule,
+  updateMultiYearPreview,
+  getAvailableYears,
+  getAvailableEndYears,
+  multiYearPreview,
+  handleMultiYearToggle,
+  validateMultiYearSettings
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
 // Get amount class for styling
@@ -568,4 +735,15 @@ watch(() => props.modelValue, (isOpen) => {
     loadAvailableInvestments()
   }
 })
+
+// Watch for multi-year form changes to update preview
+watch([
+  () => formData.value.is_multi_year,
+  () => formData.value.start_year,
+  () => formData.value.end_year,
+  () => formData.value.end_month,
+  () => formData.value.defaultAmount
+], () => {
+  updateMultiYearPreview()
+}, { deep: true })
 </script> 

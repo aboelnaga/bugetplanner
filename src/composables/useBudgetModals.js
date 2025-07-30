@@ -9,7 +9,9 @@ import {
   SCHEDULE_PATTERNS,
   DEFAULT_VALUES,
   CATEGORIES_BY_TYPE,
-  DATABASE_LIMITS
+  DATABASE_LIMITS,
+  MULTI_YEAR_CONSTANTS,
+  MULTI_YEAR_CALCULATION
 } from '@/constants/budgetConstants.js'
 import { dateUtils, validationHelpers, scheduleUtils, formatCurrency } from '@/utils/budgetUtils.js'
 
@@ -24,20 +26,124 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   // Form data
   const formData = ref({ ...DEFAULT_VALUES.FORM_DATA })
 
+  // Multi-year specific state
+  const multiYearPreview = ref({
+    yearlyBreakdown: [],
+    totalAmount: 0,
+    duration: 0
+  })
+
   // Initialize form data
   const initializeFormData = () => {
     formData.value = {
       ...DEFAULT_VALUES.FORM_DATA,
-      startMonth: dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
+      startMonth: dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value),
+      // Multi-year defaults
+      start_year: selectedYear.value,
+      end_year: selectedYear.value + MULTI_YEAR_CONSTANTS.DEFAULT_DURATION_YEARS - 1
     }
+    updateMultiYearPreview()
   }
 
   // Reset form data
   const resetFormData = () => {
     formData.value = {
       ...DEFAULT_VALUES.FORM_DATA,
-      startMonth: dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
+      startMonth: dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value),
+      // Multi-year defaults
+      start_year: selectedYear.value,
+      end_year: selectedYear.value + MULTI_YEAR_CONSTANTS.DEFAULT_DURATION_YEARS - 1
     }
+    updateMultiYearPreview()
+  }
+
+  // Multi-year calculation functions
+  const updateMultiYearPreview = () => {
+    if (!formData.value.is_multi_year) {
+      multiYearPreview.value = {
+        yearlyBreakdown: [],
+        totalAmount: 0,
+        duration: 0
+      }
+      return
+    }
+
+    const { start_year, end_year, startMonth, end_month, defaultAmount } = formData.value
+    
+    if (!start_year || !end_year || start_year > end_year) {
+      multiYearPreview.value = {
+        yearlyBreakdown: [],
+        totalAmount: 0,
+        duration: 0
+      }
+      return
+    }
+
+    const yearlyBreakdown = MULTI_YEAR_CALCULATION.generateYearlyBreakdown(
+      defaultAmount, 
+      start_year, 
+      end_year, 
+      startMonth, 
+      end_month
+    )
+
+    const totalAmount = MULTI_YEAR_CALCULATION.calculateMultiYearTotalAmount(
+      defaultAmount, 
+      start_year, 
+      end_year, 
+      startMonth, 
+      end_month
+    )
+
+    multiYearPreview.value = {
+      yearlyBreakdown,
+      totalAmount,
+      duration: end_year - start_year + 1
+    }
+  }
+
+  // Handle multi-year toggle
+  const handleMultiYearToggle = () => {
+    if (formData.value.is_multi_year) {
+      // Enable multi-year: set smart defaults
+      formData.value.start_year = selectedYear.value
+      formData.value.end_year = selectedYear.value + MULTI_YEAR_CONSTANTS.DEFAULT_DURATION_YEARS - 1
+      formData.value.end_month = null // Default to full year
+    } else {
+      // Disable multi-year: reset to single year
+      formData.value.start_year = selectedYear.value
+      formData.value.end_year = selectedYear.value
+      formData.value.end_month = null
+    }
+    updateMultiYearPreview()
+  }
+
+  // Validate multi-year settings
+  const validateMultiYearSettings = () => {
+    const errors = []
+    
+    if (!formData.value.is_multi_year) return errors
+
+    const { start_year, end_year } = formData.value
+
+    if (!start_year || !end_year) {
+      errors.push('Start year and end year are required for multi-year budgets')
+      return errors
+    }
+
+    if (start_year > end_year) {
+      errors.push('Start year cannot be after end year')
+    }
+
+    if (end_year - start_year + 1 > MULTI_YEAR_CONSTANTS.MAX_DURATION_YEARS) {
+      errors.push(`Multi-year duration cannot exceed ${MULTI_YEAR_CONSTANTS.MAX_DURATION_YEARS} years`)
+    }
+
+    if (end_year - start_year + 1 < MULTI_YEAR_CONSTANTS.MIN_DURATION_YEARS) {
+      errors.push(`Multi-year duration must be at least ${MULTI_YEAR_CONSTANTS.MIN_DURATION_YEARS} year`)
+    }
+
+    return errors
   }
 
   // Get categories by type
@@ -53,6 +159,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     // Reset start month based on selected year
     formData.value.startMonth = dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
     ensureValidStartMonth()
+    updateMultiYearPreview()
   }
 
   // Update schedule when recurrence changes
@@ -64,6 +171,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     // Reset start month based on selected year
     formData.value.startMonth = dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
     ensureValidStartMonth()
+    updateMultiYearPreview()
   }
 
   // Ensure start month is valid for the selected year
@@ -118,6 +226,10 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
 
   // Calculate total amount
   const calculateTotalAmount = () => {
+    if (formData.value.is_multi_year) {
+      return multiYearPreview.value.totalAmount
+    }
+    
     return scheduleUtils.calculateTotalAmount(
       formData.value.recurrence,
       formData.value.startMonth,
@@ -162,6 +274,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     // Update form data
     formData.value.defaultAmount = numberValue
     
+    // Update multi-year preview
+    updateMultiYearPreview()
+    
     // Update input value with formatted display
     input.value = formatCurrency(numberValue)
   }
@@ -190,6 +305,10 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     if (formData.value.recurrence === 'one-time' && formData.value.oneTimeMonth === undefined) {
       errors.push('Please select a month for one-time recurrence')
     }
+
+    // Multi-year validation
+    const multiYearErrors = validateMultiYearSettings()
+    errors.push(...multiYearErrors)
     
     return errors
   }
@@ -198,7 +317,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const createBudgetData = () => {
     const { schedule, amounts } = generateSchedule()
 
-    return {
+    const baseData = {
       name: formData.value.name,
       type: formData.value.type,
       category: formData.value.category,
@@ -215,6 +334,16 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       reminder_days_before: formData.value.reminder_days_before,
       linked_investment_id: formData.value.linked_investment_id || null
     }
+
+    // Add multi-year fields if enabled
+    if (formData.value.is_multi_year) {
+      baseData.is_multi_year = true
+      baseData.start_year = formData.value.start_year
+      baseData.end_year = formData.value.end_year
+      baseData.end_month = formData.value.end_month
+    }
+
+    return baseData
   }
 
   // Handle form submission for add modal
@@ -231,7 +360,15 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       const budgetData = createBudgetData()
       console.log('Adding budget item with data:', budgetData)
       
-      const result = await budgetStore.addBudgetItem(budgetData)
+      let result
+      if (formData.value.is_multi_year) {
+        // Create multiple budget items for multi-year
+        result = await budgetStore.addMultiYearBudgetItem(budgetData)
+      } else {
+        // Create single budget item
+        result = await budgetStore.addBudgetItem(budgetData)
+      }
+      
       console.log('Store result:', result)
       
       if (result) {
@@ -499,6 +636,55 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     }
   }
 
+  // Get available years for start year selection
+  const getAvailableYears = () => {
+    const currentYearValue = currentYear.value
+    const years = []
+    // Allow past 5 years and future 10 years
+    for (let year = currentYearValue - 5; year <= currentYearValue + 10; year++) {
+      years.push(year)
+    }
+    return years
+  }
+
+  // Get available years for end year selection
+  const getAvailableEndYears = () => {
+    if (!formData.value.start_year) return []
+    
+    const startYear = formData.value.start_year
+    const years = []
+    // Allow up to 20 years from start year
+    for (let year = startYear; year <= startYear + MULTI_YEAR_CONSTANTS.MAX_DURATION_YEARS - 1; year++) {
+      years.push(year)
+    }
+    return years
+  }
+
+  // Watch for year changes and adjust start month accordingly
+  const watchYearChanges = () => {
+    if (showAddBudgetModal.value) {
+      // Adjust start month when year changes while modal is open
+      if (selectedYear.value === currentYear.value) {
+        // Switching to current year: ensure start month is not in the past
+        if (formData.value.startMonth < currentMonth.value) {
+          formData.value.startMonth = currentMonth.value
+        }
+      } else if (selectedYear.value > currentYear.value) {
+        // Switching to future year: default to January if current selection is not valid
+        if (oldYear === currentYear.value && formData.value.startMonth >= currentMonth.value) {
+          // Keep relative position from current month, but start from January
+          const monthsFromCurrent = formData.value.startMonth - currentMonth.value
+          formData.value.startMonth = Math.min(monthsFromCurrent, 11)
+        } else if (formData.value.startMonth < 0 || formData.value.startMonth > 11) {
+          formData.value.startMonth = 0 // Default to January
+        }
+      } else {
+        // Switching to past year: default to January
+        formData.value.startMonth = 0
+      }
+    }
+  }
+
   // Watch for modal opening to initialize form
   watch(() => showAddBudgetModal.value, (isOpen) => {
     if (isOpen) {
@@ -581,6 +767,15 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     // Year management
     addNewYear,
-    copyFromPreviousYear
+    copyFromPreviousYear,
+    
+    // Multi-year functionality
+    multiYearPreview,
+    handleMultiYearToggle,
+    validateMultiYearSettings,
+    updateMultiYearPreview,
+    getAvailableYears,
+    getAvailableEndYears,
+    watchYearChanges
   }
 } 

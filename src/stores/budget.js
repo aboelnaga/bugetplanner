@@ -103,6 +103,156 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
+  // Add multi-year budget items
+  const addMultiYearBudgetItem = async (budgetData) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return null
+    
+    try {
+      addLoading.value = true
+      error.value = null
+      
+      console.log('Store: Creating multi-year budget items with data:', budgetData)
+      
+      const { start_year, end_year, end_month, defaultAmount, start_month } = budgetData
+      const linkedGroupId = crypto.randomUUID() // Generate unique group ID
+      
+      const createdItems = []
+      
+      // Create budget items for each year
+      for (let year = start_year; year <= end_year; year++) {
+        const isMaster = year === start_year
+        const isFirstYear = year === start_year
+        const isLastYear = year === end_year
+        
+        // Calculate yearly amount for this specific year
+        let yearlyAmount = 0
+        if (isFirstYear && isLastYear) {
+          // Single year with custom start/end months
+          const monthsInYear = (end_month || 11) - start_month + 1
+          yearlyAmount = defaultAmount * monthsInYear
+        } else if (isFirstYear) {
+          // First year: partial based on start month
+          const monthsInYear = 12 - start_month
+          yearlyAmount = defaultAmount * monthsInYear
+        } else if (isLastYear) {
+          // Last year: partial based on end month
+          const monthsInYear = (end_month || 11) + 1
+          yearlyAmount = defaultAmount * monthsInYear
+        } else {
+          // Middle years: full 12 months
+          yearlyAmount = defaultAmount * 12
+        }
+        
+        // Create budget item data for this year
+        const yearBudgetData = {
+          ...budgetData,
+          user_id: authStore.userId,
+          year: year,
+          default_amount: yearlyAmount,
+          is_multi_year: true,
+          linked_group_id: linkedGroupId,
+          is_master: isMaster,
+          start_year: start_year,
+          end_year: end_year,
+          end_month: end_month
+        }
+        
+        // Remove multi-year specific fields that shouldn't be in individual items
+        delete yearBudgetData.is_multi_year
+        delete yearBudgetData.start_year
+        delete yearBudgetData.end_year
+        delete yearBudgetData.end_month
+        
+        console.log(`Store: Creating budget item for year ${year} with data:`, yearBudgetData)
+        
+        const data = await budgetAPI.createBudgetItem(yearBudgetData)
+        console.log(`Store: API returned data for year ${year}:`, data)
+        
+        createdItems.push(data)
+      }
+      
+      // Add all created items to local state
+      budgetItems.value.push(...createdItems)
+      
+      return createdItems
+    } catch (err) {
+      error.value = err.message
+      console.error('Error adding multi-year budget items:', err)
+      return null
+    } finally {
+      addLoading.value = false
+    }
+  }
+
+  // Get linked budget items (for multi-year budgets)
+  const getLinkedBudgetItems = (linkedGroupId) => {
+    return budgetItems.value.filter(item => item.linked_group_id === linkedGroupId)
+  }
+
+  // Delete multi-year budget items
+  const deleteMultiYearBudgetItems = async (linkedGroupId) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return false
+    
+    try {
+      deleteLoading.value = true
+      error.value = null
+      
+      const linkedItems = getLinkedBudgetItems(linkedGroupId)
+      console.log('Store: Deleting multi-year budget items:', linkedItems.length, 'items')
+      
+      // Delete all linked items
+      for (const item of linkedItems) {
+        await budgetAPI.deleteBudgetItem(item.id)
+      }
+      
+      // Remove from local state
+      budgetItems.value = budgetItems.value.filter(item => item.linked_group_id !== linkedGroupId)
+      
+      return true
+    } catch (err) {
+      error.value = err.message
+      console.error('Error deleting multi-year budget items:', err)
+      return false
+    } finally {
+      deleteLoading.value = false
+    }
+  }
+
+  // Update multi-year budget items
+  const updateMultiYearBudgetItems = async (linkedGroupId, updates) => {
+    if (!authStore.isAuthenticated || !authStore.userId) return false
+    
+    try {
+      editLoading.value = true
+      error.value = null
+      
+      const linkedItems = getLinkedBudgetItems(linkedGroupId)
+      console.log('Store: Updating multi-year budget items:', linkedItems.length, 'items')
+      
+      // Update all linked items
+      for (const item of linkedItems) {
+        await budgetAPI.updateBudgetItem(item.id, updates)
+      }
+      
+      // Update local state
+      const updatedItems = budgetItems.value.map(item => {
+        if (item.linked_group_id === linkedGroupId) {
+          return { ...item, ...updates }
+        }
+        return item
+      })
+      budgetItems.value = updatedItems
+      
+      return true
+    } catch (err) {
+      error.value = err.message
+      console.error('Error updating multi-year budget items:', err)
+      return false
+    } finally {
+      editLoading.value = false
+    }
+  }
+
   // Update budget item
   const updateBudgetItem = async (id, updates) => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
@@ -448,6 +598,10 @@ export const useBudgetStore = defineStore('budget', () => {
     watchAuth,
     addLoading,
     editLoading,
-    deleteLoading
+    deleteLoading,
+    addMultiYearBudgetItem,
+    getLinkedBudgetItems,
+    deleteMultiYearBudgetItems,
+    updateMultiYearBudgetItems
   }
 }) 
