@@ -499,7 +499,8 @@
         
         <!-- Multi-Year Preview -->
         <div v-if="formData.is_multi_year" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-          <div class="space-y-3">
+          <div class="space-y-4">
+            <!-- Overall Summary -->
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-sm font-medium text-gray-900">Total Multi-Year Amount</p>
@@ -510,20 +511,47 @@
               </div>
             </div>
             
-            <div v-if="multiYearPreview.yearlyBreakdown.length > 0" class="bg-white border border-gray-300 rounded-lg p-3">
-              <p class="text-sm font-medium text-gray-900 mb-2">Yearly Breakdown</p>
-              <div class="space-y-2">
-                <div 
-                  v-for="year in multiYearPreview.yearlyBreakdown" 
-                  :key="year.year"
-                  class="flex items-center justify-between text-sm"
-                  :class="year.isFirstYear || year.isLastYear ? 'font-medium text-gray-800' : 'text-gray-700'">
-                  <span>
-                    {{ year.year }}
-                    <span v-if="year.isFirstYear" class="text-xs text-gray-600">(First)</span>
-                    <span v-if="year.isLastYear" class="text-xs text-gray-600">(Last)</span>
-                  </span>
-                  <span class="font-semibold">{{ formatCurrency(year.amount) }}</span>
+            <!-- Yearly Breakdown with Monthly Grid -->
+            <div v-if="multiYearPreview.yearlyBreakdown.length > 0" class="space-y-4">
+              <p class="text-sm font-medium text-gray-900">Yearly Breakdown</p>
+              
+              <div v-for="year in multiYearPreview.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-3">
+                <!-- Year Header -->
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-semibold text-gray-900">{{ year.year }}</span>
+                    <span v-if="year.isFirstYear" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">First</span>
+                    <span v-if="year.isLastYear" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Last</span>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(year.amount) }}</p>
+                    <p class="text-xs text-gray-500">{{ year.monthsCount }} month{{ year.monthsCount !== 1 ? 's' : '' }}</p>
+                  </div>
+                </div>
+                
+                <!-- Monthly Grid -->
+                <div class="space-y-2">
+                  <!-- Month headers -->
+                  <div class="grid grid-cols-12 gap-1">
+                    <div 
+                      v-for="(month, index) in months" 
+                      :key="month"
+                      class="text-center py-1 px-1 text-xs font-semibold text-gray-700">
+                      {{ month }}
+                    </div>
+                  </div>
+                  
+                  <!-- Amount values -->
+                  <div class="grid grid-cols-12 gap-1">
+                    <div 
+                      v-for="(amount, index) in year.monthlyAmounts" 
+                      :key="index"
+                      class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
+                      :class="getAmountClass(amount)"
+                      :title="formatCurrency(amount)">
+                      <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

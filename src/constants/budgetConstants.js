@@ -618,5 +618,64 @@ export const MULTI_YEAR_CALCULATION = {
       })
     }
     return breakdown
+  },
+
+  // Generate yearly breakdown with monthly amounts for grid preview
+  generateYearlyBreakdownWithMonthlyAmounts: (defaultAmount, startYear, endYear, startMonth, endMonth, recurrence, customMonths = []) => {
+    const breakdown = []
+    for (let year = startYear; year <= endYear; year++) {
+      const isFirstYear = year === startYear
+      const isLastYear = year === endYear
+      
+      // Calculate monthly amounts for this year
+      const monthlyAmounts = new Array(12).fill(0)
+      let monthsCount = 0
+      
+      // Determine which months should have amounts based on recurrence and year
+      for (let month = 0; month < 12; month++) {
+        let shouldHaveAmount = false
+        
+        if (isFirstYear && month < startMonth) {
+          // Before start month in first year
+          shouldHaveAmount = false
+        } else if (isLastYear && endMonth !== null && month > endMonth) {
+          // After end month in last year
+          shouldHaveAmount = false
+        } else {
+          // Check if this month should have amount based on recurrence
+          if (recurrence === 'monthly') {
+            shouldHaveAmount = true
+          } else if (recurrence === 'quarterly') {
+            shouldHaveAmount = month % 3 === 0 // Q1, Q2, Q3, Q4
+          } else if (recurrence === 'bi-annual') {
+            shouldHaveAmount = month === 0 || month === 6 // Jan & Jul
+          } else if (recurrence === 'school-terms') {
+            shouldHaveAmount = month === 0 || month === 8 // Jan & Sep
+          } else if (recurrence === 'custom') {
+            shouldHaveAmount = customMonths.includes(month)
+          } else if (recurrence === 'one-time') {
+            // One-time doesn't make sense for multi-year, but handle gracefully
+            shouldHaveAmount = false
+          }
+        }
+        
+        if (shouldHaveAmount) {
+          monthlyAmounts[month] = defaultAmount
+          monthsCount++
+        }
+      }
+      
+      const yearlyAmount = monthlyAmounts.reduce((sum, amount) => sum + amount, 0)
+      
+      breakdown.push({
+        year,
+        amount: yearlyAmount,
+        monthlyAmounts,
+        monthsCount,
+        isFirstYear,
+        isLastYear
+      })
+    }
+    return breakdown
   }
 } 

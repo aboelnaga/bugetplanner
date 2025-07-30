@@ -69,7 +69,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       return
     }
 
-    const { start_year, end_year, startMonth, end_month, defaultAmount } = formData.value
+    const { start_year, end_year, startMonth, end_month, defaultAmount, recurrence, customMonths } = formData.value
     
     if (!start_year || !end_year) {
       multiYearPreview.value = {
@@ -80,12 +80,14 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       return
     }
 
-    const yearlyBreakdown = MULTI_YEAR_CALCULATION.generateYearlyBreakdown(
+    const yearlyBreakdown = MULTI_YEAR_CALCULATION.generateYearlyBreakdownWithMonthlyAmounts(
       defaultAmount, 
       start_year, 
       end_year, 
       startMonth, 
-      end_month
+      end_month,
+      recurrence,
+      customMonths
     )
 
     const totalAmount = MULTI_YEAR_CALCULATION.calculateMultiYearTotalAmount(
