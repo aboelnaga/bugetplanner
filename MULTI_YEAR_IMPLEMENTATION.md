@@ -68,16 +68,33 @@ Total: $27,000
 1. **Basic Info** → Name, Type, Category
 2. **Financial Details** → Amount, Investment Direction
 3. **Investment Linking** → Link to existing investments
-4. **Schedule & Timing** → Recurrence, Start Month
-5. **Multi-Year Settings** → Toggle, Years, End Month
-6. **Preview** → Real-time breakdown and totals
+4. **Schedule & Timing** → Multi-Year Toggle → Schedule Options
+5. **Preview** → Real-time breakdown and totals
+
+#### Schedule & Timing Structure
+```
+Schedule & Timing
+├── Multi-Year Budget Item (toggle at top)
+├── [If Single Year]
+│   ├── Recurrence
+│   ├── Start Month
+│   └── Custom Months / One Time Month
+└── [If Multi-Year]
+    ├── Start Year
+    ├── Start Month
+    ├── End Year
+    ├── End Month (Optional)
+    ├── Recurrence
+    └── Schedule Duration Preview
+```
 
 #### Smart Features
 - ✅ **Smart defaults**: Start year = selected year, End year = selected year + 4
 - ✅ **Real-time preview**: Updates as user types
 - ✅ **Validation**: Year ranges, duration limits, required fields
 - ✅ **Visual feedback**: Clear schedule duration and yearly breakdown
-- ✅ **Intuitive UI**: Blue info boxes, clear labels, helpful descriptions
+- ✅ **Intuitive UI**: Consistent gray styling, clear labels, helpful descriptions
+- ✅ **Contextual fields**: Only show relevant options based on multi-year choice
 
 ### 5. Validation Rules
 
@@ -87,11 +104,19 @@ Total: $27,000
 - ✅ Maximum duration: 20 years
 - ✅ Minimum duration: 1 year
 - ✅ End month must be valid (0-11 or null)
+- ✅ Start year cannot be in the past
+- ✅ Start month cannot be in the past for current year
 
 #### Amount Validation
 - ✅ Default amount must be greater than 0
 - ✅ Amount cannot exceed database limits
 - ✅ Proper currency formatting and input handling
+
+#### Date Validation
+- ✅ **Current year**: Start month must be current month or later
+- ✅ **Future years**: Start month can be any month (January onwards)
+- ✅ **Past years**: Not allowed (start year must be current year or later)
+- ✅ **End month**: Optional, defaults to December (month 11)
 
 ### 6. Database Operations
 

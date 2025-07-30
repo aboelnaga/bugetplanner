@@ -70,7 +70,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
 
     const { start_year, end_year, startMonth, end_month, defaultAmount } = formData.value
     
-    if (!start_year || !end_year || start_year > end_year) {
+    if (!start_year || !end_year) {
       multiYearPreview.value = {
         yearlyBreakdown: [],
         totalAmount: 0,
@@ -109,11 +109,25 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       formData.value.start_year = selectedYear.value
       formData.value.end_year = selectedYear.value + MULTI_YEAR_CONSTANTS.DEFAULT_DURATION_YEARS - 1
       formData.value.end_month = null // Default to full year
+      
+      // Set start month based on selected year and current date
+      if (selectedYear.value === currentYear.value) {
+        // Current year: start from current month or later
+        formData.value.startMonth = Math.max(currentMonth.value, 0)
+      } else if (selectedYear.value > currentYear.value) {
+        // Future year: can start from January
+        formData.value.startMonth = 0
+      } else {
+        // Past year: start from January (though this shouldn't happen in normal flow)
+        formData.value.startMonth = 0
+      }
     } else {
       // Disable multi-year: reset to single year
       formData.value.start_year = selectedYear.value
       formData.value.end_year = selectedYear.value
       formData.value.end_month = null
+      // Reset start month based on selected year for single year
+      formData.value.startMonth = dateUtils.getDefaultStartMonth(selectedYear.value, currentYear.value, currentMonth.value)
     }
     updateMultiYearPreview()
   }
@@ -304,6 +318,11 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     if (formData.value.recurrence === 'one-time' && formData.value.oneTimeMonth === undefined) {
       errors.push('Please select a month for one-time recurrence')
+    }
+
+    // Validate start month for current year
+    if (formData.value.start_year === currentYear.value && formData.value.startMonth < currentMonth.value) {
+      errors.push('Start month cannot be in the past for the current year')
     }
 
     // Multi-year validation
@@ -640,8 +659,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const getAvailableYears = () => {
     const currentYearValue = currentYear.value
     const years = []
-    // Allow past 5 years and future 10 years
-    for (let year = currentYearValue - 5; year <= currentYearValue + 10; year++) {
+    // Only allow current year and future years (no past years)
+    for (let year = currentYearValue; year <= currentYearValue + 10; year++) {
       years.push(year)
     }
     return years
