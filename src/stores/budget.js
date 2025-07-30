@@ -113,7 +113,7 @@ export const useBudgetStore = defineStore('budget', () => {
       
       console.log('Store: Creating multi-year budget items with data:', budgetData)
       
-      const { start_year, end_year, end_month, defaultAmount, start_month } = budgetData
+      const { start_year, end_year, end_month, defaultAmount, start_month, recurrence, customMonths } = budgetData
       const linkedGroupId = crypto.randomUUID() // Generate unique group ID
       
       const createdItems = []
@@ -124,23 +124,44 @@ export const useBudgetStore = defineStore('budget', () => {
         const isFirstYear = year === start_year
         const isLastYear = year === end_year
         
-        // Calculate yearly amount for this specific year
+        // Calculate monthly amounts for this specific year
+        const monthlyAmounts = new Array(12).fill(0)
+        const schedule = []
         let yearlyAmount = 0
-        if (isFirstYear && isLastYear) {
-          // Single year with custom start/end months
-          const monthsInYear = (end_month || 11) - start_month + 1
-          yearlyAmount = defaultAmount * monthsInYear
-        } else if (isFirstYear) {
-          // First year: partial based on start month
-          const monthsInYear = 12 - start_month
-          yearlyAmount = defaultAmount * monthsInYear
-        } else if (isLastYear) {
-          // Last year: partial based on end month
-          const monthsInYear = (end_month || 11) + 1
-          yearlyAmount = defaultAmount * monthsInYear
-        } else {
-          // Middle years: full 12 months
-          yearlyAmount = defaultAmount * 12
+        
+        for (let month = 0; month < 12; month++) {
+          let shouldHaveAmount = false
+          
+          // Check if this month should have amount based on year and recurrence
+          if (isFirstYear && month < start_month) {
+            // Before start month in first year
+            shouldHaveAmount = false
+          } else if (isLastYear && end_month !== null && month > end_month) {
+            // After end month in last year
+            shouldHaveAmount = false
+          } else {
+            // Check if this month should have amount based on recurrence
+            if (recurrence === 'monthly') {
+              shouldHaveAmount = true
+            } else if (recurrence === 'quarterly') {
+              shouldHaveAmount = month % 3 === 0 // Q1, Q2, Q3, Q4
+            } else if (recurrence === 'bi-annual') {
+              shouldHaveAmount = month === 0 || month === 6 // Jan & Jul
+            } else if (recurrence === 'school-terms') {
+              shouldHaveAmount = month === 0 || month === 8 // Jan & Sep
+            } else if (recurrence === 'custom') {
+              shouldHaveAmount = customMonths && customMonths.includes(month)
+            } else if (recurrence === 'one-time') {
+              // One-time doesn't make sense for multi-year, but handle gracefully
+              shouldHaveAmount = false
+            }
+          }
+          
+          if (shouldHaveAmount) {
+            monthlyAmounts[month] = budgetData.default_amount // Use the actual default amount
+            schedule.push(month)
+            yearlyAmount += budgetData.default_amount
+          }
         }
         
         // Create budget item data for this year
@@ -148,7 +169,9 @@ export const useBudgetStore = defineStore('budget', () => {
           ...budgetData,
           user_id: authStore.userId,
           year: year,
-          default_amount: yearlyAmount,
+          default_amount: budgetData.default_amount, // Keep original default amount
+          amounts: monthlyAmounts, // Set the calculated monthly amounts
+          schedule: schedule, // Set the calculated schedule
           is_multi_year: true,
           linked_group_id: linkedGroupId,
           is_master: isMaster,
@@ -156,12 +179,6 @@ export const useBudgetStore = defineStore('budget', () => {
           end_year: end_year,
           end_month: end_month
         }
-        
-        // Remove multi-year specific fields that shouldn't be in individual items
-        delete yearBudgetData.is_multi_year
-        delete yearBudgetData.start_year
-        delete yearBudgetData.end_year
-        delete yearBudgetData.end_month
         
         console.log(`Store: Creating budget item for year ${year} with data:`, yearBudgetData)
         

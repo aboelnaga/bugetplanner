@@ -53,13 +53,21 @@ This document outlines the implementation of multi-year budget functionality for
 
 #### Example Calculations
 ```
-Monthly $500 starting July 2024 for 5 years:
+Monthly $500 starting July 2024 for 2 years:
 Year 1 (2024): $3,000 (Jul-Dec: 6 months × $500)
 Year 2 (2025): $6,000 (Jan-Dec: 12 months × $500)
-Year 3 (2026): $6,000 (Jan-Dec: 12 months × $500)
-Year 4 (2027): $6,000 (Jan-Dec: 12 months × $500)
-Year 5 (2028): $6,000 (Jan-Dec: 12 months × $500)
-Total: $27,000
+Total: $9,000
+
+Quarterly $1000 starting January 2024 for 3 years:
+Year 1 (2024): $4,000 (Jan, Apr, Jul, Oct: 4 quarters × $1000)
+Year 2 (2025): $4,000 (Jan, Apr, Jul, Oct: 4 quarters × $1000)
+Year 3 (2026): $4,000 (Jan, Apr, Jul, Oct: 4 quarters × $1000)
+Total: $12,000
+
+Custom $200 (Mar, Jun, Sep, Dec) starting July 2024 for 2 years:
+Year 1 (2024): $400 (Sep, Dec: 2 months × $200)
+Year 2 (2025): $800 (Mar, Jun, Sep, Dec: 4 months × $200)
+Total: $1,200
 ```
 
 ### 4. User Experience
