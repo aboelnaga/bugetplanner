@@ -47,11 +47,6 @@
           </div>
         </BaseTooltip>
       </div>
-      <div v-else-if="budgetStore.previousYearItems.length === 0" class="text-xs text-gray-400">
-        <button @click="loadPreviousYearData" class="text-blue-500 hover:text-blue-700 underline">
-          Load
-        </button>
-      </div>
       <div v-else class="text-gray-400 font-normal">—</div>
     </td>
 
@@ -264,7 +259,7 @@ const getPreviousYearAmount = (budget) => {
   // Get previous year budget items from the budget store
   const previousYearItems = budgetStore.previousYearItems || []
   
-  // If no previous year items loaded, return 0 (don't fetch on-demand for performance)
+  // If no previous year items loaded, return 0
   if (previousYearItems.length === 0) return 0
   
   // Find matching budget item by name and category
@@ -300,7 +295,7 @@ const getPreviousYearTooltip = (budget) => {
   const previousYearItems = budgetStore.previousYearItems || []
   
   // If no previous year items loaded, return message
-  if (previousYearItems.length === 0) return 'Previous year data not loaded (click to load)'
+  if (previousYearItems.length === 0) return 'No previous year data available'
   
   // Find matching budget item by name and category
   const matchingItem = previousYearItems.find(item => 
@@ -335,15 +330,6 @@ const getYearlyTotalTooltip = (budget) => {
   const formattedTotal = props.formatCurrency(yearlyTotal)
   
   return `Total: <span class="text-green-300">${formattedTotal}</span><br>Category: <span class="text-blue-300">${budget.category}</span>`
-}
-
-// Load previous year data on demand
-const loadPreviousYearData = async () => {
-  try {
-    await budgetStore.fetchPreviousYearItems(props.selectedYear)
-  } catch (error) {
-    console.error('Error loading previous year data:', error)
-  }
 }
 
 // Emits

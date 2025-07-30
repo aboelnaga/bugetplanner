@@ -45,7 +45,7 @@ export const useBudgetStore = defineStore('budget', () => {
       error.value = null
       
       console.log('Store: Fetching budget items for user:', authStore.userId, 'year:', year)
-      const response = await budgetAPI.getBudgetItems(authStore.userId, year, false) // Don't include previous year by default
+      const response = await budgetAPI.getBudgetItems(authStore.userId, year)
       console.log('Store: Fetched budget items:', response)
       
       budgetItems.value = response.budgetItems || []
@@ -72,24 +72,7 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
-  // Fetch previous year budget items (on-demand)
-  const fetchPreviousYearItems = async (year = selectedYear.value) => {
-    if (!authStore.isAuthenticated || !authStore.userId) {
-      previousYearItems.value = []
-      return
-    }
-    
-    try {
-      console.log('Store: Fetching previous year items for user:', authStore.userId, 'year:', year)
-      const response = await budgetAPI.getBudgetItems(authStore.userId, year, true) // Include previous year
-      console.log('Store: Fetched previous year items:', response)
-      
-      previousYearItems.value = response.previousYearItems || []
-    } catch (err) {
-      console.error('Error fetching previous year items:', err)
-      previousYearItems.value = []
-    }
-  }
+
 
   // Add new budget item
   const addBudgetItem = async (budgetData) => {
@@ -740,7 +723,6 @@ export const useBudgetStore = defineStore('budget', () => {
     
     // Actions
     fetchBudgetItems,
-    fetchPreviousYearItems,
     addBudgetItem,
     updateBudgetItem,
     deleteBudgetItem,
