@@ -249,21 +249,136 @@ export const useBudgetStore = defineStore('budget', () => {
       const linkedItems = getLinkedBudgetItems(linkedGroupId)
       console.log('Store: Updating multi-year budget items:', linkedItems.length, 'items')
       
-      // Update all linked items
-      for (const item of linkedItems) {
-        await budgetAPI.updateBudgetItem(item.id, updates)
-      }
+      // Extract multi-year specific data
+      const { 
+        start_year, 
+        end_year, 
+        end_month, 
+        start_month, 
+        recurrence, 
+        customMonths,
+        default_amount 
+      } = updates
       
-      // Update local state
-      const updatedItems = budgetItems.value.map(item => {
-        if (item.linked_group_id === linkedGroupId) {
-          return { ...item, ...updates }
+      // Check if the multi-year structure has changed
+      const firstItem = linkedItems[0]
+      const structureChanged = (
+        firstItem.start_year !== start_year ||
+        firstItem.end_year !== end_year ||
+        firstItem.end_month !== end_month ||
+        firstItem.start_month !== start_month
+      )
+      
+      if (structureChanged) {
+        console.log('Store: Multi-year structure changed, recreating items')
+        
+        // Delete all existing linked items
+        for (const item of linkedItems) {
+          await budgetAPI.deleteBudgetItem(item.id)
         }
-        return item
-      })
-      budgetItems.value = updatedItems
-      
-      return true
+        
+        // Create new multi-year budget items with the updated structure
+        const newBudgetData = {
+          ...updates,
+          user_id: authStore.userId,
+          default_amount: default_amount
+        }
+        
+        const createdItems = await addMultiYearBudgetItem(newBudgetData)
+        
+        if (createdItems) {
+          console.log('Store: Successfully recreated multi-year budget items')
+          return true
+        } else {
+          console.error('Store: Failed to recreate multi-year budget items')
+          return false
+        }
+      } else {
+        console.log('Store: Multi-year structure unchanged, updating existing items')
+        
+        // Update each linked item with recalculated amounts for that specific year
+        for (const item of linkedItems) {
+          const year = item.year
+          const isFirstYear = year === start_year
+          const isLastYear = year === end_year
+          
+          // Calculate monthly amounts for this specific year
+          const monthlyAmounts = new Array(12).fill(0)
+          const schedule = []
+          let yearlyAmount = 0
+          
+          for (let month = 0; month < 12; month++) {
+            let shouldHaveAmount = false
+            
+            // Check if this month should have amount based on year and recurrence
+            if (isFirstYear && month < start_month) {
+              // Before start month in first year
+              shouldHaveAmount = false
+            } else if (isLastYear && end_month !== null && month > end_month) {
+              // After end month in last year
+              shouldHaveAmount = false
+            } else {
+              // Check if this month should have amount based on recurrence
+              if (recurrence === 'monthly') {
+                shouldHaveAmount = true
+              } else if (recurrence === 'quarterly') {
+                shouldHaveAmount = month % 3 === 0 // Q1, Q2, Q3, Q4
+              } else if (recurrence === 'bi-annual') {
+                shouldHaveAmount = month === 0 || month === 6 // Jan & Jul
+              } else if (recurrence === 'school-terms') {
+                shouldHaveAmount = month === 0 || month === 8 // Jan & Sep
+              } else if (recurrence === 'custom') {
+                shouldHaveAmount = customMonths && customMonths.includes(month)
+              } else if (recurrence === 'one-time') {
+                // One-time doesn't make sense for multi-year, but handle gracefully
+                shouldHaveAmount = false
+              }
+            }
+            
+            if (shouldHaveAmount) {
+              monthlyAmounts[month] = default_amount
+              schedule.push(month)
+              yearlyAmount += default_amount
+            }
+          }
+          
+          // Create update data for this specific year (exclude customMonths from database update)
+          const yearUpdateData = {
+            name: updates.name,
+            type: updates.type,
+            category: updates.category,
+            recurrence: updates.recurrence,
+            default_amount: updates.default_amount,
+            start_month: updates.start_month,
+            payment_schedule: updates.payment_schedule,
+            due_date: updates.due_date,
+            is_fixed_expense: updates.is_fixed_expense,
+            reminder_enabled: updates.reminder_enabled,
+            reminder_days_before: updates.reminder_days_before,
+            linked_investment_id: updates.linked_investment_id,
+            is_multi_year: updates.is_multi_year,
+            start_year: updates.start_year,
+            end_year: updates.end_year,
+            end_month: updates.end_month,
+            amounts: monthlyAmounts,
+            schedule: schedule
+          }
+          
+          if (updates.investment_direction) {
+            yearUpdateData.investment_direction = updates.investment_direction
+          }
+          
+          console.log(`Store: Updating budget item for year ${year} with data:`, yearUpdateData)
+          
+          // Update this specific year's item
+          await budgetAPI.updateBudgetItem(item.id, yearUpdateData)
+        }
+        
+        // Refresh the budget items to get updated data
+        await fetchBudgetItems()
+        
+        return true
+      }
     } catch (err) {
       error.value = err.message
       console.error('Error updating multi-year budget items:', err)

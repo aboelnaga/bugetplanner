@@ -425,6 +425,89 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         return false
       }
 
+      // Check if this is a multi-year budget item
+      const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
+      const isMultiYear = budget && budget.is_multi_year && budget.linked_group_id
+
+      if (isMultiYear) {
+        // Handle multi-year budget update
+        return await handleMultiYearEditSubmit(budgetId)
+      } else {
+        // Handle single year budget update
+        return await handleSingleYearEditSubmit(budgetId)
+      }
+    } catch (error) {
+      console.error('Error updating budget item:', error)
+      alert('Error updating budget item: ' + (error.message || 'Unknown error'))
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Helper function for updating multi-year budgets
+  const handleMultiYearEditSubmit = async (budgetId) => {
+    try {
+      const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
+      if (!budget || !budget.linked_group_id) {
+        alert('Invalid multi-year budget item')
+        return false
+      }
+
+      // Validate multi-year settings
+      const multiYearErrors = validateMultiYearSettings()
+      if (multiYearErrors.length > 0) {
+        alert('Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
+        return false
+      }
+
+      // Create update data for multi-year budget
+      const updateData = {
+        name: formData.value.name,
+        type: formData.value.type,
+        category: formData.value.category,
+        recurrence: formData.value.recurrence,
+        default_amount: formData.value.defaultAmount,
+        start_month: formData.value.startMonth,
+        payment_schedule: formData.value.payment_schedule,
+        due_date: formData.value.due_date,
+        is_fixed_expense: formData.value.is_fixed_expense,
+        reminder_enabled: formData.value.reminder_enabled,
+        reminder_days_before: formData.value.reminder_days_before,
+        linked_investment_id: formData.value.linked_investment_id || null,
+        // Multi-year specific fields (only database columns)
+        is_multi_year: formData.value.is_multi_year,
+        start_year: formData.value.start_year,
+        end_year: formData.value.end_year,
+        end_month: formData.value.end_month
+      }
+
+      if (formData.value.type === 'investment') {
+        updateData.investment_direction = formData.value.investment_direction
+      }
+
+      console.log('Updating multi-year budget with data:', updateData)
+      
+      // Update all linked items using the store function
+      const result = await budgetStore.updateMultiYearBudgetItems(budget.linked_group_id, updateData)
+      console.log('Multi-year update result:', result)
+      
+      if (result) {
+        return result
+      } else {
+        alert('Failed to update multi-year budget. Please try again.')
+        return false
+      }
+    } catch (error) {
+      console.error('Error updating multi-year budget:', error)
+      alert('Error updating multi-year budget: ' + (error.message || 'Unknown error'))
+      return false
+    }
+  }
+
+  // Helper function for updating single year budgets
+  const handleSingleYearEditSubmit = async (budgetId) => {
+    try {
       // Preserve existing amounts and only update from start month onwards
       let newSchedule = []
       let newAmounts = [...formData.value.amounts] // Preserve existing amounts
@@ -467,7 +550,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         updateData.investment_direction = formData.value.investment_direction
       }
       
-      console.log('Updating budget item with data:', updateData)
+      console.log('Updating single year budget item with data:', updateData)
       const result = await budgetStore.updateBudgetItem(budgetId, updateData)
       console.log('Store result:', result)
       
@@ -478,11 +561,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         return false
       }
     } catch (error) {
-      console.error('Error updating budget item:', error)
+      console.error('Error updating single year budget:', error)
       alert('Error updating budget item: ' + (error.message || 'Unknown error'))
       return false
-    } finally {
-      isLoading.value = false
     }
   }
 
@@ -505,7 +586,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         is_fixed_expense: budget.is_fixed_expense || false,
         reminder_enabled: budget.reminder_enabled || false,
         reminder_days_before: budget.reminder_days_before || 3,
-        linked_investment_id: budget.linked_investment_id || ''
+        linked_investment_id: budget.linked_investment_id || '',
+        // Multi-year specific fields
+        is_multi_year: budget.is_multi_year || false,
+        start_year: budget.start_year || new Date().getFullYear(),
+        end_year: budget.end_year || new Date().getFullYear(),
+        end_month: budget.end_month !== undefined ? budget.end_month : null
       }
       
       // Set custom months for custom recurrence
@@ -518,8 +604,13 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         formData.value.oneTimeMonth = budget.schedule[0]
       }
       
-      // Ensure start month is valid for the current year context
-      ensureValidStartMonth()
+      // Update multi-year preview if this is a multi-year budget
+      if (budget.is_multi_year) {
+        updateMultiYearPreview()
+      }
+      
+      // Update schedule preview
+      updateSchedule()
     }
   }
 
@@ -535,9 +626,28 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   }
 
   const openEditBudgetModal = (budget) => {
-    editingBudget.value = budget
-    showEditBudgetModal.value = true
-    initializeFormDataFromBudget(budget)
+    // Check if this is a multi-year budget item
+    if (budget.is_multi_year && budget.linked_group_id) {
+      // For multi-year items, we need to fetch all linked items first
+      const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
+      if (linkedItems.length > 0) {
+        // Use the master item (first item) for editing
+        const masterItem = linkedItems.find(item => item.is_master) || linkedItems[0]
+        editingBudget.value = masterItem
+        showEditBudgetModal.value = true
+        initializeFormDataFromBudget(masterItem)
+      } else {
+        // Fallback to single item editing
+        editingBudget.value = budget
+        showEditBudgetModal.value = true
+        initializeFormDataFromBudget(budget)
+      }
+    } else {
+      // Single year budget item
+      editingBudget.value = budget
+      showEditBudgetModal.value = true
+      initializeFormDataFromBudget(budget)
+    }
   }
 
   const closeEditBudgetModal = () => {
@@ -563,10 +673,29 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   }
 
   // Budget actions
-  const editBudget = (budget) => {
-    editingBudget.value = budget
-    showEditBudgetModal.value = true
-    initializeFormDataFromBudget(budget)
+  const editBudget = async (budget) => {
+    // Check if this is a multi-year budget item
+    if (budget.is_multi_year && budget.linked_group_id) {
+      // For multi-year items, we need to fetch all linked items first
+      const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
+      if (linkedItems.length > 0) {
+        // Use the master item (first item) for editing
+        const masterItem = linkedItems.find(item => item.is_master) || linkedItems[0]
+        editingBudget.value = masterItem
+        showEditBudgetModal.value = true
+        initializeFormDataFromBudget(masterItem)
+      } else {
+        // Fallback to single item editing
+        editingBudget.value = budget
+        showEditBudgetModal.value = true
+        initializeFormDataFromBudget(budget)
+      }
+    } else {
+      // Single year budget item
+      editingBudget.value = budget
+      showEditBudgetModal.value = true
+      initializeFormDataFromBudget(budget)
+    }
   }
 
   const duplicateBudget = async (budget) => {
@@ -596,13 +725,65 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
     if (!budget) return
     
+    // Check if this is a multi-year budget item
+    if (budget.is_multi_year && budget.linked_group_id) {
+      // Handle multi-year budget deletion
+      await deleteMultiYearBudget(budget)
+    } else {
+      // Handle single year budget deletion
+      await deleteSingleYearBudget(budget)
+    }
+  }
+
+  // Helper function for deleting multi-year budgets
+  const deleteMultiYearBudget = async (budget) => {
+    const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
+    const totalYears = linkedItems.length
+    const yearsRange = `${budget.start_year} - ${budget.end_year}`
+    
+    // Check if any items have actual values
+    const hasActualValues = linkedItems.some(item => 
+      item.actual_amounts && item.actual_amounts.some(amount => amount > 0)
+    )
+    
+    if (hasActualValues) {
+      alert(`Cannot delete this multi-year budget (${yearsRange}) as it contains actual transaction data. Please clear all actual amounts first.`)
+      return
+    }
+    
+    // Check if any items have planned values for current/future months
+    const currentYear = new Date().getFullYear()
+    const currentMonth = new Date().getMonth()
+    const hasPlannedValues = linkedItems.some(item => {
+      if (item.year > currentYear) return true // Future year
+      if (item.year === currentYear) {
+        // Check if there are planned values for current month onwards
+        return item.amounts && item.amounts.slice(currentMonth).some(amount => amount > 0)
+      }
+      return false
+    })
+    
+    if (hasPlannedValues) {
+      const confirmMessage = `This multi-year budget (${yearsRange}) contains planned values for current/future months. Are you sure you want to delete the entire ${totalYears}-year schedule?`
+      if (!confirm(confirmMessage)) return
+    } else {
+      const confirmMessage = `Are you sure you want to delete this multi-year budget (${yearsRange})?`
+      if (!confirm(confirmMessage)) return
+    }
+    
+    // Delete all linked items
+    await budgetStore.deleteMultiYearBudgetItems(budget.linked_group_id)
+  }
+
+  // Helper function for deleting single year budgets
+  const deleteSingleYearBudget = async (budget) => {
     // Check if budget has any values for the whole year
     const hasAnyValues = budget.amounts.some(amount => amount > 0)
     
     // If it's a future year, allow full deletion
-    if (selectedYear.value > currentYear) {
+    if (selectedYear.value > currentYear.value) {
       if (confirm('Are you sure you want to delete this budget item?')) {
-        await budgetStore.deleteBudgetItem(budgetId)
+        await budgetStore.deleteBudgetItem(budget.id)
       }
       return
     }
@@ -610,7 +791,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     // If no values for the whole year, allow deletion
     if (!hasAnyValues) {
       if (confirm('Are you sure you want to delete this empty budget item?')) {
-        await budgetStore.deleteBudgetItem(budgetId)
+        await budgetStore.deleteBudgetItem(budget.id)
       }
       return
     }
@@ -625,7 +806,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         if (confirm('This budget item has historical data. Clear only the remaining months (current month onwards)?')) {
           for (let i = currentMonth.value; i < 12; i++) {
             if (budget.amounts[i] > 0) {
-              await budgetStore.updateMonthlyAmount(budgetId, i, 0)
+              await budgetStore.updateMonthlyAmount(budget.id, i, 0)
             }
           }
         }
@@ -635,7 +816,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       } else if (!hasPastValues && hasFutureValues) {
         // Has only future values - allow full deletion
         if (confirm('Are you sure you want to delete this budget item? (It only contains future planning data)')) {
-          await budgetStore.deleteBudgetItem(budgetId)
+          await budgetStore.deleteBudgetItem(budget.id)
         }
       }
     } else if (selectedYear.value < currentYear) {

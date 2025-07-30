@@ -144,9 +144,36 @@ Schedule & Timing
 
 #### Multi-Year Management
 - ✅ **Edit**: Update all linked items simultaneously
-- ✅ **Delete**: Remove all linked items
-- ✅ **Duplicate**: Create new multi-year group
-- ✅ **History**: Track changes across all years
+- ✅ **Delete**: Remove entire multi-year schedule
+- ✅ **Visual Indicators**: Purple calendar icon with year range
+- ✅ **Smart Validation**: Check for actual/planned values before deletion
+- ✅ **Master Item Editing**: Edit multi-year budgets using master item
+- ✅ **Confirmation Dialogs**: Clear warnings for multi-year operations
+
+#### Multi-Year Editing Features
+- ✅ **Master Item Selection**: Automatically selects master item for editing
+- ✅ **Form Initialization**: Properly loads multi-year fields in edit modal
+- ✅ **Validation**: Multi-year specific validation during editing
+- ✅ **Update Logic**: Updates all linked items with new settings
+- ✅ **Amount Recalculation**: Recalculates amounts for all years in schedule
+- ✅ **Edit Modal Support**: Full multi-year UI in EditBudgetModal
+- ✅ **Multi-Year Toggle**: Toggle between single-year and multi-year editing
+- ✅ **Year/Month Selection**: Start/end year and month dropdowns
+- ✅ **Recurrence Options**: Filtered recurrence options for multi-year
+- ✅ **Custom Months**: Custom month selection for multi-year budgets
+- ✅ **Real-time Preview**: Live multi-year breakdown preview
+- ✅ **Duration Display**: Shows schedule duration and total years
+- ✅ **Proper Amount Calculation**: Each year gets correct amounts based on schedule
+- ✅ **Database Updates**: All linked items updated with recalculated amounts
+- ✅ **Structural Changes**: Handles changes to start/end years by recreating items
+- ✅ **Smart Updates**: Updates existing items when structure unchanged, recreates when changed
+
+#### Multi-Year Deletion Features
+- ✅ **Safety Checks**: Prevents deletion of items with actual transaction data
+- ✅ **Planned Value Warnings**: Warns about planned values in current/future months
+- ✅ **Complete Removal**: Deletes entire multi-year schedule at once
+- ✅ **Clear Messaging**: Shows year range and total years in confirmation
+- ✅ **Fallback Protection**: Handles edge cases gracefully
 
 ### 7. Testing Scenarios
 

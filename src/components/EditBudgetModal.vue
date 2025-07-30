@@ -253,6 +253,164 @@
           </div>
         </div>
 
+        <!-- Multi-Year Budget Item Toggle -->
+        <div class="space-y-3 pt-4 border-t border-gray-200">
+          <div class="flex items-center">
+            <input 
+              type="checkbox" 
+              id="is_multi_year"
+              v-model="formData.is_multi_year"
+              @change="handleMultiYearToggle"
+              class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <label for="is_multi_year" class="text-sm font-medium text-gray-700">
+              Multi-Year Budget Item
+            </label>
+          </div>
+          <p class="text-xs text-gray-600">
+            Enable this to create a budget item that spans multiple years (e.g., loans, installments)
+          </p>
+        </div>
+
+        <!-- Single Year Schedule -->
+        <div v-if="!formData.is_multi_year" class="space-y-4">
+          <!-- Existing single year fields remain the same -->
+        </div>
+
+        <!-- Multi-Year Schedule -->
+        <div v-else class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Start Year -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <span class="text-red-500">*</span> Start Year
+              </label>
+              <select 
+                v-model="formData.start_year"
+                @change="updateMultiYearPreview"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option 
+                  v-for="year in getAvailableYears()" 
+                  :key="year" 
+                  :value="year">
+                  {{ year }}
+                </option>
+              </select>
+            </div>
+            
+            <!-- Start Month -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <span class="text-red-500">*</span> Start Month
+              </label>
+              <select 
+                v-model="formData.startMonth"
+                @change="updateMultiYearPreview"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option 
+                  v-for="(month, index) in months" 
+                  :key="month" 
+                  :value="index"
+                  :disabled="formData.start_year === currentYear && index < currentMonth">
+                  {{ month }}{{ formData.start_year === currentYear && index < currentMonth ? ' (Past)' : '' }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- End Year -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <span class="text-red-500">*</span> End Year
+              </label>
+              <select 
+                v-model="formData.end_year"
+                @change="updateMultiYearPreview"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option 
+                  v-for="year in getAvailableEndYears()" 
+                  :key="year" 
+                  :value="year">
+                  {{ year }}
+                </option>
+              </select>
+            </div>
+            
+            <!-- End Month -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                End Month (Optional)
+              </label>
+              <select 
+                v-model="formData.end_month"
+                @change="updateMultiYearPreview"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option 
+                  v-for="option in MULTI_YEAR_CONSTANTS.END_MONTH_OPTIONS" 
+                  :key="option.value" 
+                  :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Recurrence for Multi-Year -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Recurrence
+            </label>
+            <select 
+              v-model="formData.recurrence" 
+              @change="updateSchedule"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, type) in getMultiYearRecurrenceOptions()" :key="type" :value="type">
+                {{ label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Custom Months for Multi-Year (for custom recurrence) -->
+          <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM" class="space-y-3">
+            <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
+            <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+              <label 
+                v-for="(month, index) in months" 
+                :key="month" 
+                class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                :class="{ 'bg-blue-50 border-blue-300': formData.customMonths.includes(index) }">
+                <input 
+                  type="checkbox" 
+                  :value="index" 
+                  v-model="formData.customMonths"
+                  @change="updateMultiYearPreview"
+                  class="mr-2 text-blue-600 focus:ring-blue-500" />
+                <span class="text-sm font-medium">{{ month }}</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Schedule Duration Preview -->
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-900">
+                  Schedule Duration
+                </p>
+                <p class="text-xs text-gray-600">
+                  From: {{ months[formData.startMonth] }} {{ formData.start_year }} 
+                  → To: {{ formData.end_month !== null ? months[formData.end_month] : 'December' }} {{ formData.end_year }}
+                </p>
+              </div>
+              <div class="text-right">
+                <p class="text-sm font-semibold text-gray-900">
+                  {{ multiYearPreview.duration }} year{{ multiYearPreview.duration !== 1 ? 's' : '' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Payment Settings -->
         <div class="space-y-4 pt-4 border-t border-gray-200">
           <h5 class="text-md font-medium text-gray-900 flex items-center">
@@ -443,6 +601,55 @@
           </div>
         </div>
       </div>
+
+      <!-- Multi-Year Preview Section -->
+      <div v-if="formData.is_multi_year" class="space-y-4">
+        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
+          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Multi-Year Breakdown
+        </h4>
+        
+        <div class="bg-gray-50 rounded-lg p-4 space-y-4">
+          <!-- Yearly breakdown -->
+          <div v-for="yearData in multiYearPreview.yearlyBreakdown" :key="yearData.year" class="border border-gray-200 rounded-lg p-3 bg-white">
+            <div class="flex items-center justify-between mb-2">
+              <h5 class="text-sm font-semibold text-gray-900">
+                {{ yearData.year }}
+                <span v-if="yearData.isFirstYear" class="text-xs text-blue-600 ml-1">(First Year)</span>
+                <span v-if="yearData.isLastYear" class="text-xs text-green-600 ml-1">(Last Year)</span>
+              </h5>
+              <div class="text-sm font-medium text-gray-700">
+                {{ formatCurrency(yearData.amount) }}
+                <span class="text-xs text-gray-500 ml-1">({{ yearData.monthsCount }} months)</span>
+              </div>
+            </div>
+            
+            <!-- Monthly grid for this year -->
+            <div class="grid grid-cols-12 gap-1">
+              <div 
+                v-for="(amount, monthIndex) in yearData.monthlyAmounts" 
+                :key="monthIndex"
+                class="text-center py-1 px-1 text-xs rounded border"
+                :class="amount > 0 ? 'bg-green-100 border-green-200 text-green-800' : 'bg-gray-50 border-gray-100 text-gray-400'"
+                :title="`${months[monthIndex]}: ${formatCurrency(amount)}`">
+                <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Total summary -->
+          <div class="flex justify-between items-center pt-3 border-t border-gray-200">
+            <div class="text-sm text-gray-600">
+              <span class="font-medium">Total Multi-Year Amount:</span>
+            </div>
+            <div class="text-lg font-semibold text-gray-900">
+              {{ formatCurrency(multiYearPreview.totalAmount) }}
+            </div>
+          </div>
+        </div>
+      </div>
     </form>
     
     <!-- Footer -->
@@ -488,7 +695,8 @@ import {
   PAYMENT_SCHEDULES,
   PAYMENT_SCHEDULE_LABELS,
   PAYMENT_SCHEDULE_DESCRIPTIONS,
-  DATABASE_LIMITS
+  DATABASE_LIMITS,
+  MULTI_YEAR_CONSTANTS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
@@ -530,6 +738,7 @@ const currentMonth = computed(() => budgetStore.currentMonth)
 const {
   formData,
   isLoading,
+  multiYearPreview,
   initializeFormDataFromBudget,
   getCategoriesByType,
   updateCategoryOnTypeChange,
@@ -540,7 +749,12 @@ const {
   calculateTotalAmount,
   handleEditSubmit,
   handleAmountInput,
-  generateSchedule
+  generateSchedule,
+  updateMultiYearPreview,
+  getAvailableYears,
+  getAvailableEndYears,
+  getMultiYearRecurrenceOptions,
+  handleMultiYearToggle
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
 // Get current value class
