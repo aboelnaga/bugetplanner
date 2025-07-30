@@ -27,8 +27,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 // Helper functions for budget operations
 export const budgetAPI = {
   // Get all budget items for a user and year
-  async getBudgetItems(userId, year) {
-    console.log('API: Getting budget items for user:', userId, 'year:', year)
+  async getBudgetItems(userId, year, includePreviousYear = false) {
+    console.log('API: Getting budget items for user:', userId, 'year:', year, 'includePreviousYear:', includePreviousYear)
     
     // Check and auto-close months if needed
     const autoCloseResult = await this.checkAndAutoCloseMonths(userId)
@@ -43,16 +43,21 @@ export const budgetAPI = {
     
     if (currentYearError) throw currentYearError
     
-    // Get previous year budget items for comparison
-    const previousYear = year - 1
-    const { data: previousYearData, error: previousYearError } = await supabase
-      .from('budget_items')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('year', previousYear)
-      .order('created_at', { ascending: true })
+    let previousYearData = null
     
-    if (previousYearError) throw previousYearError
+    // Only fetch previous year items if requested
+    if (includePreviousYear) {
+      const previousYear = year - 1
+      const { data: prevYearData, error: previousYearError } = await supabase
+        .from('budget_items')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('year', previousYear)
+        .order('created_at', { ascending: true })
+      
+      if (previousYearError) throw previousYearError
+      previousYearData = prevYearData
+    }
     
     // For now, just return current year items to avoid confusion
     // Multi-year items will be shown when viewing their specific years
@@ -62,11 +67,10 @@ export const budgetAPI = {
       currentYearData, 
       previousYearData, 
       allBudgetItems,
-      currentYearError, 
-      previousYearError 
+      includePreviousYear
     })
     
-    // Return current year items, previous year items, and auto-close result
+    // Return current year items, previous year items (if requested), and auto-close result
     return {
       budgetItems: allBudgetItems,
       previousYearItems: previousYearData || [],

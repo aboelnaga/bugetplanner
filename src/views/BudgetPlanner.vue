@@ -357,12 +357,18 @@
   // Error handling
   const { handleError, retryWithBackoff, clearErrors } = useErrorHandler()
 
-  // Check if previous year has data
+  // Check if previous year has data (only when needed)
   const checkPreviousYearData = async () => {
-    const previousYear = selectedYear.value - 1
-    if (previousYear >= 2020) {
-      previousYearHasData.value = await budgetStore.hasBudgetItemsForYear(previousYear)
+    // Only check previous year if current year has no budget items
+    if (budgetStore.budgetItems.length === 0) {
+      const previousYear = selectedYear.value - 1
+      if (previousYear >= 2020) {
+        previousYearHasData.value = await budgetStore.hasBudgetItemsForYear(previousYear)
+      } else {
+        previousYearHasData.value = false
+      }
     } else {
+      // Current year has data, no need to check previous year
       previousYearHasData.value = false
     }
   }
@@ -444,11 +450,11 @@
   // Watch for authentication changes
   watch(() => authStore.isAuthenticated, (isAuthenticated) => {
     if (isAuthenticated) {
-      budgetStore.initialize()
+      // budgetStore.initialize() - removed to avoid duplicate calls, handled in onMounted
       accountsStore.fetchAccounts()
-      yearlySummariesStore.initialize()
-      checkPreviousYearData()
-      fetchClosedMonths()
+      yearlySummariesStore.initialize() // Essential for balance calculations
+      // checkPreviousYearData() - moved to budget items watcher
+      // fetchClosedMonths() - moved to onMounted to avoid duplicate calls
     } else {
       // Clear data when not authenticated
       budgetStore.budgetItems = []
@@ -467,8 +473,8 @@
   // Watch for selected year changes
   watch(() => selectedYear.value, () => {
     if (authStore.isAuthenticated) {
-      checkPreviousYearData()
-      fetchClosedMonths()
+      // checkPreviousYearData() - moved to budget items watcher
+      // fetchClosedMonths() - removed to avoid duplicate calls on year change
     }
   })
 
@@ -479,6 +485,13 @@
       fetchClosedMonths()
     }
   })
+
+  // Watch for budget items changes to check previous year data
+  watch(() => budgetStore.budgetItems, () => {
+    if (authStore.isAuthenticated) {
+      checkPreviousYearData()
+    }
+  }, { immediate: false })
 
 
 
@@ -506,8 +519,8 @@
     if (authStore.isAuthenticated) {
       budgetStore.initialize()
       accountsStore.fetchAccounts()
-      yearlySummariesStore.initialize()
-      checkPreviousYearData()
+      yearlySummariesStore.initialize() // Essential for balance calculations
+      // checkPreviousYearData() - moved to budget items watcher
       fetchClosedMonths()
     }
   })
