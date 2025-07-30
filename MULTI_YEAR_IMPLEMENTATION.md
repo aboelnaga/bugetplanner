@@ -76,7 +76,7 @@ Total: $27,000
 Schedule & Timing
 ├── Multi-Year Budget Item (toggle at top)
 ├── [If Single Year]
-│   ├── Recurrence
+│   ├── Recurrence (All options: Monthly, Quarterly, Bi-Annual, School Terms, Custom, One Time)
 │   ├── Start Month
 │   └── Custom Months / One Time Month
 └── [If Multi-Year]
@@ -84,7 +84,7 @@ Schedule & Timing
     ├── Start Month
     ├── End Year
     ├── End Month (Optional)
-    ├── Recurrence
+    ├── Recurrence (Filtered: Monthly, Quarterly, Bi-Annual, School Terms, Custom)
     └── Schedule Duration Preview
 ```
 
@@ -95,6 +95,7 @@ Schedule & Timing
 - ✅ **Visual feedback**: Clear schedule duration and yearly breakdown
 - ✅ **Intuitive UI**: Consistent gray styling, clear labels, helpful descriptions
 - ✅ **Contextual fields**: Only show relevant options based on multi-year choice
+- ✅ **Logical recurrence**: One Time excluded from multi-year (doesn't make sense)
 
 ### 5. Validation Rules
 

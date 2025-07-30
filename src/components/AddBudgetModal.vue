@@ -362,7 +362,7 @@
               v-model="formData.recurrence" 
               @change="updateSchedule"
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, type) in RECURRENCE_LABELS" :key="type" :value="type">
+              <option v-for="(label, type) in getMultiYearRecurrenceOptions()" :key="type" :value="type">
                 {{ label }}
               </option>
             </select>
@@ -666,6 +666,7 @@ const {
   updateMultiYearPreview,
   getAvailableYears,
   getAvailableEndYears,
+  getMultiYearRecurrenceOptions,
   multiYearPreview,
   handleMultiYearToggle,
   validateMultiYearSettings

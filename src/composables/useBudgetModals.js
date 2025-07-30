@@ -5,6 +5,7 @@ import { ref, watch } from 'vue'
 import { 
   BUDGET_TYPES, 
   RECURRENCE_TYPES, 
+  RECURRENCE_LABELS,
   INVESTMENT_DIRECTIONS, 
   SCHEDULE_PATTERNS,
   DEFAULT_VALUES,
@@ -120,6 +121,11 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       } else {
         // Past year: start from January (though this shouldn't happen in normal flow)
         formData.value.startMonth = 0
+      }
+      
+      // Set valid recurrence for multi-year (exclude One Time)
+      if (formData.value.recurrence === RECURRENCE_TYPES.ONE_TIME) {
+        formData.value.recurrence = RECURRENCE_TYPES.MONTHLY
       }
     } else {
       // Disable multi-year: reset to single year
@@ -679,6 +685,17 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     return years
   }
 
+  // Get recurrence options for multi-year budgets (exclude One Time)
+  const getMultiYearRecurrenceOptions = () => {
+    const options = {}
+    Object.entries(RECURRENCE_LABELS).forEach(([type, label]) => {
+      if (type !== RECURRENCE_TYPES.ONE_TIME) {
+        options[type] = label
+      }
+    })
+    return options
+  }
+
   // Watch for year changes and adjust start month accordingly
   const watchYearChanges = () => {
     if (showAddBudgetModal.value) {
@@ -795,6 +812,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     updateMultiYearPreview,
     getAvailableYears,
     getAvailableEndYears,
+    getMultiYearRecurrenceOptions,
     watchYearChanges
   }
 } 
