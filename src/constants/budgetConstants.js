@@ -247,10 +247,12 @@ export const RECURRENCE_INTERVALS = [
   { value: 3, label: '3 months' },
   { value: 4, label: '4 months' },
   { value: 5, label: '5 months' },
+  { value: 6, label: '6 months' },
   { value: 7, label: '7 months' },
   { value: 8, label: '8 months' },
   { value: 9, label: '9 months' },
   { value: 10, label: '10 months' },
+  { value: 11, label: '11 months' },
   { value: 12, label: '12 months' }
 ]
 

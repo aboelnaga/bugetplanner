@@ -170,21 +170,73 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const updateMultiYearPreview = () => {
     // Auto-detect if this is multi-year based on frequency type and start/end years
     let isMultiYear = false
+    let calculatedEndYear = formData.value.endYear
+    let calculatedEndMonth = formData.value.endMonth
+    
+    console.log('updateMultiYearPreview called with:', {
+      frequency: formData.value.frequency,
+      endType: formData.value.endType,
+      startMonth: formData.value.startMonth,
+      startYear: formData.value.startYear,
+      occurrences: formData.value.occurrences,
+      recurrenceInterval: formData.value.recurrenceInterval
+    })
     
     if (formData.value.frequency === FREQUENCY_TYPES.REPEATS) {
       if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
         isMultiYear = formData.value.endYear > formData.value.startYear
       } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
-        // For occurrences, calculate if it spans multiple years
-        const totalMonths = formData.value.occurrences * formData.value.recurrenceInterval
-        const startDate = new Date(formData.value.startYear, formData.value.startMonth)
-        const endDate = new Date(startDate.getTime() + (totalMonths * 30 * 24 * 60 * 60 * 1000))
-        isMultiYear = endDate.getFullYear() > startDate.getFullYear()
+        // For occurrences, calculate the actual end date
+        let currentMonth = formData.value.startMonth
+        let currentYear = formData.value.startYear
+        let occurrenceCount = 0
+        
+        console.log('Starting occurrence calculation:', {
+          startMonth: currentMonth,
+          startYear: currentYear,
+          occurrences: formData.value.occurrences,
+          interval: formData.value.recurrenceInterval
+        })
+        
+        while (occurrenceCount < formData.value.occurrences) {
+          // First occurrence is the start month itself
+          if (occurrenceCount === 0) {
+            // Don't add interval for the first occurrence
+          } else {
+            // Move to next occurrence
+            currentMonth += formData.value.recurrenceInterval
+            
+            // Handle year rollover
+            while (currentMonth >= 12) {
+              currentMonth -= 12
+              currentYear++
+            }
+          }
+          
+          occurrenceCount++
+          
+          console.log(`Occurrence ${occurrenceCount}: month=${currentMonth}, year=${currentYear}`)
+        }
+        
+        // Set the calculated end date
+        calculatedEndYear = currentYear
+        calculatedEndMonth = currentMonth
+        
+        console.log('Calculated end date:', {
+          calculatedEndYear,
+          calculatedEndMonth,
+          isMultiYear: calculatedEndYear > formData.value.startYear
+        })
+        
+        isMultiYear = calculatedEndYear > formData.value.startYear
       }
     } else {
       // For once and custom, it's never multi-year
       isMultiYear = false
     }
+    
+    // Update the formData field
+    formData.value.is_multi_year = isMultiYear
     
     if (!isMultiYear) {
       multiYearPreview.value = {
@@ -195,9 +247,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       return
     }
 
-    const { startYear, endYear, startMonth, endMonth, defaultAmount, recurrence, customMonths } = formData.value
+    const { startYear, defaultAmount, frequency, recurrenceInterval, endType, occurrences } = formData.value
     
-    if (!startYear || !endYear) {
+    if (!startYear || !calculatedEndYear) {
       multiYearPreview.value = {
         yearlyBreakdown: [],
         totalAmount: 0,
@@ -206,29 +258,117 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       return
     }
 
-    const yearlyBreakdown = MULTI_YEAR_CALCULATION.generateYearlyBreakdownWithMonthlyAmounts(
-      defaultAmount, 
-      startYear, 
-      endYear, 
-      startMonth, 
-      endMonth,
-      recurrence,
-      customMonths
-    )
+    // Generate yearly breakdown for the new frequency system
+    const yearlyBreakdown = generateYearlyBreakdown(startYear, calculatedEndYear, formData.value.startMonth, calculatedEndMonth, defaultAmount, frequency, recurrenceInterval, endType, occurrences)
+    
+    // Calculate total amount
+    const totalAmount = yearlyBreakdown.reduce((sum, year) => sum + year.amount, 0)
 
-    const totalAmount = MULTI_YEAR_CALCULATION.calculateMultiYearTotalAmount(
-      defaultAmount, 
-      startYear, 
-      endYear, 
-      startMonth, 
-      endMonth
-    )
+    console.log('Final multi-year preview:', {
+      startYear,
+      calculatedEndYear,
+      duration: calculatedEndYear - startYear + 1,
+      totalAmount,
+      yearlyBreakdown: yearlyBreakdown.map(y => ({ year: y.year, amount: y.amount, monthsCount: y.monthsCount }))
+    })
 
     multiYearPreview.value = {
       yearlyBreakdown,
       totalAmount,
-      duration: endYear - startYear + 1
+      duration: calculatedEndYear - startYear + 1
     }
+  }
+
+  // Generate yearly breakdown for new frequency system
+  const generateYearlyBreakdown = (startYear, endYear, startMonth, endMonth, defaultAmount, frequency, recurrenceInterval, endType, occurrences) => {
+    const breakdown = []
+    
+    for (let year = startYear; year <= endYear; year++) {
+      let yearlyAmount = 0
+      let monthlyAmounts = new Array(12).fill(0)
+      let monthsCount = 0
+      const isFirstYear = year === startYear
+      const isLastYear = year === endYear
+      
+      if (frequency === FREQUENCY_TYPES.REPEATS) {
+        if (endType === END_TYPES.SPECIFIC_DATE) {
+          // Calculate monthly amounts for this year using interval-based scheduling
+          let currentMonth = startMonth
+          let currentYear = startYear
+          
+          while (currentYear <= endYear) {
+            if (currentYear === year) {
+              // Check if this month is within the valid range for this year
+              let isValidMonth = true
+              
+              if (currentYear === startYear && currentMonth < startMonth) {
+                isValidMonth = false
+              }
+              
+              if (currentYear === endYear && currentMonth > endMonth) {
+                isValidMonth = false
+              }
+              
+              if (isValidMonth && currentMonth >= 0 && currentMonth < 12) {
+                monthlyAmounts[currentMonth] = defaultAmount
+                yearlyAmount += defaultAmount
+                monthsCount++
+              }
+            }
+            
+            // Move to next occurrence
+            currentMonth += recurrenceInterval
+            
+            // Handle year rollover
+            while (currentMonth >= 12) {
+              currentMonth -= 12
+              currentYear++
+            }
+            
+            // Stop if we've passed the end year
+            if (currentYear > endYear) {
+              break
+            }
+          }
+        } else if (endType === END_TYPES.AFTER_OCCURRENCES) {
+          // Calculate occurrences that fall in this year
+          let currentMonth = startMonth
+          let currentYear = startYear
+          let occurrenceCount = 0
+          
+          while (occurrenceCount < occurrences) {
+            if (currentYear === year) {
+              if (currentMonth >= 0 && currentMonth < 12) {
+                monthlyAmounts[currentMonth] = defaultAmount
+                yearlyAmount += defaultAmount
+                monthsCount++
+              }
+            }
+            
+            currentMonth += recurrenceInterval
+            
+            // Handle year rollover
+            while (currentMonth >= 12) {
+              currentMonth -= 12
+              currentYear++
+            }
+            
+            occurrenceCount++
+          }
+        }
+      }
+      
+      breakdown.push({
+        year,
+        amount: yearlyAmount,
+        monthlyAmounts,
+        monthsCount,
+        isFirstYear,
+        isLastYear
+      })
+    }
+    
+    return breakdown
   }
 
   // Validate multi-year settings
@@ -428,25 +568,154 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
 
   // Generate schedule based on form data
   const generateSchedule = () => {
-    // Use legacy recurrence for schedule generation (backward compatibility)
-    return scheduleUtils.generateSchedule(
-      formData.value.recurrence,
-      formData.value.startMonth,
-      formData.value.customMonths,
-      formData.value.oneTimeMonth,
-      formData.value.defaultAmount
-    )
+    const { frequency, recurrenceInterval, startMonth, startYear, endMonth, endYear, endType, occurrences, customMonths, oneTimeMonth, oneTimeYear, defaultAmount } = formData.value
+    
+    let schedule = []
+    let amounts = new Array(12).fill(0)
+    
+    switch (frequency) {
+      case FREQUENCY_TYPES.REPEATS:
+        // Handle repeats with interval
+        if (endType === END_TYPES.SPECIFIC_DATE) {
+          // Generate schedule for specific date range
+          schedule = generateRepeatingSchedule(startMonth, startYear, endMonth, endYear, recurrenceInterval)
+        } else if (endType === END_TYPES.AFTER_OCCURRENCES) {
+          // Generate schedule for specific number of occurrences
+          schedule = generateOccurrenceSchedule(startMonth, startYear, recurrenceInterval, occurrences)
+        }
+        break
+        
+      case FREQUENCY_TYPES.ONCE:
+        // Handle one-time items - show preview for the oneTimeYear
+        schedule = [oneTimeMonth]
+        break
+        
+      case FREQUENCY_TYPES.CUSTOM:
+        // Handle custom months (current year only)
+        schedule = [...customMonths]
+        break
+    }
+
+    // Populate amounts array
+    schedule.forEach(month => {
+      if (month >= 0 && month < 12) {
+        amounts[month] = defaultAmount
+      }
+    })
+
+    return { schedule, amounts }
+  }
+
+  // Generate repeating schedule for specific date range
+  const generateRepeatingSchedule = (startMonth, startYear, endMonth, endYear, interval) => {
+    const schedule = []
+    const selectedYearValue = selectedYear.value
+    
+    console.log('generateRepeatingSchedule called with:', {
+      startMonth,
+      startYear,
+      endMonth,
+      endYear,
+      interval,
+      selectedYearValue
+    })
+    
+    // Calculate the actual schedule based on interval
+    let currentMonth = startMonth
+    let currentYear = startYear
+    
+    console.log('Starting calculation with currentMonth:', currentMonth, 'currentYear:', currentYear)
+    
+    while (currentYear <= endYear) {
+      // Check if this occurrence falls in the budget's year range
+      if (currentYear >= startYear && currentYear <= endYear) {
+        // Check if this month is within the valid range for this year
+        let isValidMonth = true
+        
+        if (currentYear === startYear && currentMonth < startMonth) {
+          isValidMonth = false
+          console.log('Invalid month: currentMonth < startMonth', currentMonth, '<', startMonth)
+        }
+        
+        if (currentYear === endYear && currentMonth > endMonth) {
+          isValidMonth = false
+          console.log('Invalid month: currentMonth > endMonth', currentMonth, '>', endMonth)
+        }
+        
+        if (isValidMonth && currentMonth >= 0 && currentMonth < 12) {
+          schedule.push(currentMonth)
+          console.log('Added month to schedule:', currentMonth)
+        }
+      }
+      
+      // Move to next occurrence
+      currentMonth += interval
+      
+      // Handle year rollover
+      while (currentMonth >= 12) {
+        currentMonth -= 12
+        currentYear++
+      }
+      
+      // Stop if we've passed the end year
+      if (currentYear > endYear) {
+        break
+      }
+    }
+    
+    console.log('Final schedule:', schedule)
+    return schedule
+  }
+
+  // Generate schedule for specific number of occurrences
+  const generateOccurrenceSchedule = (startMonth, startYear, interval, occurrences) => {
+    const schedule = []
+    const selectedYearValue = selectedYear.value
+    
+    console.log('generateOccurrenceSchedule called with:', {
+      startMonth,
+      startYear,
+      interval,
+      occurrences,
+      selectedYearValue
+    })
+    
+    let currentMonth = startMonth
+    let currentYear = startYear
+    let occurrenceCount = 0
+    
+    while (occurrenceCount < occurrences) {
+      // Add to schedule if this occurrence falls in the budget's year range
+      if (currentMonth >= 0 && currentMonth < 12) {
+        schedule.push(currentMonth)
+        console.log('Added month to schedule:', currentMonth, 'for year:', currentYear)
+      }
+      
+      // Move to next occurrence
+      currentMonth += interval
+      
+      // Handle year rollover
+      while (currentMonth >= 12) {
+        currentMonth -= 12
+        currentYear++
+      }
+      
+      occurrenceCount++
+    }
+    
+    console.log('Final schedule:', schedule)
+    return schedule
   }
 
   // Get schedule preview class
   const getSchedulePreviewClass = (monthIndex) => {
-    return scheduleUtils.getSchedulePreviewClass(
-      monthIndex,
-      formData.value.recurrence,
-      formData.value.startMonth,
-      formData.value.customMonths,
-      formData.value.oneTimeMonth
-    )
+    const { schedule } = generateSchedule()
+    
+    if (schedule.includes(monthIndex)) {
+      return 'bg-blue-100 text-blue-800 border border-blue-200'
+    } else {
+      return 'bg-gray-100 text-gray-500'
+    }
   }
 
   // Calculate total amount
@@ -455,13 +724,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       return multiYearPreview.value.totalAmount
     }
     
-    return scheduleUtils.calculateTotalAmount(
-      formData.value.recurrence,
-      formData.value.startMonth,
-      formData.value.customMonths,
-      formData.value.oneTimeMonth,
-      formData.value.defaultAmount
-    )
+    const { schedule } = generateSchedule()
+    return schedule.length * formData.value.defaultAmount
   }
 
   // Handle amount input with currency formatting
@@ -1242,6 +1506,42 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       
       updateLegacyRecurrence()
     }
+  })
+
+  // Watch for frequency changes to update schedule
+  watch(() => formData.value.frequency, (newFrequency) => {
+    console.log('Frequency changed to:', newFrequency)
+    updateSchedule()
+  })
+
+  // Watch for recurrence interval changes
+  watch(() => formData.value.recurrenceInterval, (newInterval) => {
+    console.log('Recurrence interval changed to:', newInterval)
+    updateLegacyRecurrence()
+  })
+
+  // Watch for end type changes
+  watch(() => formData.value.endType, (newEndType) => {
+    console.log('End type changed to:', newEndType)
+    updateLegacyRecurrence()
+  })
+
+  // Watch for end month changes
+  watch(() => formData.value.endMonth, (newEndMonth) => {
+    console.log('End month changed to:', newEndMonth)
+    updateLegacyRecurrence()
+  })
+
+  // Watch for end year changes
+  watch(() => formData.value.endYear, (newEndYear) => {
+    console.log('End year changed to:', newEndYear)
+    updateLegacyRecurrence()
+  })
+
+  // Watch for occurrences changes
+  watch(() => formData.value.occurrences, (newOccurrences) => {
+    console.log('Occurrences changed to:', newOccurrences)
+    updateLegacyRecurrence()
   })
 
   // Get available months for "Once" frequency with smart validation

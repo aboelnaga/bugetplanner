@@ -410,7 +410,7 @@
                 <p class="text-sm font-medium text-blue-900">Multi-Year Budget Item</p>
                 <p class="text-xs text-blue-700">
                   This budget spans {{ getMultiYearDuration() }} year{{ getMultiYearDuration() !== 1 ? 's' : '' }} 
-                  ({{ formData.startYear }} - {{ formData.endYear }})
+                  ({{ formData.startYear }} - {{ getCalculatedEndYear() }})
                 </p>
               </div>
             </div>
@@ -564,7 +564,8 @@
                     <div 
                       v-for="(month, index) in months" 
                       :key="month"
-                      class="text-center py-1 px-1 text-xs font-semibold text-gray-700">
+                      class="text-center py-1 px-1 text-xs font-semibold text-gray-700 rounded"
+                      :class="getMultiYearMonthClass(year.monthlyAmounts[index], index)">
                       {{ month }}
                     </div>
                   </div>
@@ -574,8 +575,8 @@
                     <div 
                       v-for="(amount, index) in year.monthlyAmounts" 
                       :key="index"
-                      class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
-                      :class="getAmountClass(amount)"
+                      class="text-center py-2 px-1 text-xs rounded border"
+                      :class="getMultiYearAmountClass(amount, index)"
                       :title="formatCurrency(amount)">
                       <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
                     </div>
@@ -757,9 +758,9 @@ const {
 // Get amount class for styling
 const getAmountClass = (amount) => {
   if (amount > 0) {
-    return 'text-green-800'
+    return 'border-green-200 bg-green-100 text-green-800'
   } else {
-    return 'text-gray-500'
+    return 'border-gray-200 bg-white text-gray-400'
   }
 }
 
@@ -847,10 +848,58 @@ const getMultiYearDuration = () => {
   if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
     return formData.value.endYear - formData.value.startYear + 1
   } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
-    // Calculate years based on occurrences and interval
-    const totalMonths = formData.value.occurrences * formData.value.recurrenceInterval
-    return Math.ceil(totalMonths / 12)
+    // Calculate the actual duration by finding the end year
+    const calculatedEndYear = getCalculatedEndYear()
+    return calculatedEndYear - formData.value.startYear + 1
   }
   return 0
+}
+
+// Get calculated end year for occurrence-based endings
+const getCalculatedEndYear = () => {
+  if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+    return formData.value.endYear
+  } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+    // Calculate the actual end year from occurrences
+    let currentMonth = formData.value.startMonth
+    let currentYear = formData.value.startYear
+    let occurrenceCount = 0
+    
+    while (occurrenceCount < formData.value.occurrences) {
+      // Move to next occurrence
+      currentMonth += formData.value.recurrenceInterval
+      
+      // Handle year rollover
+      while (currentMonth >= 12) {
+        currentMonth -= 12
+        currentYear++
+      }
+      
+      occurrenceCount++
+    }
+    
+    return currentYear
+  }
+  return formData.value.endYear
+}
+
+// Get class for multi-year month headers
+const getMultiYearMonthClass = (amount, index) => {
+  if (amount > 0) {
+    return 'bg-blue-100 text-blue-800 border border-blue-200'
+  } else if (index < currentMonth.value) {
+    return 'bg-gray-100 opacity-50'
+  } else {
+    return 'bg-gray-50 border-gray-200'
+  }
+}
+
+// Get class for multi-year amount values
+const getMultiYearAmountClass = (amount, index) => {
+  if (amount > 0) {
+    return 'border-green-200 bg-green-100 text-green-800'
+  } else {
+    return 'border-gray-200 bg-white text-gray-400'
+  }
 }
 </script> 
