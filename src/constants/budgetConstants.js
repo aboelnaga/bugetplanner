@@ -7,6 +7,18 @@ export const MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ]
 
+// Full month names for dropdowns
+export const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+]
+
+// Month options for dropdowns
+export const MONTH_OPTIONS = MONTH_NAMES.map((name, index) => ({
+  value: index,
+  label: name
+}))
+
 // Budget types
 export const BUDGET_TYPES = {
   EXPENSE: 'expense',
@@ -215,7 +227,45 @@ export const PAYMENT_SCHEDULE_DESCRIPTIONS = {
   [PAYMENT_SCHEDULES.CUSTOM_DATES]: 'Paid on specific dates (1-31)'
 }
 
-// Recurrence types
+// New Recurrence System - Frequency Options
+export const FREQUENCY_TYPES = {
+  ONCE: 'once',
+  CUSTOM: 'custom',
+  REPEATS: 'repeats'
+}
+
+export const FREQUENCY_LABELS = {
+  [FREQUENCY_TYPES.ONCE]: 'Once (one-time)',
+  [FREQUENCY_TYPES.CUSTOM]: 'Custom (manual selection)',
+  [FREQUENCY_TYPES.REPEATS]: 'Repeats every'
+}
+
+// Recurrence intervals (in months)
+export const RECURRENCE_INTERVALS = [
+  { value: 1, label: '1 month' },
+  { value: 2, label: '2 months' },
+  { value: 3, label: '3 months' },
+  { value: 4, label: '4 months' },
+  { value: 5, label: '5 months' },
+  { value: 7, label: '7 months' },
+  { value: 8, label: '8 months' },
+  { value: 9, label: '9 months' },
+  { value: 10, label: '10 months' },
+  { value: 12, label: '12 months' }
+]
+
+// End date types
+export const END_TYPES = {
+  SPECIFIC_DATE: 'specific_date',
+  AFTER_OCCURRENCES: 'after_occurrences'
+}
+
+export const END_TYPE_LABELS = {
+  [END_TYPES.SPECIFIC_DATE]: 'End on specific date',
+  [END_TYPES.AFTER_OCCURRENCES]: 'End after number of occurrences'
+}
+
+// Legacy recurrence types (for backward compatibility)
 export const RECURRENCE_TYPES = {
   MONTHLY: 'monthly',
   QUARTERLY: 'quarterly',
@@ -245,7 +295,55 @@ export const VIEW_MODES = {
   GROUPED: 'grouped'
 }
 
-// Default values
+// Default form data values
+export const DEFAULT_VALUES = {
+  FORM_DATA: {
+    // Basic information
+    name: '',
+    type: BUDGET_TYPES.EXPENSE,
+    category: '',
+    defaultAmount: 0,
+    
+    // New recurrence system defaults
+    frequency: FREQUENCY_TYPES.REPEATS, // DEFAULT: Repeats monthly
+    recurrenceInterval: 1, // DEFAULT: 1 month (monthly)
+    startMonth: 0, // DEFAULT: January
+    startYear: new Date().getFullYear(), // DEFAULT: Current year
+    endMonth: 11, // DEFAULT: December
+    endYear: new Date().getFullYear(), // DEFAULT: Current year
+    endType: END_TYPES.SPECIFIC_DATE, // DEFAULT: End on specific date
+    occurrences: 12, // DEFAULT: 12 occurrences
+    
+    // Once frequency fields (new)
+    oneTimeMonth: new Date().getMonth(), // DEFAULT: Current month
+    oneTimeYear: new Date().getFullYear(), // DEFAULT: Current year
+    
+    // Custom frequency fields
+    customMonths: [],
+    
+    // Legacy fields for backward compatibility
+    recurrence: RECURRENCE_TYPES.MONTHLY,
+    startDate: '',
+    endDate: '',
+    is_multi_year: false, // Will be computed based on start/end years
+    start_year: null,
+    end_year: null,
+    
+    // Investment linking
+    linked_investment_id: null,
+    investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
+    
+    // Multi-year specific
+    yearlyBreakdown: [],
+    totalAmount: 0,
+    duration: 0
+  },
+  CATEGORIES_BY_TYPE: {
+    [BUDGET_TYPES.INCOME]: 'Salary',
+    [BUDGET_TYPES.INVESTMENT]: 'Real Estate Purchase',
+    [BUDGET_TYPES.EXPENSE]: 'Essential'
+  }
+}
 
 // Budget type styling configurations
 export const BUDGET_TYPE_STYLES = {
@@ -418,35 +516,6 @@ export const EMPTY_STATES = {
     message: null, // Will be generated dynamically based on filters
     showActions: true,
     actions: ['clear-filters', 'add-budget']
-  }
-}
-export const DEFAULT_VALUES = {
-  FORM_DATA: {
-    name: '',
-    type: BUDGET_TYPES.EXPENSE,
-    category: 'Essential',
-    defaultAmount: 0,
-    recurrence: RECURRENCE_TYPES.MONTHLY,
-    customMonths: [],
-    oneTimeMonth: 0,
-    investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
-    startMonth: 0,
-    payment_schedule: PAYMENT_SCHEDULES.THROUGHOUT_MONTH,
-    due_date: null,
-    is_fixed_expense: false,
-    reminder_enabled: false,
-    reminder_days_before: 3,
-    linked_investment_id: '',
-    // Multi-year fields
-    is_multi_year: false,
-    start_year: null,
-    end_year: null,
-    end_month: null
-  },
-  CATEGORIES_BY_TYPE: {
-    [BUDGET_TYPES.INCOME]: 'Salary',
-    [BUDGET_TYPES.INVESTMENT]: 'Real Estate Purchase',
-    [BUDGET_TYPES.EXPENSE]: 'Essential'
   }
 }
 

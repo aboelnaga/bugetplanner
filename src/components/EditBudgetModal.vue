@@ -98,76 +98,6 @@
               Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
             </p>
           </div>
-          
-          <!-- Investment Direction (only for investment type) -->
-          <div v-if="formData.type === BUDGET_TYPES.INVESTMENT">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <span class="text-red-500">*</span> Investment Direction
-            </label>
-            <select 
-              v-model="formData.investment_direction"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
-                {{ label }}
-              </option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Investment Linking Section -->
-      <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-          Investment Linking
-        </h4>
-        
-        <div class="space-y-4">
-          <!-- Link to Existing Investment -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Link to Investment Asset
-            </label>
-            <div class="space-y-2">
-              <select 
-                v-model="formData.linked_investment_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">No investment linked</option>
-                <option 
-                  v-for="investment in availableInvestments" 
-                  :key="investment.id" 
-                  :value="investment.id">
-                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
-                </option>
-              </select>
-              
-              <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-blue-900">
-                      {{ getLinkedInvestmentName() }}
-                    </p>
-                    <p class="text-xs text-blue-700">
-                      Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="formData.linked_investment_id = ''"
-                    class="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Unlink
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <p class="text-xs text-gray-500 mt-1">
-              Link this budget item to an existing investment asset to track payments and returns.
-            </p>
-          </div>
         </div>
       </div>
 
@@ -180,330 +110,239 @@
           Schedule & Timing
         </h4>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Recurrence -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <span class="text-red-500">*</span> Recurrence
-            </label>
-            <select 
-              v-model="formData.recurrence" 
-              @change="updateSchedule"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, type) in RECURRENCE_LABELS" :key="type" :value="type">
-                {{ label }}
-              </option>
-            </select>
-          </div>
-          
-          <!-- Start Month (hidden for custom and one-time recurrence) -->
-          <div v-if="formData.recurrence !== RECURRENCE_TYPES.CUSTOM && formData.recurrence !== RECURRENCE_TYPES.ONE_TIME">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <span class="text-red-500">*</span> Start Month
-            </label>
-            <select 
-              v-model="formData.startMonth"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option 
-                v-for="monthIndex in getAvailableStartMonthIndices()" 
-                :key="monthIndex" 
-                :value="monthIndex">
-                {{ months[monthIndex] }} {{ getMonthLabel(monthIndex) }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Custom Months (for custom recurrence) -->
-        <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM" class="space-y-3">
-          <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
-          <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
-            <label 
-              v-for="(month, index) in months" 
-              :key="month" 
-              class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-              :class="{ 'bg-blue-50 border-blue-300': formData.customMonths.includes(index) }">
-              <input 
-                type="checkbox" 
-                :value="index" 
-                v-model="formData.customMonths"
-                class="mr-2 text-blue-600 focus:ring-blue-500" />
-              <span class="text-sm font-medium">{{ month }}</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- One Time Month (for one-time recurrence) -->
-        <div v-if="formData.recurrence === RECURRENCE_TYPES.ONE_TIME" class="space-y-3">
-          <label class="block text-sm font-medium text-gray-700">Select Month</label>
-          <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
-            <label 
-              v-for="(month, index) in months" 
-              :key="month" 
-              class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-              :class="{ 'bg-blue-50 border-blue-300': formData.oneTimeMonth === index }">
-              <input 
-                type="radio" 
-                :value="index" 
-                v-model="formData.oneTimeMonth"
-                name="oneTimeMonth"
-                class="mr-2 text-blue-600 focus:ring-blue-500" />
-              <span class="text-sm font-medium">{{ month }}</span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Multi-Year Budget Item Toggle -->
-        <div class="space-y-3 pt-4 border-t border-gray-200">
-          <div class="flex items-center">
-            <input 
-              type="checkbox" 
-              id="is_multi_year"
-              v-model="formData.is_multi_year"
-              @change="handleMultiYearToggle"
-              class="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-            <label for="is_multi_year" class="text-sm font-medium text-gray-700">
-              Multi-Year Budget Item
-            </label>
-          </div>
-          <p class="text-xs text-gray-600">
-            Enable this to create a budget item that spans multiple years (e.g., loans, installments)
-          </p>
-        </div>
-
         <!-- Single Year Schedule -->
-        <div v-if="!formData.is_multi_year" class="space-y-4">
-          <!-- Existing single year fields remain the same -->
-        </div>
-
-        <!-- Multi-Year Schedule -->
-        <div v-else class="space-y-4">
+        <div class="space-y-4">
+          <!-- New Recurrence System -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Start Year -->
+            <!-- Frequency -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-red-500">*</span> Start Year
+                <span class="text-red-500">*</span> Frequency
               </label>
               <select 
-                v-model="formData.start_year"
-                @change="updateMultiYearPreview"
+                id="frequency"
+                name="frequency"
+                v-model="formData.frequency" 
+                @change="updateSchedule"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option 
-                  v-for="year in getAvailableYears()" 
-                  :key="year" 
-                  :value="year">
-                  {{ year }}
+                <option v-for="(label, type) in FREQUENCY_LABELS" :key="type" :value="type">
+                  {{ label }}
                 </option>
               </select>
             </div>
             
-            <!-- Start Month -->
-            <div>
+            <!-- Recurrence Interval (only for repeats) -->
+            <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS">
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-red-500">*</span> Start Month
+                <span class="text-red-500">*</span> Recurrence Interval
               </label>
               <select 
-                v-model="formData.startMonth"
-                @change="updateMultiYearPreview"
+                id="recurrenceInterval"
+                name="recurrenceInterval"
+                v-model="formData.recurrenceInterval"
+                @change="updateSchedule"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option 
-                  v-for="(month, index) in months" 
-                  :key="month" 
-                  :value="index"
-                  :disabled="formData.start_year === currentYear && index < currentMonth">
-                  {{ month }}{{ formData.start_year === currentYear && index < currentMonth ? ' (Past)' : '' }}
+                <option v-for="interval in RECURRENCE_INTERVALS" :key="interval.value" :value="interval.value">
+                  {{ interval.label }}
                 </option>
               </select>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- End Year -->
+          <!-- Date Selection -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Start Date -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                <span class="text-red-500">*</span> End Year
+                Start Date
+                <span class="text-xs text-gray-500 ml-1">
+                  ({{ formData.startYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.startYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }})
+                </span>
               </label>
-              <select 
-                v-model="formData.end_year"
-                @change="updateMultiYearPreview"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option 
-                  v-for="year in getAvailableEndYears()" 
-                  :key="year" 
-                  :value="year">
-                  {{ year }}
-                </option>
-              </select>
+              <div class="grid grid-cols-2 gap-2">
+                <select 
+                  id="startMonth"
+                  name="startMonth"
+                  v-model="formData.startMonth"
+                  @change="updateLegacyRecurrence"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option 
+                    v-for="month in MONTH_OPTIONS" 
+                    :key="month.value" 
+                    :value="month.value"
+                    :disabled="!getAvailableStartMonthIndices().find(m => m.value === month.value)"
+                    :class="{ 'text-gray-400': !getAvailableStartMonthIndices().find(m => m.value === month.value) }">
+                    {{ month.label }}
+                  </option>
+                </select>
+                <select 
+                  id="startYear"
+                  name="startYear"
+                  v-model="formData.startYear"
+                  @change="updateLegacyRecurrence"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option v-for="year in getAvailableYears()" :key="year" :value="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
             </div>
             
-            <!-- End Month -->
+            <!-- End Date Type -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">
-                End Month (Optional)
+                <span class="text-red-500">*</span> End Date Type
               </label>
               <select 
-                v-model="formData.end_month"
-                @change="updateMultiYearPreview"
+                id="endType"
+                name="endType"
+                v-model="formData.endType"
+                @change="updateLegacyRecurrence"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option 
-                  v-for="option in MULTI_YEAR_CONSTANTS.END_MONTH_OPTIONS" 
-                  :key="option.value" 
-                  :value="option.value">
-                  {{ option.label }}
+                <option v-for="(label, type) in END_TYPE_LABELS" :key="type" :value="type">
+                  {{ label }}
                 </option>
               </select>
             </div>
           </div>
 
-          <!-- Recurrence for Multi-Year -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              <span class="text-red-500">*</span> Recurrence
-            </label>
-            <select 
-              v-model="formData.recurrence" 
-              @change="updateSchedule"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, type) in getMultiYearRecurrenceOptions()" :key="type" :value="type">
-                {{ label }}
-              </option>
-            </select>
+          <!-- End Date Options -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.SPECIFIC_DATE" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- End Date -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <span class="text-red-500">*</span> End Date
+              </label>
+              <div class="grid grid-cols-2 gap-2">
+                <select 
+                  id="endMonth"
+                  name="endMonth"
+                  v-model="formData.endMonth"
+                  @change="updateLegacyRecurrence"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
+                    {{ month.label }}
+                  </option>
+                </select>
+                <select 
+                  id="endYear"
+                  name="endYear"
+                  v-model="formData.endYear"
+                  @change="updateLegacyRecurrence"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option v-for="year in getAvailableEndYears()" :key="year" :value="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          <!-- Custom Months for Multi-Year (for custom recurrence) -->
-          <div v-if="formData.recurrence === RECURRENCE_TYPES.CUSTOM" class="space-y-3">
-            <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
+          <!-- Occurrences Option -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.AFTER_OCCURRENCES" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <span class="text-red-500">*</span> Number of Occurrences
+              </label>
+              <input 
+                id="occurrences"
+                name="occurrences"
+                v-model.number="formData.occurrences"
+                @change="updateLegacyRecurrence"
+                type="number" 
+                min="1" 
+                max="120"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+              <p class="text-xs text-gray-500 mt-1">
+                Maximum: 120 occurrences (10 years)
+              </p>
+            </div>
+          </div>
+
+          <!-- Custom Months (for custom frequency) -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
+              <p class="text-xs text-gray-500 mt-1">Custom months for current year only (past months are disabled)</p>
+            </div>
             <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
               <label 
                 v-for="(month, index) in months" 
                 :key="month" 
-                class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                :class="{ 'bg-blue-50 border-blue-300': formData.customMonths.includes(index) }">
+                class="flex items-center p-3 border border-gray-200 rounded-lg transition-colors"
+                :class="{ 
+                  'bg-blue-50 border-blue-300': formData.customMonths.includes(index),
+                  'cursor-pointer hover:bg-gray-50': index >= currentMonth,
+                  'cursor-not-allowed bg-gray-100 opacity-50': index < currentMonth
+                }">
                 <input 
                   type="checkbox" 
                   :value="index" 
                   v-model="formData.customMonths"
-                  @change="updateMultiYearPreview"
-                  class="mr-2 text-blue-600 focus:ring-blue-500" />
-                <span class="text-sm font-medium">{{ month }}</span>
+                  @change="updateSchedule"
+                  :disabled="index < currentMonth"
+                  class="mr-2 text-blue-600 focus:ring-blue-500 disabled:opacity-50" />
+                <span class="text-sm font-medium" :class="{ 'text-gray-400': index < currentMonth }">{{ month }}</span>
               </label>
             </div>
           </div>
-          
-          <!-- Schedule Duration Preview -->
-          <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <p class="text-sm font-medium text-gray-900">
-                  Schedule Duration
-                </p>
-                <p class="text-xs text-gray-600">
-                  From: {{ months[formData.startMonth] }} {{ formData.start_year }} 
-                  → To: {{ formData.end_month !== null ? months[formData.end_month] : 'December' }} {{ formData.end_year }}
-                </p>
-              </div>
-              <div class="text-right">
-                <p class="text-sm font-semibold text-gray-900">
-                  {{ multiYearPreview.duration }} year{{ multiYearPreview.duration !== 1 ? 's' : '' }}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- Payment Settings -->
-        <div class="space-y-4 pt-4 border-t border-gray-200">
-          <h5 class="text-md font-medium text-gray-900 flex items-center">
-            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-            </svg>
-            Payment Settings
-          </h5>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Payment Schedule -->
+          <!-- One Time Date (for once frequency) -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-3">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Payment Schedule
-              </label>
-              <select 
-                v-model="formData.payment_schedule"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="(label, schedule) in PAYMENT_SCHEDULE_LABELS" :key="schedule" :value="schedule">
-                  {{ label }}
-                </option>
-              </select>
+              <label class="block text-sm font-medium text-gray-700">One-Time Date</label>
               <p class="text-xs text-gray-500 mt-1">
-                {{ PAYMENT_SCHEDULE_DESCRIPTIONS[formData.payment_schedule] }}
+                {{ formData.oneTimeYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.oneTimeYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }}
               </p>
             </div>
-            
-            <!-- Due Date (only for custom_dates) -->
-            <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Due Date (Day of Month)
-              </label>
-              <select 
-                v-model="formData.due_date"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">Select day</option>
-                <option v-for="day in 31" :key="day" :value="day">
-                  {{ day }}{{ getDaySuffix(day) }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Fixed Expense and Reminder Settings -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Fixed Expense Toggle -->
-            <div class="flex items-center space-x-3">
-              <input 
-                type="checkbox" 
-                id="is_fixed_expense"
-                v-model="formData.is_fixed_expense"
-                class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-              <label for="is_fixed_expense" class="text-sm font-medium text-gray-700">
-                Fixed Expense
-              </label>
-              <div class="flex-1">
-                <p class="text-xs text-gray-500">
-                  Amount doesn't change month to month
-                </p>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-gray-600 mb-1">Month</label>
+                <select 
+                  id="oneTimeMonth"
+                  name="oneTimeMonth"
+                  v-model="formData.oneTimeMonth"
+                  @change="updateLegacyRecurrence"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option 
+                    v-for="month in getAvailableOnceMonths()" 
+                    :key="month.value" 
+                    :value="month.value"
+                    :disabled="!getAvailableOnceMonths().find(m => m.value === month.value)"
+                    :class="{ 'text-gray-400': !getAvailableOnceMonths().find(m => m.value === month.value) }">
+                    {{ month.label }}
+                  </option>
+                </select>
               </div>
-            </div>
-            
-            <!-- Reminder Toggle -->
-            <div class="flex items-center space-x-3">
-              <input 
-                type="checkbox" 
-                id="reminder_enabled"
-                v-model="formData.reminder_enabled"
-                class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-              <label for="reminder_enabled" class="text-sm font-medium text-gray-700">
-                Enable Reminders
-              </label>
-              <div class="flex-1">
-                <p class="text-xs text-gray-500">
-                  Get notified before due date
-                </p>
+              <div>
+                <label class="block text-xs text-gray-600 mb-1">Year</label>
+                <select 
+                  id="oneTimeYear"
+                  name="oneTimeYear"
+                  v-model="formData.oneTimeYear"
+                  @change="updateLegacyRecurrence"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option v-for="year in getAvailableYears()" :key="year" :value="year">
+                    {{ year }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
 
-          <!-- Reminder Days Before (only if reminders enabled) -->
-          <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Remind Me (Days Before)
-              </label>
-              <select 
-                v-model="formData.reminder_days_before"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="days in [1, 2, 3, 5, 7, 10, 14, 21, 30]" :key="days" :value="days">
-                  {{ days }} day{{ days !== 1 ? 's' : '' }} before
-                </option>
-              </select>
+          <!-- Multi-Year Indicator (Auto-detected) -->
+          <div v-if="isMultiYear" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div class="flex items-center space-x-2">
+              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div>
+                <p class="text-sm font-medium text-blue-900">Multi-Year Budget Item</p>
+                <p class="text-xs text-blue-700">
+                  This budget spans {{ getMultiYearDuration() }} year{{ getMultiYearDuration() !== 1 ? 's' : '' }} 
+                  ({{ formData.startYear }} - {{ formData.endYear }})
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -579,14 +418,14 @@
           
           <!-- Amount values -->
           <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
-                          <div 
-                v-for="(amount, index) in generateSchedule().amounts" 
-                :key="index"
-                class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
-                :class="getAmountClass(amount)"
-                :title="formatCurrency(amount)">
-                <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
-              </div>
+            <div 
+              v-for="(amount, index) in generateSchedule().amounts" 
+              :key="index"
+              class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
+              :class="getAmountClass(amount)"
+              :title="formatCurrency(amount)">
+              <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
+            </div>
           </div>
           
           <!-- Summary -->
@@ -603,7 +442,7 @@
       </div>
 
       <!-- Multi-Year Preview Section -->
-      <div v-if="formData.is_multi_year" class="space-y-4">
+      <div v-if="isMultiYear" class="space-y-4">
         <h4 class="text-lg font-semibold text-gray-900 flex items-center">
           <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -685,7 +524,7 @@ import { useBudgetStore } from '@/stores/budget.js'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetModals } from '@/composables/useBudgetModals.js'
 import { 
-  MONTHS, 
+  MONTHS,
   BUDGET_TYPES, 
   BUDGET_TYPE_LABELS, 
   RECURRENCE_TYPES, 
@@ -696,7 +535,13 @@ import {
   PAYMENT_SCHEDULE_LABELS,
   PAYMENT_SCHEDULE_DESCRIPTIONS,
   DATABASE_LIMITS,
-  MULTI_YEAR_CONSTANTS
+  MULTI_YEAR_CONSTANTS,
+  FREQUENCY_TYPES,
+  FREQUENCY_LABELS,
+  RECURRENCE_INTERVALS,
+  MONTH_OPTIONS,
+  END_TYPES,
+  END_TYPE_LABELS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
@@ -733,6 +578,21 @@ const availableInvestments = ref([])
 // Computed
 const currentYear = computed(() => budgetStore.currentYear)
 const currentMonth = computed(() => budgetStore.currentMonth)
+const isMultiYear = computed(() => {
+  if (formData.value.frequency === FREQUENCY_TYPES.REPEATS) {
+    if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+      return formData.value.endYear > formData.value.startYear
+    } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+      // For occurrences, calculate if it spans multiple years
+      const totalMonths = formData.value.occurrences * formData.value.recurrenceInterval
+      const startDate = new Date(formData.value.startYear, formData.value.startMonth)
+      const endDate = new Date(startDate.getTime() + (totalMonths * 30 * 24 * 60 * 60 * 1000))
+      return endDate.getFullYear() > startDate.getFullYear()
+    }
+  }
+  // For once and custom, it's never multi-year
+  return false
+})
 
 // Modal composable
 const {
@@ -754,7 +614,9 @@ const {
   getAvailableYears,
   getAvailableEndYears,
   getMultiYearRecurrenceOptions,
-  handleMultiYearToggle
+  updateLegacyRecurrence,
+  getAvailableOnceMonths,
+  getAvailableCustomMonths
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
 // Get current value class
@@ -850,10 +712,20 @@ const handleSubmit = async () => {
   }
 }
 
+// Watch for form data changes to debug
+watch(() => formData.value.startMonth, (newValue, oldValue) => {
+  console.log('Start Month changed:', { oldValue, newValue, formData: formData.value })
+})
+
 // Watch for budget changes to initialize form
 watch(() => props.budget, (newBudget) => {
   if (newBudget) {
     initializeFormDataFromBudget(newBudget)
+    // Ensure frequency is set to "repeats" if the budget has date fields
+    if (newBudget.start_month !== undefined || newBudget.startMonth !== undefined || 
+        newBudget.end_month !== undefined || newBudget.endMonth !== undefined) {
+      formData.value.frequency = FREQUENCY_TYPES.REPEATS
+    }
   }
 }, { immediate: true })
 
@@ -862,8 +734,25 @@ watch(() => props.modelValue, (isOpen) => {
   if (isOpen && props.budget) {
     nextTick(() => {
       initializeFormDataFromBudget(props.budget)
+      // Ensure frequency is set to "repeats" if the budget has date fields
+      if (props.budget.start_month !== undefined || props.budget.startMonth !== undefined || 
+          props.budget.end_month !== undefined || props.budget.endMonth !== undefined) {
+        formData.value.frequency = FREQUENCY_TYPES.REPEATS
+      }
       loadAvailableInvestments()
     })
   }
 })
+
+// Get multi-year duration
+const getMultiYearDuration = () => {
+  if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+    return formData.value.endYear - formData.value.startYear + 1
+  } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+    // Calculate years based on occurrences and interval
+    const totalMonths = formData.value.occurrences * formData.value.recurrenceInterval
+    return Math.ceil(totalMonths / 12)
+  }
+  return 0
+}
 </script> 
