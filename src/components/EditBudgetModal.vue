@@ -68,6 +68,53 @@
             </select>
           </div>
         </div>
+        
+        <!-- Investment Linking (only for Investment type) -->
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-4">
+          <!-- Link to Existing Investment -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Link to Investment Asset
+            </label>
+            <div class="space-y-2">
+              <select 
+                v-model="formData.linked_investment_id"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option value="">No investment linked</option>
+                <option 
+                  v-for="investment in availableInvestments" 
+                  :key="investment.id" 
+                  :value="investment.id">
+                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
+                </option>
+              </select>
+              
+              <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-blue-900">
+                      {{ getLinkedInvestmentName() }}
+                    </p>
+                    <p class="text-xs text-blue-700">
+                      Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="formData.linked_investment_id = ''"
+                    class="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Unlink
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-1">
+              Link this budget item to an existing investment asset to track payments and returns.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Financial Details Section -->
@@ -742,6 +789,13 @@ watch(() => props.budget, (newBudget) => {
     }
   }
 }, { immediate: true })
+
+// Watch for budget type changes to clear linked investment
+watch(() => formData.value.type, (newType, oldType) => {
+  if (oldType === BUDGET_TYPES.INVESTMENT && newType !== BUDGET_TYPES.INVESTMENT) {
+    formData.value.linked_investment_id = ''
+  }
+})
 
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {

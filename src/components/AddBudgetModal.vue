@@ -68,6 +68,53 @@
             </select>
           </div>
         </div>
+        
+        <!-- Investment Linking (only for Investment type) -->
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-4">
+          <!-- Link to Existing Investment -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Link to Investment Asset
+            </label>
+            <div class="space-y-2">
+              <select 
+                v-model="formData.linked_investment_id"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option value="">No investment linked</option>
+                <option 
+                  v-for="investment in availableInvestments" 
+                  :key="investment.id" 
+                  :value="investment.id">
+                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
+                </option>
+              </select>
+              
+              <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-blue-900">
+                      {{ getLinkedInvestmentName() }}
+                    </p>
+                    <p class="text-xs text-blue-700">
+                      Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="formData.linked_investment_id = ''"
+                    class="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Unlink
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <p class="text-xs text-gray-500 mt-1">
+              Link this budget item to an existing investment asset to track payments and returns.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Financial Details Section -->
@@ -111,62 +158,6 @@
                 {{ label }}
               </option>
             </select>
-          </div>
-        </div>
-      </div>
-
-      <!-- Investment Linking Section -->
-      <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-          </svg>
-          Investment Linking
-        </h4>
-        
-        <div class="space-y-4">
-          <!-- Link to Existing Investment -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Link to Investment Asset
-            </label>
-            <div class="space-y-2">
-              <select 
-                v-model="formData.linked_investment_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">No investment linked</option>
-                <option 
-                  v-for="investment in availableInvestments" 
-                  :key="investment.id" 
-                  :value="investment.id">
-                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
-                </option>
-              </select>
-              
-              <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-blue-900">
-                      {{ getLinkedInvestmentName() }}
-                    </p>
-                    <p class="text-xs text-blue-700">
-                      Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="formData.linked_investment_id = ''"
-                    class="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Unlink
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <p class="text-xs text-gray-500 mt-1">
-              Link this budget item to an existing investment asset to track payments and returns.
-            </p>
           </div>
         </div>
       </div>
@@ -755,6 +746,34 @@ const {
   getAvailableCustomMonths
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
+// Watch for budget type changes to clear linked investment
+watch(() => formData.value.type, (newType, oldType) => {
+  if (oldType === BUDGET_TYPES.INVESTMENT && newType !== BUDGET_TYPES.INVESTMENT) {
+    formData.value.linked_investment_id = ''
+  }
+})
+
+// Watch for modal opening to initialize form
+watch(() => props.modelValue, (isOpen) => {
+  if (isOpen) {
+    initializeFormData()
+    loadAvailableInvestments()
+    // Ensure frequency is set to "repeats" by default
+    formData.value.frequency = FREQUENCY_TYPES.REPEATS
+  }
+})
+
+// Watch for multi-year form changes to update preview
+watch([
+  () => formData.value.is_multi_year,
+  () => formData.value.start_year,
+  () => formData.value.end_year,
+  () => formData.value.end_month,
+  () => formData.value.defaultAmount
+], () => {
+  updateMultiYearPreview()
+}, { deep: true })
+
 // Get amount class for styling
 const getAmountClass = (amount) => {
   if (amount > 0) {
@@ -821,27 +840,6 @@ const handleSubmit = async () => {
     emit('budget-added', result)
   }
 }
-
-// Watch for modal opening to initialize form
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    initializeFormData()
-    loadAvailableInvestments()
-    // Ensure frequency is set to "repeats" by default
-    formData.value.frequency = FREQUENCY_TYPES.REPEATS
-  }
-})
-
-// Watch for multi-year form changes to update preview
-watch([
-  () => formData.value.is_multi_year,
-  () => formData.value.start_year,
-  () => formData.value.end_year,
-  () => formData.value.end_month,
-  () => formData.value.defaultAmount
-], () => {
-  updateMultiYearPreview()
-}, { deep: true })
 
 // Get multi-year duration
 const getMultiYearDuration = () => {
