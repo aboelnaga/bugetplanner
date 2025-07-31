@@ -42,11 +42,11 @@ This directory contains test files and SQL scripts used for debugging and testin
 - Original fix attempt for signup 500 error
 - Creates profile trigger and RLS policies
 
-### `simple-fix-for-signup-issue.sql`
+### `simple-fix.sql`
 - Simplified fix focusing only on profile creation
 - Removes account creation temporarily
 
-### `add-account-creation-back.sql`
+### `add-accounts-back.sql`
 - Re-adds account creation functionality
 - Creates separate trigger for accounts
 
@@ -54,17 +54,37 @@ This directory contains test files and SQL scripts used for debugging and testin
 - Combines profile and account creation in single trigger
 - Attempts to avoid trigger conflicts
 
-### `rls-disabled-test.sql`
+### `disable-rls-temporarily.sql`
 - Temporarily disables RLS for testing
 - Tests if RLS was causing the issue
 
-### `check-triggers-on-auth-users.sql`
+### `check-triggers.sql`
 - Lists all triggers on auth.users table
 - Diagnostic script for trigger analysis
 
-### `remove-all-triggers-test.sql`
+### `remove-trigger-test.sql`
 - Removes all triggers and functions
 - Creates manual function for testing
+
+### `fix-accounts-trigger.sql`
+- Attempts to fix accounts table trigger
+- Includes RLS policy updates
+
+### `fix-accounts-trigger-clean.sql`
+- Cleaner version of accounts trigger fix
+- Includes proper error handling
+
+### `fix-rls-policies.sql`
+- Updates RLS policies for profiles and accounts
+- Ensures proper access control
+
+### `fix-trigger-bypass.sql`
+- Attempts to bypass trigger issues
+- Uses different approach to user creation
+
+### `drop_budget_amounts_table.sql`
+- Utility script to drop budget_amounts table
+- Used for schema cleanup
 
 ## Usage
 
@@ -87,4 +107,8 @@ The 500 error during signup was caused by **conflicting triggers** on the `auth.
 ✅ **Signup works** without 500 errors
 ✅ **Manual profile creation** works
 ✅ **Manual account creation** works
-✅ **RLS policies** working correctly 
+✅ **RLS policies** working correctly
+
+## Solution Applied
+
+The final solution was to remove all triggers from `auth.users` table using the `remove-trigger-test.sql` script. This eliminates the 500 error while maintaining all functionality through manual creation or application-level handling. 
