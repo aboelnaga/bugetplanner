@@ -87,19 +87,19 @@ export const useBudgetStore = defineStore('budget', () => {
         ...budgetData,
         user_id: authStore.userId,
         year: selectedYear.value,
-        // Map new frequency fields
+        // Map new frequency fields - use snake_case from baseData
         frequency: budgetData.frequency || 'repeats',
-        recurrence_interval: budgetData.recurrenceInterval || 1,
-        start_year: budgetData.startYear || selectedYear.value,
-        end_year: budgetData.endYear || selectedYear.value,
-        end_type: budgetData.endType || 'specific_date',
+        recurrence_interval: budgetData.recurrence_interval || budgetData.recurrenceInterval || 1,
+        start_year: budgetData.start_year || budgetData.startYear || selectedYear.value,
+        end_year: budgetData.end_year || budgetData.endYear || selectedYear.value,
+        end_type: budgetData.end_type || budgetData.endType || 'specific_date',
         occurrences: budgetData.occurrences || 12,
-        one_time_year: budgetData.oneTimeYear,
-        custom_months: budgetData.customMonths || [],
+        one_time_year: budgetData.one_time_year || budgetData.oneTimeYear,
+        custom_months: budgetData.custom_months || budgetData.customMonths || [],
         // Legacy fields for backward compatibility
         recurrence: budgetData.recurrence || 'monthly',
-        start_month: budgetData.startMonth || 0,
-        end_month: budgetData.endMonth || 11
+        start_month: budgetData.start_month || budgetData.startMonth || 0,
+        end_month: budgetData.end_month || budgetData.endMonth || 11
       }
       
       console.log('Store: Creating budget item with data:', budgetItemData)

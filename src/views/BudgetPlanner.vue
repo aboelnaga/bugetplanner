@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="flex space-x-3">
-          <button @click="openAddBudgetModal" class="btn-primary">Add Budget Item</button>
+          <button @click="openAddBudgetModal" class="btn-primary" data-testid="add-budget-btn">Add Budget Item</button>
           <!-- <button @click="openHistoryModal" class="btn-secondary">View History</button> -->
         </div>
       </div>
@@ -104,6 +104,7 @@
 
       <!-- Budget Table -->
       <BudgetTable
+        data-testid="budget-table"
         :loading="budgetStore.loading"
         :error="budgetStore.error"
         :budget-items="budgetItems"
