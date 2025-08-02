@@ -91,19 +91,22 @@
         <button @click="$emit('edit-budget', budget)" 
                 :title="getActionButtonConfig('EDIT').title"
                 :aria-label="getActionButtonConfig('EDIT').ariaLabel"
-                :class="`${getActionButtonConfig('EDIT').padding} ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} ${getActionButtonConfig('EDIT').borderRadius} ${getActionButtonConfig('EDIT').transition}`">
+                :class="`${getActionButtonConfig('EDIT').padding} ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} ${getActionButtonConfig('EDIT').borderRadius} ${getActionButtonConfig('EDIT').transition}`"
+                data-testid="edit-budget-btn">
           <Edit :class="getActionButtonConfig('EDIT').size" />
         </button>
         <button @click="$emit('duplicate-budget', budget)" 
                 :title="getActionButtonConfig('DUPLICATE').title"
                 :aria-label="getActionButtonConfig('DUPLICATE').ariaLabel"
-                :class="`${getActionButtonConfig('DUPLICATE').padding} ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} ${getActionButtonConfig('DUPLICATE').borderRadius} ${getActionButtonConfig('DUPLICATE').transition}`">
+                :class="`${getActionButtonConfig('DUPLICATE').padding} ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} ${getActionButtonConfig('DUPLICATE').borderRadius} ${getActionButtonConfig('DUPLICATE').transition}`"
+                data-testid="duplicate-budget-btn">
           <Copy :class="getActionButtonConfig('DUPLICATE').size" />
         </button>
         <button @click="$emit('delete-budget', budget.id)" 
                 :title="getActionButtonConfig('DELETE').title"
                 :aria-label="getActionButtonConfig('DELETE').ariaLabel"
-                :class="`${getActionButtonConfig('DELETE').padding} ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} ${getActionButtonConfig('DELETE').borderRadius} ${getActionButtonConfig('DELETE').transition}`">
+                :class="`${getActionButtonConfig('DELETE').padding} ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} ${getActionButtonConfig('DELETE').borderRadius} ${getActionButtonConfig('DELETE').transition}`"
+                data-testid="delete-budget-btn">
           <Trash2 :class="getActionButtonConfig('DELETE').size" />
         </button>
       </div>
