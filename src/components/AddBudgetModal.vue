@@ -1,8 +1,9 @@
 <template>
-  <BaseModal 
-    :modelValue="modelValue" 
-    :loading="isLoading"
-    @update:modelValue="$emit('update:modelValue', $event)">
+      <BaseModal 
+      :modelValue="modelValue" 
+      :loading="isLoading"
+      @update:modelValue="$emit('update:modelValue', $event)"
+      data-testid="add-budget-modal">
     
     <!-- Header -->
     <template #icon>
@@ -36,7 +37,8 @@
               type="text" 
               required 
               placeholder="e.g., Monthly Salary, Car Expenses"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              data-testid="budget-name-input" />
           </div>
           
           <!-- Budget Type -->
@@ -47,7 +49,8 @@
             <select 
               v-model="formData.type" 
               @change="updateCategoryOnTypeChange"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              data-testid="budget-type-select">
               <option v-for="(label, type) in BUDGET_TYPE_LABELS" :key="type" :value="type">
                 {{ label }}
               </option>
@@ -61,7 +64,8 @@
             </label>
             <select 
               v-model="formData.category"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              data-testid="budget-category-select">
               <option v-for="category in getCategoriesByType(formData.type)" :key="category" :value="category">
                 {{ category }}
               </option>
@@ -139,7 +143,8 @@
                 type="text" 
                 required 
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                data-testid="default-amount-input" />
             </div>
             <p class="text-xs text-gray-500 mt-1">
               Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
@@ -153,7 +158,8 @@
             </label>
             <select 
               v-model="formData.payment_schedule"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              data-testid="payment-schedule-select">
               <option v-for="(label, schedule) in PAYMENT_SCHEDULE_LABELS" :key="schedule" :value="schedule">
                 {{ label }}
               </option>
@@ -274,7 +280,8 @@
                 name="frequency"
                 v-model="formData.frequency" 
                 @change="updateSchedule"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                data-testid="frequency-select">
                 <option v-for="(label, type) in FREQUENCY_LABELS" :key="type" :value="type">
                   {{ label }}
                 </option>
@@ -291,7 +298,8 @@
                 name="recurrenceInterval"
                 v-model="formData.recurrenceInterval"
                 @change="updateSchedule"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                data-testid="recurrence-interval-select">
                 <option v-for="interval in RECURRENCE_INTERVALS" :key="interval.value" :value="interval.value">
                   {{ interval.label }}
                 </option>
@@ -315,6 +323,7 @@
                   name="startMonth"
                   v-model="formData.startMonth"
                   @change="updateLegacyRecurrence"
+                  data-testid="start-month-select"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option 
                     v-for="month in MONTH_OPTIONS" 
@@ -330,6 +339,7 @@
                   name="startYear"
                   v-model="formData.startYear"
                   @change="updateLegacyRecurrence"
+                  data-testid="start-year-select"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="year in getAvailableYears()" :key="year" :value="year">
                     {{ year }}
@@ -348,6 +358,7 @@
                 name="endType"
                 v-model="formData.endType"
                 @change="updateLegacyRecurrence"
+                data-testid="end-type-select"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 <option v-for="(label, type) in END_TYPE_LABELS" :key="type" :value="type">
                   {{ label }}
@@ -369,6 +380,7 @@
                   name="endMonth"
                   v-model="formData.endMonth"
                   @change="updateLegacyRecurrence"
+                  data-testid="end-month-select"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
                     {{ month.label }}
@@ -379,6 +391,7 @@
                   name="endYear"
                   v-model="formData.endYear"
                   @change="updateLegacyRecurrence"
+                  data-testid="end-year-select"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="year in getAvailableEndYears()" :key="year" :value="year">
                     {{ year }}
@@ -402,6 +415,7 @@
                 type="number" 
                 min="1" 
                 max="120"
+                data-testid="occurrences-input"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
               <p class="text-xs text-gray-500 mt-1">
                 Maximum: 120 occurrences (10 years)
@@ -431,6 +445,7 @@
                   v-model="formData.customMonths"
                   @change="updateSchedule"
                   :disabled="index < currentMonth"
+                  :data-testid="`custom-month-${index}`"
                   class="mr-2 text-blue-600 focus:ring-blue-500 disabled:opacity-50" />
                 <span class="text-sm font-medium" :class="{ 'text-gray-400': index < currentMonth }">{{ month }}</span>
               </label>
@@ -453,6 +468,7 @@
                   name="oneTimeMonth"
                   v-model="formData.oneTimeMonth"
                   @change="updateLegacyRecurrence"
+                  data-testid="one-time-month-select"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option 
                     v-for="month in getAvailableOnceMonths()" 
@@ -471,6 +487,7 @@
                   name="oneTimeYear"
                   v-model="formData.oneTimeYear"
                   @change="updateLegacyRecurrence"
+                  data-testid="one-time-year-select"
                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="year in getAvailableYears()" :key="year" :value="year">
                     {{ year }}
@@ -481,7 +498,7 @@
           </div>
 
           <!-- Multi-Year Indicator (Auto-detected) -->
-          <div v-if="isMultiYear" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div v-if="isMultiYear" class="bg-blue-50 border border-blue-200 rounded-lg p-3" data-testid="multi-year-indicator">
             <div class="flex items-center space-x-2">
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -511,7 +528,7 @@
         </h4>
         
         <!-- Multi-Year Preview -->
-        <div v-if="formData.is_multi_year" class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div v-if="formData.is_multi_year" class="bg-gray-50 border border-gray-200 rounded-lg p-4" data-testid="multi-year-preview">
           <div class="space-y-4">
             <!-- Overall Summary -->
             <div class="flex items-center justify-between">
@@ -573,7 +590,7 @@
         </div>
         
         <!-- Single Year Preview -->
-        <div v-else class="bg-gray-50 rounded-lg p-4">
+        <div v-else class="bg-gray-50 rounded-lg p-4" data-testid="schedule-preview">
           <!-- Month headers -->
           <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-2">
             <div 
@@ -625,7 +642,8 @@
           type="submit" 
           @click="handleSubmit"
           :disabled="isLoading" 
-          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center">
+          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+          data-testid="submit-budget-btn">
           <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -828,10 +846,15 @@ const closeModal = () => {
 
 // Handle form submission
 const handleSubmit = async () => {
+  console.log('AddBudgetModal handleSubmit called')
   const result = await handleAddSubmit()
+  console.log('handleAddSubmit result:', result)
   if (result) {
+    console.log('Budget added successfully, closing modal')
     closeModal()
     emit('budget-added', result)
+  } else {
+    console.log('Budget addition failed, keeping modal open')
   }
 }
 
