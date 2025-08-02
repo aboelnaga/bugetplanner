@@ -82,12 +82,28 @@ export const useBudgetStore = defineStore('budget', () => {
       addLoading.value = true
       error.value = null
       
-      console.log('Store: Creating budget item with data:', { ...budgetData, user_id: authStore.userId, year: selectedYear.value })
-      const data = await budgetAPI.createBudgetItem({
+      // Prepare data with new frequency fields
+      const budgetItemData = {
         ...budgetData,
         user_id: authStore.userId,
-        year: selectedYear.value
-      })
+        year: selectedYear.value,
+        // Map new frequency fields
+        frequency: budgetData.frequency || 'repeats',
+        recurrence_interval: budgetData.recurrenceInterval || 1,
+        start_year: budgetData.startYear || selectedYear.value,
+        end_year: budgetData.endYear || selectedYear.value,
+        end_type: budgetData.endType || 'specific_date',
+        occurrences: budgetData.occurrences || 12,
+        one_time_year: budgetData.oneTimeYear,
+        custom_months: budgetData.customMonths || [],
+        // Legacy fields for backward compatibility
+        recurrence: budgetData.recurrence || 'monthly',
+        start_month: budgetData.startMonth || 0,
+        end_month: budgetData.endMonth || 11
+      }
+      
+      console.log('Store: Creating budget item with data:', budgetItemData)
+      const data = await budgetAPI.createBudgetItem(budgetItemData)
       console.log('Store: API returned data:', data)
       
       // Add to local state immediately - no need for general loading state
@@ -113,7 +129,7 @@ export const useBudgetStore = defineStore('budget', () => {
       
       console.log('Store: Creating multi-year budget items with data:', budgetData)
       
-      const { start_year, end_year, end_month, defaultAmount, start_month, recurrence, customMonths } = budgetData
+      const { start_year, end_year, end_month, defaultAmount, start_month, recurrence, customMonths, frequency, recurrenceInterval, endType, occurrences } = budgetData
       const linkedGroupId = crypto.randomUUID() // Generate unique group ID
       
       const createdItems = []
@@ -140,18 +156,16 @@ export const useBudgetStore = defineStore('budget', () => {
             // After end month in last year
             shouldHaveAmount = false
           } else {
-            // Check if this month should have amount based on recurrence
-            if (recurrence === 'monthly') {
-              shouldHaveAmount = true
-            } else if (recurrence === 'quarterly') {
-              shouldHaveAmount = month % 3 === 0 // Q1, Q2, Q3, Q4
-            } else if (recurrence === 'bi-annual') {
-              shouldHaveAmount = month === 0 || month === 6 // Jan & Jul
-            } else if (recurrence === 'school-terms') {
-              shouldHaveAmount = month === 0 || month === 8 // Jan & Sep
-            } else if (recurrence === 'custom') {
+            // Check if this month should have amount based on new frequency system
+            if (frequency === 'repeats') {
+              // Calculate based on interval
+              const monthOffset = month - start_month
+              if (monthOffset >= 0 && monthOffset % recurrenceInterval === 0) {
+                shouldHaveAmount = true
+              }
+            } else if (frequency === 'custom') {
               shouldHaveAmount = customMonths && customMonths.includes(month)
-            } else if (recurrence === 'one-time') {
+            } else if (frequency === 'once') {
               // One-time doesn't make sense for multi-year, but handle gracefully
               shouldHaveAmount = false
             }
@@ -177,7 +191,15 @@ export const useBudgetStore = defineStore('budget', () => {
           is_master: isMaster,
           start_year: start_year,
           end_year: end_year,
-          end_month: end_month
+          end_month: end_month,
+          // New frequency fields
+          frequency: frequency || 'repeats',
+          recurrence_interval: recurrenceInterval || 1,
+          start_year: start_year,
+          end_year: end_year,
+          end_type: endType || 'specific_date',
+          occurrences: occurrences || 12,
+          custom_months: customMonths || []
         }
         
         console.log(`Store: Creating budget item for year ${year} with data:`, yearBudgetData)
@@ -249,7 +271,7 @@ export const useBudgetStore = defineStore('budget', () => {
       const linkedItems = getLinkedBudgetItems(linkedGroupId)
       console.log('Store: Updating multi-year budget items:', linkedItems.length, 'items')
       
-      // Extract multi-year specific data
+      // Extract multi-year specific data including new frequency fields
       const { 
         start_year, 
         end_year, 
@@ -257,7 +279,13 @@ export const useBudgetStore = defineStore('budget', () => {
         start_month, 
         recurrence, 
         customMonths,
-        default_amount 
+        default_amount,
+        // New frequency fields
+        frequency,
+        recurrence_interval,
+        end_type,
+        occurrences,
+        one_time_year
       } = updates
       
       // Check if the multi-year structure has changed
@@ -266,7 +294,9 @@ export const useBudgetStore = defineStore('budget', () => {
         firstItem.start_year !== start_year ||
         firstItem.end_year !== end_year ||
         firstItem.end_month !== end_month ||
-        firstItem.start_month !== start_month
+        firstItem.start_month !== start_month ||
+        firstItem.frequency !== frequency ||
+        firstItem.recurrence_interval !== recurrence_interval
       )
       
       if (structureChanged) {
@@ -310,7 +340,7 @@ export const useBudgetStore = defineStore('budget', () => {
           for (let month = 0; month < 12; month++) {
             let shouldHaveAmount = false
             
-            // Check if this month should have amount based on year and recurrence
+            // Check if this month should have amount based on year and new frequency system
             if (isFirstYear && month < start_month) {
               // Before start month in first year
               shouldHaveAmount = false
@@ -318,18 +348,16 @@ export const useBudgetStore = defineStore('budget', () => {
               // After end month in last year
               shouldHaveAmount = false
             } else {
-              // Check if this month should have amount based on recurrence
-              if (recurrence === 'monthly') {
-                shouldHaveAmount = true
-              } else if (recurrence === 'quarterly') {
-                shouldHaveAmount = month % 3 === 0 // Q1, Q2, Q3, Q4
-              } else if (recurrence === 'bi-annual') {
-                shouldHaveAmount = month === 0 || month === 6 // Jan & Jul
-              } else if (recurrence === 'school-terms') {
-                shouldHaveAmount = month === 0 || month === 8 // Jan & Sep
-              } else if (recurrence === 'custom') {
+              // Check if this month should have amount based on new frequency system
+              if (frequency === 'repeats') {
+                // Calculate based on interval
+                const monthOffset = month - start_month
+                if (monthOffset >= 0 && monthOffset % recurrence_interval === 0) {
+                  shouldHaveAmount = true
+                }
+              } else if (frequency === 'custom') {
                 shouldHaveAmount = customMonths && customMonths.includes(month)
-              } else if (recurrence === 'one-time') {
+              } else if (frequency === 'once') {
                 // One-time doesn't make sense for multi-year, but handle gracefully
                 shouldHaveAmount = false
               }
@@ -342,12 +370,12 @@ export const useBudgetStore = defineStore('budget', () => {
             }
           }
           
-          // Create update data for this specific year (exclude customMonths from database update)
+          // Create update data for this specific year including new frequency fields
           const yearUpdateData = {
             name: updates.name,
             type: updates.type,
             category: updates.category,
-            recurrence: updates.recurrence,
+            recurrence: updates.recurrence, // Keep for backward compatibility
             default_amount: updates.default_amount,
             start_month: updates.start_month,
             payment_schedule: updates.payment_schedule,
@@ -361,7 +389,16 @@ export const useBudgetStore = defineStore('budget', () => {
             end_year: updates.end_year,
             end_month: updates.end_month,
             amounts: monthlyAmounts,
-            schedule: schedule
+            schedule: schedule,
+            // New frequency fields
+            frequency: frequency,
+            recurrence_interval: recurrence_interval,
+            start_year: start_year,
+            end_year: end_year,
+            end_type: end_type,
+            occurrences: occurrences,
+            one_time_year: one_time_year,
+            custom_months: customMonths
           }
           
           if (updates.investment_direction) {
