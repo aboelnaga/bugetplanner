@@ -391,22 +391,22 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     if (!formData.value.is_multi_year) return errors
 
-    const { start_year, end_year } = formData.value
+    const { startYear, endYear } = formData.value
 
-    if (!start_year || !end_year) {
+    if (!startYear || !endYear) {
       errors.push('Start year and end year are required for multi-year budgets')
       return errors
     }
 
-    if (start_year > end_year) {
+    if (startYear > endYear) {
       errors.push('Start year cannot be after end year')
     }
 
-    if (end_year - start_year + 1 > MULTI_YEAR_CONSTANTS.MAX_DURATION_YEARS) {
+    if (endYear - startYear + 1 > MULTI_YEAR_CONSTANTS.MAX_DURATION_YEARS) {
       errors.push(`Multi-year duration cannot exceed ${MULTI_YEAR_CONSTANTS.MAX_DURATION_YEARS} years`)
     }
 
-    if (end_year - start_year + 1 < MULTI_YEAR_CONSTANTS.MIN_DURATION_YEARS) {
+    if (endYear - startYear + 1 < MULTI_YEAR_CONSTANTS.MIN_DURATION_YEARS) {
       errors.push(`Multi-year duration must be at least ${MULTI_YEAR_CONSTANTS.MIN_DURATION_YEARS} year`)
     }
 
@@ -542,30 +542,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     )
   }
 
-  // Get available start month indices
-  const getAvailableStartMonthIndices = () => {
-    // For ONCE and CUSTOM frequencies, return all months since date fields are hidden
-    if (formData.value.frequency === FREQUENCY_TYPES.ONCE || formData.value.frequency === FREQUENCY_TYPES.CUSTOM) {
-      return MONTH_OPTIONS
-    }
-    
-    const startYear = formData.value.startYear || currentYear.value
-    const currentYearValue = currentYear.value
-    const currentMonthValue = currentMonth.value
-    
-    // If start year is current year, only show months >= current month
-    if (startYear === currentYearValue) {
-      return MONTH_OPTIONS.filter(month => month.value >= currentMonthValue)
-    }
-    // If start year is in the future, show all months
-    else if (startYear > currentYearValue) {
-      return MONTH_OPTIONS
-    }
-    // If start year is in the past, show all months (for historical data)
-    else {
-      return MONTH_OPTIONS
-    }
-  }
+
 
   // Get month label based on selected year and current date
   const getMonthLabel = (monthIndex) => {
@@ -582,41 +559,60 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
 
   // Generate schedule based on form data
   const generateSchedule = () => {
-    const { frequency, recurrenceInterval, startMonth, startYear, endMonth, endYear, endType, occurrences, customMonths, oneTimeMonth, oneTimeYear, defaultAmount } = formData.value
+    console.log('generateSchedule called with:')
+    console.log('- frequency:', formData.value.frequency)
+    console.log('- startMonth:', formData.value.startMonth)
+    console.log('- startYear:', formData.value.startYear)
+    console.log('- endMonth:', formData.value.endMonth)
+    console.log('- endYear:', formData.value.endYear)
+    console.log('- recurrenceInterval:', formData.value.recurrenceInterval)
+    console.log('- endType:', formData.value.endType)
+    console.log('- occurrences:', formData.value.occurrences)
     
     let schedule = []
     let amounts = new Array(12).fill(0)
     
-    switch (frequency) {
-      case FREQUENCY_TYPES.REPEATS:
-        // Handle repeats with interval
-        if (endType === END_TYPES.SPECIFIC_DATE) {
-          // Generate schedule for specific date range
-          schedule = generateRepeatingSchedule(startMonth, startYear, endMonth, endYear, recurrenceInterval)
-        } else if (endType === END_TYPES.AFTER_OCCURRENCES) {
-          // Generate schedule for specific number of occurrences
-          schedule = generateOccurrenceSchedule(startMonth, startYear, recurrenceInterval, occurrences)
-        }
-        break
-        
-      case FREQUENCY_TYPES.ONCE:
-        // Handle one-time items - show preview for the oneTimeYear
-        schedule = [oneTimeMonth]
-        break
-        
-      case FREQUENCY_TYPES.CUSTOM:
-        // Handle custom months (current year only)
-        schedule = [...customMonths]
-        break
+    if (formData.value.frequency === FREQUENCY_TYPES.REPEATS) {
+      console.log('Generating repeating schedule...')
+      if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+        // Generate schedule for specific date range
+        schedule = generateRepeatingSchedule(
+          formData.value.startMonth,
+          formData.value.startYear,
+          formData.value.endMonth,
+          formData.value.endYear,
+          formData.value.recurrenceInterval
+        )
+      } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+        // Generate schedule for specific number of occurrences
+        schedule = generateOccurrenceSchedule(
+          formData.value.startMonth,
+          formData.value.startYear,
+          formData.value.recurrenceInterval,
+          formData.value.occurrences
+        )
+      }
+      console.log('Generated repeating schedule:', schedule)
+    } else if (formData.value.frequency === FREQUENCY_TYPES.ONCE) {
+      console.log('Generating once schedule...')
+      schedule = [formData.value.oneTimeMonth]
+      console.log('Generated once schedule:', schedule)
+    } else if (formData.value.frequency === FREQUENCY_TYPES.CUSTOM) {
+      console.log('Generating custom schedule...')
+      schedule = [...formData.value.customMonths]
+      console.log('Generated custom schedule:', schedule)
+    } else {
+      console.log('No valid frequency, returning empty schedule')
     }
-
+    
     // Populate amounts array
     schedule.forEach(month => {
       if (month >= 0 && month < 12) {
-        amounts[month] = defaultAmount
+        amounts[month] = formData.value.defaultAmount
       }
     })
-
+    
+    console.log('Final amounts array:', amounts)
     return { schedule, amounts }
   }
 
@@ -788,6 +784,22 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const validateFormData = () => {
     const errors = []
     
+    console.log('Validating form data:', {
+      name: formData.value.name,
+      defaultAmount: formData.value.defaultAmount,
+      frequency: formData.value.frequency,
+      oneTimeMonth: formData.value.oneTimeMonth,
+      oneTimeYear: formData.value.oneTimeYear,
+      customMonths: formData.value.customMonths,
+      recurrenceInterval: formData.value.recurrenceInterval,
+      startYear: formData.value.startYear,
+      endYear: formData.value.endYear,
+      startMonth: formData.value.startMonth,
+      endMonth: formData.value.endMonth,
+      currentYear: currentYear.value,
+      currentMonth: currentMonth.value
+    })
+    
     if (!formData.value.name.trim()) {
       errors.push('Name is required')
     }
@@ -823,21 +835,46 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       errors.push('Start month cannot be after end month in the same year')
     }
 
-    // Validate start month for current year
-    if (formData.value.startYear === currentYear.value && formData.value.startMonth < currentMonth.value) {
+    // Validate start month for current year (only for repeats frequency)
+    if (formData.value.frequency === FREQUENCY_TYPES.REPEATS && 
+        formData.value.startYear === currentYear.value && 
+        formData.value.startMonth < currentMonth.value) {
       errors.push('Start month cannot be in the past for the current year')
+    }
+    
+    // Validate one-time month for current year
+    if (formData.value.frequency === FREQUENCY_TYPES.ONCE && 
+        formData.value.oneTimeYear === currentYear.value && 
+        formData.value.oneTimeMonth < currentMonth.value) {
+      errors.push('One-time month cannot be in the past for the current year')
     }
 
     // Multi-year validation
     const multiYearErrors = validateMultiYearSettings()
     errors.push(...multiYearErrors)
     
+    console.log('Validation errors:', errors)
     return errors
   }
 
   // Create budget data object for submission
   const createBudgetData = () => {
+    console.log('createBudgetData called with formData:', formData.value)
+    console.log('formData.startMonth:', formData.value.startMonth)
+    console.log('formData.startYear:', formData.value.startYear)
+    console.log('formData.endMonth:', formData.value.endMonth)
+    console.log('formData.endYear:', formData.value.endYear)
+    
     const { schedule, amounts } = generateSchedule()
+
+    // Convert frequency to legacy recurrence for backward compatibility
+    const legacyRecurrence = convertFrequencyToRecurrence(
+      formData.value.frequency,
+      formData.value.recurrenceInterval,
+      formData.value.customMonths,
+      formData.value.oneTimeMonth,
+      formData.value.oneTimeYear
+    )
 
     const baseData = {
       name: formData.value.name,
@@ -850,8 +887,13 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       start_year: formData.value.startYear,
       end_month: formData.value.endMonth,
       end_year: formData.value.endYear,
+      end_type: formData.value.endType,
+      occurrences: formData.value.occurrences,
+      one_time_month: formData.value.oneTimeMonth,
+      one_time_year: formData.value.oneTimeYear,
+      custom_months: formData.value.customMonths || [],
       // Legacy fields for backward compatibility
-      recurrence: formData.value.recurrence,
+      recurrence: legacyRecurrence,
       default_amount: formData.value.defaultAmount,
       amounts: amounts,
       schedule: schedule,
@@ -864,12 +906,18 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       linked_investment_id: formData.value.linked_investment_id || null
     }
 
+    console.log('baseData created:', baseData)
+    console.log('baseData.start_month:', baseData.start_month)
+    console.log('baseData.start_year:', baseData.start_year)
+    console.log('baseData.end_month:', baseData.end_month)
+    console.log('baseData.end_year:', baseData.end_year)
+
     // Add multi-year fields if enabled
     if (formData.value.is_multi_year) {
       baseData.is_multi_year = true
-      baseData.start_year = formData.value.start_year
-      baseData.end_year = formData.value.end_year
-      baseData.end_month = formData.value.end_month
+      baseData.start_year = formData.value.startYear
+      baseData.end_year = formData.value.endYear
+      baseData.end_month = formData.value.endMonth
     }
 
     return baseData
@@ -877,11 +925,15 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
 
   // Handle form submission for add modal
   const handleAddSubmit = async () => {
+    console.log('handleAddSubmit called')
     try {
       isLoading.value = true
+      console.log('isLoading set to true')
       
       const errors = validateFormData()
+      console.log('Validation completed, errors:', errors)
       if (errors.length > 0) {
+        console.log('Validation errors found, showing alert')
         alert('Please fix the following errors:\n' + errors.join('\n'))
         return false
       }
@@ -892,18 +944,22 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       let result
       if (formData.value.is_multi_year) {
         // Create multiple budget items for multi-year
+        console.log('Creating multi-year budget item')
         result = await budgetStore.addMultiYearBudgetItem(budgetData)
       } else {
         // Create single budget item
+        console.log('Creating single budget item')
         result = await budgetStore.addBudgetItem(budgetData)
       }
       
       console.log('Store result:', result)
       
       if (result) {
+        console.log('Budget item created successfully, resetting form')
         resetFormData()
         return result
       } else {
+        console.log('Failed to create budget item')
         alert('Failed to add budget item. Please try again.')
         return false
       }
@@ -912,6 +968,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       alert('Error adding budget item: ' + (error.message || 'Unknown error'))
       return false
     } finally {
+      console.log('Setting isLoading to false')
       isLoading.value = false
     }
   }
@@ -922,8 +979,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       isLoading.value = true
       
       const errors = validateFormData()
+      console.log('Validation errors:', errors)
       if (errors.length > 0) {
-        alert('Please fix the following errors:\n' + errors.join('\n'))
+        console.log('Please fix the following errors:\n' + errors.join('\n'))
         return false
       }
 
@@ -935,32 +993,60 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       console.log('Edit submit decision:', {
         shouldBeMultiYear,
         isCurrentlyMultiYear,
-        formDataIsMultiYear: formData.value.is_multi_year,
-        budgetIsMultiYear: budget?.is_multi_year,
-        hasLinkedGroup: budget?.linked_group_id
+        budgetId,
+        formData: formData.value
       })
 
-      if (shouldBeMultiYear) {
-        if (isCurrentlyMultiYear) {
-          // Update existing multi-year budget
-          return await handleMultiYearEditSubmit(budgetId)
-        } else {
-          // Convert single year to multi-year
-          return await handleSingleYearToMultiYearConversion(budgetId)
+      if (shouldBeMultiYear && !isCurrentlyMultiYear) {
+        // Convert to multi-year
+        console.log('Converting to multi-year budget')
+        const result = await handleAddSubmit()
+        if (result) {
+          // Delete the original single-year budget
+          await budgetStore.deleteBudgetItem(budgetId)
         }
+        return result
+      } else if (!shouldBeMultiYear && isCurrentlyMultiYear) {
+        // Convert from multi-year to single-year
+        console.log('Converting from multi-year to single-year budget')
+        const result = await handleAddSubmit()
+        if (result) {
+          // Delete the original multi-year budget group
+          await budgetStore.deleteBudgetGroup(budget.linked_group_id)
+        }
+        return result
       } else {
-        if (isCurrentlyMultiYear) {
-          // Convert multi-year to single year
-          return await handleMultiYearToSingleYearConversion(budgetId)
-        } else {
-          // Update existing single year budget
-          return await handleSingleYearEditSubmit(budgetId)
+        // Update existing budget
+        console.log('Updating existing budget')
+        const updatedBudget = {
+          ...budget,
+          name: formData.value.name,
+          type: formData.value.type,
+          category: formData.value.category,
+          default_amount: parseFloat(formData.value.defaultAmount),
+          linked_investment_id: formData.value.linked_investment_id || null,
+          frequency: formData.value.frequency,
+          recurrence_interval: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.recurrenceInterval : null,
+          start_month: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.startMonth : null,
+          start_year: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.startYear : null,
+          end_type: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.endType : null,
+          end_month: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.SPECIFIC_DATE ? formData.value.endMonth : null,
+          end_year: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.SPECIFIC_DATE ? formData.value.endYear : null,
+          occurrences: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.AFTER_OCCURRENCES ? formData.value.occurrences : null,
+          one_time_month: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeMonth : null,
+          one_time_year: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeYear : null,
+          custom_months: formData.value.frequency === FREQUENCY_TYPES.CUSTOM ? formData.value.customMonths : null
         }
+        
+        console.log('Updated budget data:', updatedBudget)
+        const result = await budgetStore.updateBudgetItem(budgetId, updatedBudget)
+        console.log('Update result:', result)
+        return result
       }
-    } catch (error) {
-      console.error('Error updating budget item:', error)
-      alert('Error updating budget item: ' + (error.message || 'Unknown error'))
-      return false
+    } catch (e) {
+      console.log('Error in handleEditSubmit: ' + (e?.message || e));
+      console.error('Error in handleEditSubmit:', e);
+      return false;
     } finally {
       isLoading.value = false
     }
@@ -1248,69 +1334,90 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   // Initialize form data when budget prop changes (for edit modal)
   const initializeFormDataFromBudget = (budget) => {
     if (budget) {
-      // Convert legacy recurrence to new frequency system
-      const frequencyData = convertRecurrenceToFrequency(
-        budget.recurrence,
-        budget.customMonths,
-        budget.oneTimeMonth,
-        budget.oneTimeYear
-      )
+      console.log('Initializing form data from budget:', budget)
       
-      // If the budget has start/end dates, it should be treated as "repeats"
-      let finalFrequency = frequencyData.frequency
-      if (budget.start_month !== undefined || budget.startMonth !== undefined || 
-          budget.end_month !== undefined || budget.endMonth !== undefined) {
-        finalFrequency = FREQUENCY_TYPES.REPEATS
-      }
-      
+      // Map the budget data to form data, handling null values properly
       formData.value = {
-        ...budget,
-        // Map snake_case database fields to camelCase frontend fields
+        // Basic fields
+        id: budget.id || null,
+        name: budget.name || '',
+        type: budget.type || BUDGET_TYPES.EXPENSE,
+        category: budget.category || '',
         defaultAmount: budget.default_amount || budget.defaultAmount || 0,
-        investment_direction: budget.investment_direction || budget.investment_direction || 'outgoing',
-        startMonth: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
+        
+        // Frequency and recurrence
+        frequency: budget.frequency || FREQUENCY_TYPES.REPEATS,
+        recurrenceInterval: budget.recurrence_interval || budget.recurrenceInterval || 1,
+        
+        // Date fields - handle null values properly
+        startMonth: budget.start_month !== null ? budget.start_month : 0,
+        startYear: budget.start_year || budget.year || new Date().getFullYear(),
+        endMonth: budget.end_month !== null ? budget.end_month : 11,
+        endYear: budget.end_year || budget.year || new Date().getFullYear(),
+        
+        // One-time fields
+        oneTimeMonth: budget.one_time_month !== null ? budget.one_time_month : 0,
+        oneTimeYear: budget.one_time_year || budget.year || new Date().getFullYear(),
+        
+        // Custom fields
+        customMonths: budget.custom_months ? [...budget.custom_months] : [],
+        
+        // Legacy fields
+        recurrence: budget.recurrence || RECURRENCE_TYPES.MONTHLY,
         amounts: budget.amounts ? [...budget.amounts] : [],
         schedule: budget.schedule ? [...budget.schedule] : [],
-        customMonths: budget.customMonths ? [...budget.customMonths] : [],
-        oneTimeMonth: budget.oneTimeMonth || 0,
-        // New payment schedule fields
+        
+        // Payment schedule fields
         payment_schedule: budget.payment_schedule || 'throughout_month',
         due_date: budget.due_date || null,
         is_fixed_expense: budget.is_fixed_expense || false,
         reminder_enabled: budget.reminder_enabled || false,
         reminder_days_before: budget.reminder_days_before || 3,
         linked_investment_id: budget.linked_investment_id || '',
-        // Multi-year specific fields
-        is_multi_year: budget.is_multi_year || false,
-        start_year: budget.start_year || new Date().getFullYear(),
-        end_year: budget.end_year || new Date().getFullYear(),
-        end_month: budget.end_month !== undefined ? budget.end_month : null,
-        // New recurrence system fields - ensure frequency is set
-        frequency: budget.frequency || finalFrequency || FREQUENCY_TYPES.REPEATS,
-        recurrenceInterval: budget.recurrence_interval || frequencyData.recurrenceInterval || 1,
-        startYear: budget.start_year || budget.startYear || new Date().getFullYear(),
-        endYear: budget.end_year || budget.endYear || new Date().getFullYear() + 1,
-        startMonth: budget.start_month !== undefined ? budget.start_month : (budget.startMonth !== undefined ? budget.startMonth : 0),
-        endMonth: budget.end_month !== undefined ? budget.end_month : (budget.endMonth !== undefined ? budget.endMonth : 0),
-        customMonths: budget.customMonths ? [...budget.customMonths] : frequencyData.customMonths,
-        oneTimeMonth: budget.oneTimeMonth || frequencyData.oneTimeMonth,
-        oneTimeYear: budget.oneTimeYear || budget.one_time_year || new Date().getFullYear()
+        
+        // Investment fields
+        investment_direction: budget.investment_direction || 'outgoing',
+        
+        // Multi-year fields
+        is_multi_year: budget.is_multi_year || false
       }
       
-      // Set custom months for custom recurrence
-      if (budget.recurrence === RECURRENCE_TYPES.CUSTOM && budget.schedule) {
-        formData.value.customMonths = budget.schedule ? [...budget.schedule] : []
+      console.log('Form data initialized:', formData.value)
+      
+      // Update schedule preview
+      updateSchedule()
+    } else {
+      console.log('Budget object is null, using default values')
+      // Initialize with default values when budget is null
+      formData.value = {
+        id: null,
+        name: '',
+        type: BUDGET_TYPES.EXPENSE,
+        category: '',
+        defaultAmount: 0,
+        frequency: FREQUENCY_TYPES.REPEATS,
+        recurrenceInterval: 1,
+        startMonth: 0, // Default to January
+        startYear: new Date().getFullYear(),
+        endMonth: 11, // Default to December
+        endYear: new Date().getFullYear(),
+        oneTimeMonth: 0,
+        oneTimeYear: new Date().getFullYear(),
+        customMonths: [],
+        recurrence: RECURRENCE_TYPES.MONTHLY,
+        amounts: [],
+        schedule: [],
+        payment_schedule: 'throughout_month',
+        due_date: null,
+        is_fixed_expense: false,
+        reminder_enabled: false,
+        reminder_days_before: 3,
+        linked_investment_id: '',
+        investment_direction: 'outgoing',
+        is_multi_year: false
       }
       
-      // Set one-time month
-      if (budget.recurrence === RECURRENCE_TYPES.ONE_TIME && budget.schedule && budget.schedule.length > 0) {
-        formData.value.oneTimeMonth = budget.schedule[0]
-      }
-      
-      // Update multi-year preview if this is a multi-year budget
-      if (budget.is_multi_year) {
-        updateMultiYearPreview()
-      }
+      console.log('Form data initialized with defaults:', formData.value)
       
       // Update schedule preview
       updateSchedule()
@@ -1725,33 +1832,53 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     updateLegacyRecurrence()
   })
 
-  // Get available months for "Once" frequency with smart validation
+  // Get available months for "Once" frequency with enhanced dynamic validation
   const getAvailableOnceMonths = () => {
     const oneTimeYear = formData.value.oneTimeYear || currentYear.value
+    return getDynamicAvailableMonths(oneTimeYear, false)
+  }
+
+  // Get available months for "Custom" frequency with enhanced dynamic validation
+  const getAvailableCustomMonths = () => {
+    const currentYearValue = currentYear.value
+    return getDynamicAvailableMonths(currentYearValue, true)
+  }
+
+  // Dynamic month validation - more flexible approach
+  const getDynamicAvailableMonths = (targetYear, isCurrentYearOnly = false) => {
     const currentYearValue = currentYear.value
     const currentMonthValue = currentMonth.value
     
-    // If one-time year is current year, only show months >= current month
-    if (oneTimeYear === currentYearValue) {
-      return MONTH_OPTIONS.filter(month => month.value >= currentMonthValue)
-    }
-    // If one-time year is in the future, show all months
-    else if (oneTimeYear > currentYearValue) {
+    // If we're in December (month 11) and target year is current year,
+    // allow selecting future months from next year
+    if (currentMonthValue === 11 && targetYear === currentYearValue) {
+      // For December, allow selecting months from next year
       return MONTH_OPTIONS
     }
-    // If one-time year is in the past, show all months (for historical data)
+    
+    // If target year is current year, only show months >= current month
+    if (targetYear === currentYearValue) {
+      return MONTH_OPTIONS.filter(month => month.value >= currentMonthValue)
+    }
+    // If target year is in the future, show all months
+    else if (targetYear > currentYearValue) {
+      return MONTH_OPTIONS
+    }
+    // If target year is in the past, show all months (for historical data)
     else {
       return MONTH_OPTIONS
     }
   }
 
-  // Get available months for "Custom" frequency (current year only, disable past months)
-  const getAvailableCustomMonths = () => {
-    const currentYearValue = currentYear.value
-    const currentMonthValue = currentMonth.value
+  // Get available start months with enhanced dynamic validation
+  const getAvailableStartMonthIndices = () => {
+    // For ONCE and CUSTOM frequencies, return all months since date fields are hidden
+    if (formData.value.frequency === FREQUENCY_TYPES.ONCE || formData.value.frequency === FREQUENCY_TYPES.CUSTOM) {
+      return MONTH_OPTIONS
+    }
     
-    // For custom frequency, only show months >= current month (current year only)
-    return MONTH_OPTIONS.filter(month => month.value >= currentMonthValue)
+    const startYear = formData.value.startYear || currentYear.value
+    return getDynamicAvailableMonths(startYear, false)
   }
 
   return {
