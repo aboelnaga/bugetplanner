@@ -126,12 +126,12 @@
           Financial Details
         </h4>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Default Amount -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               <span class="text-red-500">*</span> Default Amount
-            </label>
+          </label>
             <div class="relative">
               <input 
                 :value="formatCurrency(formData.defaultAmount)"
@@ -146,8 +146,27 @@
             </p>
           </div>
           
-          <!-- Investment Direction (only for investment type) -->
-          <div v-if="formData.type === BUDGET_TYPES.INVESTMENT">
+          <!-- Payment Schedule -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Payment Schedule
+            </label>
+            <select 
+              v-model="formData.payment_schedule"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, schedule) in PAYMENT_SCHEDULE_LABELS" :key="schedule" :value="schedule">
+                {{ label }}
+              </option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ PAYMENT_SCHEDULE_DESCRIPTIONS[formData.payment_schedule] }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Investment Direction (only for investment type) -->
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               <span class="text-red-500">*</span> Investment Direction
             </label>
@@ -156,6 +175,76 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
               <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
                 {{ label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Due Date (only for custom_dates) -->
+        <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Due Date (Day of Month)
+            </label>
+            <select 
+              v-model="formData.due_date"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option value="">Select day</option>
+              <option v-for="day in 31" :key="day" :value="day">
+                {{ day }}{{ getDaySuffix(day) }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fixed Expense and Reminder Settings -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Fixed Expense Toggle -->
+          <div class="flex items-center space-x-3">
+            <input 
+              type="checkbox" 
+              id="is_fixed_expense"
+              v-model="formData.is_fixed_expense"
+              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <label for="is_fixed_expense" class="text-sm font-medium text-gray-700">
+              Fixed Expense
+            </label>
+            <div class="flex-1">
+              <p class="text-xs text-gray-500">
+                Amount doesn't change month to month
+              </p>
+            </div>
+          </div>
+          
+          <!-- Reminder Toggle -->
+          <div class="flex items-center space-x-3">
+            <input 
+              type="checkbox" 
+              id="reminder_enabled"
+              v-model="formData.reminder_enabled"
+              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+            <label for="reminder_enabled" class="text-sm font-medium text-gray-700">
+              Enable Reminders
+            </label>
+            <div class="flex-1">
+              <p class="text-xs text-gray-500">
+                Get notified before due date
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reminder Days Before (only if reminders enabled) -->
+        <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Remind Me (Days Before)
+            </label>
+            <select 
+              v-model="formData.reminder_days_before"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="days in [1, 2, 3, 5, 7, 10, 14, 21, 30]" :key="days" :value="days">
+                {{ days }} day{{ days !== 1 ? 's' : '' }} before
               </option>
             </select>
           </div>
@@ -408,102 +497,7 @@
           </div>
         </div>
 
-        <!-- Payment Settings -->
-        <div class="space-y-4 pt-4 border-t border-gray-200">
-          <h5 class="text-md font-medium text-gray-900 flex items-center">
-            <svg class="w-4 h-4 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-            </svg>
-            Payment Settings
-          </h5>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Payment Schedule -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Payment Schedule
-              </label>
-              <select 
-                v-model="formData.payment_schedule"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="(label, schedule) in PAYMENT_SCHEDULE_LABELS" :key="schedule" :value="schedule">
-                  {{ label }}
-                </option>
-              </select>
-              <p class="text-xs text-gray-500 mt-1">
-                {{ PAYMENT_SCHEDULE_DESCRIPTIONS[formData.payment_schedule] }}
-              </p>
-            </div>
-            
-            <!-- Due Date (only for custom_dates) -->
-            <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Due Date (Day of Month)
-              </label>
-              <select 
-                v-model="formData.due_date"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">Select day</option>
-                <option v-for="day in 31" :key="day" :value="day">
-                  {{ day }}{{ getDaySuffix(day) }}
-                </option>
-              </select>
-            </div>
-          </div>
 
-          <!-- Fixed Expense and Reminder Settings -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Fixed Expense Toggle -->
-            <div class="flex items-center space-x-3">
-              <input 
-                type="checkbox" 
-                id="is_fixed_expense"
-                v-model="formData.is_fixed_expense"
-                class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-              <label for="is_fixed_expense" class="text-sm font-medium text-gray-700">
-                Fixed Expense
-              </label>
-              <div class="flex-1">
-                <p class="text-xs text-gray-500">
-                  Amount doesn't change month to month
-                </p>
-              </div>
-            </div>
-            
-            <!-- Reminder Toggle -->
-            <div class="flex items-center space-x-3">
-              <input 
-                type="checkbox" 
-                id="reminder_enabled"
-                v-model="formData.reminder_enabled"
-                class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
-              <label for="reminder_enabled" class="text-sm font-medium text-gray-700">
-                Enable Reminders
-              </label>
-              <div class="flex-1">
-                <p class="text-xs text-gray-500">
-                  Get notified before due date
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Reminder Days Before (only if reminders enabled) -->
-          <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
-                Remind Me (Days Before)
-              </label>
-              <select 
-                v-model="formData.reminder_days_before"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="days in [1, 2, 3, 5, 7, 10, 14, 21, 30]" :key="days" :value="days">
-                  {{ days }} day{{ days !== 1 ? 's' : '' }} before
-                </option>
-              </select>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Preview Section -->

@@ -88,6 +88,9 @@ export const budgetAPI = {
 
   // Update a budget item
   async updateBudgetItem(id, updates) {
+    console.log('API: Updating budget item with ID:', id)
+    console.log('API: Updates data:', updates)
+    
     const { data, error } = await supabase
       .from('budget_items')
       .update(updates)
@@ -95,7 +98,12 @@ export const budgetAPI = {
       .select()
       .single()
     
-    if (error) throw error
+    if (error) {
+      console.error('API: Error updating budget item:', error)
+      throw error
+    }
+    
+    console.log('API: Successfully updated budget item:', data)
     return data
   },
 

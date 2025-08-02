@@ -335,6 +335,13 @@ export const DEFAULT_VALUES = {
     linked_investment_id: null,
     investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
     
+    // Payment schedule settings
+    payment_schedule: PAYMENT_SCHEDULES.THROUGHOUT_MONTH,
+    due_date: null,
+    is_fixed_expense: false,
+    reminder_enabled: false,
+    reminder_days_before: 7,
+    
     // Multi-year specific
     yearlyBreakdown: [],
     totalAmount: 0,

@@ -59,6 +59,13 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       // Auto-detect multi-year (no checkbox needed)
       is_multi_year: false // Will be computed based on start/end years
     }
+    
+    // Set default category based on budget type
+    const categories = getCategoriesByType(formData.value.type)
+    if (categories.length > 0) {
+      formData.value.category = categories[0]
+    }
+    
     updateMultiYearPreview()
   }
 
@@ -81,6 +88,13 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       // Auto-detect multi-year (no checkbox needed)
       is_multi_year: false // Will be computed based on start/end years
     }
+    
+    // Set default category based on budget type
+    const categories = getCategoriesByType(formData.value.type)
+    if (categories.length > 0) {
+      formData.value.category = categories[0]
+    }
+    
     updateMultiYearPreview()
   }
 
@@ -913,16 +927,35 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         return false
       }
 
-      // Check if this is a multi-year budget item
+      // Check if this should be a multi-year budget item based on current form data
       const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
-      const isMultiYear = budget && budget.is_multi_year && budget.linked_group_id
+      const shouldBeMultiYear = formData.value.is_multi_year
+      const isCurrentlyMultiYear = budget && budget.is_multi_year && budget.linked_group_id
 
-      if (isMultiYear) {
-        // Handle multi-year budget update
-        return await handleMultiYearEditSubmit(budgetId)
+      console.log('Edit submit decision:', {
+        shouldBeMultiYear,
+        isCurrentlyMultiYear,
+        formDataIsMultiYear: formData.value.is_multi_year,
+        budgetIsMultiYear: budget?.is_multi_year,
+        hasLinkedGroup: budget?.linked_group_id
+      })
+
+      if (shouldBeMultiYear) {
+        if (isCurrentlyMultiYear) {
+          // Update existing multi-year budget
+          return await handleMultiYearEditSubmit(budgetId)
+        } else {
+          // Convert single year to multi-year
+          return await handleSingleYearToMultiYearConversion(budgetId)
+        }
       } else {
-        // Handle single year budget update
-        return await handleSingleYearEditSubmit(budgetId)
+        if (isCurrentlyMultiYear) {
+          // Convert multi-year to single year
+          return await handleMultiYearToSingleYearConversion(budgetId)
+        } else {
+          // Update existing single year budget
+          return await handleSingleYearEditSubmit(budgetId)
+        }
       }
     } catch (error) {
       console.error('Error updating budget item:', error)
@@ -961,6 +994,10 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         start_year: formData.value.startYear,
         end_month: formData.value.endMonth,
         end_year: formData.value.endYear,
+        end_type: formData.value.endType,
+        occurrences: formData.value.occurrences,
+        one_time_year: formData.value.oneTimeYear,
+        custom_months: formData.value.customMonths,
         // Legacy fields for backward compatibility
         recurrence: formData.value.recurrence,
         default_amount: formData.value.defaultAmount,
@@ -970,18 +1007,21 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         reminder_enabled: formData.value.reminder_enabled,
         reminder_days_before: formData.value.reminder_days_before,
         linked_investment_id: formData.value.linked_investment_id || null,
-        // Multi-year specific fields (only database columns)
-        is_multi_year: formData.value.is_multi_year,
-        start_year: formData.value.start_year,
-        end_year: formData.value.end_year,
-        end_month: formData.value.end_month
+        // Multi-year specific fields
+        is_multi_year: formData.value.is_multi_year
       }
 
       if (formData.value.type === 'investment') {
         updateData.investment_direction = formData.value.investment_direction
       }
 
-      console.log('Updating multi-year budget with data:', updateData)
+      console.log('Composable: Updating multi-year budget with data:', updateData)
+      console.log('Composable: Form data frequency:', formData.value.frequency)
+      console.log('Composable: Form data recurrenceInterval:', formData.value.recurrenceInterval)
+      console.log('Composable: Form data startMonth:', formData.value.startMonth)
+      console.log('Composable: Form data endMonth:', formData.value.endMonth)
+      console.log('Composable: Form data endType:', formData.value.endType)
+      console.log('Composable: Form data occurrences:', formData.value.occurrences)
       
       // Update all linked items using the store function
       const result = await budgetStore.updateMultiYearBudgetItems(budget.linked_group_id, updateData)
@@ -996,6 +1036,147 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     } catch (error) {
       console.error('Error updating multi-year budget:', error)
       alert('Error updating multi-year budget: ' + (error.message || 'Unknown error'))
+      return false
+    }
+  }
+
+  // Helper function for converting single year to multi-year
+  const handleSingleYearToMultiYearConversion = async (budgetId) => {
+    try {
+      console.log('Converting single year to multi-year budget')
+      
+      // Validate multi-year settings
+      const multiYearErrors = validateMultiYearSettings()
+      if (multiYearErrors.length > 0) {
+        alert('Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
+        return false
+      }
+
+      // Create multi-year budget data
+      const budgetData = {
+        name: formData.value.name,
+        type: formData.value.type,
+        category: formData.value.category,
+        default_amount: formData.value.defaultAmount,
+        // New recurrence system fields
+        frequency: formData.value.frequency,
+        recurrence_interval: formData.value.recurrenceInterval,
+        start_month: formData.value.startMonth,
+        start_year: formData.value.startYear,
+        end_month: formData.value.endMonth,
+        end_year: formData.value.endYear,
+        end_type: formData.value.endType,
+        occurrences: formData.value.occurrences,
+        one_time_year: formData.value.oneTimeYear,
+        custom_months: formData.value.customMonths,
+        // Legacy fields for backward compatibility
+        recurrence: formData.value.recurrence,
+        payment_schedule: formData.value.payment_schedule,
+        due_date: formData.value.due_date,
+        is_fixed_expense: formData.value.is_fixed_expense,
+        reminder_enabled: formData.value.reminder_enabled,
+        reminder_days_before: formData.value.reminder_days_before,
+        linked_investment_id: formData.value.linked_investment_id || null,
+        // Multi-year specific fields
+        is_multi_year: true
+      }
+
+      if (formData.value.type === 'investment') {
+        budgetData.investment_direction = formData.value.investment_direction
+      }
+
+      console.log('Converting to multi-year with data:', budgetData)
+      
+      try {
+        // Use the store function to create multi-year budget
+        const result = await budgetStore.addMultiYearBudgetItem(budgetData)
+        console.log('Multi-year conversion result:', result)
+        
+        if (result && result.length > 0) {
+          console.log('Successfully created multi-year budget, deleting original item')
+          // Delete the original single year item
+          const deleteResult = await budgetStore.deleteBudgetItem(budgetId)
+          console.log('Delete original item result:', deleteResult)
+          return result
+        } else {
+          console.error('addMultiYearBudgetItem returned falsy or empty result')
+          alert('Failed to convert to multi-year budget. Please try again.')
+          return false
+        }
+      } catch (conversionError) {
+        console.error('Error in addMultiYearBudgetItem:', conversionError)
+        throw conversionError
+      }
+    } catch (error) {
+      console.error('Error converting to multi-year budget:', error)
+      alert('Error converting to multi-year budget: ' + (error.message || 'Unknown error'))
+      return false
+    }
+  }
+
+  // Helper function for converting multi-year to single year
+  const handleMultiYearToSingleYearConversion = async (budgetId) => {
+    try {
+      console.log('Converting multi-year to single year budget')
+      
+      // Get the original budget to find the linked group
+      const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
+      if (!budget || !budget.linked_group_id) {
+        alert('Invalid multi-year budget item')
+        return false
+      }
+
+      // Create single year budget data
+      const budgetData = {
+        name: formData.value.name,
+        type: formData.value.type,
+        category: formData.value.category,
+        default_amount: formData.value.defaultAmount,
+        // New recurrence system fields
+        frequency: formData.value.frequency,
+        recurrence_interval: formData.value.recurrenceInterval,
+        start_month: formData.value.startMonth,
+        start_year: formData.value.startYear,
+        end_month: formData.value.endMonth,
+        end_year: formData.value.endYear,
+        end_type: formData.value.endType,
+        occurrences: formData.value.occurrences,
+        one_time_year: formData.value.oneTimeYear,
+        custom_months: formData.value.customMonths,
+        // Legacy fields for backward compatibility
+        recurrence: formData.value.recurrence,
+        payment_schedule: formData.value.payment_schedule,
+        due_date: formData.value.due_date,
+        is_fixed_expense: formData.value.is_fixed_expense,
+        reminder_enabled: formData.value.reminder_enabled,
+        reminder_days_before: formData.value.reminder_days_before,
+        linked_investment_id: formData.value.linked_investment_id || null,
+        // Single year specific fields
+        is_multi_year: false,
+        year: formData.value.startYear
+      }
+
+      if (formData.value.type === 'investment') {
+        budgetData.investment_direction = formData.value.investment_direction
+      }
+
+      console.log('Converting to single year with data:', budgetData)
+      
+      // Use the store function to create single year budget
+      const result = await budgetStore.addBudgetItem(budgetData)
+      console.log('Single year conversion result:', result)
+      
+      if (result) {
+        // Delete the original multi-year group
+        await budgetStore.deleteMultiYearBudget(budget)
+        return result
+      } else {
+        alert('Failed to convert to single year budget. Please try again.')
+        return false
+      }
+    } catch (error) {
+      console.error('Error converting to single year budget:', error)
+      alert('Error converting to single year budget: ' + (error.message || 'Unknown error'))
       return false
     }
   }
