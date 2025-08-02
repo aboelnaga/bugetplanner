@@ -123,4 +123,11 @@ pnpm-lock.yaml
 .editorconfig
 
 # Local development files
-.local 
+.local
+
+# Playwright test results
+test-results/
+playwright-report/
+
+# Debug screenshots
+debug-*.png 
