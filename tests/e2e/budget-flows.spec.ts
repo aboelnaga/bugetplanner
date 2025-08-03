@@ -224,8 +224,31 @@ test.describe('Budget Management Flows', () => {
     });
 
     test('should convert single year to multi-year', async ({ page }) => {
-      // Click edit on the test budget
-      await page.click('[data-testid="edit-budget-btn"]');
+      // First create a single year budget
+      await page.click('[data-testid="add-budget-btn"]');
+      await page.waitForSelector('[data-testid="add-budget-modal"]');
+      
+      const uniqueName = `Single Year Test Budget ${Date.now()}`;
+      await page.fill('[data-testid="budget-name-input"]', uniqueName);
+      await page.selectOption('[data-testid="budget-type-select"]', 'expense');
+      await page.selectOption('[data-testid="budget-category-select"]', 'Utilities');
+      await page.fill('[data-testid="default-amount-input"]', '500');
+      await page.selectOption('[data-testid="frequency-select"]', 'repeats');
+      await page.selectOption('[data-testid="recurrence-interval-select"]', '1');
+      await page.selectOption('[data-testid="start-month-select"]', '8'); // September
+      await page.selectOption('[data-testid="start-year-select"]', '2025');
+      await page.selectOption('[data-testid="end-month-select"]', '11'); // December
+      await page.selectOption('[data-testid="end-year-select"]', '2025');
+      
+      await page.click('[data-testid="submit-budget-btn"]');
+      await expect(page.locator('[data-testid="add-budget-modal"]')).not.toBeVisible();
+      
+      // Wait for the budget to appear in the table
+      await expect(page.locator('[data-testid="budget-table"]')).toContainText(uniqueName);
+      
+      // Now edit the budget to make it multi-year
+      const budgetRow = page.locator('[data-testid="budget-table"]').locator('tr').filter({ hasText: uniqueName });
+      await budgetRow.locator('[data-testid="edit-budget-btn"]').first().click();
       await page.waitForSelector('[data-testid="edit-budget-modal"]');
       
       // Change end year to future year
@@ -247,17 +270,27 @@ test.describe('Budget Management Flows', () => {
       await page.click('[data-testid="add-budget-btn"]');
       await page.waitForSelector('[data-testid="add-budget-modal"]');
       
-      await page.fill('[data-testid="budget-name-input"]', 'Multi-Year Test');
+      const uniqueName = `Multi-Year Test Budget ${Date.now()}`;
+      await page.fill('[data-testid="budget-name-input"]', uniqueName);
       await page.selectOption('[data-testid="budget-type-select"]', 'expense');
       await page.selectOption('[data-testid="budget-category-select"]', 'Utilities');
       await page.fill('[data-testid="default-amount-input"]', '500');
+      await page.selectOption('[data-testid="frequency-select"]', 'repeats');
+      await page.selectOption('[data-testid="recurrence-interval-select"]', '1');
+      await page.selectOption('[data-testid="start-month-select"]', '8'); // September
+      await page.selectOption('[data-testid="start-year-select"]', '2025');
+      await page.selectOption('[data-testid="end-month-select"]', '11'); // December
       await page.selectOption('[data-testid="end-year-select"]', '2027');
       
       await page.click('[data-testid="submit-budget-btn"]');
       await expect(page.locator('[data-testid="add-budget-modal"]')).not.toBeVisible();
       
+      // Wait for the budget to appear in the table
+      await expect(page.locator('[data-testid="budget-table"]')).toContainText(uniqueName);
+      
       // Now edit it to single year
-      await page.click('[data-testid="edit-budget-btn"]');
+      const budgetRow = page.locator('[data-testid="budget-table"]').locator('tr').filter({ hasText: uniqueName });
+      await budgetRow.locator('[data-testid="edit-budget-btn"]').first().click();
       await page.waitForSelector('[data-testid="edit-budget-modal"]');
       
       // Change end year to same as start year

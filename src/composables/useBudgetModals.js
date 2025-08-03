@@ -985,64 +985,40 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         return false
       }
 
-      // Check if this should be a multi-year budget item based on current form data
+      // Get the existing budget
       const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
-      const shouldBeMultiYear = formData.value.is_multi_year
-      const isCurrentlyMultiYear = budget && budget.is_multi_year && budget.linked_group_id
-
-      console.log('Edit submit decision:', {
-        shouldBeMultiYear,
-        isCurrentlyMultiYear,
-        budgetId,
-        formData: formData.value
-      })
-
-      if (shouldBeMultiYear && !isCurrentlyMultiYear) {
-        // Convert to multi-year
-        console.log('Converting to multi-year budget')
-        const result = await handleAddSubmit()
-        if (result) {
-          // Delete the original single-year budget
-          await budgetStore.deleteBudgetItem(budgetId)
-        }
-        return result
-      } else if (!shouldBeMultiYear && isCurrentlyMultiYear) {
-        // Convert from multi-year to single-year
-        console.log('Converting from multi-year to single-year budget')
-        const result = await handleAddSubmit()
-        if (result) {
-          // Delete the original multi-year budget group
-          await budgetStore.deleteBudgetGroup(budget.linked_group_id)
-        }
-        return result
-      } else {
-        // Update existing budget
-        console.log('Updating existing budget')
-        const updatedBudget = {
-          ...budget,
-          name: formData.value.name,
-          type: formData.value.type,
-          category: formData.value.category,
-          default_amount: parseFloat(formData.value.defaultAmount),
-          linked_investment_id: formData.value.linked_investment_id || null,
-          frequency: formData.value.frequency,
-          recurrence_interval: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.recurrenceInterval : null,
-          start_month: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.startMonth : null,
-          start_year: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.startYear : null,
-          end_type: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.endType : null,
-          end_month: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.SPECIFIC_DATE ? formData.value.endMonth : null,
-          end_year: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.SPECIFIC_DATE ? formData.value.endYear : null,
-          occurrences: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.AFTER_OCCURRENCES ? formData.value.occurrences : null,
-          one_time_month: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeMonth : null,
-          one_time_year: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeYear : null,
-          custom_months: formData.value.frequency === FREQUENCY_TYPES.CUSTOM ? formData.value.customMonths : null
-        }
-        
-        console.log('Updated budget data:', updatedBudget)
-        const result = await budgetStore.updateBudgetItem(budgetId, updatedBudget)
-        console.log('Update result:', result)
-        return result
+      if (!budget) {
+        console.error('Budget not found:', budgetId)
+        return false
       }
+
+      console.log('Updating existing budget:', budgetId)
+      
+      // Update existing budget
+      const updatedBudget = {
+        ...budget,
+        name: formData.value.name,
+        type: formData.value.type,
+        category: formData.value.category,
+        default_amount: parseFloat(formData.value.defaultAmount),
+        linked_investment_id: formData.value.linked_investment_id || null,
+        frequency: formData.value.frequency,
+        recurrence_interval: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.recurrenceInterval : null,
+        start_month: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.startMonth : null,
+        start_year: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.startYear : null,
+        end_type: formData.value.frequency === FREQUENCY_TYPES.REPEATS ? formData.value.endType : null,
+        end_month: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.SPECIFIC_DATE ? formData.value.endMonth : null,
+        end_year: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.SPECIFIC_DATE ? formData.value.endYear : null,
+        occurrences: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.AFTER_OCCURRENCES ? formData.value.occurrences : null,
+        one_time_month: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeMonth : null,
+        one_time_year: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeYear : null,
+        custom_months: formData.value.frequency === FREQUENCY_TYPES.CUSTOM ? formData.value.customMonths : null
+      }
+      
+      console.log('Updated budget data:', updatedBudget)
+      const result = await budgetStore.updateBudgetItem(budgetId, updatedBudget)
+      console.log('Update result:', result)
+      return result
     } catch (e) {
       console.log('Error in handleEditSubmit: ' + (e?.message || e));
       console.error('Error in handleEditSubmit:', e);
@@ -1881,6 +1857,27 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     return getDynamicAvailableMonths(startYear, false)
   }
 
+  // Get multi-year duration
+  const getMultiYearDuration = () => {
+    if (!formData.value.startYear || !formData.value.endYear) return 1
+    return formData.value.endYear - formData.value.startYear + 1
+  }
+
+  // Get calculated end year
+  const getCalculatedEndYear = () => {
+    if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+      return formData.value.endYear
+    }
+    // For occurrence-based end, calculate based on start year and occurrences
+    if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+      const totalMonths = (formData.value.occurrences - 1) * formData.value.recurrenceInterval
+      const endMonth = formData.value.startMonth + totalMonths
+      const additionalYears = Math.floor(endMonth / 12)
+      return formData.value.startYear + additionalYears
+    }
+    return formData.value.startYear
+  }
+
   return {
     // Modal state
     showAddBudgetModal,
@@ -1940,6 +1937,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     getMultiYearRecurrenceOptions,
     watchYearChanges,
     getAvailableOnceMonths,
-    getAvailableCustomMonths
+    getAvailableCustomMonths,
+    getMultiYearDuration,
+    getCalculatedEndYear
   }
 } 

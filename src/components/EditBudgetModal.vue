@@ -222,11 +222,14 @@
         </div>
 
         <!-- Date Selection for Repeats -->
-        <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="space-y-4">
           <!-- Start Date -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Start Date
+              <span class="text-xs text-gray-500 ml-1">
+                ({{ formData.startYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.startYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }})
+              </span>
             </label>
             <div class="grid grid-cols-2 gap-2">
               <select 
@@ -234,7 +237,12 @@
                 @change="updateSchedule"
                 data-testid="start-month-select"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
+                <option 
+                  v-for="month in MONTH_OPTIONS" 
+                  :key="month.value" 
+                  :value="month.value"
+                  :disabled="!getAvailableStartMonthIndices().find(m => m.value === month.value)"
+                  :class="{ 'text-gray-400': !getAvailableStartMonthIndices().find(m => m.value === month.value) }">
                   {{ month.label }}
                 </option>
               </select>
@@ -250,31 +258,101 @@
             </div>
           </div>
           
-          <!-- End Date -->
+          <!-- End Date Type -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
-              End Date
+              <span class="text-red-500">*</span> End Date Type
             </label>
-            <div class="grid grid-cols-2 gap-2">
-              <select 
-                v-model="formData.endMonth"
-                @change="updateSchedule"
-                data-testid="end-month-select"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
-                  {{ month.label }}
-                </option>
-              </select>
-              <select 
-                v-model="formData.endYear"
-                @change="updateSchedule"
-                data-testid="end-year-select"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="year in getAvailableYears()" :key="year" :value="year">
-                  {{ year }}
-                </option>
-              </select>
+            <select 
+              v-model="formData.endType"
+              @change="updateLegacyRecurrence"
+              data-testid="end-type-select"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option v-for="(label, type) in END_TYPE_LABELS" :key="type" :value="type">
+                {{ label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- End Date Options -->
+          <div v-if="formData.endType === END_TYPES.SPECIFIC_DATE" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- End Date -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <span class="text-red-500">*</span> End Date
+              </label>
+              <div class="grid grid-cols-2 gap-2">
+                <select 
+                  v-model="formData.endMonth"
+                  @change="updateLegacyRecurrence"
+                  data-testid="end-month-select"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
+                    {{ month.label }}
+                  </option>
+                </select>
+                <select 
+                  v-model="formData.endYear"
+                  @change="updateLegacyRecurrence"
+                  data-testid="end-year-select"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  <option v-for="year in getAvailableEndYears()" :key="year" :value="year">
+                    {{ year }}
+                  </option>
+                </select>
+              </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Occurrences Option -->
+        <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.AFTER_OCCURRENCES" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              <span class="text-red-500">*</span> Number of Occurrences
+            </label>
+            <input 
+              id="occurrences"
+              name="occurrences"
+              v-model.number="formData.occurrences"
+              @change="updateSchedule"
+              type="number" 
+              min="1" 
+              max="120"
+              data-testid="occurrences-input"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+            <p class="text-xs text-gray-500 mt-1">
+              Maximum: 120 occurrences (10 years)
+            </p>
+          </div>
+        </div>
+
+        <!-- Custom Frequency (for custom frequency) -->
+        <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Custom Months</label>
+            <p class="text-xs text-gray-500 mt-1">Custom months for current year only (past months are disabled)</p>
+          </div>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <label 
+              v-for="(month, index) in months" 
+              :key="month" 
+              class="flex items-center p-3 border border-gray-200 rounded-lg transition-colors"
+              :class="{ 
+                'bg-blue-50 border-blue-300': formData.customMonths.includes(index),
+                'cursor-pointer hover:bg-gray-50': index >= currentMonth,
+                'cursor-not-allowed bg-gray-100 opacity-50': index < currentMonth
+              }">
+              <input 
+                type="checkbox" 
+                :value="index" 
+                v-model="formData.customMonths"
+                @change="updateSchedule"
+                :disabled="index < currentMonth"
+                :data-testid="`custom-month-${index}`"
+                class="mr-2 text-blue-600 focus:ring-blue-500 disabled:opacity-50" />
+              <span class="text-sm font-medium" :class="{ 'text-gray-400': index < currentMonth }">{{ month }}</span>
+            </label>
           </div>
         </div>
 
@@ -282,6 +360,9 @@
         <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-3">
           <div>
             <label class="block text-sm font-medium text-gray-700">One-Time Date</label>
+            <p class="text-xs text-gray-500 mt-1">
+              {{ formData.oneTimeYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.oneTimeYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }}
+            </p>
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -291,7 +372,12 @@
                 @change="updateSchedule"
                 data-testid="one-time-month-select"
                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
+                <option 
+                  v-for="month in getAvailableOnceMonths()" 
+                  :key="month.value" 
+                  :value="month.value"
+                  :disabled="!getAvailableOnceMonths().find(m => m.value === month.value)"
+                  :class="{ 'text-gray-400': !getAvailableOnceMonths().find(m => m.value === month.value) }">
                   {{ month.label }}
                 </option>
               </select>
@@ -310,6 +396,22 @@
             </div>
           </div>
         </div>
+
+        <!-- Multi-Year Indicator (Auto-detected) -->
+        <div v-if="isMultiYear" class="bg-blue-50 border border-blue-200 rounded-lg p-3" data-testid="multi-year-indicator">
+          <div class="flex items-center space-x-2">
+            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+              <p class="text-sm font-medium text-blue-900">Multi-Year Budget Item</p>
+              <p class="text-xs text-blue-700">
+                This budget spans {{ getMultiYearDuration() }} year{{ getMultiYearDuration() !== 1 ? 's' : '' }} 
+                ({{ formData.startYear }} - {{ getCalculatedEndYear() }})
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Preview Section -->
@@ -319,11 +421,73 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
           </svg>
-          Schedule Preview
+          {{ isMultiYear ? 'Multi-Year' : 'Schedule' }} Preview
         </h4>
         
-        <!-- Schedule Preview -->
-        <div class="bg-gray-50 rounded-lg p-4" data-testid="schedule-preview">
+        <!-- Multi-Year Preview -->
+        <div v-if="isMultiYear" class="bg-gray-50 border border-gray-200 rounded-lg p-4" data-testid="multi-year-preview">
+          <div class="space-y-4">
+            <!-- Overall Summary -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-gray-900">Total Multi-Year Amount</p>
+                <p class="text-xs text-gray-600">Across {{ multiYearPreview.duration }} year{{ multiYearPreview.duration !== 1 ? 's' : '' }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-bold text-gray-900">{{ formatCurrency(multiYearPreview.totalAmount) }}</p>
+              </div>
+            </div>
+            
+            <!-- Yearly Breakdown with Monthly Grid -->
+            <div v-if="multiYearPreview.yearlyBreakdown.length > 0" class="space-y-4">
+              <p class="text-sm font-medium text-gray-900">Yearly Breakdown</p>
+              
+              <div v-for="year in multiYearPreview.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-3">
+                <!-- Year Header -->
+                <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-semibold text-gray-900">{{ year.year }}</span>
+                    <span v-if="year.isFirstYear" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">First</span>
+                    <span v-if="year.isLastYear" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Last</span>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(year.amount) }}</p>
+                    <p class="text-xs text-gray-500">{{ year.monthsCount }} month{{ year.monthsCount !== 1 ? 's' : '' }}</p>
+                  </div>
+                </div>
+                
+                <!-- Monthly Grid -->
+                <div class="space-y-2">
+                  <!-- Month headers -->
+                  <div class="grid grid-cols-12 gap-1">
+                    <div 
+                      v-for="(month, index) in months" 
+                      :key="month"
+                      class="text-center py-1 px-1 text-xs font-semibold text-gray-700 rounded"
+                      :class="getMultiYearMonthClass(year.monthlyAmounts[index], index)">
+                      {{ month }}
+                    </div>
+                  </div>
+                  
+                  <!-- Amount values -->
+                  <div class="grid grid-cols-12 gap-1">
+                    <div 
+                      v-for="(amount, index) in year.monthlyAmounts" 
+                      :key="index"
+                      class="text-center py-2 px-1 text-xs rounded border"
+                      :class="getMultiYearAmountClass(amount, index)"
+                      :title="formatCurrency(amount)">
+                      <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Single Year Preview -->
+        <div v-else class="bg-gray-50 rounded-lg p-4" data-testid="schedule-preview">
           <!-- Month headers -->
           <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-2">
             <div 
@@ -404,7 +568,9 @@ import {
   PAYMENT_SCHEDULES,
   PAYMENT_SCHEDULE_LABELS,
   PAYMENT_SCHEDULE_DESCRIPTIONS,
-  DATABASE_LIMITS
+  DATABASE_LIMITS,
+  END_TYPES,
+  END_TYPE_LABELS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
@@ -452,7 +618,13 @@ const {
   handleEditSubmit,
   handleAmountInput,
   generateSchedule,
-  getAvailableYears
+  getAvailableYears,
+  getAvailableEndYears,
+  getAvailableStartMonthIndices,
+  getAvailableOnceMonths,
+  updateLegacyRecurrence,
+  multiYearPreview,
+  updateMultiYearPreview
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
 // Watch for modal opening to initialize form
@@ -471,6 +643,19 @@ watch(() => props.budget, (newBudget) => {
   }
 })
 
+// Watch for multi-year form changes to update preview
+watch([
+  () => formData.value.frequency,
+  () => formData.value.startYear,
+  () => formData.value.endYear,
+  () => formData.value.endMonth,
+  () => formData.value.defaultAmount,
+  () => formData.value.recurrenceInterval,
+  () => formData.value.occurrences
+], () => {
+  updateMultiYearPreview()
+}, { deep: true })
+
 // Get amount class for styling
 const getAmountClass = (amount) => {
   if (amount > 0) {
@@ -483,6 +668,83 @@ const getAmountClass = (amount) => {
 // Get active months count
 const getActiveMonthsCount = () => {
   return generateSchedule().amounts.filter(amount => amount > 0).length
+}
+
+// Check if this is a multi-year budget
+const isMultiYear = computed(() => {
+  if (formData.value.frequency === FREQUENCY_TYPES.REPEATS) {
+    if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+      return formData.value.endYear > formData.value.startYear
+    } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+      // For occurrences, calculate if it spans multiple years
+      const totalMonths = formData.value.occurrences * formData.value.recurrenceInterval
+      const startDate = new Date(formData.value.startYear, formData.value.startMonth)
+      const endDate = new Date(startDate.getTime() + (totalMonths * 30 * 24 * 60 * 60 * 1000))
+      return endDate.getFullYear() > startDate.getFullYear()
+    }
+  }
+  // For once and custom, it's never multi-year
+  return false
+})
+
+// Get multi-year duration
+const getMultiYearDuration = () => {
+  if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+    return formData.value.endYear - formData.value.startYear + 1
+  } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+    // Calculate the actual duration by finding the end year
+    const calculatedEndYear = getCalculatedEndYear()
+    return calculatedEndYear - formData.value.startYear + 1
+  }
+  return 0
+}
+
+// Get calculated end year for occurrence-based endings
+const getCalculatedEndYear = () => {
+  if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+    return formData.value.endYear
+  } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+    // Calculate the actual end year from occurrences
+    let currentMonth = formData.value.startMonth
+    let currentYear = formData.value.startYear
+    let occurrenceCount = 0
+    
+    while (occurrenceCount < formData.value.occurrences) {
+      // Move to next occurrence
+      currentMonth += formData.value.recurrenceInterval
+      
+      // Handle year rollover
+      while (currentMonth >= 12) {
+        currentMonth -= 12
+        currentYear++
+      }
+      
+      occurrenceCount++
+    }
+    
+    return currentYear
+  }
+  return formData.value.endYear
+}
+
+// Get class for multi-year month headers
+const getMultiYearMonthClass = (amount, index) => {
+  if (amount > 0) {
+    return 'bg-blue-100 text-blue-800 border border-blue-200'
+  } else if (index < currentMonth.value) {
+    return 'bg-gray-100 opacity-50'
+  } else {
+    return 'bg-gray-50 border-gray-200'
+  }
+}
+
+// Get class for multi-year amount values
+const getMultiYearAmountClass = (amount, index) => {
+  if (amount > 0) {
+    return 'border-green-200 bg-green-100 text-green-800'
+  } else {
+    return 'border-gray-200 bg-white text-gray-400'
+  }
 }
 
 // Close modal
