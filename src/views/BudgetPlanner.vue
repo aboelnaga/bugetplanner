@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="flex space-x-3">
-          <button @click="openAddBudgetModal" class="btn-primary" data-testid="add-budget-btn">Add Budget Item</button>
+          <button @click="openAddBudgetModalUnified" class="btn-primary" data-testid="add-budget-btn">Add Budget Item</button>
           <!-- <button @click="openHistoryModal" class="btn-secondary">View History</button> -->
         </div>
       </div>
@@ -163,27 +163,23 @@
         :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
         :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
         @retry="budgetStore.fetchBudgetItems()"
-        @add-first-budget="openAddBudgetModal"
+        @add-first-budget="openAddBudgetModalUnified"
         @copy-from-previous-year="copyFromPreviousYear"
         @clear-filters="clearAllFilters"
-        @add-budget="openAddBudgetModal"
-        @edit-budget="editBudget"
+        @add-budget="openAddBudgetModalUnified"
+        @edit-budget="editBudgetUnified"
         @duplicate-budget="duplicateBudget"
         @delete-budget="deleteBudget"
         @close-month="handleCloseMonth" />
     </div>
 
-    <!-- Add Budget Modal -->
+    <!-- Unified Budget Modal -->
     <AddBudgetModal 
       v-model="showAddBudgetModal"
-      :selected-year="selectedYear"
-      @budget-added="handleBudgetAdded" />
-
-    <!-- Edit Budget Modal -->
-    <EditBudgetModal 
-      v-model="showEditBudgetModal"
+      :mode="budgetModalMode"
       :budget="editingBudget"
       :selected-year="selectedYear"
+      @budget-added="handleBudgetAdded"
       @budget-updated="handleBudgetUpdated" />
 
     <!-- Close Month Modal -->
@@ -207,7 +203,6 @@
   import { useAccountsStore } from '@/stores/accounts.js'
   import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
-  import EditBudgetModal from '@/components/EditBudgetModal.vue'
   import CloseMonthModal from '@/components/CloseMonthModal.vue'
   // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
   import BudgetTable from '@/components/BudgetTable.vue'
@@ -287,6 +282,40 @@
     addNewYear,
     copyFromPreviousYear
   } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth)
+
+  // Budget modal mode
+  const budgetModalMode = ref('add')
+
+  // Override openAddBudgetModal to set mode correctly
+  const openAddBudgetModalUnified = () => {
+    budgetModalMode.value = 'add'
+    editingBudget.value = null
+    openAddBudgetModal()
+  }
+
+  // Override editBudget to use unified modal
+  const editBudgetUnified = async (budget) => {
+    // Check if this is a multi-year budget item
+    if (budget.is_multi_year && budget.linked_group_id) {
+      // For multi-year items, we need to fetch all linked items first
+      const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
+      if (linkedItems.length > 0) {
+        // Use the master item (first item) for editing
+        const masterItem = linkedItems.find(item => item.is_master) || linkedItems[0]
+        editingBudget.value = masterItem
+      } else {
+        // Fallback to single item editing
+        editingBudget.value = budget
+      }
+    } else {
+      // Single year budget item
+      editingBudget.value = budget
+    }
+    
+    // Set mode to edit and show unified modal
+    budgetModalMode.value = 'edit'
+    showAddBudgetModal.value = true
+  }
 
   // Month closure state
   const closedMonths = ref([])

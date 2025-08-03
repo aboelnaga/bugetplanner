@@ -704,8 +704,9 @@
     />
     
     <!-- Edit Budget Item Modal -->
-    <EditBudgetModal
+    <AddBudgetModal
       v-model="showEditBudgetModal"
+      mode="edit"
       :budget="editingBudgetItem"
       :selected-year="editingBudgetItem?.year || new Date().getFullYear()"
       @budget-updated="handleBudgetItemUpdated"
@@ -719,7 +720,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { investmentAssetsAPI, budgetAPI } from '@/lib/supabase'
 import AddBudgetModal from '@/components/AddBudgetModal.vue'
-import EditBudgetModal from '@/components/EditBudgetModal.vue'
 
 const route = useRoute()
 const router = useRouter()

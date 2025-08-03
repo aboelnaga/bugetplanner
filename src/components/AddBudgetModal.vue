@@ -3,7 +3,7 @@
       :modelValue="modelValue" 
       :loading="isLoading"
       @update:modelValue="$emit('update:modelValue', $event)"
-      data-testid="add-budget-modal">
+      :data-testid="props.mode === 'edit' ? 'edit-budget-modal' : 'add-budget-modal'">
     
     <!-- Header -->
     <template #icon>
@@ -12,8 +12,8 @@
       </svg>
     </template>
     
-    <template #title>Add Budget Item</template>
-    <template #subtitle>Create a new budget item for {{ selectedYear }}</template>
+    <template #title>{{ props.mode === 'edit' ? 'Edit Budget Item' : 'Add Budget Item' }}</template>
+    <template #subtitle>{{ props.mode === 'edit' ? 'Update budget item for' : 'Create a new budget item for' }} {{ selectedYear }}</template>
     
     <!-- Content -->
     <form @submit.prevent="handleSubmit" class="space-y-6">
@@ -648,8 +648,8 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span v-if="isLoading">Adding...</span>
-          <span v-else>{{ formData.is_multi_year ? 'Add Multi-Year Budget' : 'Add Budget Item' }}</span>
+          <span v-if="isLoading">{{ props.mode === 'edit' ? 'Updating...' : 'Adding...' }}</span>
+          <span v-else>{{ props.mode === 'edit' ? 'Update Budget Item' : (formData.is_multi_year ? 'Add Multi-Year Budget' : 'Add Budget Item') }}</span>
         </button>
       </div>
     </template>
@@ -693,11 +693,20 @@ const props = defineProps({
   selectedYear: {
     type: Number,
     required: true
+  },
+  budget: {
+    type: Object,
+    default: null
+  },
+  mode: {
+    type: String,
+    default: 'add',
+    validator: value => ['add', 'edit'].includes(value)
   }
 })
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'budget-added'])
+const emit = defineEmits(['update:modelValue', 'budget-added', 'budget-updated'])
 
 // Store
 const budgetStore = useBudgetStore()
@@ -735,6 +744,7 @@ const {
   formData,
   isLoading,
   initializeFormData,
+  initializeFormDataFromBudget,
   resetFormData,
   getCategoriesByType,
   updateCategoryOnTypeChange,
@@ -744,6 +754,9 @@ const {
   getSchedulePreviewClass,
   calculateTotalAmount,
   handleAddSubmit,
+  handleEditSubmit,
+  handleMultiYearEditSubmit,
+  handleSingleYearEditSubmit,
   handleAmountInput,
   generateSchedule,
   updateMultiYearPreview,
@@ -768,10 +781,23 @@ watch(() => formData.value.type, (newType, oldType) => {
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
-    initializeFormData()
+    if (props.mode === 'edit' && props.budget) {
+      console.log('Initializing form with budget for edit:', props.budget)
+      initializeFormDataFromBudget(props.budget)
+    } else {
+      initializeFormData()
+      // Ensure frequency is set to "repeats" by default for add mode
+      formData.value.frequency = FREQUENCY_TYPES.REPEATS
+    }
     loadAvailableInvestments()
-    // Ensure frequency is set to "repeats" by default
-    formData.value.frequency = FREQUENCY_TYPES.REPEATS
+  }
+})
+
+// Watch for budget changes in edit mode
+watch(() => props.budget, (newBudget) => {
+  if (newBudget && props.modelValue && props.mode === 'edit') {
+    console.log('Budget changed, reinitializing form:', newBudget)
+    initializeFormDataFromBudget(newBudget)
   }
 })
 
@@ -846,15 +872,42 @@ const closeModal = () => {
 
 // Handle form submission
 const handleSubmit = async () => {
-  console.log('AddBudgetModal handleSubmit called')
-  const result = await handleAddSubmit()
-  console.log('handleAddSubmit result:', result)
-  if (result) {
-    console.log('Budget added successfully, closing modal')
-    closeModal()
-    emit('budget-added', result)
+  console.log('AddBudgetModal handleSubmit called, mode:', props.mode)
+  
+  let result
+  if (props.mode === 'edit') {
+    console.log('Edit mode - budget:', props.budget)
+    if (!props.budget || !props.budget.id) {
+      console.error('No budget to edit')
+      return
+    }
+    
+    if (isMultiYear.value) {
+      console.log('Using multi-year edit handler')
+      result = await handleMultiYearEditSubmit(props.budget.id)
+    } else {
+      console.log('Using single-year edit handler')
+      result = await handleSingleYearEditSubmit(props.budget.id)
+    }
+    
+    if (result) {
+      console.log('Budget updated successfully, closing modal')
+      closeModal()
+      emit('budget-updated', result)
+    } else {
+      console.log('Budget update failed, keeping modal open')
+    }
   } else {
-    console.log('Budget addition failed, keeping modal open')
+    // Add mode
+    result = await handleAddSubmit()
+    console.log('handleAddSubmit result:', result)
+    if (result) {
+      console.log('Budget added successfully, closing modal')
+      closeModal()
+      emit('budget-added', result)
+    } else {
+      console.log('Budget addition failed, keeping modal open')
+    }
   }
 }
 
