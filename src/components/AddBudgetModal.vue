@@ -524,34 +524,40 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
           </svg>
-          {{ formData.is_multi_year ? 'Multi-Year' : 'Schedule' }} Preview
+          Schedule Preview
         </h4>
         
-        <!-- Multi-Year Preview -->
-        <div v-if="formData.is_multi_year" class="bg-gray-50 border border-gray-200 rounded-lg p-4" data-testid="multi-year-preview">
+        <!-- Unified Schedule Preview -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4" :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'">
           <div class="space-y-4">
             <!-- Overall Summary -->
             <div class="flex items-center justify-between">
               <div>
-                <p class="text-sm font-medium text-gray-900">Total Multi-Year Amount</p>
-                <p class="text-xs text-gray-600">Across {{ multiYearPreview.duration }} year{{ multiYearPreview.duration !== 1 ? 's' : '' }}</p>
+                <p class="text-sm font-medium text-gray-900">
+                  {{ isMultiYear ? 'Total Multi-Year Amount' : 'Total Amount' }}
+                </p>
+                <p class="text-xs text-gray-600">
+                  {{ isMultiYear ? `Across ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? 's' : ''}` : `${getActiveMonthsCount()} active month${getActiveMonthsCount() !== 1 ? 's' : ''}` }}
+                </p>
               </div>
               <div class="text-right">
-                <p class="text-lg font-bold text-gray-900">{{ formatCurrency(multiYearPreview.totalAmount) }}</p>
+                <p class="text-lg font-bold text-gray-900">{{ formatCurrency(schedulePreviewData.totalAmount) }}</p>
               </div>
             </div>
             
             <!-- Yearly Breakdown with Monthly Grid -->
-            <div v-if="multiYearPreview.yearlyBreakdown.length > 0" class="space-y-4">
-              <p class="text-sm font-medium text-gray-900">Yearly Breakdown</p>
+            <div v-if="schedulePreviewData.yearlyBreakdown.length > 0" class="space-y-4">
+              <p class="text-sm font-medium text-gray-900">
+                {{ isMultiYear ? 'Yearly Breakdown' : `${props.selectedYear} Schedule` }}
+              </p>
               
-              <div v-for="year in multiYearPreview.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-3">
+              <div v-for="year in schedulePreviewData.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-3">
                 <!-- Year Header -->
                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
                   <div class="flex items-center space-x-2">
                     <span class="font-semibold text-gray-900">{{ year.year }}</span>
-                    <span v-if="year.isFirstYear" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">First</span>
-                    <span v-if="year.isLastYear" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Last</span>
+                    <span v-if="year.isFirstYear && isMultiYear" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">First</span>
+                    <span v-if="year.isLastYear && isMultiYear" class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Last</span>
                   </div>
                   <div class="text-right">
                     <p class="text-sm font-semibold text-gray-900">{{ formatCurrency(year.amount) }}</p>
@@ -567,7 +573,7 @@
                       v-for="(month, index) in months" 
                       :key="month"
                       class="text-center py-1 px-1 text-xs font-semibold text-gray-700 rounded"
-                      :class="getMultiYearMonthClass(year.monthlyAmounts[index], index)">
+                      :class="getScheduleMonthClass(year.monthlyAmounts[index], index)">
                       {{ month }}
                     </div>
                   </div>
@@ -578,50 +584,13 @@
                       v-for="(amount, index) in year.monthlyAmounts" 
                       :key="index"
                       class="text-center py-2 px-1 text-xs rounded border"
-                      :class="getMultiYearAmountClass(amount, index)"
+                      :class="getScheduleAmountClass(amount, index)"
                       :title="formatCurrency(amount)">
                       <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Single Year Preview -->
-        <div v-else class="bg-gray-50 rounded-lg p-4" data-testid="schedule-preview">
-          <!-- Month headers -->
-          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-2">
-            <div 
-              v-for="(month, index) in months" 
-              :key="month"
-              class="text-center py-2 px-1 text-xs font-semibold text-gray-700 rounded"
-              :class="getSchedulePreviewClass(index)">
-              {{ month }}
-            </div>
-          </div>
-          
-          <!-- Amount values -->
-          <div class="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3">
-            <div 
-              v-for="(amount, index) in generateSchedule().amounts" 
-              :key="index"
-              class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white"
-              :class="getAmountClass(amount)"
-              :title="formatCurrency(amount)">
-              <div class="font-medium">{{ formatCompactCurrency(amount) }}</div>
-            </div>
-          </div>
-          
-          <!-- Summary -->
-          <div class="flex flex-col sm:flex-row sm:justify-between items-start sm:items-center gap-2 pt-3 border-t border-gray-200">
-            <div class="text-sm text-gray-600">
-              <span class="font-medium">Total Amount:</span> 
-              <span class="font-semibold text-gray-800">{{ formatCurrency(calculateTotalAmount()) }}</span>
-            </div>
-            <div class="text-xs text-gray-500">
-              {{ getActiveMonthsCount() }} active month{{ getActiveMonthsCount() !== 1 ? 's' : '' }}
             </div>
           </div>
         </div>
@@ -801,15 +770,30 @@ watch(() => props.budget, (newBudget) => {
   }
 })
 
-// Watch for multi-year form changes to update preview
+// Watch for form changes to update preview (both single-year and multi-year)
 watch([
+  () => formData.value.frequency,
+  () => formData.value.startMonth,
+  () => formData.value.startYear,
+  () => formData.value.endMonth,
+  () => formData.value.endYear,
+  () => formData.value.endType,
+  () => formData.value.recurrenceInterval,
+  () => formData.value.occurrences,
+  () => formData.value.customMonths,
+  () => formData.value.oneTimeMonth,
+  () => formData.value.oneTimeYear,
+  () => formData.value.defaultAmount,
+  // Legacy fields for backward compatibility
   () => formData.value.is_multi_year,
   () => formData.value.start_year,
   () => formData.value.end_year,
-  () => formData.value.end_month,
-  () => formData.value.defaultAmount
+  () => formData.value.end_month
 ], () => {
-  updateMultiYearPreview()
+  // Update multi-year preview if available
+  if (updateMultiYearPreview) {
+    updateMultiYearPreview()
+  }
 }, { deep: true })
 
 // Get amount class for styling
@@ -951,8 +935,33 @@ const getCalculatedEndYear = () => {
   return formData.value.endYear
 }
 
-// Get class for multi-year month headers
-const getMultiYearMonthClass = (amount, index) => {
+// Unified schedule preview data (computed for reactivity)
+const schedulePreviewData = computed(() => {
+  if (isMultiYear.value && multiYearPreview.value) {
+    return multiYearPreview.value
+  } else {
+    // Generate single-year preview data in the same format as multi-year
+    const schedule = generateSchedule()
+    const totalAmount = calculateTotalAmount()
+    const activeMonths = getActiveMonthsCount()
+    
+    return {
+      duration: 1,
+      totalAmount: totalAmount,
+      yearlyBreakdown: [{
+        year: props.selectedYear,
+        amount: totalAmount,
+        monthsCount: activeMonths,
+        monthlyAmounts: schedule.amounts,
+        isFirstYear: true,
+        isLastYear: true
+      }]
+    }
+  }
+})
+
+// Unified class for schedule month headers
+const getScheduleMonthClass = (amount, index) => {
   if (amount > 0) {
     return 'bg-blue-100 text-blue-800 border border-blue-200'
   } else if (index < currentMonth.value) {
@@ -962,8 +971,8 @@ const getMultiYearMonthClass = (amount, index) => {
   }
 }
 
-// Get class for multi-year amount values
-const getMultiYearAmountClass = (amount, index) => {
+// Unified class for schedule amount values
+const getScheduleAmountClass = (amount, index) => {
   if (amount > 0) {
     return 'border-green-200 bg-green-100 text-green-800'
   } else {
