@@ -96,8 +96,9 @@ export const useBudgetStore = defineStore('budget', () => {
         occurrences: budgetData.occurrences || 12,
         one_time_year: budgetData.one_time_year || budgetData.oneTimeYear,
         custom_months: budgetData.custom_months || budgetData.customMonths || [],
-        // Legacy fields for backward compatibility
+        // Legacy recurrence field (required by database schema)
         recurrence: budgetData.recurrence || 'monthly',
+        // New frequency system fields
         start_month: budgetData.start_month || budgetData.startMonth || 0,
         end_month: budgetData.end_month || budgetData.endMonth || 11
       }
@@ -494,8 +495,7 @@ export const useBudgetStore = defineStore('budget', () => {
 
         console.log(`Creating budget item for year ${yearBudgetData.year} with pre-calculated data:`, {
           year: yearBudgetData.year,
-          amounts: yearBudgetData.amounts,
-          totalAmount: yearBudgetData.total_amount
+          amounts: yearBudgetData.amounts
         })
 
         const { data, error: apiError } = await budgetAPI.createBudgetItem(finalBudgetData)
@@ -547,8 +547,7 @@ export const useBudgetStore = defineStore('budget', () => {
 
       console.log('Creating single-year budget item with pre-calculated data:', {
         year: budgetData.year,
-        amounts: budgetData.amounts,
-        totalAmount: budgetData.total_amount
+        amounts: budgetData.amounts
       })
 
       const { data, error: apiError } = await budgetAPI.createBudgetItem(finalBudgetData)

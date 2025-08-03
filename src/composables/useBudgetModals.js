@@ -4,7 +4,6 @@
 import { ref, watch } from 'vue'
 import { 
   BUDGET_TYPES, 
-  RECURRENCE_TYPES, 
   RECURRENCE_LABELS,
   INVESTMENT_DIRECTIONS, 
   SCHEDULE_PATTERNS,
@@ -12,7 +11,6 @@ import {
   CATEGORIES_BY_TYPE,
   DATABASE_LIMITS,
   MULTI_YEAR_CONSTANTS,
-  MULTI_YEAR_CALCULATION,
   FREQUENCY_TYPES,
   FREQUENCY_LABELS,
   RECURRENCE_INTERVALS,
@@ -98,87 +96,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     updateMultiYearPreview()
   }
 
-  // Convert new frequency system to legacy recurrence for backward compatibility
-  const convertFrequencyToRecurrence = (frequency, recurrenceInterval, customMonths, oneTimeMonth, oneTimeYear) => {
-    switch (frequency) {
-      case FREQUENCY_TYPES.ONCE:
-        return RECURRENCE_TYPES.ONE_TIME
-      case FREQUENCY_TYPES.CUSTOM:
-        return RECURRENCE_TYPES.CUSTOM
-      case FREQUENCY_TYPES.REPEATS:
-        switch (recurrenceInterval) {
-          case 1: return RECURRENCE_TYPES.MONTHLY
-          case 3: return RECURRENCE_TYPES.QUARTERLY
-          case 6: return RECURRENCE_TYPES.BI_ANNUAL
-          case 12: return RECURRENCE_TYPES.MONTHLY // Yearly as monthly for now
-          default: return RECURRENCE_TYPES.CUSTOM
-        }
-      default:
-        return RECURRENCE_TYPES.MONTHLY
-    }
-  }
 
-  // Convert legacy recurrence to new frequency system
-  const convertRecurrenceToFrequency = (recurrence, customMonths, oneTimeMonth, oneTimeYear) => {
-    switch (recurrence) {
-      case RECURRENCE_TYPES.ONE_TIME:
-        return {
-          frequency: FREQUENCY_TYPES.ONCE,
-          recurrenceInterval: 1,
-          customMonths: [],
-          oneTimeMonth: oneTimeMonth || 0,
-          oneTimeYear: oneTimeYear || new Date().getFullYear()
-        }
-      case RECURRENCE_TYPES.CUSTOM:
-        return {
-          frequency: FREQUENCY_TYPES.CUSTOM,
-          recurrenceInterval: 1,
-          customMonths: customMonths || [],
-          oneTimeMonth: 0,
-          oneTimeYear: new Date().getFullYear()
-        }
-      case RECURRENCE_TYPES.MONTHLY:
-        return {
-          frequency: FREQUENCY_TYPES.REPEATS,
-          recurrenceInterval: 1,
-          customMonths: [],
-          oneTimeMonth: 0,
-          oneTimeYear: new Date().getFullYear()
-        }
-      case RECURRENCE_TYPES.QUARTERLY:
-        return {
-          frequency: FREQUENCY_TYPES.REPEATS,
-          recurrenceInterval: 3,
-          customMonths: [],
-          oneTimeMonth: 0,
-          oneTimeYear: new Date().getFullYear()
-        }
-      case RECURRENCE_TYPES.BI_ANNUAL:
-        return {
-          frequency: FREQUENCY_TYPES.REPEATS,
-          recurrenceInterval: 6,
-          customMonths: [],
-          oneTimeMonth: 0,
-          oneTimeYear: new Date().getFullYear()
-        }
-      case RECURRENCE_TYPES.SCHOOL_TERMS:
-        return {
-          frequency: FREQUENCY_TYPES.CUSTOM,
-          recurrenceInterval: 1,
-          customMonths: [0, 8], // January and September
-          oneTimeMonth: 0,
-          oneTimeYear: new Date().getFullYear()
-        }
-      default:
-        return {
-          frequency: FREQUENCY_TYPES.REPEATS,
-          recurrenceInterval: 1,
-          customMonths: [],
-          oneTimeMonth: 0,
-          oneTimeYear: new Date().getFullYear()
-        }
-    }
-  }
 
   // Multi-year calculation functions
   const updateMultiYearPreview = () => {
@@ -433,18 +351,6 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const updateSchedule = () => {
     console.log('updateSchedule called with formData:', formData.value)
     
-    // Convert new frequency system to legacy recurrence for calculations
-    const legacyRecurrence = convertFrequencyToRecurrence(
-      formData.value.frequency,
-      formData.value.recurrenceInterval,
-      formData.value.customMonths,
-      formData.value.oneTimeMonth,
-      formData.value.oneTimeYear
-    )
-    
-    // Update legacy recurrence field for backward compatibility
-    formData.value.recurrence = legacyRecurrence
-    
     // Reset custom selections when frequency changes (but preserve if already set)
     if (formData.value.frequency !== FREQUENCY_TYPES.CUSTOM) {
       // Only reset if not already set
@@ -515,19 +421,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     updateMultiYearPreview()
   }
 
-  // Update only the legacy recurrence field (for date changes)
+  // Update legacy recurrence field (for date changes) - now simplified
   const updateLegacyRecurrence = () => {
-    // Convert new frequency system to legacy recurrence for calculations
-    const legacyRecurrence = convertFrequencyToRecurrence(
-      formData.value.frequency,
-      formData.value.recurrenceInterval,
-      formData.value.customMonths,
-      formData.value.oneTimeMonth,
-      formData.value.oneTimeYear
-    )
-    
-    // Update legacy recurrence field for backward compatibility
-    formData.value.recurrence = legacyRecurrence
+    // No longer need legacy conversion - using new frequency system directly
     
     updateMultiYearPreview()
   }
@@ -867,15 +763,6 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     const { schedule, amounts } = generateSchedule()
 
-    // Convert frequency to legacy recurrence for backward compatibility
-    const legacyRecurrence = convertFrequencyToRecurrence(
-      formData.value.frequency,
-      formData.value.recurrenceInterval,
-      formData.value.customMonths,
-      formData.value.oneTimeMonth,
-      formData.value.oneTimeYear
-    )
-
     const baseData = {
       name: formData.value.name,
       type: formData.value.type,
@@ -892,8 +779,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       one_time_month: formData.value.oneTimeMonth,
       one_time_year: formData.value.oneTimeYear,
       custom_months: formData.value.customMonths || [],
-      // Legacy fields for backward compatibility
-      recurrence: legacyRecurrence,
+      // Legacy recurrence field (required by database schema)
+      recurrence: 'monthly',
+      // New frequency system fields
       default_amount: formData.value.defaultAmount,
       amounts: amounts,
       schedule: schedule,
@@ -1362,8 +1250,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         // Custom fields
         customMonths: budget.custom_months ? [...budget.custom_months] : [],
         
-        // Legacy fields
-        recurrence: budget.recurrence || RECURRENCE_TYPES.MONTHLY,
+        // Legacy fields (required by database schema)
+        recurrence: budget.recurrence || 'monthly',
         amounts: budget.amounts ? [...budget.amounts] : [],
         schedule: budget.schedule ? [...budget.schedule] : [],
         
@@ -1406,7 +1294,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         oneTimeMonth: 0,
         oneTimeYear: new Date().getFullYear(),
         customMonths: [],
-        recurrence: RECURRENCE_TYPES.MONTHLY,
+        // Legacy fields (required by database schema)
+        recurrence: 'monthly',
         amounts: [],
         schedule: [],
         payment_schedule: 'throughout_month',
@@ -1687,7 +1576,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const getMultiYearRecurrenceOptions = () => {
     const options = {}
     Object.entries(RECURRENCE_LABELS).forEach(([type, label]) => {
-      if (type !== RECURRENCE_TYPES.ONE_TIME) {
+      if (type !== 'one-time') {
         options[type] = label
       }
     })

@@ -537,7 +537,7 @@
                   {{ isMultiYear ? 'Total Multi-Year Amount' : 'Total Amount' }}
                 </p>
                 <p class="text-xs text-gray-600">
-                  {{ isMultiYear ? `Across ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? 's' : ''}` : `${getActiveMonthsCount()} active month${getActiveMonthsCount() !== 1 ? 's' : ''}` }}
+                  {{ isMultiYear ? `Across ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? 's' : ''}` : `${schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0} active month${(schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0) !== 1 ? 's' : ''}` }}
                 </p>
               </div>
               <div class="text-right">
@@ -634,7 +634,6 @@ import {
   MONTHS, 
   BUDGET_TYPES, 
   BUDGET_TYPE_LABELS, 
-  RECURRENCE_TYPES, 
   RECURRENCE_LABELS, 
   INVESTMENT_DIRECTIONS, 
   INVESTMENT_DIRECTION_LABELS,
@@ -792,11 +791,6 @@ watch([
 }, { deep: true })
 
 // Removed getAmountClass - now using unified getScheduleAmountClass
-
-// Get active months count
-const getActiveMonthsCount = () => {
-  return generateSchedule().amounts.filter(amount => amount > 0).length
-}
 
 // Get day suffix (1st, 2nd, 3rd, etc.)
 const getDaySuffix = (day) => {
@@ -960,7 +954,7 @@ const createBudgetDataFromSchedule = (formData, yearData) => {
     category: formData.category,
     default_amount: formData.defaultAmount,
     payment_schedule: formData.payment_schedule,
-    due_date: formData.due_date,
+    due_date: formData.due_date || null,
     is_fixed_expense: formData.is_fixed_expense,
     reminder_enabled: formData.reminder_enabled,
     reminder_days_before: formData.reminder_days_before,
@@ -979,11 +973,12 @@ const createBudgetDataFromSchedule = (formData, yearData) => {
     custom_months: formData.customMonths,
     one_time_month: formData.oneTimeMonth,
     one_time_year: formData.oneTimeYear,
+    // Legacy recurrence field (required by database schema)
+    recurrence: 'monthly',
     // Pre-calculated amounts (single source of truth)
     amounts: yearData.monthlyAmounts,
-    total_amount: yearData.amount,
-    is_multi_year: isMultiYear.value,
-    months_count: yearData.monthsCount
+    is_multi_year: isMultiYear.value
+    // Note: total_amount and months_count removed - not needed in database, only used for UI display
   }
 }
 
@@ -1035,12 +1030,14 @@ const schedulePreviewData = computed(() => {
     // Generate single-year preview data in the same format as multi-year
     const schedule = generateSchedule()
     const totalAmount = calculateTotalAmount()
-    const activeMonths = getActiveMonthsCount()
     
     // Use the actual year from form data, not props.selectedYear
     const actualYear = formData.value.frequency === FREQUENCY_TYPES.ONCE 
       ? formData.value.oneTimeYear 
       : formData.value.startYear || props.selectedYear
+    
+    // Calculate active months from the schedule
+    const activeMonths = schedule.amounts.filter(amount => amount > 0).length
     
     return {
       duration: 1,
