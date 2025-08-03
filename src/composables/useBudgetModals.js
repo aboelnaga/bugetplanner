@@ -1012,7 +1012,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         occurrences: formData.value.frequency === FREQUENCY_TYPES.REPEATS && formData.value.endType === END_TYPES.AFTER_OCCURRENCES ? formData.value.occurrences : null,
         one_time_month: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeMonth : null,
         one_time_year: formData.value.frequency === FREQUENCY_TYPES.ONCE ? formData.value.oneTimeYear : null,
-        custom_months: formData.value.frequency === FREQUENCY_TYPES.CUSTOM ? formData.value.customMonths : null
+        custom_months: formData.value.frequency === FREQUENCY_TYPES.CUSTOM ? formData.value.customMonths : null,
+        // Add multi-year flag
+        is_multi_year: formData.value.endYear > formData.value.startYear
       }
       
       console.log('Updated budget data:', updatedBudget)
@@ -1031,15 +1033,22 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   // Helper function for updating multi-year budgets
   const handleMultiYearEditSubmit = async (budgetId) => {
     try {
+      console.log('handleMultiYearEditSubmit called with budgetId:', budgetId)
+      
       const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
       if (!budget || !budget.linked_group_id) {
+        console.error('Invalid multi-year budget item or missing linked_group_id')
         alert('Invalid multi-year budget item')
         return false
       }
 
+      console.log('Found budget:', budget)
+      console.log('Linked group ID:', budget.linked_group_id)
+
       // Validate multi-year settings
       const multiYearErrors = validateMultiYearSettings()
       if (multiYearErrors.length > 0) {
+        console.error('Multi-year validation errors:', multiYearErrors)
         alert('Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
         return false
       }
@@ -1246,12 +1255,19 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   // Helper function for updating single year budgets
   const handleSingleYearEditSubmit = async (budgetId) => {
     try {
+      console.log('handleSingleYearEditSubmit called with budgetId:', budgetId)
+      console.log('formData.value:', formData.value)
+      
       // Preserve existing amounts and only update from start month onwards
       let newSchedule = []
-      let newAmounts = [...formData.value.amounts] // Preserve existing amounts
+      let newAmounts = [...(formData.value.amounts || [])] // Add null check
+      
+      console.log('Initial newAmounts:', newAmounts)
       
       // Calculate schedule with start month consideration
       const startMonth = formData.value.startMonth
+      
+      console.log('Start month:', startMonth)
       
       // Clear amounts from start month onwards first
       for (let i = startMonth; i < 12; i++) {
@@ -1261,10 +1277,14 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       const { schedule } = generateSchedule()
       newSchedule = schedule
       
+      console.log('Generated schedule:', newSchedule)
+      
       // Set amounts for scheduled months
       newSchedule.forEach(month => {
         newAmounts[month] = formData.value.defaultAmount
       })
+      
+      console.log('Final newAmounts:', newAmounts)
       
       // Create update data object
       const updateData = {
@@ -1331,6 +1351,10 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         endMonth: budget.end_month !== null ? budget.end_month : 11,
         endYear: budget.end_year || budget.year || new Date().getFullYear(),
         
+        // End type and occurrences
+        endType: budget.end_type || 'SPECIFIC_DATE',
+        occurrences: budget.occurrences || 12,
+        
         // One-time fields
         oneTimeMonth: budget.one_time_month !== null ? budget.one_time_month : 0,
         oneTimeYear: budget.one_time_year || budget.year || new Date().getFullYear(),
@@ -1377,6 +1401,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         startYear: new Date().getFullYear(),
         endMonth: 11, // Default to December
         endYear: new Date().getFullYear(),
+        endType: 'SPECIFIC_DATE',
+        occurrences: 12,
         oneTimeMonth: 0,
         oneTimeYear: new Date().getFullYear(),
         customMonths: [],

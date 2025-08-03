@@ -616,6 +616,8 @@ const {
   getSchedulePreviewClass,
   calculateTotalAmount,
   handleEditSubmit,
+  handleMultiYearEditSubmit,
+  handleSingleYearEditSubmit,
   handleAmountInput,
   generateSchedule,
   getAvailableYears,
@@ -754,12 +756,28 @@ const closeModal = () => {
 
 // Handle edit submission
 const submitEdit = async () => {
+  console.log('submitEdit called')
+  console.log('props.budget:', props.budget)
+  console.log('isMultiYear.value:', isMultiYear.value)
+  
   if (!props.budget || !props.budget.id) {
     console.error('No budget to edit')
     return
   }
   
-  const result = await handleEditSubmit(props.budget.id)
+  let result
+  if (isMultiYear.value) {
+    // Use multi-year edit handler
+    console.log('Using multi-year edit handler')
+    result = await handleMultiYearEditSubmit(props.budget.id)
+  } else {
+    // Use single-year edit handler
+    console.log('Using single-year edit handler')
+    result = await handleSingleYearEditSubmit(props.budget.id)
+  }
+  
+  console.log('Edit result:', result)
+  
   if (result) {
     emit('budget-updated', result)
     closeModal()
