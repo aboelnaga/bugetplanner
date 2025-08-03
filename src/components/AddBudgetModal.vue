@@ -722,22 +722,17 @@ const {
   getMonthLabel,
   getSchedulePreviewClass,
   calculateTotalAmount,
-  handleAddSubmit,
-  handleEditSubmit,
-  handleMultiYearEditSubmit,
-  handleSingleYearEditSubmit,
   handleAmountInput,
   generateSchedule,
   updateMultiYearPreview,
   getAvailableYears,
   getAvailableEndYears,
-  getMultiYearRecurrenceOptions,
   multiYearPreview,
-  handleMultiYearToggle,
-  validateMultiYearSettings,
   updateLegacyRecurrence,
-  getAvailableOnceMonths,
-  getAvailableCustomMonths
+  getAvailableOnceMonths
+  // Removed: handleAddSubmit, handleEditSubmit, handleMultiYearEditSubmit, handleSingleYearEditSubmit
+  // Removed: getMultiYearRecurrenceOptions, handleMultiYearToggle, validateMultiYearSettings, getAvailableCustomMonths
+  // These are now replaced by our unified handlers or not needed
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth)
 
 // Watch for budget type changes to clear linked investment
@@ -796,14 +791,7 @@ watch([
   }
 }, { deep: true })
 
-// Get amount class for styling
-const getAmountClass = (amount) => {
-  if (amount > 0) {
-    return 'border-green-200 bg-green-100 text-green-800'
-  } else {
-    return 'border-gray-200 bg-white text-gray-400'
-  }
-}
+// Removed getAmountClass - now using unified getScheduleAmountClass
 
 // Get active months count
 const getActiveMonthsCount = () => {
@@ -854,44 +842,125 @@ const closeModal = () => {
   emit('update:modelValue', false)
 }
 
-// Handle form submission
+// Unified budget submission handler
 const handleSubmit = async () => {
   console.log('AddBudgetModal handleSubmit called, mode:', props.mode)
   
-  let result
-  if (props.mode === 'edit') {
-    console.log('Edit mode - budget:', props.budget)
-    if (!props.budget || !props.budget.id) {
-      console.error('No budget to edit')
-      return
-    }
+  try {
+    // Use the same schedule data that preview uses (single source of truth)
+    const scheduleData = schedulePreviewData.value
+    console.log('Using schedule data:', scheduleData)
     
-    if (isMultiYear.value) {
-      console.log('Using multi-year edit handler')
-      result = await handleMultiYearEditSubmit(props.budget.id)
+    let result
+    if (props.mode === 'edit') {
+      console.log('Edit mode - budget:', props.budget)
+      if (!props.budget || !props.budget.id) {
+        console.error('No budget to edit')
+        return
+      }
+      
+      // Use unified submit logic for both single and multi-year edits
+      result = await handleUnifiedEditSubmit(props.budget.id, scheduleData)
     } else {
-      console.log('Using single-year edit handler')
-      result = await handleSingleYearEditSubmit(props.budget.id)
+      // Use unified submit logic for both single and multi-year adds
+      result = await handleUnifiedAddSubmit(scheduleData)
     }
     
     if (result) {
-      console.log('Budget updated successfully, closing modal')
+      console.log('Budget operation successful, closing modal')
       closeModal()
-      emit('budget-updated', result)
+      emit(props.mode === 'edit' ? 'budget-updated' : 'budget-added', result)
     } else {
-      console.log('Budget update failed, keeping modal open')
+      console.log('Budget operation failed, keeping modal open')
     }
+  } catch (error) {
+    console.error('Budget submission error:', error)
+  }
+}
+
+// Unified add submit handler
+const handleUnifiedAddSubmit = async (scheduleData) => {
+  if (isMultiYear.value) {
+    console.log('Creating multi-year budget with schedule data')
+    return await handleMultiYearAddSubmit(scheduleData)
   } else {
-    // Add mode
-    result = await handleAddSubmit()
-    console.log('handleAddSubmit result:', result)
-    if (result) {
-      console.log('Budget added successfully, closing modal')
-      closeModal()
-      emit('budget-added', result)
-    } else {
-      console.log('Budget addition failed, keeping modal open')
-    }
+    console.log('Creating single-year budget with schedule data')
+    return await handleSingleYearAddSubmit(scheduleData)
+  }
+}
+
+// Unified edit submit handler
+const handleUnifiedEditSubmit = async (budgetId, scheduleData) => {
+  if (isMultiYear.value) {
+    console.log('Updating multi-year budget with schedule data')
+    return await handleMultiYearEditSubmit(budgetId, scheduleData)
+  } else {
+    console.log('Updating single-year budget with schedule data')
+    return await handleSingleYearEditSubmit(budgetId, scheduleData)
+  }
+}
+
+// Single-year add using schedule data
+const handleSingleYearAddSubmit = async (scheduleData) => {
+  // Use the calculated amounts from schedule data instead of recalculating
+  const yearData = scheduleData.yearlyBreakdown[0]
+  const budgetData = createBudgetDataFromSchedule(formData.value, yearData)
+  
+  try {
+    return await budgetStore.addBudgetItemFromSchedule(budgetData)
+  } catch (error) {
+    console.error('Single-year add error:', error)
+    return null
+  }
+}
+
+// Multi-year add using schedule data
+const handleMultiYearAddSubmit = async (scheduleData) => {
+  // Use the calculated yearly breakdown instead of recalculating
+  const budgetDataArray = scheduleData.yearlyBreakdown.map(yearData => 
+    createBudgetDataFromSchedule(formData.value, yearData)
+  )
+  
+  try {
+    return await budgetStore.addMultiYearBudgetFromSchedule(budgetDataArray, formData.value)
+  } catch (error) {
+    console.error('Multi-year add error:', error)
+    return null
+  }
+}
+
+// Helper function to create budget data from schedule data
+const createBudgetDataFromSchedule = (formData, yearData) => {
+  return {
+    name: formData.name,
+    type: formData.type,
+    category: formData.category,
+    default_amount: formData.defaultAmount,
+    payment_schedule: formData.payment_schedule,
+    due_date: formData.due_date,
+    is_fixed_expense: formData.is_fixed_expense,
+    reminder_enabled: formData.reminder_enabled,
+    reminder_days_before: formData.reminder_days_before,
+    investment_direction: formData.investment_direction,
+    linked_investment_id: formData.linked_investment_id,
+    // Schedule-specific fields
+    year: yearData.year,
+    frequency: formData.frequency,
+    recurrence_interval: formData.recurrenceInterval,
+    start_month: formData.startMonth,
+    start_year: formData.startYear,
+    end_month: formData.endMonth,
+    end_year: formData.endYear,
+    end_type: formData.endType,
+    occurrences: formData.occurrences,
+    custom_months: formData.customMonths,
+    one_time_month: formData.oneTimeMonth,
+    one_time_year: formData.oneTimeYear,
+    // Pre-calculated amounts (single source of truth)
+    amounts: yearData.monthlyAmounts,
+    total_amount: yearData.amount,
+    is_multi_year: isMultiYear.value,
+    months_count: yearData.monthsCount
   }
 }
 

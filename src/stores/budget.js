@@ -465,6 +465,114 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
+  // NEW: Unified method that accepts pre-calculated schedule data for multi-year budgets
+  const addMultiYearBudgetFromSchedule = async (budgetDataArray, formData) => {
+    if (!authStore?.isAuthenticated || !authStore?.userId) {
+      throw new Error('User not authenticated')
+    }
+
+    const linkedGroupId = uuidv4()
+    const createdItems = []
+
+    try {
+      addLoading.value = true
+      error.value = null
+
+      for (let i = 0; i < budgetDataArray.length; i++) {
+        const yearBudgetData = budgetDataArray[i]
+        const isMaster = i === 0
+
+        // Use pre-calculated data from the modal (no recalculation needed)
+        const finalBudgetData = {
+          ...yearBudgetData,
+          user_id: authStore.userId,
+          linked_group_id: linkedGroupId,
+          is_master: isMaster,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+
+        console.log(`Creating budget item for year ${yearBudgetData.year} with pre-calculated data:`, {
+          year: yearBudgetData.year,
+          amounts: yearBudgetData.amounts,
+          totalAmount: yearBudgetData.total_amount
+        })
+
+        const { data, error: apiError } = await budgetAPI.createBudgetItem(finalBudgetData)
+        if (apiError) {
+          console.error(`Error creating budget item for year ${yearBudgetData.year}:`, apiError)
+          throw apiError
+        }
+
+        createdItems.push(data)
+      }
+
+      // Add all created items to the store
+      createdItems.forEach(item => {
+        budgetItems.value.push(item)
+      })
+
+      // Sort budget items
+      sortBudgetItems()
+
+      console.log('Multi-year budget items created successfully:', createdItems.length)
+      return createdItems
+
+    } catch (err) {
+      error.value = err.message
+      console.error('Error in addMultiYearBudgetFromSchedule:', err)
+      throw err
+    } finally {
+      addLoading.value = false
+    }
+  }
+
+  // NEW: Unified method for single-year budgets that accepts pre-calculated data
+  const addBudgetItemFromSchedule = async (budgetData) => {
+    if (!authStore?.isAuthenticated || !authStore?.userId) {
+      throw new Error('User not authenticated')
+    }
+
+    try {
+      addLoading.value = true
+      error.value = null
+
+      // Use pre-calculated data from the modal (no recalculation needed)
+      const finalBudgetData = {
+        ...budgetData,
+        user_id: authStore.userId,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('Creating single-year budget item with pre-calculated data:', {
+        year: budgetData.year,
+        amounts: budgetData.amounts,
+        totalAmount: budgetData.total_amount
+      })
+
+      const { data, error: apiError } = await budgetAPI.createBudgetItem(finalBudgetData)
+      if (apiError) {
+        console.error('Error creating budget item:', apiError)
+        throw apiError
+      }
+
+      // Add to store
+      budgetItems.value.push(data)
+      sortBudgetItems()
+
+      console.log('Single-year budget item created successfully')
+      return data
+
+    } catch (err) {
+      error.value = err.message
+      console.error('Error in addBudgetItemFromSchedule:', err)
+      throw err
+    } finally {
+      addLoading.value = false
+    }
+  }
+
   // Update budget item
   const updateBudgetItem = async (id, updates) => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
@@ -821,6 +929,9 @@ export const useBudgetStore = defineStore('budget', () => {
     addMultiYearBudgetItem,
     getLinkedBudgetItems,
     deleteMultiYearBudgetItems,
-    updateMultiYearBudgetItems
+    updateMultiYearBudgetItems,
+    // New unified methods
+    addMultiYearBudgetFromSchedule,
+    addBudgetItemFromSchedule
   }
 }) 
