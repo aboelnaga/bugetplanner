@@ -548,7 +548,7 @@
             <!-- Yearly Breakdown with Monthly Grid -->
             <div v-if="schedulePreviewData.yearlyBreakdown.length > 0" class="space-y-4">
               <p class="text-sm font-medium text-gray-900">
-                {{ isMultiYear ? 'Yearly Breakdown' : `${props.selectedYear} Schedule` }}
+                {{ isMultiYear ? 'Yearly Breakdown' : `${schedulePreviewData.yearlyBreakdown[0]?.year || props.selectedYear} Schedule` }}
               </p>
               
               <div v-for="year in schedulePreviewData.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-3">
@@ -893,10 +893,33 @@ const handleUnifiedAddSubmit = async (scheduleData) => {
 const handleUnifiedEditSubmit = async (budgetId, scheduleData) => {
   if (isMultiYear.value) {
     console.log('Updating multi-year budget with schedule data')
-    return await handleMultiYearEditSubmit(budgetId, scheduleData)
+    return await handleMultiYearEditWithSchedule(budgetId, scheduleData)
   } else {
     console.log('Updating single-year budget with schedule data')
-    return await handleSingleYearEditSubmit(budgetId, scheduleData)
+    return await handleSingleYearEditWithSchedule(budgetId, scheduleData)
+  }
+}
+
+// Multi-year edit using schedule data
+const handleMultiYearEditWithSchedule = async (budgetId, scheduleData) => {
+  try {
+    // Use existing updateMultiYearBudgetItems but with calculated data
+    const updateData = createBudgetDataFromSchedule(formData.value, scheduleData.yearlyBreakdown[0])
+    return await budgetStore.updateMultiYearBudgetItems(props.budget.linked_group_id, updateData)
+  } catch (error) {
+    console.error('Multi-year edit error:', error)
+    return null
+  }
+}
+
+// Single-year edit using schedule data  
+const handleSingleYearEditWithSchedule = async (budgetId, scheduleData) => {
+  try {
+    const updateData = createBudgetDataFromSchedule(formData.value, scheduleData.yearlyBreakdown[0])
+    return await budgetStore.updateBudgetItem(budgetId, updateData)
+  } catch (error) {
+    console.error('Single-year edit error:', error)
+    return null
   }
 }
 
@@ -1014,11 +1037,16 @@ const schedulePreviewData = computed(() => {
     const totalAmount = calculateTotalAmount()
     const activeMonths = getActiveMonthsCount()
     
+    // Use the actual year from form data, not props.selectedYear
+    const actualYear = formData.value.frequency === FREQUENCY_TYPES.ONCE 
+      ? formData.value.oneTimeYear 
+      : formData.value.startYear || props.selectedYear
+    
     return {
       duration: 1,
       totalAmount: totalAmount,
       yearlyBreakdown: [{
-        year: props.selectedYear,
+        year: actualYear,
         amount: totalAmount,
         monthsCount: activeMonths,
         monthlyAmounts: schedule.amounts,
