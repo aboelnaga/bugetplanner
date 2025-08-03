@@ -472,7 +472,7 @@ export const useBudgetStore = defineStore('budget', () => {
       throw new Error('User not authenticated')
     }
 
-    const linkedGroupId = uuidv4()
+    const linkedGroupId = crypto.randomUUID()
     const createdItems = []
 
     try {
