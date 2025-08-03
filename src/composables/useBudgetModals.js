@@ -1367,10 +1367,41 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   // Form submission handlers
   const handleBudgetAdded = (budgetItem) => {
     console.log('Budget item added successfully:', budgetItem)
+    
+    // Handle both single-year and multi-year results
+    if (Array.isArray(budgetItem)) {
+      // Multi-year budget - array of budget items
+      const budgetName = budgetItem[0]?.name || 'Budget items'
+      const message = `${budgetName} created for ${budgetItem.length} year${budgetItem.length !== 1 ? 's' : ''}`
+      console.log('Success message:', message)
+      
+      // Show success toast
+      if (window.$toaster) {
+        window.$toaster.success('Multi-Year Budget Created', message)
+      }
+    } else {
+      // Single-year budget - single budget item
+      const budgetName = budgetItem?.name || 'Budget item'
+      const message = `Budget item "${budgetName}" created successfully`
+      console.log('Success message:', message)
+      
+      // Show success toast
+      if (window.$toaster) {
+        window.$toaster.success('Budget Created', message)
+      }
+    }
   }
 
   const handleBudgetUpdated = (budgetItem) => {
     console.log('Budget item updated successfully:', budgetItem)
+    const budgetName = budgetItem?.name || 'Budget item'
+    const message = `Budget item "${budgetName}" updated successfully`
+    console.log('Success message:', message)
+    
+    // Show success toast
+    if (window.$toaster) {
+      window.$toaster.success('Budget Updated', message)
+    }
   }
 
   // Budget actions

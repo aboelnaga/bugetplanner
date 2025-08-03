@@ -498,10 +498,11 @@ export const useBudgetStore = defineStore('budget', () => {
           amounts: yearBudgetData.amounts
         })
 
-        const { data, error: apiError } = await budgetAPI.createBudgetItem(finalBudgetData)
-        if (apiError) {
-          console.error(`Error creating budget item for year ${yearBudgetData.year}:`, apiError)
-          throw apiError
+        const data = await budgetAPI.createBudgetItem(finalBudgetData)
+        
+        if (!data) {
+          console.error(`API returned null or undefined data for year ${yearBudgetData.year}`)
+          throw new Error(`Failed to create budget item for year ${yearBudgetData.year}: No data returned from API`)
         }
 
         createdItems.push(data)
@@ -516,11 +517,13 @@ export const useBudgetStore = defineStore('budget', () => {
       sortBudgetItems()
 
       console.log('Multi-year budget items created successfully:', createdItems.length)
+      
       return createdItems
 
     } catch (err) {
       error.value = err.message
       console.error('Error in addMultiYearBudgetFromSchedule:', err)
+      
       throw err
     } finally {
       addLoading.value = false
@@ -550,10 +553,13 @@ export const useBudgetStore = defineStore('budget', () => {
         amounts: budgetData.amounts
       })
 
-      const { data, error: apiError } = await budgetAPI.createBudgetItem(finalBudgetData)
-      if (apiError) {
-        console.error('Error creating budget item:', apiError)
-        throw apiError
+      console.log('Final budget data being sent to API:', finalBudgetData)
+
+      const data = await budgetAPI.createBudgetItem(finalBudgetData)
+      
+      if (!data) {
+        console.error('API returned null or undefined data')
+        throw new Error('Failed to create budget item: No data returned from API')
       }
 
       // Add to store
@@ -561,11 +567,13 @@ export const useBudgetStore = defineStore('budget', () => {
       sortBudgetItems()
 
       console.log('Single-year budget item created successfully')
+      
       return data
 
     } catch (err) {
       error.value = err.message
       console.error('Error in addBudgetItemFromSchedule:', err)
+      
       throw err
     } finally {
       addLoading.value = false
@@ -611,6 +619,7 @@ export const useBudgetStore = defineStore('budget', () => {
     } catch (err) {
       error.value = err.message
       console.error('Error updating budget item:', err)
+      
       return false
     } finally {
       editLoading.value = false
@@ -627,6 +636,10 @@ export const useBudgetStore = defineStore('budget', () => {
       
       await budgetAPI.deleteBudgetItem(id)
       
+      // Get budget name before deletion for toast message
+      const budgetToDelete = budgetItems.value.find(item => item.id === id)
+      const budgetName = budgetToDelete?.name || 'Budget item'
+      
       // Remove from local state immediately - no need for general loading state
       budgetItems.value = budgetItems.value.filter(item => item.id !== id)
       
@@ -634,6 +647,7 @@ export const useBudgetStore = defineStore('budget', () => {
     } catch (err) {
       error.value = err.message
       console.error('Error deleting budget item:', err)
+      
       return false
     } finally {
       deleteLoading.value = false
@@ -881,6 +895,15 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
+  // Sort budget items by creation date
+  const sortBudgetItems = () => {
+    budgetItems.value.sort((a, b) => {
+      const dateA = new Date(a.created_at)
+      const dateB = new Date(b.created_at)
+      return dateA - dateB
+    })
+  }
+
   return {
     // State
     budgetItems,
@@ -931,6 +954,7 @@ export const useBudgetStore = defineStore('budget', () => {
     updateMultiYearBudgetItems,
     // New unified methods
     addMultiYearBudgetFromSchedule,
-    addBudgetItemFromSchedule
+    addBudgetItemFromSchedule,
+    sortBudgetItems
   }
 }) 

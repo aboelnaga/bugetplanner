@@ -539,6 +539,8 @@
     return 'text-red-600'
   }
 
+
+
   // Initialize on mount
   onMounted(async () => {
     // Wait for auth to initialize

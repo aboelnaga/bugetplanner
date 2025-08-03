@@ -860,15 +860,31 @@ const handleSubmit = async () => {
       result = await handleUnifiedAddSubmit(scheduleData)
     }
     
+    console.log('Submit result:', result)
+    
     if (result) {
       console.log('Budget operation successful, closing modal')
       closeModal()
       emit(props.mode === 'edit' ? 'budget-updated' : 'budget-added', result)
     } else {
       console.log('Budget operation failed, keeping modal open')
+      const errorMessage = `Failed to ${props.mode === 'edit' ? 'update' : 'create'} budget item "${formData.value.name}". Please try again.`
+      console.log('Error message:', errorMessage)
+      
+      // Show error toast
+      if (window.$toaster) {
+        window.$toaster.error('Error', errorMessage)
+      }
     }
   } catch (error) {
     console.error('Budget submission error:', error)
+    const errorMessage = `Error ${props.mode === 'edit' ? 'updating' : 'creating'} budget item "${formData.value.name}": ${error.message || 'Unknown error'}`
+    console.log('Error message:', errorMessage)
+    
+    // Show error toast
+    if (window.$toaster) {
+      window.$toaster.error('Error', errorMessage)
+    }
   }
 }
 
