@@ -13,7 +13,7 @@
     "test:simple": "playwright test --config=playwright.config.simple.ts",
     "test:no-server": "SKIP_WEBSERVER=true playwright test",
     "test:e2e": "playwright test tests/e2e/smoke-test.spec.ts tests/e2e/budget-creation.spec.ts tests/e2e/budget-simple.spec.ts",
-    "test:mocked": "playwright test --config=tests/e2e/playwright.mocked.config.ts",
+    "test:mocked": "playwright test tests/e2e/budget-ui-mocked.spec.ts tests/e2e/budget-ui-advanced.spec.ts",
     "test:all": "npm run test:e2e && npm run test:mocked",
     "lint": "eslint . --ext .vue,.js,.ts --fix"
   },

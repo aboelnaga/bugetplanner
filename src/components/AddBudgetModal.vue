@@ -196,7 +196,8 @@
             </label>
             <select 
               v-model="formData.investment_direction"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              data-testid="investment-direction-select">
               <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
                 {{ label }}
               </option>
@@ -229,7 +230,8 @@
               type="checkbox" 
               id="is_fixed_expense"
               v-model="formData.is_fixed_expense"
-              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              data-testid="fixed-expense-checkbox" />
             <label for="is_fixed_expense" class="text-sm font-medium text-gray-700">
               Fixed Expense
             </label>
@@ -246,7 +248,8 @@
               type="checkbox" 
               id="reminder_enabled"
               v-model="formData.reminder_enabled"
-              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+              class="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              data-testid="reminder-enabled-checkbox" />
             <label for="reminder_enabled" class="text-sm font-medium text-gray-700">
               Enable Reminders
             </label>
@@ -266,7 +269,8 @@
             </label>
             <select 
               v-model="formData.reminder_days_before"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              data-testid="reminder-days-input">
               <option v-for="days in [1, 2, 3, 5, 7, 10, 14, 21, 30]" :key="days" :value="days">
                 {{ days }} day{{ days !== 1 ? 's' : '' }} before
               </option>
@@ -442,7 +446,7 @@
           </div>
 
           <!-- Custom Months (for custom frequency) -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3" data-testid="custom-months-section">
             <div>
               <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
               <p class="text-xs text-gray-500 mt-1">Custom months for current year only (past months are disabled)</p>
@@ -622,7 +626,8 @@
           type="button" 
           @click="closeModal" 
           :disabled="isLoading" 
-          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          data-testid="cancel-btn">
           Cancel
         </button>
         <button 

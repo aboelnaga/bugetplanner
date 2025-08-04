@@ -71,8 +71,8 @@ export default defineConfig({
   // },
 
   /* Test patterns - only run mocked tests */
-  testMatch: [
-    '**/budget-ui-mocked.spec.ts',
-    '**/budget-ui-advanced.spec.ts'
-  ],
+  // testMatch: [
+  //   'budget-ui-mocked.spec.ts',
+  //   'budget-ui-advanced.spec.ts'
+  // ],
 }); 

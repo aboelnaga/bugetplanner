@@ -9,7 +9,7 @@
   </tr>
 
   <!-- Net Balance Line -->
-  <tr v-if="shouldShowSummaryRow('NET_BALANCE')" :class="`${netBalanceStyling.bgColor} border-t-2 border-gray-200 font-bold`">
+  <tr v-if="shouldShowSummaryRow('NET_BALANCE')" :class="`${netBalanceStyling.bgColor} border-t-2 border-gray-200 font-bold`" data-testid="net-amount">
     <td :class="`px-6 py-4 text-sm font-bold ${netBalanceStyling.textColor} sticky left-0 ${netBalanceStyling.stickyBgColor} z-20 border-r border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-xl font-bold ${netBalanceStyling.textColor} mr-2`">{{ netBalanceConfig.symbol }}</span>
