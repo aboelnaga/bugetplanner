@@ -1283,7 +1283,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         is_fixed_expense: budget.is_fixed_expense || false,
         reminder_enabled: budget.reminder_enabled || false,
         reminder_days_before: budget.reminder_days_before || 3,
-        linked_investment_id: budget.linked_investment_id || '',
+        linked_investment_id: budget.linked_investment_id || null,
         
         // Investment fields
         investment_direction: budget.investment_direction || 'outgoing',
@@ -1325,7 +1325,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         is_fixed_expense: false,
         reminder_enabled: false,
         reminder_days_before: 3,
-        linked_investment_id: '',
+        linked_investment_id: null,
         investment_direction: 'outgoing',
         is_multi_year: false
       }
