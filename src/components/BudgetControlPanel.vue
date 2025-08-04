@@ -11,6 +11,7 @@
             :value="selectedYear" 
             @change="$emit('update:selectedYear', parseInt($event.target.value))"
             class="border border-gray-300 rounded-md px-3 py-1 text-sm font-semibold text-blue-600 bg-white hover:border-gray-400 focus:border-blue-500"
+            data-testid="year-filter-select"
           >
             <option v-for="year in availableYears" :key="year" :value="year">{{ year }}</option>
           </select>

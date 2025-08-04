@@ -2,39 +2,16 @@
 
 ## Current Status
 
-### ✅ **Complete Success: 22/22 tests passing (100% success rate)**
+### ✅ **E2E Tests (22/22 passing)**
+- `smoke-test.spec.ts` - 3 tests ✅
+- `budget-creation.spec.ts` - 9 tests ✅
+- `budget-simple.spec.ts` - 10 tests ✅
 
-#### **Organized Test Files:**
+### 🟢 **Mocked Tests (3/12 passing)**
+- `budget-ui-mocked.spec.ts` - 3/12 tests ✅ (25% success rate)
+- `budget-ui-advanced.spec.ts` - 0/11 tests ❌ (missing data-testid attributes)
 
-**1. `smoke-test.spec.ts` (3 tests) - 100% pass rate**
-- ✅ Page loading
-- ✅ Modal opening  
-- ✅ Default values
-
-**2. `budget-creation.spec.ts` (9 tests) - 100% pass rate**
-- ✅ Single year budget creation
-- ✅ Multi-year budget creation
-- ✅ One-time budget creation
-- ✅ Validation errors for required fields
-- ✅ Amount limits enforced in input field
-- ✅ Conditional fields based on frequency
-- ✅ Conditional fields based on payment schedule
-- ✅ Conditional fields based on budget type
-- ✅ Preview updates when form changes
-
-**3. `budget-simple.spec.ts` (10 tests) - 100% pass rate**
-- ✅ Basic budget creation
-- ✅ Validation errors for empty form
-- ✅ Amount limits enforcement
-- ✅ Conditional fields based on frequency
-- ✅ Conditional fields based on payment schedule
-- ✅ Conditional fields based on budget type
-- ✅ Preview updates when form changes
-- ✅ Multi-year indicator display
-- ✅ End date options based on end type
-- ✅ Custom months selection
-
-### **Total: 22 tests across 3 focused files**
+### **Total: 34 tests across 5 focused files**
 
 ### 🧹 **Cleaned Up Files (Removed)**
 - ❌ `budget-flows.spec.ts` - Removed (multiple failures)
