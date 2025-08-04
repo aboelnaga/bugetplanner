@@ -1,11 +1,18 @@
 import { test, expect } from '@playwright/test';
 import { loginBeforeTest } from './utils/auth-helpers';
+import { cleanupBeforeTestAPI, cleanupAfterTestAPI } from './utils/api-cleanup-helpers';
 
 test.describe('Smoke Tests', () => {
-  test('should load the budget planner page', async ({ page }) => {
-    // Use the improved login utility
+  test.beforeEach(async ({ page }) => {
     await loginBeforeTest(page);
-    
+    await cleanupBeforeTestAPI(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await cleanupAfterTestAPI(page);
+  });
+
+  test('should load the budget planner page', async ({ page }) => {
     // Verify the page loads
     await expect(page).toHaveTitle(/Budget/);
     
@@ -15,9 +22,6 @@ test.describe('Smoke Tests', () => {
   });
 
   test('should open add budget modal', async ({ page }) => {
-    // Use the improved login utility
-    await loginBeforeTest(page);
-    
     // Click add budget button
     await page.click('[data-testid="add-budget-btn"]');
     
@@ -33,9 +37,6 @@ test.describe('Smoke Tests', () => {
   });
 
   test('should have correct default values', async ({ page }) => {
-    // Use the improved login utility
-    await loginBeforeTest(page);
-    
     await page.click('[data-testid="add-budget-btn"]');
     
     // Verify frequency defaults to "repeats"

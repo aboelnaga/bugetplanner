@@ -227,6 +227,28 @@ export const budgetAPI = {
     if (error) throw error
   },
 
+  // Get all budget items for a user (all years)
+  async getAllBudgetItems(userId) {
+    const { data, error } = await supabase
+      .from('budget_items')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+    
+    if (error) throw error
+    return data || []
+  },
+
+  // Delete all budget items for a user
+  async deleteAllBudgetItems(userId) {
+    const { error } = await supabase
+      .from('budget_items')
+      .delete()
+      .eq('user_id', userId)
+    
+    if (error) throw error
+  },
+
 
 
   // Get budget history
