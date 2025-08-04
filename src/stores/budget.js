@@ -235,6 +235,9 @@ export const useBudgetStore = defineStore('budget', () => {
       
       console.log('Store: Added current year items to local state:', currentYearItems)
       
+      // Refresh budget items to ensure proper filtering
+      await fetchBudgetItems(selectedYear.value)
+      
       return createdItems
     } catch (err) {
       error.value = err.message
@@ -508,15 +511,19 @@ export const useBudgetStore = defineStore('budget', () => {
         createdItems.push(data)
       }
 
-      // Add all created items to the store
-      createdItems.forEach(item => {
-        budgetItems.value.push(item)
-      })
+      // Add only current year items to the store
+      const currentYearItems = createdItems.filter(item => item.year === selectedYear.value)
+      budgetItems.value.push(...currentYearItems)
+      
+      console.log('Store: Added current year items to local state:', currentYearItems)
 
       // Sort budget items
       sortBudgetItems()
 
       console.log('Multi-year budget items created successfully:', createdItems.length)
+      
+      // Refresh budget items to ensure proper filtering
+      await fetchBudgetItems(selectedYear.value)
       
       return createdItems
 

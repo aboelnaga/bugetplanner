@@ -501,8 +501,10 @@
   })
 
   // Watch for selected year changes
-  watch(() => selectedYear.value, () => {
+  watch(() => selectedYear.value, (newYear) => {
     if (authStore.isAuthenticated) {
+      // Fetch budget items for the new year
+      budgetStore.fetchBudgetItems(newYear)
       // checkPreviousYearData() - moved to budget items watcher
       // fetchClosedMonths() - removed to avoid duplicate calls on year change
     }
