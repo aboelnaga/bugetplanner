@@ -6,14 +6,7 @@
       :data-testid="props.mode === 'edit' ? 'edit-budget-modal' : 'add-budget-modal'">
     
     <!-- Header -->
-    <template #icon>
-      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-      </svg>
-    </template>
-    
     <template #title>{{ props.mode === 'edit' ? 'Edit Budget Item' : 'Add Budget Item' }}</template>
-    <template #subtitle>{{ props.mode === 'edit' ? 'Update budget item for' : 'Create a new budget item for' }} {{ selectedYear }}</template>
     
     <!-- Content -->
     <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -37,12 +30,6 @@
       
       <!-- Basic Information Section -->
       <div class="space-y-3">
-        <h4 class="text-base font-semibold text-gray-900 flex items-center">
-          <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-          Basic Information
-        </h4>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Name -->
@@ -54,7 +41,7 @@
               v-model="formData.name" 
               type="text" 
               required 
-              placeholder="e.g., Monthly Salary, Car Expenses"
+              placeholder="Budget item name"
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               data-testid="budget-name-input" />
           </div>
@@ -92,61 +79,49 @@
         </div>
         
         <!-- Investment Linking (only for Investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-3">
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-2">
           <!-- Link to Existing Investment -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               Link to Investment Asset
             </label>
-            <div class="space-y-2">
-              <select 
-                v-model="formData.linked_investment_id"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option value="">No investment linked</option>
-                <option 
-                  v-for="investment in availableInvestments" 
-                  :key="investment.id" 
-                  :value="investment.id">
-                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
-                </option>
-              </select>
-              
-              <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <p class="text-sm font-medium text-blue-900">
-                      {{ getLinkedInvestmentName() }}
-                    </p>
-                    <p class="text-xs text-blue-700">
-                      Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="formData.linked_investment_id = ''"
-                    class="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Unlink
-                  </button>
+            <select 
+              v-model="formData.linked_investment_id"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              <option value="">No investment linked</option>
+              <option 
+                v-for="investment in availableInvestments" 
+                :key="investment.id" 
+                :value="investment.id">
+                {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
+              </option>
+            </select>
+            
+            <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-blue-900">
+                    {{ getLinkedInvestmentName() }}
+                  </p>
+                  <p class="text-xs text-blue-700">
+                    Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  @click="formData.linked_investment_id = ''"
+                  class="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  Unlink
+                </button>
               </div>
             </div>
-            
-            <p class="text-xs text-gray-500 mt-1">
-              Link this budget item to an existing investment asset to track payments and returns.
-            </p>
           </div>
         </div>
       </div>
 
       <!-- Financial Details Section -->
       <div class="space-y-3">
-        <h4 class="text-base font-semibold text-gray-900 flex items-center">
-          <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-          </svg>
-          Financial Details
-        </h4>
         
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Default Amount -->
@@ -164,9 +139,7 @@
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 data-testid="default-amount-input" />
             </div>
-            <p class="text-xs text-gray-500 mt-1">
-              Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
-            </p>
+
           </div>
           
           <!-- Payment Schedule -->
@@ -182,9 +155,6 @@
                 {{ label }}
               </option>
             </select>
-            <p class="text-xs text-gray-500 mt-1">
-              {{ PAYMENT_SCHEDULE_DESCRIPTIONS[formData.payment_schedule] }}
-            </p>
           </div>
         </div>
 
@@ -224,7 +194,7 @@
         <!-- Fixed Expense and Reminder Settings -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Fixed Expense Toggle -->
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2">
             <input 
               type="checkbox" 
               id="is_fixed_expense"
@@ -233,15 +203,10 @@
             <label for="is_fixed_expense" class="text-sm font-medium text-gray-700">
               Fixed Expense
             </label>
-            <div class="flex-1">
-              <p class="text-xs text-gray-500">
-                Amount doesn't change month to month
-              </p>
-            </div>
           </div>
           
           <!-- Reminder Toggle -->
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-2">
             <input 
               type="checkbox" 
               id="reminder_enabled"
@@ -250,11 +215,6 @@
             <label for="reminder_enabled" class="text-sm font-medium text-gray-700">
               Enable Reminders
             </label>
-            <div class="flex-1">
-              <p class="text-xs text-gray-500">
-                Get notified before due date
-              </p>
-            </div>
           </div>
         </div>
 
@@ -277,12 +237,6 @@
 
       <!-- Schedule Section -->
       <div class="space-y-3">
-        <h4 class="text-base font-semibold text-gray-900 flex items-center">
-          <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
-          Schedule & Timing
-        </h4>
         
         <!-- Single Year Schedule -->
         <div class="space-y-3">
@@ -331,9 +285,6 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">
                 Start Date
-                <span class="text-xs text-gray-500 ml-1">
-                  ({{ formData.startYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.startYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }})
-                </span>
               </label>
               <div class="grid grid-cols-2 gap-2">
                 <select 
@@ -435,17 +386,14 @@
                 max="120"
                 data-testid="occurrences-input"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-              <p class="text-xs text-gray-500 mt-1">
-                Maximum: 120 occurrences (10 years)
-              </p>
+              
             </div>
           </div>
 
           <!-- Custom Months (for custom frequency) -->
           <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-2">
             <div>
-              <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
-              <p class="text-xs text-gray-500 mt-1">Custom months for current year only (past months are disabled)</p>
+              <label class="block text-sm font-medium text-gray-700">Custom Months</label>
             </div>
             <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
               <label 
@@ -474,9 +422,6 @@
           <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-2">
             <div>
               <label class="block text-sm font-medium text-gray-700">One-Time Date</label>
-              <p class="text-xs text-gray-500 mt-1">
-                {{ formData.oneTimeYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.oneTimeYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }}
-              </p>
             </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
@@ -516,18 +461,14 @@
           </div>
 
           <!-- Multi-Year Indicator (Auto-detected) -->
-          <div v-if="isMultiYear" class="bg-blue-50 border border-blue-200 rounded-lg p-3" data-testid="multi-year-indicator">
+          <div v-if="isMultiYear" class="bg-blue-50 border border-blue-200 rounded-lg p-2" data-testid="multi-year-indicator">
             <div class="flex items-center space-x-2">
-              <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
               </svg>
-              <div>
-                <p class="text-sm font-medium text-blue-900">Multi-Year Budget Item</p>
-                <p class="text-xs text-blue-700">
-                  This budget spans {{ getMultiYearDuration() }} year{{ getMultiYearDuration() !== 1 ? 's' : '' }} 
-                  ({{ formData.startYear }} - {{ getCalculatedEndYear() }})
-                </p>
-              </div>
+              <p class="text-sm font-medium text-blue-900">
+                Multi-Year: {{ formData.startYear }}-{{ getCalculatedEndYear() }}
+              </p>
             </div>
           </div>
         </div>
@@ -535,15 +476,8 @@
 
       </div>
 
-      <!-- Preview Section -->
-      <div class="space-y-4">
-        <h4 class="text-base font-semibold text-gray-900 flex items-center">
-          <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-          </svg>
-          Schedule Preview
-        </h4>
+              <!-- Preview Section -->
+        <div class="space-y-4">
         
         <!-- Unified Schedule Preview -->
         <div class="bg-gray-50 border border-gray-200 rounded-lg p-3" :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'">
