@@ -78,43 +78,66 @@
           </div>
         </div>
         
-        <!-- Investment Linking (only for Investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-2">
-          <!-- Link to Existing Investment -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              Link to Investment Asset
-            </label>
-            <select 
-              v-model="formData.linked_investment_id"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option value="">No investment linked</option>
-              <option 
-                v-for="investment in availableInvestments" 
-                :key="investment.id" 
-                :value="investment.id">
-                {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
-              </option>
-            </select>
+        <!-- Investment Settings (only for Investment type) -->
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-3">
+          <!-- Investment Direction and Link Asset in one row -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <!-- Investment Direction -->
+            <div data-testid="investment-direction-section">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                <span class="text-red-500">*</span> Investment Direction
+              </label>
+              <select 
+                v-model="formData.investment_direction"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
+                  {{ label }}
+                </option>
+              </select>
+            </div>
             
-            <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-2">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="text-sm font-medium text-blue-900">
+            <!-- Link to Existing Investment -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">
+                Link to Investment Asset
+              </label>
+              <select 
+                v-model="formData.linked_investment_id"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <option value="">No investment linked</option>
+                <option 
+                  v-for="investment in availableInvestments" 
+                  :key="investment.id" 
+                  :value="investment.id">
+                  {{ investment.name }} ({{ formatInvestmentType(investment.investment_type) }})
+                </option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Linked Investment Info -->
+          <div v-if="formData.linked_investment_id" class="bg-blue-50 border border-blue-200 rounded-lg p-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                </svg>
+                <div class="flex items-center space-x-2">
+                  <span class="text-sm font-medium text-blue-900">
                     {{ getLinkedInvestmentName() }}
-                  </p>
-                  <p class="text-xs text-blue-700">
-                    Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }}
-                  </p>
+                  </span>
+                  <span class="text-xs text-gray-500">
+                    (Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }})
+                  </span>
                 </div>
-                <button
-                  type="button"
-                  @click="formData.linked_investment_id = ''"
-                  class="text-blue-600 hover:text-blue-800 text-sm"
-                >
-                  Unlink
-                </button>
               </div>
+              <button
+                type="button"
+                @click="formData.linked_investment_id = ''"
+                class="text-xs text-red-600 hover:text-red-700 underline hover:no-underline transition-colors"
+              >
+                Unlink
+              </button>
             </div>
           </div>
         </div>
@@ -158,21 +181,7 @@
           </div>
         </div>
 
-        <!-- Investment Direction (only for investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="investment-direction-section">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">
-              <span class="text-red-500">*</span> Investment Direction
-            </label>
-            <select 
-              v-model="formData.investment_direction"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
-                {{ label }}
-              </option>
-            </select>
-          </div>
-        </div>
+
 
         <!-- Due Date (only for custom_dates) -->
         <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="due-date-section">
