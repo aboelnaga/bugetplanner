@@ -108,7 +108,10 @@ export const useBudgetStore = defineStore('budget', () => {
       console.log('Store: API returned data:', data)
       
       // Add to local state immediately - no need for general loading state
-      budgetItems.value.push(data)
+      // Only add if it belongs to the currently selected year
+      if (data.year === selectedYear.value) {
+        budgetItems.value.push(data)
+      }
       
       return data
     } catch (err) {
@@ -569,9 +572,11 @@ export const useBudgetStore = defineStore('budget', () => {
         throw new Error('Failed to create budget item: No data returned from API')
       }
 
-      // Add to store
-      budgetItems.value.push(data)
-      sortBudgetItems()
+      // Add to store only if it belongs to the currently selected year
+      if (data.year === selectedYear.value) {
+        budgetItems.value.push(data)
+        sortBudgetItems()
+      }
 
       console.log('Single-year budget item created successfully')
       

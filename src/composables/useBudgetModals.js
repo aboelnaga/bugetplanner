@@ -1394,7 +1394,9 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     if (Array.isArray(budgetItem)) {
       // Multi-year budget - array of budget items
       const budgetName = budgetItem[0]?.name || 'Budget items'
-      const message = `${budgetName} created for ${budgetItem.length} year${budgetItem.length !== 1 ? 's' : ''}`
+      const years = budgetItem.map(item => item.year).sort((a, b) => a - b)
+      const yearRange = years.length > 1 ? `${years[0]}-${years[years.length - 1]}` : years[0]
+      const message = `${budgetName} created for years ${yearRange}`
       console.log('Success message:', message)
       
       // Show success toast
@@ -1404,12 +1406,30 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     } else {
       // Single-year budget - single budget item
       const budgetName = budgetItem?.name || 'Budget item'
-      const message = `Budget item "${budgetName}" created successfully`
-      console.log('Success message:', message)
+      const budgetYear = budgetItem?.year || selectedYear.value
+      const currentViewYear = selectedYear.value
       
-      // Show success toast
-      if (window.$toaster) {
-        window.$toaster.success('Budget Created', message)
+      let message = `Budget item "${budgetName}" created successfully`
+      
+      // If the budget was created for a different year than the current view
+      if (budgetYear !== currentViewYear) {
+        message += ` for ${budgetYear}`
+        if (window.$toaster) {
+          window.$toaster.success('Budget Created', message, {
+            action: {
+              text: `View ${budgetYear}`,
+              onClick: () => {
+                // Switch to the year where the budget was created
+                selectedYear.value = budgetYear
+              }
+            }
+          })
+        }
+      } else {
+        // Same year, show normal success message
+        if (window.$toaster) {
+          window.$toaster.success('Budget Created', message)
+        }
       }
     }
   }
