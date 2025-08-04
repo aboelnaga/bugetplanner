@@ -16,9 +16,9 @@
     <template #subtitle>{{ props.mode === 'edit' ? 'Update budget item for' : 'Create a new budget item for' }} {{ selectedYear }}</template>
     
     <!-- Content -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form @submit.prevent="handleSubmit" class="space-y-4">
       <!-- Validation Errors -->
-      <div v-if="validationErrors.length > 0" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4" data-testid="validation-errors">
+      <div v-if="validationErrors.length > 0" class="bg-red-50 border border-red-200 rounded-lg p-3 mb-3" data-testid="validation-errors">
         <div class="flex items-start">
           <svg class="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
@@ -36,18 +36,18 @@
       </div>
       
       <!-- Basic Information Section -->
-      <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="space-y-3">
+        <h4 class="text-base font-semibold text-gray-900 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           Basic Information
         </h4>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Name -->
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               <span class="text-red-500">*</span> Name
             </label>
             <input 
@@ -55,19 +55,19 @@
               type="text" 
               required 
               placeholder="e.g., Monthly Salary, Car Expenses"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               data-testid="budget-name-input" />
           </div>
           
           <!-- Budget Type -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               <span class="text-red-500">*</span> Budget Type
             </label>
             <select 
               v-model="formData.type" 
               @change="updateCategoryOnTypeChange"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               data-testid="budget-type-select">
               <option v-for="(label, type) in BUDGET_TYPE_LABELS" :key="type" :value="type">
                 {{ label }}
@@ -77,12 +77,12 @@
           
           <!-- Category -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               <span class="text-red-500">*</span> Category
             </label>
             <select 
               v-model="formData.category"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               data-testid="budget-category-select">
               <option v-for="category in getCategoriesByType(formData.type)" :key="category" :value="category">
                 {{ category }}
@@ -92,16 +92,16 @@
         </div>
         
         <!-- Investment Linking (only for Investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-4">
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-3">
           <!-- Link to Existing Investment -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Link to Investment Asset
             </label>
             <div class="space-y-2">
               <select 
                 v-model="formData.linked_investment_id"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 <option value="">No investment linked</option>
                 <option 
                   v-for="investment in availableInvestments" 
@@ -140,18 +140,18 @@
       </div>
 
       <!-- Financial Details Section -->
-      <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="space-y-3">
+        <h4 class="text-base font-semibold text-gray-900 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
           </svg>
           Financial Details
         </h4>
         
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Default Amount -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               <span class="text-red-500">*</span> Default Amount
           </label>
             <div class="relative">
@@ -161,7 +161,7 @@
                 type="text" 
                 required 
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 data-testid="default-amount-input" />
             </div>
             <p class="text-xs text-gray-500 mt-1">
@@ -171,12 +171,12 @@
           
           <!-- Payment Schedule -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Payment Schedule
             </label>
             <select 
               v-model="formData.payment_schedule"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
               data-testid="payment-schedule-select">
               <option v-for="(label, schedule) in PAYMENT_SCHEDULE_LABELS" :key="schedule" :value="schedule">
                 {{ label }}
@@ -189,14 +189,14 @@
         </div>
 
         <!-- Investment Direction (only for investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="investment-direction-section">
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="investment-direction-section">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               <span class="text-red-500">*</span> Investment Direction
             </label>
             <select 
               v-model="formData.investment_direction"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
               <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
                 {{ label }}
               </option>
@@ -205,14 +205,14 @@
         </div>
 
         <!-- Due Date (only for custom_dates) -->
-        <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="due-date-section">
+        <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="due-date-section">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Due Date (Day of Month)
             </label>
             <select 
               v-model="formData.due_date"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
               <option value="">Select day</option>
               <option v-for="day in 31" :key="day" :value="day">
                 {{ day }}{{ getDaySuffix(day) }}
@@ -222,7 +222,7 @@
         </div>
 
         <!-- Fixed Expense and Reminder Settings -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <!-- Fixed Expense Toggle -->
           <div class="flex items-center space-x-3">
             <input 
@@ -259,14 +259,14 @@
         </div>
 
         <!-- Reminder Days Before (only if reminders enabled) -->
-        <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
               Remind Me (Days Before)
             </label>
             <select 
               v-model="formData.reminder_days_before"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
               <option v-for="days in [1, 2, 3, 5, 7, 10, 14, 21, 30]" :key="days" :value="days">
                 {{ days }} day{{ days !== 1 ? 's' : '' }} before
               </option>
@@ -276,21 +276,21 @@
       </div>
 
       <!-- Schedule Section -->
-      <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="space-y-3">
+        <h4 class="text-base font-semibold text-gray-900 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
           </svg>
           Schedule & Timing
         </h4>
         
         <!-- Single Year Schedule -->
-        <div class="space-y-4">
-          <!-- New Recurrence System -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-3">
+                      <!-- New Recurrence System -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <!-- Frequency -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 <span class="text-red-500">*</span> Frequency
               </label>
               <select 
@@ -298,7 +298,7 @@
                 name="frequency"
                 v-model="formData.frequency" 
                 @change="updateSchedule"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 data-testid="frequency-select">
                 <option v-for="(label, type) in FREQUENCY_LABELS" :key="type" :value="type">
                   {{ label }}
@@ -308,7 +308,7 @@
             
             <!-- Recurrence Interval (only for repeats) -->
             <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS">
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 <span class="text-red-500">*</span> Recurrence Interval
               </label>
               <select 
@@ -316,7 +316,7 @@
                 name="recurrenceInterval"
                 v-model="formData.recurrenceInterval"
                 @change="updateSchedule"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 data-testid="recurrence-interval-select">
                 <option v-for="interval in RECURRENCE_INTERVALS" :key="interval.value" :value="interval.value">
                   {{ interval.label }}
@@ -326,10 +326,10 @@
           </div>
 
           <!-- Date Selection -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="start-date-section">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="start-date-section">
             <!-- Start Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 Start Date
                 <span class="text-xs text-gray-500 ml-1">
                   ({{ formData.startYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.startYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }})
@@ -342,7 +342,7 @@
                   v-model="formData.startMonth"
                   @change="updateLegacyRecurrence"
                   data-testid="start-month-select"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option 
                     v-for="month in MONTH_OPTIONS" 
                     :key="month.value" 
@@ -358,7 +358,7 @@
                   v-model="formData.startYear"
                   @change="updateLegacyRecurrence"
                   data-testid="start-year-select"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="year in getAvailableYears()" :key="year" :value="year">
                     {{ year }}
                   </option>
@@ -368,7 +368,7 @@
             
             <!-- End Date Type -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 <span class="text-red-500">*</span> End Date Type
               </label>
               <select 
@@ -377,7 +377,7 @@
                 v-model="formData.endType"
                 @change="updateLegacyRecurrence"
                 data-testid="end-type-select"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                 <option v-for="(label, type) in END_TYPE_LABELS" :key="type" :value="type">
                   {{ label }}
                 </option>
@@ -386,10 +386,10 @@
           </div>
 
           <!-- End Date Options -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.SPECIFIC_DATE" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="end-date-section">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.SPECIFIC_DATE" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="end-date-section">
             <!-- End Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 <span class="text-red-500">*</span> End Date
               </label>
               <div class="grid grid-cols-2 gap-2">
@@ -399,7 +399,7 @@
                   v-model="formData.endMonth"
                   @change="updateLegacyRecurrence"
                   data-testid="end-month-select"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="month in MONTH_OPTIONS" :key="month.value" :value="month.value">
                     {{ month.label }}
                   </option>
@@ -410,7 +410,7 @@
                   v-model="formData.endYear"
                   @change="updateLegacyRecurrence"
                   data-testid="end-year-select"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="year in getAvailableEndYears()" :key="year" :value="year">
                     {{ year }}
                   </option>
@@ -420,9 +420,9 @@
           </div>
 
           <!-- Occurrences Option -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.AFTER_OCCURRENCES" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.AFTER_OCCURRENCES" class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1">
                 <span class="text-red-500">*</span> Number of Occurrences
               </label>
               <input 
@@ -434,7 +434,7 @@
                 min="1" 
                 max="120"
                 data-testid="occurrences-input"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
               <p class="text-xs text-gray-500 mt-1">
                 Maximum: 120 occurrences (10 years)
               </p>
@@ -442,7 +442,7 @@
           </div>
 
           <!-- Custom Months (for custom frequency) -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-2">
             <div>
               <label class="block text-sm font-medium text-gray-700">Select Custom Months</label>
               <p class="text-xs text-gray-500 mt-1">Custom months for current year only (past months are disabled)</p>
@@ -471,14 +471,14 @@
           </div>
 
           <!-- One Time Date (for once frequency) -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-3">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-2">
             <div>
               <label class="block text-sm font-medium text-gray-700">One-Time Date</label>
               <p class="text-xs text-gray-500 mt-1">
                 {{ formData.oneTimeYear === currentYear ? 'Current year: months ≥ ' + MONTHS[currentMonth] : formData.oneTimeYear > currentYear ? 'Future year: all months available' : 'Past year: all months available' }}
               </p>
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs text-gray-600 mb-1">Month</label>
                 <select 
@@ -487,7 +487,7 @@
                   v-model="formData.oneTimeMonth"
                   @change="updateLegacyRecurrence"
                   data-testid="one-time-month-select"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option 
                     v-for="month in getAvailableOnceMonths()" 
                     :key="month.value" 
@@ -506,7 +506,7 @@
                   v-model="formData.oneTimeYear"
                   @change="updateLegacyRecurrence"
                   data-testid="one-time-year-select"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
                   <option v-for="year in getAvailableYears()" :key="year" :value="year">
                     {{ year }}
                   </option>
@@ -537,8 +537,8 @@
 
       <!-- Preview Section -->
       <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <h4 class="text-base font-semibold text-gray-900 flex items-center">
+          <svg class="w-4 h-4 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
           </svg>
@@ -546,8 +546,8 @@
         </h4>
         
         <!-- Unified Schedule Preview -->
-        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4" :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'">
-          <div class="space-y-4">
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-3" :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'">
+          <div class="space-y-3">
             <!-- Overall Summary -->
             <div class="flex items-center justify-between">
               <div>
@@ -564,12 +564,12 @@
             </div>
             
             <!-- Yearly Breakdown with Monthly Grid -->
-            <div v-if="schedulePreviewData.yearlyBreakdown.length > 0" class="space-y-4">
+            <div v-if="schedulePreviewData.yearlyBreakdown.length > 0" class="space-y-3">
               <p class="text-sm font-medium text-gray-900">
                 {{ isMultiYear ? 'Yearly Breakdown' : `${schedulePreviewData.yearlyBreakdown[0]?.year || props.selectedYear} Schedule` }}
               </p>
               
-              <div v-for="year in schedulePreviewData.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-3">
+              <div v-for="year in schedulePreviewData.yearlyBreakdown" :key="year.year" class="bg-white border border-gray-300 rounded-lg p-2">
                 <!-- Year Header -->
                 <div class="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
                   <div class="flex items-center space-x-2">
@@ -622,14 +622,15 @@
           type="button" 
           @click="closeModal" 
           :disabled="isLoading" 
-          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          data-testid="cancel-btn">
           Cancel
         </button>
         <button 
           type="submit" 
           @click="handleSubmit"
           :disabled="isLoading" 
-          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
           :data-testid="props.mode === 'edit' ? 'submit-edit-btn' : 'submit-budget-btn'">
           <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
