@@ -697,7 +697,11 @@ const isMultiYear = computed(() => {
       return formData.value.endYear > formData.value.startYear
     } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
       // For occurrences, calculate if it spans multiple years
-      const totalMonths = formData.value.occurrences * formData.value.recurrenceInterval
+      // For 1 occurrence, totalMonths = 0 (no interval added)
+      // For N occurrences, totalMonths = (N-1) * interval
+      const totalMonths = formData.value.occurrences === 1 
+        ? 0 
+        : (formData.value.occurrences - 1) * formData.value.recurrenceInterval
       const startDate = new Date(formData.value.startYear, formData.value.startMonth)
       const endDate = new Date(startDate.getTime() + (totalMonths * 30 * 24 * 60 * 60 * 1000))
       return endDate.getFullYear() > startDate.getFullYear()
@@ -1015,6 +1019,11 @@ const getCalculatedEndYear = () => {
   if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
     return formData.value.endYear
   } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+    // For 1 occurrence, the end year is the same as start year
+    if (formData.value.occurrences === 1) {
+      return formData.value.startYear
+    }
+    
     // Calculate the actual end year from occurrences
     let currentMonth = formData.value.startMonth
     let currentYear = formData.value.startYear
@@ -1055,6 +1064,8 @@ const schedulePreviewData = computed(() => {
     // Calculate active months from the schedule
     const activeMonths = schedule.amounts.filter(amount => amount > 0).length
     
+    // Always create a yearlyBreakdown entry, even if there are no active months
+    // This ensures the breakdown section is always shown
     return {
       duration: 1,
       totalAmount: totalAmount,

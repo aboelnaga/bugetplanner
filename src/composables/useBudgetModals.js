@@ -135,13 +135,20 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
           if (occurrenceCount === 0) {
             // Don't add interval for the first occurrence
           } else {
-            // Move to next occurrence
-            currentMonth += formData.value.recurrenceInterval
-            
-            // Handle year rollover
-            while (currentMonth >= 12) {
-              currentMonth -= 12
-              currentYear++
+            // For 1 occurrence, we don't need to move to next occurrence
+            if (formData.value.occurrences === 1) {
+              // Single occurrence - stay at start month/year
+              currentMonth = formData.value.startMonth
+              currentYear = formData.value.startYear
+            } else {
+              // Move to next occurrence
+              currentMonth += formData.value.recurrenceInterval
+              
+              // Handle year rollover
+              while (currentMonth >= 12) {
+                currentMonth -= 12
+                currentYear++
+              }
             }
           }
           
@@ -277,12 +284,20 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
               }
             }
             
-            currentMonth += recurrenceInterval
-            
-            // Handle year rollover
-            while (currentMonth >= 12) {
-              currentMonth -= 12
-              currentYear++
+            // For 1 occurrence, we don't need to move to next occurrence
+            if (occurrences === 1) {
+              // Single occurrence - stay at start month/year
+              currentMonth = startMonth
+              currentYear = startYear
+            } else {
+              // Move to next occurrence
+              currentMonth += recurrenceInterval
+              
+              // Handle year rollover
+              while (currentMonth >= 12) {
+                currentMonth -= 12
+                currentYear++
+              }
             }
             
             occurrenceCount++
@@ -591,19 +606,26 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     let occurrenceCount = 0
     
     while (occurrenceCount < occurrences) {
-      // Add to schedule if this occurrence falls in the budget's year range
-      if (currentMonth >= 0 && currentMonth < 12) {
+      // Add to schedule if this occurrence falls in the selected year
+      if (currentYear === selectedYearValue && currentMonth >= 0 && currentMonth < 12) {
         schedule.push(currentMonth)
         console.log('Added month to schedule:', currentMonth, 'for year:', currentYear)
       }
       
-      // Move to next occurrence
-      currentMonth += interval
-      
-      // Handle year rollover
-      while (currentMonth >= 12) {
-        currentMonth -= 12
-        currentYear++
+      // For 1 occurrence, we don't need to move to next occurrence
+      if (occurrences === 1) {
+        // Single occurrence - stay at start month/year
+        currentMonth = startMonth
+        currentYear = startYear
+      } else {
+        // Move to next occurrence
+        currentMonth += interval
+        
+        // Handle year rollover
+        while (currentMonth >= 12) {
+          currentMonth -= 12
+          currentYear++
+        }
       }
       
       occurrenceCount++
@@ -1816,6 +1838,11 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     }
     // For occurrence-based end, calculate based on start year and occurrences
     if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+      // For 1 occurrence, the end year is the same as start year
+      if (formData.value.occurrences === 1) {
+        return formData.value.startYear
+      }
+      
       const totalMonths = (formData.value.occurrences - 1) * formData.value.recurrenceInterval
       const endMonth = formData.value.startMonth + totalMonths
       const additionalYears = Math.floor(endMonth / 12)
