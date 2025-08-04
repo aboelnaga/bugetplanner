@@ -17,6 +17,24 @@
     
     <!-- Content -->
     <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Validation Errors -->
+      <div v-if="validationErrors.length > 0" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-red-400 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <div>
+            <h4 class="text-sm font-medium text-red-800">Please fix the following errors:</h4>
+            <ul class="mt-2 text-sm text-red-700 space-y-1">
+              <li v-for="error in validationErrors" :key="error" class="flex items-start">
+                <span class="mr-2">•</span>
+                <span>{{ error }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
       <!-- Basic Information Section -->
       <div class="space-y-4">
         <h4 class="text-lg font-semibold text-gray-900 flex items-center">
@@ -711,6 +729,9 @@ const isMultiYear = computed(() => {
   return false
 })
 
+// Validation errors state
+const validationErrors = ref([])
+
 // Modal composable
 const {
   formData,
@@ -732,7 +753,8 @@ const {
   getAvailableEndYears,
   multiYearPreview,
   updateLegacyRecurrence,
-  getAvailableOnceMonths
+  getAvailableOnceMonths,
+  validateFormData
   // Removed: handleAddSubmit, handleEditSubmit, handleMultiYearEditSubmit, handleSingleYearEditSubmit
   // Removed: getMultiYearRecurrenceOptions, handleMultiYearToggle, validateMultiYearSettings, getAvailableCustomMonths
   // These are now replaced by our unified handlers or not needed
@@ -748,6 +770,9 @@ watch(() => formData.value.type, (newType, oldType) => {
 // Watch for modal opening to initialize form
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
+    // Clear validation errors when modal opens
+    validationErrors.value = []
+    
     if (props.mode === 'edit' && props.budget) {
       console.log('Initializing form with budget for edit:', props.budget)
       initializeFormDataFromBudget(props.budget)
@@ -788,6 +813,11 @@ watch([
   () => formData.value.end_year,
   () => formData.value.end_month
 ], () => {
+  // Clear validation errors when user makes changes
+  if (validationErrors.value.length > 0) {
+    validationErrors.value = []
+  }
+  
   // Update multi-year preview if available
   if (updateMultiYearPreview) {
     updateMultiYearPreview()
@@ -845,6 +875,17 @@ const handleSubmit = async () => {
   console.log('AddBudgetModal handleSubmit called, mode:', props.mode)
   
   try {
+    // Clear previous validation errors
+    validationErrors.value = []
+    
+    // Validate form data first
+    const errors = validateFormData()
+    if (errors.length > 0) {
+      console.log('Validation errors found:', errors)
+      validationErrors.value = errors
+      return
+    }
+    
     // Use the same schedule data that preview uses (single source of truth)
     const scheduleData = schedulePreviewData.value
     console.log('Using schedule data:', scheduleData)
