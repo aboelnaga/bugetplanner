@@ -255,27 +255,23 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <!-- Frequency -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-red-500">*</span> Frequency
-              </label>
-              <select 
-                id="frequency"
-                name="frequency"
-                v-model="formData.frequency" 
-                @change="updateSchedule"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                data-testid="frequency-select">
-                <option v-for="(label, type) in FREQUENCY_LABELS" :key="type" :value="type">
-                  {{ label }}
-                </option>
-              </select>
+              <div class="flex items-center space-x-3">
+                <select 
+                  id="frequency"
+                  name="frequency"
+                  v-model="formData.frequency" 
+                  @change="updateSchedule"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  data-testid="frequency-select">
+                  <option v-for="(label, type) in FREQUENCY_LABELS" :key="type" :value="type">
+                    {{ label }}
+                  </option>
+                </select>
+              </div>
             </div>
             
             <!-- Recurrence Interval (only for repeats) -->
             <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS">
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-red-500">*</span> Recurrence Interval
-              </label>
               <select 
                 id="recurrenceInterval"
                 name="recurrenceInterval"
@@ -291,69 +287,71 @@
           </div>
 
           <!-- Date Selection -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="start-date-section">
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-1 gap-3" data-testid="start-date-section">
             <!-- Start Date -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
-              </label>
-              <div class="grid grid-cols-2 gap-2">
+              <div class="flex items-center space-x-3">
+                <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  Starting
+                </label>
+                <div class="grid grid-cols-2 gap-2 flex-1">
+                  <select 
+                    id="startMonth"
+                    name="startMonth"
+                    v-model="formData.startMonth"
+                    @change="updateLegacyRecurrence"
+                    data-testid="start-month-select"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <option 
+                      v-for="month in MONTH_OPTIONS" 
+                      :key="month.value" 
+                      :value="month.value"
+                      :disabled="!getAvailableStartMonthIndices().find(m => m.value === month.value)"
+                      :class="{ 'text-gray-400': !getAvailableStartMonthIndices().find(m => m.value === month.value) }">
+                      {{ month.label }}
+                    </option>
+                  </select>
+                  <select 
+                    id="startYear"
+                    name="startYear"
+                    v-model="formData.startYear"
+                    @change="updateLegacyRecurrence"
+                    data-testid="start-year-select"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                    <option v-for="year in getAvailableYears()" :key="year" :value="year">
+                      {{ year }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+          <!-- End Date Type and End Date Options -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="end-date-section">
+            <!-- End Date Type -->
+            <div>
+              <div class="flex items-center space-x-3">
+                <label class="text-sm font-medium text-gray-700 whitespace-nowrap">
+                  <span class="text-red-500">*</span> Ending
+                </label>
                 <select 
-                  id="startMonth"
-                  name="startMonth"
-                  v-model="formData.startMonth"
+                  id="endType"
+                  name="endType"
+                  v-model="formData.endType"
                   @change="updateLegacyRecurrence"
-                  data-testid="start-month-select"
+                  data-testid="end-type-select"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                  <option 
-                    v-for="month in MONTH_OPTIONS" 
-                    :key="month.value" 
-                    :value="month.value"
-                    :disabled="!getAvailableStartMonthIndices().find(m => m.value === month.value)"
-                    :class="{ 'text-gray-400': !getAvailableStartMonthIndices().find(m => m.value === month.value) }">
-                    {{ month.label }}
-                  </option>
-                </select>
-                <select 
-                  id="startYear"
-                  name="startYear"
-                  v-model="formData.startYear"
-                  @change="updateLegacyRecurrence"
-                  data-testid="start-year-select"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                  <option v-for="year in getAvailableYears()" :key="year" :value="year">
-                    {{ year }}
+                  <option v-for="(label, type) in END_TYPE_LABELS" :key="type" :value="type">
+                    {{ label }}
                   </option>
                 </select>
               </div>
             </div>
             
-            <!-- End Date Type -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-red-500">*</span> End Date Type
-              </label>
-              <select 
-                id="endType"
-                name="endType"
-                v-model="formData.endType"
-                @change="updateLegacyRecurrence"
-                data-testid="end-type-select"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-                <option v-for="(label, type) in END_TYPE_LABELS" :key="type" :value="type">
-                  {{ label }}
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- End Date Options -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.SPECIFIC_DATE" class="grid grid-cols-1 md:grid-cols-2 gap-3" data-testid="end-date-section">
-            <!-- End Date -->
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-red-500">*</span> End Date
-              </label>
+            <!-- End Date (only for specific date) -->
+            <div v-if="formData.endType === END_TYPES.SPECIFIC_DATE">
               <div class="grid grid-cols-2 gap-2">
                 <select 
                   id="endMonth"
@@ -379,14 +377,9 @@
                 </select>
               </div>
             </div>
-          </div>
-
-          <!-- Occurrences Option -->
-          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS && formData.endType === END_TYPES.AFTER_OCCURRENCES" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">
-                <span class="text-red-500">*</span> Number of Occurrences
-              </label>
+            
+            <!-- Occurrences (only for after occurrences) -->
+            <div v-if="formData.endType === END_TYPES.AFTER_OCCURRENCES">
               <input 
                 id="occurrences"
                 name="occurrences"
@@ -395,9 +388,9 @@
                 type="number" 
                 min="1" 
                 max="120"
+                placeholder="Number of occurrences"
                 data-testid="occurrences-input"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
-              
             </div>
           </div>
 

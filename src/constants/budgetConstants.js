@@ -263,8 +263,8 @@ export const END_TYPES = {
 }
 
 export const END_TYPE_LABELS = {
-  [END_TYPES.SPECIFIC_DATE]: 'End on specific date',
-  [END_TYPES.AFTER_OCCURRENCES]: 'End after number of occurrences'
+  [END_TYPES.SPECIFIC_DATE]: 'on specific date',
+  [END_TYPES.AFTER_OCCURRENCES]: 'after number of occurrences'
 }
 
 // Legacy recurrence types (for backward compatibility)
