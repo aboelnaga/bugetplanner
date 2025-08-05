@@ -24,14 +24,14 @@
         </div>
       </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(-1 * calculateGrandTotalExpenses())} border-t-2 border-l-2 border-gray-200`">
+    <td :class="`${getSummaryTotalClasses(-1 * calculateGrandTotalExpenses())} border-t-2 border-l-2 border-gray-200 sticky right-32 ${totalExpensesStyling.stickyBgColor} z-20`">
       <BaseTooltip :content="getExpensesYearlyTooltip()" position="top">
         <div class="cursor-help">
           {{ formatSummaryValue(calculateGrandTotalExpenses(), formatCurrency) }}
         </div>
       </BaseTooltip>
     </td>
-    <td :class="`px-4 py-3 sticky right-0 ${totalExpensesStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${totalExpensesStyling.stickyBgColor} z-30 border-l border-gray-200`"></td>
   </tr>
 
   <!-- Investment Purchases Line -->

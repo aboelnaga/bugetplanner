@@ -33,7 +33,7 @@
         <span v-else class="text-gray-400">—</span>
       </td>
       <td :class="[
-        'px-4 py-3 bg-gray-200 text-center font-bold',
+        'px-4 py-3 bg-gray-200 text-center font-bold sticky right-32 z-20',
         calculateCategoryTotal(group) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
       ]">
         <span v-if="calculateCategoryTotal(group) > 0">
@@ -41,7 +41,7 @@
         </span>
         <span v-else class="text-gray-400">—</span>
       </td>
-      <td class="px-4 py-3 bg-gray-200 sticky right-0 z-10"></td>
+      <td class="px-4 py-3 bg-gray-200 sticky right-0 z-30"></td>
     </tr>
     
     <!-- Category Items -->

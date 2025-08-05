@@ -74,7 +74,7 @@
     </td>
 
     <!-- Yearly Total Cell -->
-    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="border-l-2 border-gray-150 text-sm">
+    <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="border-l-2 border-gray-150 text-sm sticky right-32 bg-white z-20">
       <div v-if="calculateYearlyTotal(budget) > 0">
         <BaseTooltip :content="getYearlyTotalTooltip(budget)" position="top">
           <div class="font-medium cursor-help">
@@ -86,7 +86,7 @@
     </td>
 
     <!-- Actions Cell -->
-    <td class="px-4 py-4 text-center sticky right-0 bg-white z-10 border-l border-gray-100">
+    <td class="px-4 py-4 text-center sticky right-0 bg-white z-20 border-l border-gray-100">
       <div class="flex justify-center space-x-1">
         <button @click="$emit('edit-budget', budget)" 
                 :title="getActionButtonConfig('EDIT').title"

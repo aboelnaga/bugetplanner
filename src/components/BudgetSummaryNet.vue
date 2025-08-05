@@ -33,14 +33,14 @@
         </div>
       </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotal(), true)}`">
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotal(), true)} sticky right-32 ${netBalanceStyling.stickyBgColor} z-20`">
       <BaseTooltip :content="getNetBalanceYearlyTooltip()" position="top">
         <div class="cursor-help">
           {{ formatSummaryValue(calculateGrandTotal(), formatCurrency) }}
         </div>
       </BaseTooltip>
     </td>
-    <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-20 border-l border-gray-200`"></td>
+    <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-30 border-l border-gray-200`"></td>
   </tr>
 
   <!-- Net Investment Row -->
@@ -71,14 +71,14 @@
         </div>
       </BaseTooltip>
     </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentNet())} border-t-2 border-l-2 border-gray-200`">
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentNet())} border-t-2 border-l-2 border-gray-200 sticky right-32 ${netInvestmentStyling.stickyBgColor} z-20`">
       <BaseTooltip :content="getNetInvestmentYearlyTooltip()" position="top">
         <div class="cursor-help">
           {{ formatSummaryValue(calculateGrandTotalInvestmentNet(), formatCurrency) }}
         </div>
       </BaseTooltip>
     </td>
-    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-20 border-l border-gray-200 border-t-2`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-30 border-l border-gray-200 border-t-2`"></td>
   </tr>
 </template>
 
