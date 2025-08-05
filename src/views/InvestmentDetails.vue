@@ -704,8 +704,9 @@
     />
     
     <!-- Edit Budget Item Modal -->
-    <EditBudgetModal
+    <AddBudgetModal
       v-model="showEditBudgetModal"
+      mode="edit"
       :budget="editingBudgetItem"
       :selected-year="editingBudgetItem?.year || new Date().getFullYear()"
       @budget-updated="handleBudgetItemUpdated"
@@ -719,7 +720,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { investmentAssetsAPI, budgetAPI } from '@/lib/supabase'
 import AddBudgetModal from '@/components/AddBudgetModal.vue'
-import EditBudgetModal from '@/components/EditBudgetModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -1043,13 +1043,26 @@ const getTransactionCount = (budgetItem) => {
 
 const handleBudgetItemCreated = async (budgetItem) => {
   try {
-    // Link the newly created budget item to this investment
-    await investmentAssetsAPI.linkToBudgetItem(investmentId.value, budgetItem.id)
+    // Handle both single-year and multi-year budget items
+    if (Array.isArray(budgetItem)) {
+      // Multi-year budget - link all budget items to the investment
+      console.log('Linking multi-year budget items to investment:', budgetItem.length, 'items')
+      
+      for (const item of budgetItem) {
+        await investmentAssetsAPI.linkToBudgetItem(investmentId.value, item.id)
+      }
+      
+      console.log('All multi-year budget items linked successfully')
+    } else {
+      // Single-year budget - link the single budget item
+      console.log('Linking single budget item to investment:', budgetItem.id)
+      await investmentAssetsAPI.linkToBudgetItem(investmentId.value, budgetItem.id)
+    }
     
-    // Reload the investment data to show the linked budget item
+    // Reload the investment data to show the linked budget items
     await loadInvestment()
     
-    console.log('Budget item created and linked successfully')
+    console.log('Budget item(s) created and linked successfully')
   } catch (err) {
     console.error('Error linking budget item to investment:', err)
     error.value = err.message || 'Failed to link budget item to investment'

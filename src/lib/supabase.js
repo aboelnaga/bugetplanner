@@ -88,6 +88,9 @@ export const budgetAPI = {
 
   // Update a budget item
   async updateBudgetItem(id, updates) {
+    console.log('API: Updating budget item with ID:', id)
+    console.log('API: Updates data:', updates)
+    
     const { data, error } = await supabase
       .from('budget_items')
       .update(updates)
@@ -95,7 +98,12 @@ export const budgetAPI = {
       .select()
       .single()
     
-    if (error) throw error
+    if (error) {
+      console.error('API: Error updating budget item:', error)
+      throw error
+    }
+    
+    console.log('API: Successfully updated budget item:', data)
     return data
   },
 
@@ -215,6 +223,28 @@ export const budgetAPI = {
       .from('budget_items')
       .delete()
       .eq('id', id)
+    
+    if (error) throw error
+  },
+
+  // Get all budget items for a user (all years)
+  async getAllBudgetItems(userId) {
+    const { data, error } = await supabase
+      .from('budget_items')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true })
+    
+    if (error) throw error
+    return data || []
+  },
+
+  // Delete all budget items for a user
+  async deleteAllBudgetItems(userId) {
+    const { error } = await supabase
+      .from('budget_items')
+      .delete()
+      .eq('user_id', userId)
     
     if (error) throw error
   },

@@ -177,6 +177,14 @@ Implement a budget table that shows actual vs planned spending with smart defaul
 - [ ] Error messages are helpful and actionable
 - [ ] Visual indicators are subtle but informative
 
+### **UDefects and improvments from actual use**
+- [ ] recurence don't make sense
+- [ ] defect custom monthes doesn't load on edit
+- [ ] edit flow with monthly start current month then try to edit to start from next not working
+- [ ] investment link show only when we select investment
+- [ ] add account for budget item
+- [ ] in budget planner add accounts total summary row current amount and how it will be each month (monthly net) and savings
+
 ## 🚀 Implementation Order
 
 ### **Week 1: Foundation**

@@ -7,6 +7,18 @@ export const MONTHS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ]
 
+// Full month names for dropdowns
+export const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+]
+
+// Month options for dropdowns
+export const MONTH_OPTIONS = MONTH_NAMES.map((name, index) => ({
+  value: index,
+  label: name
+}))
+
 // Budget types
 export const BUDGET_TYPES = {
   EXPENSE: 'expense',
@@ -215,7 +227,47 @@ export const PAYMENT_SCHEDULE_DESCRIPTIONS = {
   [PAYMENT_SCHEDULES.CUSTOM_DATES]: 'Paid on specific dates (1-31)'
 }
 
-// Recurrence types
+// New Recurrence System - Frequency Options
+export const FREQUENCY_TYPES = {
+  ONCE: 'once',
+  CUSTOM: 'custom',
+  REPEATS: 'repeats'
+}
+
+export const FREQUENCY_LABELS = {
+  [FREQUENCY_TYPES.ONCE]: 'Once (one-time)',
+  [FREQUENCY_TYPES.CUSTOM]: 'Custom (manual selection)',
+  [FREQUENCY_TYPES.REPEATS]: 'Repeats every'
+}
+
+// Recurrence intervals (in months)
+export const RECURRENCE_INTERVALS = [
+  { value: 1, label: '1 month' },
+  { value: 2, label: '2 months' },
+  { value: 3, label: '3 months' },
+  { value: 4, label: '4 months' },
+  { value: 5, label: '5 months' },
+  { value: 6, label: '6 months' },
+  { value: 7, label: '7 months' },
+  { value: 8, label: '8 months' },
+  { value: 9, label: '9 months' },
+  { value: 10, label: '10 months' },
+  { value: 11, label: '11 months' },
+  { value: 12, label: '12 months' }
+]
+
+// End date types
+export const END_TYPES = {
+  SPECIFIC_DATE: 'specific_date',
+  AFTER_OCCURRENCES: 'after_occurrences'
+}
+
+export const END_TYPE_LABELS = {
+  [END_TYPES.SPECIFIC_DATE]: 'on specific date',
+  [END_TYPES.AFTER_OCCURRENCES]: 'after number of occurrences'
+}
+
+// Legacy recurrence types (for backward compatibility)
 export const RECURRENCE_TYPES = {
   MONTHLY: 'monthly',
   QUARTERLY: 'quarterly',
@@ -245,7 +297,62 @@ export const VIEW_MODES = {
   GROUPED: 'grouped'
 }
 
-// Default values
+// Default form data values
+export const DEFAULT_VALUES = {
+  FORM_DATA: {
+    // Basic information
+    name: '',
+    type: BUDGET_TYPES.EXPENSE,
+    category: '',
+    defaultAmount: 0,
+    
+    // New recurrence system defaults
+    frequency: FREQUENCY_TYPES.REPEATS, // DEFAULT: Repeats monthly
+    recurrenceInterval: 1, // DEFAULT: 1 month (monthly)
+    startMonth: 0, // DEFAULT: January
+    startYear: new Date().getFullYear(), // DEFAULT: Current year
+    endMonth: 11, // DEFAULT: December
+    endYear: new Date().getFullYear(), // DEFAULT: Current year
+    endType: END_TYPES.SPECIFIC_DATE, // DEFAULT: End on specific date
+    occurrences: 12, // DEFAULT: 12 occurrences
+    
+    // Once frequency fields (new)
+    oneTimeMonth: new Date().getMonth(), // DEFAULT: Current month
+    oneTimeYear: new Date().getFullYear(), // DEFAULT: Current year
+    
+    // Custom frequency fields
+    customMonths: [],
+    
+    // Legacy fields for backward compatibility
+    recurrence: RECURRENCE_TYPES.MONTHLY,
+    startDate: '',
+    endDate: '',
+    is_multi_year: false, // Will be computed based on start/end years
+    start_year: null,
+    end_year: null,
+    
+    // Investment linking
+    linked_investment_id: null,
+    investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
+    
+    // Payment schedule settings
+    payment_schedule: PAYMENT_SCHEDULES.THROUGHOUT_MONTH,
+    due_date: null,
+    is_fixed_expense: false,
+    reminder_enabled: false,
+    reminder_days_before: 7,
+    
+    // Multi-year specific
+    yearlyBreakdown: [],
+    totalAmount: 0,
+    duration: 0
+  },
+  CATEGORIES_BY_TYPE: {
+    [BUDGET_TYPES.INCOME]: 'Salary',
+    [BUDGET_TYPES.INVESTMENT]: 'Real Estate Purchase',
+    [BUDGET_TYPES.EXPENSE]: 'Essential'
+  }
+}
 
 // Budget type styling configurations
 export const BUDGET_TYPE_STYLES = {
@@ -420,35 +527,6 @@ export const EMPTY_STATES = {
     actions: ['clear-filters', 'add-budget']
   }
 }
-export const DEFAULT_VALUES = {
-  FORM_DATA: {
-    name: '',
-    type: BUDGET_TYPES.EXPENSE,
-    category: 'Essential',
-    defaultAmount: 0,
-    recurrence: RECURRENCE_TYPES.MONTHLY,
-    customMonths: [],
-    oneTimeMonth: 0,
-    investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
-    startMonth: 0,
-    payment_schedule: PAYMENT_SCHEDULES.THROUGHOUT_MONTH,
-    due_date: null,
-    is_fixed_expense: false,
-    reminder_enabled: false,
-    reminder_days_before: 3,
-    linked_investment_id: '',
-    // Multi-year fields
-    is_multi_year: false,
-    start_year: null,
-    end_year: null,
-    end_month: null
-  },
-  CATEGORIES_BY_TYPE: {
-    [BUDGET_TYPES.INCOME]: 'Salary',
-    [BUDGET_TYPES.INVESTMENT]: 'Real Estate Purchase',
-    [BUDGET_TYPES.EXPENSE]: 'Essential'
-  }
-}
 
 // Schedule patterns
 export const SCHEDULE_PATTERNS = {
@@ -571,111 +649,5 @@ export const MULTI_YEAR_CONSTANTS = {
 
 // Multi-year calculation helpers
 export const MULTI_YEAR_CALCULATION = {
-  // Calculate yearly amount for a specific year in a multi-year schedule
-  getYearlyAmountForYear: (defaultAmount, startYear, endYear, startMonth, endMonth, targetYear) => {
-    if (targetYear < startYear || targetYear > endYear) return 0
-    
-    const isFirstYear = targetYear === startYear
-    const isLastYear = targetYear === endYear
-    
-    if (isFirstYear && isLastYear) {
-      // Single year with custom start/end months
-      const monthsInYear = (endMonth || 11) - startMonth + 1
-      return defaultAmount * monthsInYear
-    } else if (isFirstYear) {
-      // First year: partial based on start month
-      const monthsInYear = 12 - startMonth
-      return defaultAmount * monthsInYear
-    } else if (isLastYear) {
-      // Last year: partial based on end month
-      const monthsInYear = (endMonth || 11) + 1
-      return defaultAmount * monthsInYear
-    } else {
-      // Middle years: full 12 months
-      return defaultAmount * 12
-    }
-  },
-  
-  // Calculate total amount across all years
-  calculateMultiYearTotalAmount: (defaultAmount, startYear, endYear, startMonth, endMonth) => {
-    let total = 0
-    for (let year = startYear; year <= endYear; year++) {
-      total += MULTI_YEAR_CALCULATION.getYearlyAmountForYear(defaultAmount, startYear, endYear, startMonth, endMonth, year)
-    }
-    return total
-  },
-  
-  // Generate yearly breakdown for preview
-  generateYearlyBreakdown: (defaultAmount, startYear, endYear, startMonth, endMonth) => {
-    const breakdown = []
-    for (let year = startYear; year <= endYear; year++) {
-      const yearlyAmount = MULTI_YEAR_CALCULATION.getYearlyAmountForYear(defaultAmount, startYear, endYear, startMonth, endMonth, year)
-      breakdown.push({
-        year,
-        amount: yearlyAmount,
-        isFirstYear: year === startYear,
-        isLastYear: year === endYear
-      })
-    }
-    return breakdown
-  },
-
-  // Generate yearly breakdown with monthly amounts for grid preview
-  generateYearlyBreakdownWithMonthlyAmounts: (defaultAmount, startYear, endYear, startMonth, endMonth, recurrence, customMonths = []) => {
-    const breakdown = []
-    for (let year = startYear; year <= endYear; year++) {
-      const isFirstYear = year === startYear
-      const isLastYear = year === endYear
-      
-      // Calculate monthly amounts for this year
-      const monthlyAmounts = new Array(12).fill(0)
-      let monthsCount = 0
-      
-      // Determine which months should have amounts based on recurrence and year
-      for (let month = 0; month < 12; month++) {
-        let shouldHaveAmount = false
-        
-        if (isFirstYear && month < startMonth) {
-          // Before start month in first year
-          shouldHaveAmount = false
-        } else if (isLastYear && endMonth !== null && month > endMonth) {
-          // After end month in last year
-          shouldHaveAmount = false
-        } else {
-          // Check if this month should have amount based on recurrence
-          if (recurrence === 'monthly') {
-            shouldHaveAmount = true
-          } else if (recurrence === 'quarterly') {
-            shouldHaveAmount = month % 3 === 0 // Q1, Q2, Q3, Q4
-          } else if (recurrence === 'bi-annual') {
-            shouldHaveAmount = month === 0 || month === 6 // Jan & Jul
-          } else if (recurrence === 'school-terms') {
-            shouldHaveAmount = month === 0 || month === 8 // Jan & Sep
-          } else if (recurrence === 'custom') {
-            shouldHaveAmount = customMonths.includes(month)
-          } else if (recurrence === 'one-time') {
-            // One-time doesn't make sense for multi-year, but handle gracefully
-            shouldHaveAmount = false
-          }
-        }
-        
-        if (shouldHaveAmount) {
-          monthlyAmounts[month] = defaultAmount
-          monthsCount++
-        }
-      }
-      
-      const yearlyAmount = monthlyAmounts.reduce((sum, amount) => sum + amount, 0)
-      
-      breakdown.push({
-        year,
-        amount: yearlyAmount,
-        monthlyAmounts,
-        monthsCount,
-        isFirstYear,
-        isLastYear
-      })
-    }
-    return breakdown
-  }
+  // Legacy calculation functions removed - now using new frequency-based system
 } 

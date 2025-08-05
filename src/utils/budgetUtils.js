@@ -367,39 +367,36 @@ export const tableUtils = {
 
 // Schedule generation utilities
 export const scheduleUtils = {
-  // Generate schedule based on recurrence
-  generateSchedule: (recurrence, startMonth, customMonths = [], oneTimeMonth = 0, defaultAmount = 0) => {
+  // Generate schedule based on new frequency system
+  generateSchedule: (frequency, startMonth, endMonth, startYear, endYear, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null, defaultAmount = 0) => {
     let schedule = []
     let amounts = new Array(12).fill(0)
     
-    switch (recurrence) {
-      case 'monthly':
-        // Start from specified month and continue for remaining months in the year
-        for (let month = startMonth; month < 12; month++) {
-          schedule.push(month)
+    switch (frequency) {
+      case 'repeats':
+        // Calculate based on interval from start month
+        for (let month = startMonth; month <= endMonth; month++) {
+          const monthOffset = month - startMonth
+          if (monthOffset >= 0 && monthOffset % recurrenceInterval === 0) {
+            schedule.push(month)
+          }
         }
         break
-      case 'quarterly':
-        // Start from the first quarter that includes or comes after startMonth
-        const quarters = [0, 3, 6, 9] // Q1, Q2, Q3, Q4
-        schedule = quarters.filter(quarter => quarter >= startMonth)
-        break
-      case 'bi-annual':
-        // Start from the first bi-annual period that includes or comes after startMonth
-        const biAnnual = [0, 6] // January and July
-        schedule = biAnnual.filter(month => month >= startMonth)
-        break
-      case 'school-terms':
-        // Start from the first school term that includes or comes after startMonth
-        const schoolTerms = [0, 8] // January and September
-        schedule = schoolTerms.filter(month => month >= startMonth)
-        break
       case 'custom':
-        schedule = [...customMonths]
+        // Use custom months array
+        schedule = [...customMonths].filter(month => month >= startMonth && month <= endMonth)
         break
-      case 'one-time':
-        schedule = [oneTimeMonth]
+      case 'once':
+        // One-time in specific month/year
+        if (oneTimeYear === startYear && oneTimeMonth >= startMonth && oneTimeMonth <= endMonth) {
+          schedule = [oneTimeMonth]
+        }
         break
+      default:
+        // Fallback to monthly for backward compatibility
+        for (let month = startMonth; month <= endMonth; month++) {
+          schedule.push(month)
+        }
     }
 
     // Populate amounts array
@@ -411,8 +408,8 @@ export const scheduleUtils = {
   },
 
   // Get schedule preview class
-  getSchedulePreviewClass: (monthIndex, recurrence, startMonth, customMonths = [], oneTimeMonth = 0) => {
-    const { schedule } = scheduleUtils.generateSchedule(recurrence, startMonth, customMonths, oneTimeMonth)
+  getSchedulePreviewClass: (monthIndex, frequency, startMonth, endMonth, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null) => {
+    const { schedule } = scheduleUtils.generateSchedule(frequency, startMonth, endMonth, null, null, recurrenceInterval, customMonths, oneTimeMonth, oneTimeYear)
     
     if (schedule.includes(monthIndex)) {
       return 'bg-blue-100 text-blue-800 border border-blue-200'
@@ -422,9 +419,43 @@ export const scheduleUtils = {
   },
 
   // Calculate total amount for schedule
-  calculateTotalAmount: (recurrence, startMonth, customMonths = [], oneTimeMonth = 0, defaultAmount = 0) => {
-    const { schedule } = scheduleUtils.generateSchedule(recurrence, startMonth, customMonths, oneTimeMonth, defaultAmount)
+  calculateTotalAmount: (frequency, startMonth, endMonth, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null, defaultAmount = 0) => {
+    const { schedule } = scheduleUtils.generateSchedule(frequency, startMonth, endMonth, null, null, recurrenceInterval, customMonths, oneTimeMonth, oneTimeYear, defaultAmount)
     return schedule.length * defaultAmount
+  },
+
+  // Legacy function for backward compatibility
+  generateScheduleLegacy: (recurrence, startMonth, customMonths = [], oneTimeMonth = 0, defaultAmount = 0) => {
+    // Map old recurrence to new frequency
+    let frequency = 'repeats'
+    let recurrenceInterval = 1
+    
+    switch (recurrence) {
+      case 'monthly':
+        frequency = 'repeats'
+        recurrenceInterval = 1
+        break
+      case 'quarterly':
+        frequency = 'repeats'
+        recurrenceInterval = 3
+        break
+      case 'bi-annual':
+        frequency = 'repeats'
+        recurrenceInterval = 6
+        break
+      case 'school-terms':
+        frequency = 'custom'
+        customMonths = [0, 8] // January and September
+        break
+      case 'one-time':
+        frequency = 'once'
+        break
+      case 'custom':
+        frequency = 'custom'
+        break
+    }
+    
+    return scheduleUtils.generateSchedule(frequency, startMonth, 11, null, null, recurrenceInterval, customMonths, oneTimeMonth, null, defaultAmount)
   }
 }
 
