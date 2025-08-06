@@ -23,7 +23,7 @@
             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            <span class="text-xs">Unlinked</span>
+            <span class="text-xs">{{ getVirtualItemLabel(budget) }}</span>
           </div>
           
           <!-- Multi-Year Indicator -->
@@ -367,4 +367,19 @@ const emit = defineEmits([
   'delete-budget',
   'view-transactions'
 ])
+
+const getVirtualItemLabel = (budget) => {
+  if (budget.is_virtual) {
+    if (budget.name === 'Unlinked Income') {
+      return 'Unlinked Income'
+    } else if (budget.name === 'Unlinked Expenses') {
+      return 'Unlinked Expense'
+    } else if (budget.name === 'Unlinked Investment Incoming') {
+      return 'Unlinked Investment Incoming'
+    } else if (budget.name === 'Unlinked Investment Outgoing') {
+      return 'Unlinked Investment Outgoing'
+    }
+  }
+  return 'Unlinked'
+}
 </script> 

@@ -33,7 +33,7 @@ export const useBudgetStore = defineStore('budget', () => {
   const currentYear = computed(() => new Date().getFullYear())
   const currentMonth = computed(() => new Date().getMonth())
 
-  // Budget items with virtual unlinked item
+  // Budget items with virtual unlinked items
   const budgetItemsWithUnlinked = computed(() => {
     // Get unlinked transactions from transaction store
     const unlinkedTransactions = transactionStore.transactions?.filter(transaction => {
@@ -46,46 +46,92 @@ export const useBudgetStore = defineStore('budget', () => {
       return budgetItems.value
     }
 
-    // Calculate monthly amounts for unlinked transactions
-    const monthlyUnlinkedAmounts = Array(12).fill(0).map((_, monthIndex) => {
-      return unlinkedTransactions
-        .filter(transaction => {
-          const transactionMonth = new Date(transaction.date).getMonth()
-          return transactionMonth === monthIndex
-        })
-        .reduce((sum, transaction) => sum + (parseFloat(transaction.amount) || 0), 0)
+    // Separate transactions by type
+    const incomeTransactions = unlinkedTransactions.filter(transaction => {
+      const amount = parseFloat(transaction.amount) || 0
+      return amount > 0
     })
 
-    // Calculate total unlinked amount
-    const totalUnlinked = unlinkedTransactions.reduce((sum, transaction) => {
-      return sum + (parseFloat(transaction.amount) || 0)
-    }, 0)
+    const expenseTransactions = unlinkedTransactions.filter(transaction => {
+      const amount = parseFloat(transaction.amount) || 0
+      return amount < 0
+    })
 
-    // Create virtual unlinked budget item
-    const virtualUnlinkedItem = {
-      id: 'unlinked-transactions',
-      name: 'Unlinked Transactions',
-      category: 'Unlinked',
-      type: totalUnlinked >= 0 ? 'income' : 'expense',
-      amounts: monthlyUnlinkedAmounts,
-      is_virtual: true,
-      is_multi_year: false,
-      linked_investment_id: null,
-      frequency: 'repeats',
-      recurrence_interval: 1,
-      start_year: selectedYear.value,
-      end_year: selectedYear.value,
-      end_type: 'specific_date',
-      occurrences: 12,
-      custom_months: [],
-      recurrence: 'monthly',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      user_id: authStore.userId,
-      year: selectedYear.value
+    // For investment transactions, we need to determine direction based on transaction data
+    // Since unlinked transactions don't have investment_direction, we'll use a heuristic
+    // or we can add a default direction based on user preference
+    const investmentIncomingTransactions = unlinkedTransactions.filter(transaction => {
+      // This would need to be enhanced based on your investment logic
+      // For now, we'll use positive amounts as incoming
+      const amount = parseFloat(transaction.amount) || 0
+      return amount > 0 && transaction.category?.toLowerCase().includes('investment')
+    })
+
+    const investmentOutgoingTransactions = unlinkedTransactions.filter(transaction => {
+      // This would need to be enhanced based on your investment logic
+      // For now, we'll use negative amounts as outgoing
+      const amount = parseFloat(transaction.amount) || 0
+      return amount < 0 && transaction.category?.toLowerCase().includes('investment')
+    })
+
+    const virtualItems = []
+
+    // Helper function to create virtual item
+    const createVirtualItem = (transactions, type, name, category) => {
+      if (transactions.length === 0) return null
+
+      const monthlyAmounts = Array(12).fill(0).map((_, monthIndex) => {
+        return transactions
+          .filter(transaction => {
+            const transactionMonth = new Date(transaction.date).getMonth()
+            return transactionMonth === monthIndex
+          })
+          .reduce((sum, transaction) => sum + (parseFloat(transaction.amount) || 0), 0)
+      })
+
+      return {
+        id: `unlinked-${type}`,
+        name: name,
+        category: category,
+        type: type,
+        amounts: monthlyAmounts,
+        is_virtual: true,
+        is_multi_year: false,
+        linked_investment_id: null,
+        frequency: 'repeats',
+        recurrence_interval: 1,
+        start_year: selectedYear.value,
+        end_year: selectedYear.value,
+        end_type: 'specific_date',
+        occurrences: 12,
+        custom_months: [],
+        recurrence: 'monthly',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        user_id: authStore.userId,
+        year: selectedYear.value
+      }
     }
 
-    return [...budgetItems.value, virtualUnlinkedItem]
+    // Create virtual items for each type
+    const incomeVirtual = createVirtualItem(incomeTransactions, 'income', 'Unlinked Income', 'Unlinked')
+    const expenseVirtual = createVirtualItem(expenseTransactions, 'expense', 'Unlinked Expenses', 'Unlinked')
+    const investmentIncomingVirtual = createVirtualItem(investmentIncomingTransactions, 'investment', 'Unlinked Investment Incoming', 'Unlinked')
+    const investmentOutgoingVirtual = createVirtualItem(investmentOutgoingTransactions, 'investment', 'Unlinked Investment Outgoing', 'Unlinked')
+
+    // Add virtual items to the array
+    if (incomeVirtual) virtualItems.push(incomeVirtual)
+    if (expenseVirtual) virtualItems.push(expenseVirtual)
+    if (investmentIncomingVirtual) {
+      investmentIncomingVirtual.investment_direction = 'incoming'
+      virtualItems.push(investmentIncomingVirtual)
+    }
+    if (investmentOutgoingVirtual) {
+      investmentOutgoingVirtual.investment_direction = 'outgoing'
+      virtualItems.push(investmentOutgoingVirtual)
+    }
+
+    return [...budgetItems.value, ...virtualItems]
   })
 
   // Get budget items for selected year
