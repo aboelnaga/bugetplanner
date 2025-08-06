@@ -18,6 +18,14 @@
             {{ budgetTypeLabel }}
           </span>
           
+          <!-- Virtual Item Indicator -->
+          <div v-if="budget.is_virtual" class="flex items-center text-gray-600">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            <span class="text-xs">Unlinked</span>
+          </div>
+          
           <!-- Multi-Year Indicator -->
           <div v-if="budget.is_multi_year" class="flex items-center text-purple-600">
             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,27 +96,44 @@
     <!-- Actions Cell -->
     <td class="px-4 py-4 text-center sticky right-0 bg-white z-20 border-l border-gray-100">
       <div class="flex justify-center space-x-1">
-        <button @click="$emit('edit-budget', budget)" 
-                :title="getActionButtonConfig('EDIT').title"
-                :aria-label="getActionButtonConfig('EDIT').ariaLabel"
-                :class="`${getActionButtonConfig('EDIT').padding} ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} ${getActionButtonConfig('EDIT').borderRadius} ${getActionButtonConfig('EDIT').transition}`"
-                data-testid="edit-budget-btn">
-          <Edit :class="getActionButtonConfig('EDIT').size" />
-        </button>
-        <button @click="$emit('duplicate-budget', budget)" 
-                :title="getActionButtonConfig('DUPLICATE').title"
-                :aria-label="getActionButtonConfig('DUPLICATE').ariaLabel"
-                :class="`${getActionButtonConfig('DUPLICATE').padding} ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} ${getActionButtonConfig('DUPLICATE').borderRadius} ${getActionButtonConfig('DUPLICATE').transition}`"
-                data-testid="duplicate-budget-btn">
-          <Copy :class="getActionButtonConfig('DUPLICATE').size" />
-        </button>
-        <button @click="$emit('delete-budget', budget.id)" 
-                :title="getActionButtonConfig('DELETE').title"
-                :aria-label="getActionButtonConfig('DELETE').ariaLabel"
-                :class="`${getActionButtonConfig('DELETE').padding} ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} ${getActionButtonConfig('DELETE').borderRadius} ${getActionButtonConfig('DELETE').transition}`"
-                data-testid="delete-budget-btn">
-          <Trash2 :class="getActionButtonConfig('DELETE').size" />
-        </button>
+        <!-- Virtual item actions -->
+        <template v-if="budget.is_virtual">
+          <button @click="$emit('view-transactions')" 
+                  title="View unlinked transactions"
+                  aria-label="View unlinked transactions"
+                  class="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors"
+                  data-testid="view-unlinked-transactions-btn">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </button>
+        </template>
+        
+        <!-- Regular budget item actions -->
+        <template v-else>
+          <button @click="$emit('edit-budget', budget)" 
+                  :title="getActionButtonConfig('EDIT').title"
+                  :aria-label="getActionButtonConfig('EDIT').ariaLabel"
+                  :class="`${getActionButtonConfig('EDIT').padding} ${getActionButtonConfig('EDIT').color} ${getActionButtonConfig('EDIT').hoverColor} ${getActionButtonConfig('EDIT').hoverBg} ${getActionButtonConfig('EDIT').borderRadius} ${getActionButtonConfig('EDIT').transition}`"
+                  data-testid="edit-budget-btn">
+            <Edit :class="getActionButtonConfig('EDIT').size" />
+          </button>
+          <button @click="$emit('duplicate-budget', budget)" 
+                  :title="getActionButtonConfig('DUPLICATE').title"
+                  :aria-label="getActionButtonConfig('DUPLICATE').ariaLabel"
+                  :class="`${getActionButtonConfig('DUPLICATE').padding} ${getActionButtonConfig('DUPLICATE').color} ${getActionButtonConfig('DUPLICATE').hoverColor} ${getActionButtonConfig('DUPLICATE').hoverBg} ${getActionButtonConfig('DUPLICATE').borderRadius} ${getActionButtonConfig('DUPLICATE').transition}`"
+                  data-testid="duplicate-budget-btn">
+            <Copy :class="getActionButtonConfig('DUPLICATE').size" />
+          </button>
+          <button @click="$emit('delete-budget', budget.id)" 
+                  :title="getActionButtonConfig('DELETE').title"
+                  :aria-label="getActionButtonConfig('DELETE').ariaLabel"
+                  :class="`${getActionButtonConfig('DELETE').padding} ${getActionButtonConfig('DELETE').color} ${getActionButtonConfig('DELETE').hoverColor} ${getActionButtonConfig('DELETE').hoverBg} ${getActionButtonConfig('DELETE').borderRadius} ${getActionButtonConfig('DELETE').transition}`"
+                  data-testid="delete-budget-btn">
+            <Trash2 :class="getActionButtonConfig('DELETE').size" />
+          </button>
+        </template>
       </div>
     </td>
   </tr>
@@ -339,6 +364,7 @@ const getYearlyTotalTooltip = (budget) => {
 const emit = defineEmits([
   'edit-budget',
   'duplicate-budget',
-  'delete-budget'
+  'delete-budget',
+  'view-transactions'
 ])
 </script> 

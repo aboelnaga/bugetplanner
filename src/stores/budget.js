@@ -33,6 +33,61 @@ export const useBudgetStore = defineStore('budget', () => {
   const currentYear = computed(() => new Date().getFullYear())
   const currentMonth = computed(() => new Date().getMonth())
 
+  // Budget items with virtual unlinked item
+  const budgetItemsWithUnlinked = computed(() => {
+    // Get unlinked transactions from transaction store
+    const unlinkedTransactions = transactionStore.transactions?.filter(transaction => {
+      const transactionYear = new Date(transaction.date).getFullYear()
+      return transactionYear === selectedYear.value && transaction.budget_item_id === null
+    }) || []
+
+    // If no unlinked transactions, return original budget items
+    if (unlinkedTransactions.length === 0) {
+      return budgetItems.value
+    }
+
+    // Calculate monthly amounts for unlinked transactions
+    const monthlyUnlinkedAmounts = Array(12).fill(0).map((_, monthIndex) => {
+      return unlinkedTransactions
+        .filter(transaction => {
+          const transactionMonth = new Date(transaction.date).getMonth()
+          return transactionMonth === monthIndex
+        })
+        .reduce((sum, transaction) => sum + (parseFloat(transaction.amount) || 0), 0)
+    })
+
+    // Calculate total unlinked amount
+    const totalUnlinked = unlinkedTransactions.reduce((sum, transaction) => {
+      return sum + (parseFloat(transaction.amount) || 0)
+    }, 0)
+
+    // Create virtual unlinked budget item
+    const virtualUnlinkedItem = {
+      id: 'unlinked-transactions',
+      name: 'Unlinked Transactions',
+      category: 'Unlinked',
+      type: totalUnlinked >= 0 ? 'income' : 'expense',
+      amounts: monthlyUnlinkedAmounts,
+      is_virtual: true,
+      is_multi_year: false,
+      linked_investment_id: null,
+      frequency: 'repeats',
+      recurrence_interval: 1,
+      start_year: selectedYear.value,
+      end_year: selectedYear.value,
+      end_type: 'specific_date',
+      occurrences: 12,
+      custom_months: [],
+      recurrence: 'monthly',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      user_id: authStore.userId,
+      year: selectedYear.value
+    }
+
+    return [...budgetItems.value, virtualUnlinkedItem]
+  })
+
   // Get budget items for selected year
   const fetchBudgetItems = async (year = selectedYear.value) => {
     if (!authStore.isAuthenticated || !authStore.userId) {
@@ -939,6 +994,7 @@ export const useBudgetStore = defineStore('budget', () => {
     // Computed
     currentYear,
     currentMonth,
+    budgetItemsWithUnlinked,
     
     // Actions
     fetchBudgetItems,

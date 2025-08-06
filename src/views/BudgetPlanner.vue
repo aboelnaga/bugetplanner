@@ -162,10 +162,6 @@
         :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
         :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
         :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
-        :has-unlinked-transactions="hasUnlinkedTransactionsData"
-        :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
-        :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
-        :unlinked-transactions="unlinkedTransactions"
         @retry="budgetStore.fetchBudgetItems()"
         @add-first-budget="openAddBudgetModalUnified"
         @copy-from-previous-year="copyFromPreviousYear"
@@ -235,8 +231,8 @@
   const transactionStore = useTransactionStore()
   const router = useRouter()
 
-  // Budget items from store
-  const budgetItems = computed(() => budgetStore.budgetItems || [])
+  // Budget items from store (now includes virtual unlinked item)
+  const budgetItems = computed(() => budgetStore.budgetItemsWithUnlinked || [])
 
   // Selected year (from store)
   const selectedYear = computed({
@@ -255,19 +251,6 @@
     const currentYear = budgetStore.currentYear
     return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
   })
-
-  // Unlinked transactions data
-  const unlinkedTransactions = computed(() => {
-    if (!transactionStore.transactions) return []
-    
-    return transactionStore.transactions.filter(transaction => {
-      const transactionYear = new Date(transaction.date).getFullYear()
-      return transactionYear === selectedYear.value && transaction.budget_item_id === null
-    })
-  })
-
-  const hasUnlinkedTransactionsData = computed(() => hasUnlinkedTransactions())
-
 
   // Use composables
   const {
@@ -388,11 +371,7 @@
     calculatePreviousYearInvestmentIncomingTotal,
     calculatePreviousYearInvestmentOutgoingTotal,
     calculatePreviousYearNetTotal,
-    calculatePreviousYearInvestmentNetTotal,
-    // Unlinked transactions
-    calculateUnlinkedTransactionsByMonth,
-    calculateUnlinkedTransactionsTotal,
-    hasUnlinkedTransactions
+    calculatePreviousYearInvestmentNetTotal
   } = useBudgetCalculations(
     budgetItems, 
     budgetStore, 

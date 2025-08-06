@@ -112,10 +112,6 @@
                 :format-currency="formatCurrency"
                 :closed-months="closedMonths"
                 :get-actual-amount="getActualAmount"
-                :has-unlinked-transactions="hasUnlinkedTransactions"
-                :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
-                :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
-                :unlinked-transactions="unlinkedTransactions"
                 @edit-budget="$emit('edit-budget', $event)"
                 @duplicate-budget="$emit('duplicate-budget', $event)"
                 @delete-budget="$emit('delete-budget', $event)"
@@ -140,10 +136,6 @@
                 :format-currency="formatCurrency"
                 :closed-months="closedMonths"
                 :get-actual-amount="getActualAmount"
-                :has-unlinked-transactions="hasUnlinkedTransactions"
-                :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
-                :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
-                :unlinked-transactions="unlinkedTransactions"
                 @edit-budget="$emit('edit-budget', $event)"
                 @duplicate-budget="$emit('duplicate-budget', $event)"
                 @delete-budget="$emit('delete-budget', $event)"
@@ -448,24 +440,6 @@ const props = defineProps({
   calculatePreviousYearInvestmentNetTotal: {
     type: Function,
     default: null
-  },
-  
-  // Unlinked transactions props
-  hasUnlinkedTransactions: {
-    type: Boolean,
-    default: false
-  },
-  calculateUnlinkedTransactionsByMonth: {
-    type: Function,
-    default: () => 0
-  },
-  calculateUnlinkedTransactionsTotal: {
-    type: Function,
-    default: () => 0
-  },
-  unlinkedTransactions: {
-    type: Array,
-    default: () => []
   }
 })
 

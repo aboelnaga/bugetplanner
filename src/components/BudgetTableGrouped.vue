@@ -60,29 +60,15 @@
       :format-currency="formatCurrency"
       :closed-months="closedMonths"
       :get-actual-amount="getActualAmount"
-
       @edit-budget="$emit('edit-budget', $event)"
       @duplicate-budget="$emit('duplicate-budget', $event)"
-      @delete-budget="$emit('delete-budget', $event)" />
+      @delete-budget="$emit('delete-budget', $event)"
+      @view-transactions="$emit('view-transactions')" />
   </template>
-
-  <!-- Unlinked Transactions Row -->
-  <BudgetTableUnlinkedRow
-    v-if="hasUnlinkedTransactions"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
-    :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
-    :format-currency="formatCurrency"
-    :unlinked-transactions="unlinkedTransactions"
-    @view-transactions="$emit('view-transactions')" />
 </template>
 
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
-import BudgetTableUnlinkedRow from './BudgetTableUnlinkedRow.vue'
 import { tableUtils } from '@/utils/budgetUtils.js'
 import BaseTooltip from '@/components/BaseTooltip.vue'
 
@@ -151,24 +137,6 @@ const props = defineProps({
   getActualAmount: {
     type: Function,
     default: null
-  },
-  
-  // New props for unlinked transactions
-  hasUnlinkedTransactions: {
-    type: Boolean,
-    default: false
-  },
-  calculateUnlinkedTransactionsByMonth: {
-    type: Function,
-    required: true
-  },
-  calculateUnlinkedTransactionsTotal: {
-    type: Function,
-    required: true
-  },
-  unlinkedTransactions: {
-    type: Array,
-    default: () => []
   }
 
 })
