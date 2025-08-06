@@ -262,7 +262,7 @@ const getPreviousYearExpensesTooltip = () => {
   
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
-  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues()
+  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
   
   if (detailedValues && detailedValues.expenses) {
     const planned = detailedValues.expenses.planned
@@ -287,7 +287,7 @@ const getPreviousYearInvestmentOutgoingTooltip = () => {
   
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
-  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues()
+  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
   
   if (detailedValues && detailedValues.investmentOutgoing) {
     const planned = detailedValues.investmentOutgoing.planned

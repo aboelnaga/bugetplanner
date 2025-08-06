@@ -27,17 +27,18 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
   }
 
   // Get smart default values for previous year (following the smart defaults logic)
-  const getSmartPreviousYearValues = () => {
-    const summary = getPreviousYearSummary()
+  const getSmartPreviousYearValues = (year = null) => {
+    // Use provided year or fallback to global previous year
+    const targetYear = year || previousYear.value
+    const summary = getYearlySummary(targetYear)
     if (!summary) return null
 
     const currentDate = new Date()
     const currentYear = currentDate.getFullYear()
     const currentMonth = currentDate.getMonth()
-    const previousYear = currentYear - 1
 
     // For previous years, always show actual amounts
-    if (previousYear < currentYear) {
+    if (targetYear < currentYear) {
       return {
         income: parseFloat(summary.total_income_actual) || 0,
         expenses: parseFloat(summary.total_expenses_actual) || 0,
@@ -64,8 +65,10 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
   }
 
   // Get detailed previous year values with both planned and actual
-  const getDetailedPreviousYearValues = () => {
-    const summary = getPreviousYearSummary()
+  const getDetailedPreviousYearValues = (year = null) => {
+    // Use provided year or fallback to global previous year
+    const targetYear = year || previousYear.value
+    const summary = getYearlySummary(targetYear)
     if (!summary) return null
 
     return {

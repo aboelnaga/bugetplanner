@@ -284,32 +284,38 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
 
   // Previous year calculations - use yearly summaries with smart defaults
   const calculatePreviousYearIncomeTotal = () => {
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.income : 0
   }
 
   const calculatePreviousYearExpensesTotal = () => {
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.expenses : 0
   }
 
   const calculatePreviousYearInvestmentIncomingTotal = () => {
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentIncoming : 0
   }
 
   const calculatePreviousYearInvestmentOutgoingTotal = () => {
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentOutgoing : 0
   }
 
   const calculatePreviousYearNetTotal = () => {
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.net : 0
   }
 
   const calculatePreviousYearInvestmentNetTotal = () => {
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues()
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentIncoming - smartValues.investmentOutgoing : 0
   }
 
