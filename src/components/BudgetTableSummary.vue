@@ -41,6 +41,8 @@
     :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
     :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal" />
 
+   
+      
   <!-- Net Summary -->
   <BudgetSummaryNet
     :months="months"
@@ -58,7 +60,10 @@
     :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
     :calculate-grand-total-planned="calculateGrandTotalPlanned"
     :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
-    :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal" />
+    :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+    :calculate-cumulative-savings="calculateCumulativeSavings"
+    :calculate-grand-total-savings="calculateGrandTotalSavings"
+    :calculate-previous-year-savings="calculatePreviousYearSavings" />
 </template>
 
 <script setup>
@@ -235,6 +240,22 @@ const props = defineProps({
   calculatePreviousYearInvestmentNetTotal: {
     type: Function,
     default: null
-  }
+  },
+  
+  // Savings calculations
+  calculateCumulativeSavings: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalSavings: {
+    type: Function,
+    required: true
+  },
+  calculatePreviousYearSavings: {
+    type: Function,
+    required: true
+  },
+  
+
 })
 </script> 

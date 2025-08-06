@@ -67,6 +67,19 @@ export const SUMMARY_ROWS = {
     fontSize: 'text-sm',
     showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentData
   },
+  SAVINGS: {
+    id: 'savings',
+    label: 'Cumulative Savings',
+    subtitle: '(Running Total)',
+    symbol: '💰',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-700',
+    stickyBgColor: 'bg-green-50',
+    borderColor: 'border-green-200',
+    fontWeight: 'font-bold',
+    fontSize: 'text-base',
+    showCondition: (selectedTypeFilter, hasAnyData) => selectedTypeFilter === 'all' && hasAnyData
+  },
   TOTAL_INCOME: {
     id: 'total-income',
     label: 'Total Income',

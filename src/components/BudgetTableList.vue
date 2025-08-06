@@ -76,7 +76,9 @@ const props = defineProps({
   getActualAmount: {
     type: Function,
     default: null
-  }
+  },
+  
+
 })
 
 // Emits

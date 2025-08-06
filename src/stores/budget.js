@@ -33,6 +33,150 @@ export const useBudgetStore = defineStore('budget', () => {
   const currentYear = computed(() => new Date().getFullYear())
   const currentMonth = computed(() => new Date().getMonth())
 
+  // Savings calculations
+  const calculateMonthlySavings = (monthIndex, year = selectedYear.value) => {
+    // Get budget items for the specific year
+    const yearItems = budgetItems.value.filter(item => item.year === year)
+    
+    // Calculate monthly net balance (income - expenses)
+    const monthlyIncome = yearItems.reduce((sum, budget) => {
+      if (budget.type === 'income') {
+        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+      }
+      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
+        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+      }
+      return sum
+    }, 0)
+    
+    const monthlyExpenses = yearItems.reduce((sum, budget) => {
+      if (budget.type === 'expense') {
+        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+      }
+      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
+        return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
+      }
+      return sum
+    }, 0)
+    
+    return monthlyIncome - monthlyExpenses
+  }
+
+  const calculateCumulativeSavings = (monthIndex, year = selectedYear.value) => {
+    let cumulativeSavings = 0
+    
+    // Add savings from previous years (simplified - could be enhanced with actual data)
+    if (year > currentYear.value) {
+      // For future years, assume starting with 0 savings
+      cumulativeSavings = 0
+    } else if (year < currentYear.value) {
+      // For past years, we could calculate from actual data if available
+      // For now, assume starting with 0
+      cumulativeSavings = 0
+    } else {
+      // For current year, calculate cumulative from start of year
+      for (let month = 0; month <= monthIndex; month++) {
+        cumulativeSavings += calculateMonthlySavings(month, year)
+      }
+    }
+    
+    return cumulativeSavings
+  }
+
+  // Current month data for Dashboard
+  const currentMonthData = computed(() => {
+    const currentMonthIndex = currentMonth.value
+    const currentYearValue = currentYear.value
+    
+    // Calculate monthly totals
+    const monthlyIncome = budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === 'income') {
+        return sum + (parseFloat(budget.amounts[currentMonthIndex]) || 0)
+      }
+      return sum
+    }, 0)
+    
+    const monthlyExpenses = budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === 'expense') {
+        return sum + (parseFloat(budget.amounts[currentMonthIndex]) || 0)
+      }
+      return sum
+    }, 0)
+    
+    const monthlySaving = monthlyIncome - monthlyExpenses
+    const savings = calculateCumulativeSavings(currentMonthIndex, currentYearValue)
+    
+    return {
+      month: currentMonthIndex,
+      year: currentYearValue,
+      monthlyIncome,
+      monthlySpending: monthlyExpenses,
+      monthlySaving,
+      savings
+    }
+  })
+
+  // Monthly data for charts
+  const monthlyData = computed(() => {
+    const data = []
+    for (let month = 0; month < 12; month++) {
+      const monthlyIncome = budgetItems.value.reduce((sum, budget) => {
+        if (budget.type === 'income') {
+          return sum + (parseFloat(budget.amounts[month]) || 0)
+        }
+        return sum
+      }, 0)
+      
+      const monthlyExpenses = budgetItems.value.reduce((sum, budget) => {
+        if (budget.type === 'expense') {
+          return sum + (parseFloat(budget.amounts[month]) || 0)
+        }
+        return sum
+      }, 0)
+      
+      const monthlySaving = monthlyIncome - monthlyExpenses
+      const savings = calculateCumulativeSavings(month, selectedYear.value)
+      
+      data.push({
+        month,
+        income: monthlyIncome,
+        expenses: monthlyExpenses,
+        savings: monthlySaving,
+        cumulativeSavings: savings
+      })
+    }
+    return data
+  })
+
+  // Savings rate calculation
+  const currentSavingsRate = computed(() => {
+    const currentMonth = currentMonthData.value
+    if (currentMonth.monthlyIncome === 0) return 0
+    return Math.round((currentMonth.monthlySaving / currentMonth.monthlyIncome) * 100)
+  })
+
+  // Zakat calculation (2.5% of savings)
+  const zakatDue = computed(() => {
+    const currentMonth = currentMonthData.value
+    return currentMonth.savings * 0.025
+  })
+
+  // Family budgets (placeholder)
+  const familyBudgets = computed(() => ({
+    // This could be enhanced with actual family budget data
+  }))
+
+  const totalFamilyExpenses = computed(() => 0)
+
+  // Investment totals (placeholder)
+  const totalInvestments = computed(() => 0)
+
+  // Projections (placeholder)
+  const projections = computed(() => {
+    // This could be enhanced with actual projection calculations
+    return []
+  })
+
   // Budget items with virtual unlinked items
   const budgetItemsWithUnlinked = computed(() => {
     // Get unlinked transactions from transaction store
@@ -971,6 +1115,18 @@ export const useBudgetStore = defineStore('budget', () => {
     currentYear,
     currentMonth,
     budgetItemsWithUnlinked,
+    
+    // Savings calculations
+    calculateMonthlySavings,
+    calculateCumulativeSavings,
+    currentMonthData,
+    monthlyData,
+    currentSavingsRate,
+    zakatDue,
+    familyBudgets,
+    totalFamilyExpenses,
+    totalInvestments,
+    projections,
     
     // Actions
     fetchBudgetItems,

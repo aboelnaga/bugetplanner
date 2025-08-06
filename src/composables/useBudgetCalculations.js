@@ -188,6 +188,29 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return calculateGrandTotalInvestmentIncoming() - calculateGrandTotalInvestmentOutgoing()
   }
 
+  // Savings calculations
+  const calculateCumulativeSavings = (monthIndex) => {
+    let cumulativeSavings = 0
+    
+    // Calculate cumulative savings from start of year to the specified month
+    for (let month = 0; month <= monthIndex; month++) {
+      cumulativeSavings += calculateMonthlyTotal(month)
+    }
+    
+    return cumulativeSavings
+  }
+
+  const calculateGrandTotalSavings = () => {
+    // Total cumulative savings for the year (end of year savings)
+    return calculateCumulativeSavings(11)
+  }
+
+  const calculatePreviousYearSavings = () => {
+    const previousYear = selectedYear ? selectedYear - 1 : null
+    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    return smartValues ? smartValues.net : 0
+  }
+
   // Planned amount calculations for tooltips
   const calculateMonthlyPlannedIncome = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
@@ -362,6 +385,11 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateGrandTotalInvestmentIncoming,
     calculateGrandTotalInvestmentOutgoing,
     calculateGrandTotalInvestmentNet,
+    
+    // Savings calculations
+    calculateCumulativeSavings,
+    calculateGrandTotalSavings,
+    calculatePreviousYearSavings,
     
     // Planned calculations for tooltips
     calculateMonthlyPlannedIncome,

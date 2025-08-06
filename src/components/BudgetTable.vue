@@ -183,7 +183,10 @@
               :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
               :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
               :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
-              :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal" />
+              :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+              :calculate-cumulative-savings="calculateCumulativeSavings"
+              :calculate-grand-total-savings="calculateGrandTotalSavings"
+              :calculate-previous-year-savings="calculatePreviousYearSavings" />
           </tbody>
         </table>
       </div>
@@ -335,6 +338,7 @@ const props = defineProps({
     type: Function,
     required: true
   },
+
   getCategoryType: {
     type: Function,
     required: true
@@ -440,6 +444,20 @@ const props = defineProps({
   calculatePreviousYearInvestmentNetTotal: {
     type: Function,
     default: null
+  },
+  
+  // Savings calculations
+  calculateCumulativeSavings: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalSavings: {
+    type: Function,
+    required: true
+  },
+  calculatePreviousYearSavings: {
+    type: Function,
+    required: true
   }
 })
 

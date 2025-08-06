@@ -15,7 +15,7 @@
        
        <div class="card">
          <h3 class="text-lg font-semibold mb-3">Total Wealth</h3>
-         <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(currentMonth?.savings || 0) }}</p>
+         <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(currentMonthData?.savings || 0) }}</p>
          <p class="text-sm text-gray-500 mt-1">Zakatable amount</p>
        </div>
       
@@ -35,7 +35,7 @@
             <div class="font-medium">Current Savings</div>
             <div class="text-sm text-gray-500">Total accumulated wealth</div>
           </div>
-                     <div class="text-lg font-semibold">{{ formatCurrency(currentMonth?.savings || 0) }}</div>
+                     <div class="text-lg font-semibold">{{ formatCurrency(currentMonthData?.savings || 0) }}</div>
          </div>
          
          <div class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
@@ -94,8 +94,8 @@
           <tbody class="bg-white divide-y divide-gray-200">
                          <tr>
                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2024</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(currentMonth?.expenses?.zakat || 0) }}</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatCurrency(currentMonth?.savings || 0) }}</td>
+               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(0) }}</td>
+               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatCurrency(currentMonthData?.savings || 0) }}</td>
                <td class="px-6 py-4 whitespace-nowrap">
                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Paid</span>
                </td>
@@ -103,7 +103,7 @@
              <tr>
                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2025</td>
                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(zakatDue || 0) }}</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatCurrency(currentMonth?.savings || 0) }}</td>
+               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatCurrency(currentMonthData?.savings || 0) }}</td>
                <td class="px-6 py-4 whitespace-nowrap">
                  <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Due</span>
                </td>
@@ -120,7 +120,7 @@ import { computed } from 'vue'
 import { useBudgetStore } from '@/stores/budget'
 
 const store = useBudgetStore()
-const { currentMonth, zakatDue } = store
+const { currentMonthData, zakatDue } = store
 
 // Nisab threshold is approximately the value of 85 grams of gold
 // Using an approximate value in EGP

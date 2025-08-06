@@ -43,8 +43,45 @@
     <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-30 border-l border-gray-200`"></td>
   </tr>
 
-  <!-- Net Investment Row -->
-  <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="`${netInvestmentStyling.bgColor} text-sm`">
+
+  <!-- Savings Row -->
+  <tr v-if="shouldShowSummaryRow('SAVINGS')" :class="`${savingsStyling.bgColor} border-t-2 border-gray-200 font-bold`">
+    <td :class="`px-6 py-4 text-sm font-bold ${savingsStyling.textColor} sticky left-0 ${savingsStyling.stickyBgColor} z-20 border-r border-gray-200`">
+      <div class="flex items-center">
+        <span :class="`text-xl font-bold ${savingsStyling.textColor} mr-2`">{{ savingsConfig.symbol }}</span>
+        {{ savingsConfig.label }}
+      </div>
+    </td>
+    <!-- Previous Year Column -->
+    <td :class="`${getSummaryCellClasses(calculatePreviousYearSavings(), selectedYear, currentYear, currentMonth, -1)}`">
+      <BaseTooltip :content="getPreviousYearSavingsTooltip()" position="top">
+        <div v-if="calculatePreviousYearSavings() !== 0" class="cursor-help">
+          {{ formatSummaryValue(calculatePreviousYearSavings(), formatCurrency) }}
+        </div>
+        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
+      </BaseTooltip>
+    </td>
+    <td v-for="(month, index) in months" :key="`savings-${month}`" 
+        :class="`${getSummaryCellClasses(calculateCumulativeSavings(index), selectedYear, currentYear, currentMonth, index)}`">
+      <BaseTooltip :content="getSavingsTooltip(index)" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateCumulativeSavings(index), formatCurrency) }}
+        </div>
+      </BaseTooltip>
+    </td>
+    <!-- Total Column -->
+    <td :class="`${getSummaryTotalClasses(calculateGrandTotalSavings())} font-bold`">
+      <BaseTooltip :content="getGrandTotalSavingsTooltip()" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(calculateGrandTotalSavings(), formatCurrency) }}
+        </div>
+      </BaseTooltip>
+    </td>
+    <td class="px-6 py-4"></td>
+  </tr>
+
+    <!-- Net Investment Row -->
+    <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="`${netInvestmentStyling.bgColor} text-sm`">
     <td :class="`px-6 py-3 text-sm font-semibold ${netInvestmentStyling.textColor} sticky left-0 ${netInvestmentStyling.stickyBgColor} z-20 border-r border-t-2 border-gray-200`">
       <div class="flex items-center">
         <span :class="`text-lg font-bold ${netInvestmentStyling.textColor} mr-2`">{{ netInvestmentConfig.symbol }}</span>
@@ -161,6 +198,20 @@ const props = defineProps({
   calculatePreviousYearInvestmentNetTotal: {
     type: Function,
     default: null
+  },
+  
+  // Savings calculations
+  calculateCumulativeSavings: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalSavings: {
+    type: Function,
+    required: true
+  },
+  calculatePreviousYearSavings: {
+    type: Function,
+    required: true
   }
 })
 
@@ -190,6 +241,10 @@ const netInvestmentConfig = computed(() => getSummaryRowConfig('NET_INVESTMENT')
 // Get row styling
 const netBalanceStyling = computed(() => getSummaryRowStyling('NET_BALANCE'))
 const netInvestmentStyling = computed(() => getSummaryRowStyling('NET_INVESTMENT'))
+const savingsStyling = computed(() => getSummaryRowStyling('SAVINGS'))
+
+// Get savings configuration
+const savingsConfig = computed(() => getSummaryRowConfig('SAVINGS'))
 
 // Tooltip functions
 const getNetBalanceTooltip = (monthIndex) => {
@@ -307,5 +362,29 @@ const getPreviousYearInvestmentNetTooltip = () => {
   
   // Fallback to simple display
   return `PY ${previousYear} Net Investment (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
+}
+
+// Savings tooltip functions
+const getSavingsTooltip = (monthIndex) => {
+  const savings = props.calculateCumulativeSavings(monthIndex)
+  const monthName = props.months[monthIndex]
+
+  return `Cumulative Savings for ${monthName} ${props.selectedYear}: ${props.formatCurrency(savings)}`
+}
+
+const getGrandTotalSavingsTooltip = () => {
+  const totalSavings = props.calculateGrandTotalSavings()
+  return `Total Cumulative Savings for ${props.selectedYear}: ${props.formatCurrency(totalSavings)}`
+}
+
+const getPreviousYearSavingsTooltip = () => {
+  const previousYearSavings = props.calculatePreviousYearSavings()
+  const previousYear = props.selectedYear - 1
+
+  if (previousYearSavings === 0) {
+    return `No savings data available for ${previousYear}`
+  }
+
+  return `Cumulative Savings for ${previousYear}: ${props.formatCurrency(previousYearSavings)}`
 }
 </script> 

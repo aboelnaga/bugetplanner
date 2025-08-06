@@ -4,13 +4,13 @@
     <div class="flex justify-between items-center">
       <div>
         <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="text-gray-600 mt-1">{{ currentMonth?.month || 'Current' }} {{ currentMonth?.year || new Date().getFullYear() }} Overview</p>
+        <p class="text-gray-600 mt-1">{{ currentMonthData?.month || 'Current' }} {{ currentMonthData?.year || new Date().getFullYear() }} Overview</p>
       </div>
       <div class="flex items-center space-x-4">
         <div class="text-right">
           <div class="text-sm text-gray-500">Total Savings</div>
           <div class="text-2xl font-bold text-green-600">
-            {{ formatCurrency(currentMonth?.savings || 0) }}
+            {{ formatCurrency(currentMonthData?.savings || 0) }}
           </div>
         </div>
       </div>
@@ -20,24 +20,24 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <StatCard
         title="Monthly Income"
-        :value="formatCurrency(currentMonth?.monthlyIncome || 0)"
+        :value="formatCurrency(currentMonthData?.monthlyIncome || 0)"
         change="+12.5%"
         icon="DollarSign"
         color="green"
       />
       <StatCard
         title="Monthly Spending"
-        :value="formatCurrency(currentMonth?.monthlySpending || 0)"
+        :value="formatCurrency(currentMonthData?.monthlySpending || 0)"
         change="+23.1%"
         icon="CreditCard"
         color="red"
       />
       <StatCard
         title="This Month Saving"
-        :value="formatCurrency(currentMonth?.monthlySaving || 0)"
+        :value="formatCurrency(currentMonthData?.monthlySaving || 0)"
         :change="savingsChangeText"
         icon="TrendingUp"
-        :color="(currentMonth?.monthlySaving || 0) >= 0 ? 'green' : 'red'"
+        :color="(currentMonthData?.monthlySaving || 0) >= 0 ? 'green' : 'red'"
       />
       <StatCard
         title="Zakat Due"
@@ -156,7 +156,7 @@ import ProjectionChart from '@/components/ProjectionChart.vue'
 const store = useBudgetStore()
 
 const {
-  currentMonth,
+  currentMonthData,
   monthlyData,
   projections,
   familyBudgets,
