@@ -5,21 +5,15 @@
       <div class="space-y-1">
         <!-- Budget Name -->
         <div class="font-semibold text-gray-900 text-sm leading-tight truncate">
-          <span class="text-orange-600">🔗 Unlinked Transactions</span>
+            Unlinked Transactions
         </div>
         
         <!-- Category -->
-        <div class="text-xs text-gray-600 truncate">Transactions not linked to budget items</div>
+        <div class="text-xs text-gray-600 truncate">No linked budget</div>
         
         <!-- Secondary Info -->
         <div class="flex items-center space-x-4 text-xs">
           <!-- Type Badge -->
-          <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Unlinked
-          </span>
           
           <!-- Transaction Count -->
           <div class="flex items-center text-gray-500">
@@ -44,10 +38,11 @@
           selectedYear === currentYear && index === currentMonth ? 'bg-sky-100' : ''
         ]">
       <div class="relative">
-        <div class="text-sm">
-          <div v-if="calculateUnlinkedTransactionsByMonth(index) > 0">
+        <div class="text-sm" >
+          <div v-if="calculateUnlinkedTransactionsByMonth(index) !== 0">
             <BaseTooltip :content="getUnlinkedTransactionsTooltip(index)" position="top">
-              <div class="font-medium cursor-help text-orange-600">
+              <div class="font-medium cursor-help" 
+                   :class="calculateUnlinkedTransactionsByMonth(index) > 0 ? 'text-green-600' : 'text-red-600'">
                 {{ formatAmountWithSign(calculateUnlinkedTransactionsByMonth(index), formatCurrency) }}
               </div>
             </BaseTooltip>
@@ -59,9 +54,10 @@
 
     <!-- Yearly Total Cell -->
     <td class="border-l-2 border-gray-150 text-sm sticky right-32 bg-white z-20">
-      <div v-if="calculateUnlinkedTransactionsTotal() > 0">
+      <div v-if="calculateUnlinkedTransactionsTotal() !== 0">
         <BaseTooltip :content="getUnlinkedTransactionsTotalTooltip()" position="top">
-          <div class="font-medium cursor-help text-orange-600">
+          <div class="font-medium cursor-help" 
+               :class="calculateUnlinkedTransactionsTotal() > 0 ? 'text-green-600' : 'text-red-600'">
             {{ formatAmountWithSign(calculateUnlinkedTransactionsTotal(), formatCurrency) }}
           </div>
         </BaseTooltip>
@@ -75,7 +71,7 @@
         <button @click="$emit('view-transactions')" 
                 title="View unlinked transactions"
                 aria-label="View unlinked transactions"
-                class="p-1.5 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded transition-colors"
+                class="p-1.5 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded transition-colors"
                 data-testid="view-unlinked-transactions-btn">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -90,7 +86,7 @@
 <script setup>
 import { computed } from 'vue'
 import BaseTooltip from './BaseTooltip.vue'
-import { tableUtils } from '@/utils/budgetUtils.js'
+import { useBudgetTableRow } from '@/composables/useBudgetTableRow.js'
 
 // Props
 const props = defineProps({
@@ -110,8 +106,6 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  
-  // Functions
   calculateUnlinkedTransactionsByMonth: {
     type: Function,
     required: true
@@ -124,22 +118,17 @@ const props = defineProps({
     type: Function,
     required: true
   },
-  
-  // Transaction data
   unlinkedTransactions: {
     type: Array,
-    default: () => []
+    required: true
   }
 })
 
+// Use budget table row composable for formatting
+const { formatAmountWithSign } = useBudgetTableRow(computed(() => ({ type: 'unlinked' })))
+
 // Computed
 const unlinkedTransactionCount = computed(() => props.unlinkedTransactions.length)
-
-// Helper function for formatting amounts with signs
-const formatAmountWithSign = (amount, formatCurrency) => {
-  const formattedAmount = formatCurrency(amount)
-  return amount >= 0 ? `+${formattedAmount}` : `-${formattedAmount}`
-}
 
 // Methods
 const getUnlinkedTransactionsTooltip = (monthIndex) => {
