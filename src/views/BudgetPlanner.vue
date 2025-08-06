@@ -162,6 +162,10 @@
         :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
         :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
         :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+        :has-unlinked-transactions="hasUnlinkedTransactionsData"
+        :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
+        :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
+        :unlinked-transactions="unlinkedTransactions"
         @retry="budgetStore.fetchBudgetItems()"
         @add-first-budget="openAddBudgetModalUnified"
         @copy-from-previous-year="copyFromPreviousYear"
@@ -170,7 +174,8 @@
         @edit-budget="editBudgetUnified"
         @duplicate-budget="duplicateBudget"
         @delete-budget="deleteBudget"
-        @close-month="handleCloseMonth" />
+        @close-month="handleCloseMonth"
+        @view-transactions="handleViewTransactions" />
     </div>
 
     <!-- Unified Budget Modal -->
@@ -202,6 +207,7 @@
   import { useAuthStore } from '@/stores/auth.js'
   import { useAccountsStore } from '@/stores/accounts.js'
   import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
+  import { useTransactionStore } from '@/stores/transactions.js'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import CloseMonthModal from '@/components/CloseMonthModal.vue'
   // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
@@ -219,12 +225,15 @@
   import { useSmartRefresh } from '@/composables/useSmartRefresh.js'
   import { useErrorHandler } from '@/composables/useErrorHandler.js'
   import { ref } from 'vue'
+  import { useRouter } from 'vue-router'
 
   // Stores
   const budgetStore = useBudgetStore()
   const authStore = useAuthStore()
   const accountsStore = useAccountsStore()
   const yearlySummariesStore = useYearlySummariesStore()
+  const transactionStore = useTransactionStore()
+  const router = useRouter()
 
   // Budget items from store
   const budgetItems = computed(() => budgetStore.budgetItems || [])
@@ -247,6 +256,17 @@
     return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
   })
 
+  // Unlinked transactions data
+  const unlinkedTransactions = computed(() => {
+    if (!transactionStore.transactions) return []
+    
+    return transactionStore.transactions.filter(transaction => {
+      const transactionYear = new Date(transaction.date).getFullYear()
+      return transactionYear === selectedYear.value && transaction.budget_item_id === null
+    })
+  })
+
+  const hasUnlinkedTransactionsData = computed(() => hasUnlinkedTransactions())
 
 
   // Use composables
@@ -294,9 +314,8 @@
   }
 
   // Override editBudget to use unified modal
-  const editBudgetUnified = async (budget) => {
-    // Check if this is a multi-year budget item
-    if (budget.is_multi_year && budget.linked_group_id) {
+  const editBudgetUnified = (budget) => {
+    if (budget.is_multi_year) {
       // For multi-year items, we need to fetch all linked items first
       const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
       if (linkedItems.length > 0) {
@@ -315,6 +334,12 @@
     // Set mode to edit and show unified modal
     budgetModalMode.value = 'edit'
     showAddBudgetModal.value = true
+  }
+
+  // Handle view transactions for unlinked transactions
+  const handleViewTransactions = () => {
+    // Navigate to transactions page with unlinked filter
+    router.push('/transactions?filter=unlinked')
   }
 
   // Month closure state
@@ -363,7 +388,11 @@
     calculatePreviousYearInvestmentIncomingTotal,
     calculatePreviousYearInvestmentOutgoingTotal,
     calculatePreviousYearNetTotal,
-    calculatePreviousYearInvestmentNetTotal
+    calculatePreviousYearInvestmentNetTotal,
+    // Unlinked transactions
+    calculateUnlinkedTransactionsByMonth,
+    calculateUnlinkedTransactionsTotal,
+    hasUnlinkedTransactions
   } = useBudgetCalculations(
     budgetItems, 
     budgetStore, 
@@ -543,19 +572,31 @@
 
 
 
-  // Initialize on mount
+  // Lifecycle
   onMounted(async () => {
-    // Wait for auth to initialize
-    if (!authStore.user) {
-      await authStore.initAuth()
+    try {
+      // Initialize stores
+      await budgetStore.initialize()
+      await accountsStore.initialize()
+      await yearlySummariesStore.initialize()
+      await transactionStore.fetchTransactions(selectedYear.value)
+      
+      // Check previous year data
+      await checkPreviousYearData()
+      
+      // Fetch closed months
+      await fetchClosedMonths()
+      
+    } catch (error) {
+      console.error('Error initializing BudgetPlanner:', error)
+      handleError(error)
     }
-    
-    if (authStore.isAuthenticated) {
-      budgetStore.initialize()
-      accountsStore.fetchAccounts()
-      yearlySummariesStore.initialize() // Essential for balance calculations
-      // checkPreviousYearData() - moved to budget items watcher
-      fetchClosedMonths()
+  })
+
+  // Watch for selected year changes to fetch transactions
+  watch(selectedYear, async (newYear) => {
+    if (newYear) {
+      await transactionStore.fetchTransactions(newYear)
     }
   })
 </script>

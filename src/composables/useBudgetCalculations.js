@@ -3,9 +3,11 @@
 
 import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
+import { useTransactionStore } from '@/stores/transactions.js'
 
 export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
   const yearlySummariesStore = useYearlySummariesStore()
+  const transactionStore = useTransactionStore()
   // Basic budget amount calculations
   const isScheduledMonth = (budget, monthIndex) => {
     if (!budget || !budget.schedule) return false
@@ -319,6 +321,60 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return smartValues ? smartValues.investmentIncoming - smartValues.investmentOutgoing : 0
   }
 
+  // Unlinked transactions calculations
+  const calculateUnlinkedTransactionsByMonth = (monthIndex) => {
+    if (!transactionStore?.transactions) return 0
+    
+    // Handle selectedYear as reactive value
+    const targetYear = selectedYear?.value || selectedYear
+    
+    return transactionStore.transactions
+      .filter(transaction => {
+        // Filter by selected year and month
+        const transactionYear = new Date(transaction.date).getFullYear()
+        const transactionMonth = new Date(transaction.date).getMonth()
+        
+        return transactionYear === targetYear && 
+               transactionMonth === monthIndex && 
+               transaction.budget_item_id === null
+      })
+      .reduce((total, transaction) => {
+        const amount = parseFloat(transaction.amount) || 0
+        // For unlinked transactions, we show the actual amount
+        return total + amount
+      }, 0)
+  }
+
+  const calculateUnlinkedTransactionsTotal = () => {
+    if (!transactionStore?.transactions) return 0
+    
+    // Handle selectedYear as reactive value
+    const targetYear = selectedYear?.value || selectedYear
+    
+    return transactionStore.transactions
+      .filter(transaction => {
+        const transactionYear = new Date(transaction.date).getFullYear()
+        return transactionYear === targetYear && transaction.budget_item_id === null
+      })
+      .reduce((total, transaction) => {
+        const amount = parseFloat(transaction.amount) || 0
+        return total + amount
+      }, 0)
+  }
+
+  const hasUnlinkedTransactions = () => {
+    if (!transactionStore?.transactions) return false
+    
+    // Handle selectedYear as reactive value
+    const targetYear = selectedYear?.value || selectedYear
+    
+    return transactionStore.transactions.some(transaction => {
+      const transactionYear = new Date(transaction.date).getFullYear()
+      const isUnlinked = transaction.budget_item_id === null
+      return transactionYear === targetYear && isUnlinked
+    })
+  }
+
   // Budget amount updates
   const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
     const budget = budgetItems.value.find(b => b.id === budgetId)
@@ -384,6 +440,11 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculatePreviousYearInvestmentOutgoingTotal,
     calculatePreviousYearNetTotal,
     calculatePreviousYearInvestmentNetTotal,
+    
+    // Unlinked transactions
+    calculateUnlinkedTransactionsByMonth,
+    calculateUnlinkedTransactionsTotal,
+    hasUnlinkedTransactions,
     
     // Budget updates
     updateBudgetAmount

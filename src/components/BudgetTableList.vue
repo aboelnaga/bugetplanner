@@ -18,10 +18,24 @@
       @edit-budget="$emit('edit-budget', $event)"
       @duplicate-budget="$emit('duplicate-budget', $event)"
       @delete-budget="$emit('delete-budget', $event)" />
+
+      <!-- Unlinked Transactions Row -->
+      <BudgetTableUnlinkedRow
+        v-if="hasUnlinkedTransactions"
+        :months="months"
+        :selected-year="selectedYear"
+        :current-year="currentYear"
+        :current-month="currentMonth"
+        :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
+        :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
+        :format-currency="formatCurrency"
+        :unlinked-transactions="unlinkedTransactions"
+        @view-transactions="$emit('view-transactions')" />
 </template>
 
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
+import BudgetTableUnlinkedRow from './BudgetTableUnlinkedRow.vue'
 
 // Props
 const props = defineProps({
@@ -78,13 +92,30 @@ const props = defineProps({
     default: null
   },
   
-
+  // Unlinked transactions props
+  hasUnlinkedTransactions: {
+    type: Boolean,
+    default: false
+  },
+  calculateUnlinkedTransactionsByMonth: {
+    type: Function,
+    default: () => 0
+  },
+  calculateUnlinkedTransactionsTotal: {
+    type: Function,
+    default: () => 0
+  },
+  unlinkedTransactions: {
+    type: Array,
+    default: () => []
+  }
 })
 
 // Emits
 const emit = defineEmits([
   'edit-budget',
   'duplicate-budget',
-  'delete-budget'
+  'delete-budget',
+  'view-transactions'
 ])
 </script> 

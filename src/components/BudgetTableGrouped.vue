@@ -65,10 +65,24 @@
       @duplicate-budget="$emit('duplicate-budget', $event)"
       @delete-budget="$emit('delete-budget', $event)" />
   </template>
+
+  <!-- Unlinked Transactions Row -->
+  <BudgetTableUnlinkedRow
+    v-if="hasUnlinkedTransactions"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :calculate-unlinked-transactions-by-month="calculateUnlinkedTransactionsByMonth"
+    :calculate-unlinked-transactions-total="calculateUnlinkedTransactionsTotal"
+    :format-currency="formatCurrency"
+    :unlinked-transactions="unlinkedTransactions"
+    @view-transactions="$emit('view-transactions')" />
 </template>
 
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
+import BudgetTableUnlinkedRow from './BudgetTableUnlinkedRow.vue'
 import { tableUtils } from '@/utils/budgetUtils.js'
 import BaseTooltip from '@/components/BaseTooltip.vue'
 
@@ -139,6 +153,23 @@ const props = defineProps({
     default: null
   },
   
+  // New props for unlinked transactions
+  hasUnlinkedTransactions: {
+    type: Boolean,
+    default: false
+  },
+  calculateUnlinkedTransactionsByMonth: {
+    type: Function,
+    required: true
+  },
+  calculateUnlinkedTransactionsTotal: {
+    type: Function,
+    required: true
+  },
+  unlinkedTransactions: {
+    type: Array,
+    default: () => []
+  }
 
 })
 
@@ -168,6 +199,7 @@ const getCategoryTooltip = (group, monthIndex) => {
 const emit = defineEmits([
   'edit-budget',
   'duplicate-budget',
-  'delete-budget'
+  'delete-budget',
+  'view-transactions'
 ])
 </script> 
