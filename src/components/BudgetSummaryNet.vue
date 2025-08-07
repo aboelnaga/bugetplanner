@@ -1,6 +1,6 @@
 <template>
   <!-- Divider Line -->
-  <tr v-if="shouldShowSummaryRow('NET_BALANCE')" class="bg-gray-100">
+  <tr class="bg-gray-100">
     <td class="p-0 border-t-2 border-gray-200"></td>
     <td class="p-0 border-t-2 border-gray-200"></td>
     <td v-for="(month, index) in months" :key="`divider-${month}`" class="p-0 border-t-2 border-gray-200"></td>
@@ -9,121 +9,79 @@
   </tr>
 
   <!-- Net Balance Line -->
-  <tr v-if="shouldShowSummaryRow('NET_BALANCE')" :class="`${netBalanceStyling.bgColor} border-t-2 border-gray-200 font-bold`">
-    <td :class="`px-6 py-4 text-sm font-bold ${netBalanceStyling.textColor} sticky left-0 ${netBalanceStyling.stickyBgColor} z-20 border-r border-gray-200`">
-      <div class="flex items-center">
-        <span :class="`text-xl font-bold ${netBalanceStyling.textColor} mr-2`">{{ netBalanceConfig.symbol }}</span>
-        {{ netBalanceConfig.label }}
-      </div>
-    </td>
-    <!-- Previous Year Column -->
-    <td :class="`${getSummaryCellClasses(getPreviousYearNetTotal(), selectedYear, currentYear, currentMonth, -1)}`">
-      <BaseTooltip :content="getPreviousYearNetTooltip()" position="top">
-        <div v-if="getPreviousYearNetTotal() !== 0" class="cursor-help">
-          {{ formatSummaryValue(getPreviousYearNetTotal(), formatCurrency) }}
-        </div>
-        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
-      </BaseTooltip>
-    </td>
-    <td v-for="(month, index) in months" :key="`eq-net-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyTotal(index), selectedYear, currentYear, currentMonth, index)}`">
-      <BaseTooltip :content="getNetBalanceTooltip(index)" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(calculateMonthlyTotal(index), formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotal(), true)} sticky right-32 ${netBalanceStyling.stickyBgColor} z-20`">
-      <BaseTooltip :content="getNetBalanceYearlyTooltip()" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(calculateGrandTotal(), formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    <td :class="`px-4 py-4 sticky right-0 ${netBalanceStyling.stickyBgColor} z-30 border-l border-gray-200`"></td>
-  </tr>
-
+  <BudgetSummaryRowHelper
+    row-type="NET_BALANCE"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false"
+    :has-expense-data="false"
+    :has-investment-data="hasInvestmentData"
+    :has-investment-incoming-data="false"
+    :has-investment-outgoing-data="false"
+    :has-any-data="hasAnyData"
+    :calculate-monthly="calculateMonthlyTotal"
+    :calculate-grand-total="calculateGrandTotal"
+    :calculate-previous-year="calculatePreviousYearNetTotal"
+    :get-monthly-tooltip="getNetBalanceTooltip"
+    :get-grand-total-tooltip="getNetBalanceYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearNetTooltip"
+    :format-currency="formatCurrency"
+    border-top-class="border-t-2 border-gray-200 font-bold" />
 
   <!-- Savings Row -->
-  <tr v-if="shouldShowSummaryRow('SAVINGS')" :class="`${savingsStyling.bgColor} border-t-2 border-gray-200 font-bold`">
-    <td :class="`px-6 py-4 text-sm font-bold ${savingsStyling.textColor} sticky left-0 ${savingsStyling.stickyBgColor} z-20 border-r border-gray-200`">
-      <div class="flex items-center">
-        <span :class="`text-xl font-bold ${savingsStyling.textColor} mr-2`">{{ savingsConfig.symbol }}</span>
-        {{ savingsConfig.label }}
-      </div>
-    </td>
-    <!-- Previous Year Column -->
-    <td :class="`${getSummaryCellClasses(calculatePreviousYearSavings(), selectedYear, currentYear, currentMonth, -1)}`">
-      <BaseTooltip :content="getPreviousYearSavingsTooltip()" position="top">
-        <div v-if="calculatePreviousYearSavings() !== 0" class="cursor-help">
-          {{ formatSummaryValue(calculatePreviousYearSavings(), formatCurrency) }}
-        </div>
-        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
-      </BaseTooltip>
-    </td>
-    <td v-for="(month, index) in months" :key="`savings-${month}`" 
-        :class="`${getSummaryCellClasses(calculateCumulativeSavings(index), selectedYear, currentYear, currentMonth, index)}`">
-      <BaseTooltip :content="getSavingsTooltip(index)" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(calculateCumulativeSavings(index), formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    <!-- Total Column -->
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotalSavings())} font-bold`">
-      <BaseTooltip :content="getGrandTotalSavingsTooltip()" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(calculateGrandTotalSavings(), formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    <td class="px-6 py-4"></td>
-  </tr>
+  <BudgetSummaryRowHelper
+    row-type="SAVINGS"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false"
+    :has-expense-data="false"
+    :has-investment-data="hasInvestmentData"
+    :has-investment-incoming-data="false"
+    :has-investment-outgoing-data="false"
+    :has-any-data="hasAnyData"
+    :calculate-monthly="calculateCumulativeSavings"
+    :calculate-grand-total="calculateGrandTotalSavings"
+    :calculate-previous-year="calculatePreviousYearSavings"
+    :get-monthly-tooltip="getSavingsTooltip"
+    :get-grand-total-tooltip="getGrandTotalSavingsTooltip"
+    :get-previous-year-tooltip="getPreviousYearSavingsTooltip"
+    :format-currency="formatCurrency"
+    border-top-class="border-t-2 border-gray-200 font-bold" />
 
-    <!-- Net Investment Row -->
-    <tr v-if="shouldShowSummaryRow('NET_INVESTMENT')" :class="`${netInvestmentStyling.bgColor} text-sm`">
-    <td :class="`px-6 py-3 text-sm font-semibold ${netInvestmentStyling.textColor} sticky left-0 ${netInvestmentStyling.stickyBgColor} z-20 border-r border-t-2 border-gray-200`">
-      <div class="flex items-center">
-        <span :class="`text-lg font-bold ${netInvestmentStyling.textColor} mr-2`">{{ netInvestmentConfig.symbol }}</span>
-        {{ netInvestmentConfig.label }}
-      </div>
-      <div class="text-xs text-gray-500 mt-1">
-        {{ netInvestmentConfig.subtitle }}
-      </div>
-    </td>
-    <!-- Previous Year Column -->
-    <td :class="`${getSummaryCellClasses(getPreviousYearInvestmentNetTotal(), selectedYear, currentYear, currentMonth, -1)} border-t-2 border-gray-200`">
-      <BaseTooltip :content="getPreviousYearInvestmentNetTooltip()" position="top">
-        <div v-if="getPreviousYearInvestmentNetTotal() !== 0" class="cursor-help">
-          {{ formatSummaryValue(getPreviousYearInvestmentNetTotal(), formatCurrency) }}
-        </div>
-        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
-      </BaseTooltip>
-    </td>
-    <td v-for="(month, index) in months" :key="`net-inv-${month}`" 
-        :class="`${getSummaryCellClasses(calculateMonthlyInvestmentNet(index), selectedYear, currentYear, currentMonth, index)} border-t-2 border-gray-200`">
-      <BaseTooltip :content="getNetInvestmentTooltip(index)" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(calculateMonthlyInvestmentNet(index), formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    <td :class="`${getSummaryTotalClasses(calculateGrandTotalInvestmentNet())} border-t-2 border-l-2 border-gray-200 sticky right-32 ${netInvestmentStyling.stickyBgColor} z-20`">
-      <BaseTooltip :content="getNetInvestmentYearlyTooltip()" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(calculateGrandTotalInvestmentNet(), formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    <td :class="`px-4 py-3 sticky right-0 ${netInvestmentStyling.stickyBgColor} z-30 border-l border-gray-200 border-t-2`"></td>
-  </tr>
+  <!-- Net Investment Row -->
+  <BudgetSummaryRowHelper
+    row-type="NET_INVESTMENT"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false"
+    :has-expense-data="false"
+    :has-investment-data="hasInvestmentData"
+    :has-investment-incoming-data="false"
+    :has-investment-outgoing-data="false"
+    :has-any-data="hasAnyData"
+    :calculate-monthly="calculateMonthlyInvestmentNet"
+    :calculate-grand-total="calculateGrandTotalInvestmentNet"
+    :calculate-previous-year="calculatePreviousYearInvestmentNetTotal"
+    :get-monthly-tooltip="getNetInvestmentTooltip"
+    :get-grand-total-tooltip="getNetInvestmentYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearInvestmentNetTooltip"
+    :format-currency="formatCurrency"
+    border-top-class="border-t-2 border-gray-200" />
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
-import BaseTooltip from '@/components/BaseTooltip.vue'
+import BudgetSummaryRowHelper from './BudgetSummaryRowHelper.vue'
 
 // Props
 const props = defineProps({
@@ -190,7 +148,7 @@ const props = defineProps({
     default: null
   },
   
-
+  // Previous year calculations
   calculatePreviousYearNetTotal: {
     type: Function,
     default: null
@@ -215,36 +173,7 @@ const props = defineProps({
   }
 })
 
-// Use budget summaries composable
-const {
-  shouldShowSummaryRow,
-  getSummaryRowConfig,
-  getSummaryRowStyling,
-  getSummaryCellClasses,
-  getSummaryTotalClasses,
-  formatSummaryValue
-} = useBudgetSummaries(
-  null, // budgetItems not needed for this component
-  computed(() => props.selectedTypeFilter),
-  computed(() => false), // hasIncomeData not needed
-  computed(() => false), // hasExpenseData not needed
-  computed(() => props.hasInvestmentData),
-  computed(() => false), // hasInvestmentIncomingData not needed
-  computed(() => false), // hasInvestmentOutgoingData not needed
-  computed(() => props.hasAnyData)
-)
 
-// Get row configurations
-const netBalanceConfig = computed(() => getSummaryRowConfig('NET_BALANCE'))
-const netInvestmentConfig = computed(() => getSummaryRowConfig('NET_INVESTMENT'))
-
-// Get row styling
-const netBalanceStyling = computed(() => getSummaryRowStyling('NET_BALANCE'))
-const netInvestmentStyling = computed(() => getSummaryRowStyling('NET_INVESTMENT'))
-const savingsStyling = computed(() => getSummaryRowStyling('SAVINGS'))
-
-// Get savings configuration
-const savingsConfig = computed(() => getSummaryRowConfig('SAVINGS'))
 
 // Tooltip functions
 const getNetBalanceTooltip = (monthIndex) => {
