@@ -1,13 +1,4 @@
 <template>
-  <!-- Divider Line -->
-  <tr class="bg-gray-100">
-    <td class="p-0 border-t-2 border-gray-200"></td>
-    <td class="p-0 border-t-2 border-gray-200"></td>
-    <td v-for="(month, index) in months" :key="`divider-${month}`" class="p-0 border-t-2 border-gray-200"></td>
-    <td class="p-0 border-t-2 border-gray-200"></td>
-    <td class="p-0"></td>
-  </tr>
-
   <!-- Net Balance Line -->
   <BudgetSummaryRowHelper
     row-type="NET_BALANCE"
