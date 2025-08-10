@@ -20,7 +20,8 @@
     :get-grand-total-tooltip="getNetBalanceYearlyTooltip"
     :get-previous-year-tooltip="getPreviousYearNetTooltip"
     :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200 font-bold" />
+    border-top-class="border-t-2 border-gray-200 font-bold" 
+    :use-value-based-styling="true"/>
 
   <!-- Savings Row -->
   <BudgetSummaryRowHelper
@@ -43,7 +44,8 @@
     :get-grand-total-tooltip="getGrandTotalSavingsTooltip"
     :get-previous-year-tooltip="getPreviousYearSavingsTooltip"
     :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200 font-bold" />
+    border-top-class="border-t-2 border-gray-200 font-bold"
+    :use-value-based-styling="true" />
 
   <!-- Net Investment Row -->
   <BudgetSummaryRowHelper
@@ -66,7 +68,8 @@
     :get-grand-total-tooltip="getNetInvestmentYearlyTooltip"
     :get-previous-year-tooltip="getPreviousYearInvestmentNetTooltip"
     :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200" />
+    border-top-class="border-t-2 border-gray-200"
+    :use-value-based-styling="true" />
 </template>
 
 <script setup>

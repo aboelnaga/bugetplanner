@@ -19,7 +19,8 @@
     :monthly-tooltips="monthlyTooltips"
     :grand-total-tooltip="grandTotalTooltip"
     :format-currency="formatCurrency"
-    :border-top-class="borderTopClass" />
+    :border-top-class="borderTopClass"
+    :use-value-based-styling="useValueBasedStyling" />
 </template>
 
 <script setup>
@@ -119,6 +120,10 @@ const props = defineProps({
   borderTopClass: {
     type: String,
     default: 'border-t-2'
+  },
+  useValueBasedStyling: {
+    type: Boolean,
+    default: false
   }
 })
 

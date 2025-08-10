@@ -12,7 +12,10 @@
     </td>
     
     <!-- Previous Year Column -->
-    <td :class="`${getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1, rowType)} ${borderTopClass} border-gray-200`">
+    <td :class="`${useValueBasedStyling
+        ? getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1)
+        : getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1, rowType)
+      } ${borderTopClass} border-gray-200`">
       <BaseTooltip :content="previousYearTooltip" position="top">
         <div v-if="previousYearValue !== 0" class="cursor-help">
           {{ formatSummaryValue(previousYearValue, formatCurrency) }}
@@ -23,7 +26,10 @@
     
     <!-- Monthly Columns -->
     <td v-for="(month, index) in months" :key="`${rowType}-${month}`" 
-        :class="`${getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index, rowType)} ${borderTopClass} border-gray-200`">
+        :class="`${useValueBasedStyling
+          ? getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index)
+          : getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index, rowType)
+        } ${borderTopClass} border-gray-200`">
       <BaseTooltip :content="monthlyTooltips[index]" position="top">
         <div class="cursor-help">
           {{ formatSummaryValue(monthlyValues[index], formatCurrency) }}
@@ -149,6 +155,10 @@ const props = defineProps({
   borderTopClass: {
     type: String,
     default: 'border-t-2'
+  },
+  useValueBasedStyling: {
+    type: Boolean,
+    default: false
   }
 })
 
