@@ -84,17 +84,15 @@
     <!-- Yearly Total Cell -->
     <td :class="getYearlyTotalCellClasses(calculateYearlyTotal)" class="border-l-2 border-gray-150 text-sm sticky right-32 bg-white z-20">
       <div v-if="calculateYearlyTotal(budget) > 0">
-        <BaseTooltip :content="getYearlyTotalTooltip(budget)" position="top">
-          <div class="font-medium cursor-help">
-            {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
-          </div>
-        </BaseTooltip>
+        <div class="font-medium">
+          {{ formatAmountWithSign(calculateYearlyTotal(budget), formatCurrency) }}
+        </div>
       </div>
       <span v-else class="text-gray-400 font-normal">—</span>
     </td>
 
     <!-- Actions Cell -->
-    <td class="px-4 py-4 text-center sticky right-0 bg-white z-20 border-l border-gray-100">
+    <td class="px-4 py-4 text-center sticky right-0 bg-white border-l border-gray-100">
       <div class="flex justify-center space-x-1">
         <!-- Virtual item actions -->
         <template v-if="budget.is_virtual">
@@ -351,13 +349,6 @@ const getPreviousYearTooltip = (budget) => {
          `Planned: <span class="text-blue-300">${props.formatCurrency(plannedTotal)}</span><br>` +
          `Actual: <span class="text-green-300">${props.formatCurrency(actualTotal)}</span><br>` +
          `Variance: <span class="${varianceColor}">${varianceText}</span>`
-}
-
-const getYearlyTotalTooltip = (budget) => {
-  const yearlyTotal = props.calculateYearlyTotal(budget)
-  const formattedTotal = props.formatCurrency(yearlyTotal)
-  
-  return `Total: <span class="text-green-300">${formattedTotal}</span><br>Category: <span class="text-blue-300">${budget.category}</span>`
 }
 
 // Emits

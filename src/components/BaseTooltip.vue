@@ -7,20 +7,15 @@
       enter-to-class="opacity-100 scale-100"
       leave-active-class="transition ease-in duration-150"
       leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-95"
-    >
-                      <div
-          v-if="showTooltip && content"
-          class="absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg whitespace-pre-line w-80"
-          :class="positionClasses"
-          @mouseenter="showTooltip = true"
-          @mouseleave="showTooltip = false"
-        >
+      leave-to-class="opacity-0 scale-95">
+      <div
+        v-if="showTooltip && content"
+        class="absolute z-50 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg whitespace-pre-line w-80"
+        :class="positionClasses"
+        @mouseenter="showTooltip = true"
+        @mouseleave="showTooltip = false">
           <div v-html="content"></div>
-        <div
-          class="absolute w-2 h-2 bg-gray-900 transform rotate-45"
-          :class="arrowClasses"
-        ></div>
+        <div class="absolute w-2 h-2 bg-gray-900 transform rotate-45" :class="arrowClasses"></div>
       </div>
     </Transition>
   </div>

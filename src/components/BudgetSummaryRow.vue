@@ -47,7 +47,7 @@
     </td>
     
     <!-- Action Column -->
-    <td :class="`px-4 py-3 sticky right-0 ${rowStyling.stickyBgColor} z-30 border-l border-gray-200 ${borderTopClass}`"></td>
+    <td :class="`px-4 py-3 sticky right-0 ${rowStyling.stickyBgColor} border-l border-gray-200 ${borderTopClass}`"></td>
   </tr>
 </template>
 

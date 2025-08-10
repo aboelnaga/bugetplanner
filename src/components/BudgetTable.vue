@@ -88,10 +88,10 @@
                   </div>
                 </div>
               </th>
-              <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider bg-slate-50 border-r border-gray-200 sticky right-32 z-30">
+              <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 uppercase tracking-wider bg-slate-50 border-r border-gray-200 sticky right-32">
                 Total
               </th>
-              <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 tracking-wider bg-slate-50 sticky right-0 z-40 border-l border-gray-200">
+              <th class="px-4 py-4 text-center text-sm font-semibold text-slate-700 tracking-wider bg-slate-50 sticky right-0 border-l border-gray-200">
                 Actions
               </th>
             </tr>
