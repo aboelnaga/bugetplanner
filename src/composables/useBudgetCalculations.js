@@ -31,12 +31,16 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return monthsArray.some(closedMonth => closedMonth.month === monthIndex)
   }
 
+  console.log('selectedYear', selectedYear.value)
+  console.log('currentYear', currentYear)
+  console.log('currentMonth', currentMonth)
+
   const getSmartDefaultAmount = (budget, monthIndex) => {
     const plannedAmount = getBudgetAmount(budget, monthIndex)
     const actualAmount = getActualAmount(budget, monthIndex)
     
     // Previous year: Show actual amounts (for comparison)
-    if (selectedYear < currentYear) {
+    if (selectedYear.value < currentYear) {
       return actualAmount
     }
     
@@ -46,13 +50,13 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     }
     
     // Current month: Show max(actual, planned)
-    if (selectedYear === currentYear && monthIndex === currentMonth) {
+    if (selectedYear.value === currentYear && monthIndex === currentMonth) {
       return Math.max(actualAmount, plannedAmount)
     }
     
     // Future months: Show planned amounts (not max)
-    if (selectedYear > currentYear || 
-        (selectedYear === currentYear && monthIndex > currentMonth)) {
+    if (selectedYear.value > currentYear || 
+        (selectedYear.value === currentYear && monthIndex > currentMonth)) {
       return plannedAmount
     }
     
@@ -206,7 +210,7 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
   }
 
   const calculatePreviousYearSavings = () => {
-    const previousYear = selectedYear ? selectedYear - 1 : null
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.net : 0
   }
@@ -309,37 +313,37 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
 
   // Previous year calculations - use yearly summaries with smart defaults
   const calculatePreviousYearIncomeTotal = () => {
-    const previousYear = selectedYear ? selectedYear - 1 : null
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.income : 0
   }
 
   const calculatePreviousYearExpensesTotal = () => {
-    const previousYear = selectedYear ? selectedYear - 1 : null
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.expenses : 0
   }
 
   const calculatePreviousYearInvestmentIncomingTotal = () => {
-    const previousYear = selectedYear ? selectedYear - 1 : null
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentIncoming : 0
   }
 
   const calculatePreviousYearInvestmentOutgoingTotal = () => {
-    const previousYear = selectedYear ? selectedYear - 1 : null
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentOutgoing : 0
   }
 
   const calculatePreviousYearNetTotal = () => {
-    const previousYear = selectedYear ? selectedYear - 1 : null
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.net : 0
   }
 
   const calculatePreviousYearInvestmentNetTotal = () => {
-    const previousYear = selectedYear - 1
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentIncoming - smartValues.investmentOutgoing : 0
   }
