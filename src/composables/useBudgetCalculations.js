@@ -147,6 +147,53 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return calculateMonthlyInvestmentIncoming(monthIndex) - calculateMonthlyInvestmentOutgoing(monthIndex)
   }
 
+  // Actual-only monthly calculations
+  const calculateMonthlyActualIncome = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INCOME) {
+        return sum + getActualAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyActualExpenses = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.EXPENSE) {
+        return sum + getActualAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyActualInvestmentIncoming = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+        return sum + getActualAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyActualInvestmentOutgoing = (monthIndex) => {
+    return budgetItems.value.reduce((sum, budget) => {
+      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+        return sum + getActualAmount(budget, monthIndex)
+      }
+      return sum
+    }, 0)
+  }
+
+  const calculateMonthlyActualInvestmentNet = (monthIndex) => {
+    return calculateMonthlyActualInvestmentIncoming(monthIndex) - calculateMonthlyActualInvestmentOutgoing(monthIndex)
+  }
+
+  const calculateMonthlyActualTotal = (monthIndex) => {
+    const income = calculateMonthlyActualIncome(monthIndex) + calculateMonthlyActualInvestmentIncoming(monthIndex)
+    const expenses = calculateMonthlyActualExpenses(monthIndex) + calculateMonthlyActualInvestmentOutgoing(monthIndex)
+    return income - expenses
+  }
+
   // Grand total calculations - these now work with the reactive budgetItems and use smart defaults
   const calculateGrandTotal = () => {
     return calculateGrandTotalIncome() + calculateGrandTotalInvestmentIncoming() - calculateGrandTotalExpenses() - calculateGrandTotalInvestmentOutgoing()
@@ -190,6 +237,47 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
 
   const calculateGrandTotalInvestmentNet = () => {
     return calculateGrandTotalInvestmentIncoming() - calculateGrandTotalInvestmentOutgoing()
+  }
+
+  // Actual-only grand total calculations
+  const calculateGrandTotalActualIncome = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyActualIncome(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalActualExpenses = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyActualExpenses(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalActualInvestmentIncoming = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyActualInvestmentIncoming(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalActualInvestmentOutgoing = () => {
+    let total = 0
+    for (let monthIndex = 0; monthIndex < 12; monthIndex++) {
+      total += calculateMonthlyActualInvestmentOutgoing(monthIndex)
+    }
+    return total
+  }
+
+  const calculateGrandTotalActualInvestmentNet = () => {
+    return calculateGrandTotalActualInvestmentIncoming() - calculateGrandTotalActualInvestmentOutgoing()
+  }
+
+  const calculateGrandTotalActual = () => {
+    return calculateGrandTotalActualIncome() + calculateGrandTotalActualInvestmentIncoming() - calculateGrandTotalActualExpenses() - calculateGrandTotalActualInvestmentOutgoing()
   }
 
   // Savings calculations
@@ -381,6 +469,12 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateMonthlyInvestmentIncoming,
     calculateMonthlyInvestmentOutgoing,
     calculateMonthlyInvestmentNet,
+    calculateMonthlyActualIncome,
+    calculateMonthlyActualExpenses,
+    calculateMonthlyActualInvestmentIncoming,
+    calculateMonthlyActualInvestmentOutgoing,
+    calculateMonthlyActualInvestmentNet,
+    calculateMonthlyActualTotal,
     
     // Grand total calculations
     calculateGrandTotal,
@@ -389,6 +483,12 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateGrandTotalInvestmentIncoming,
     calculateGrandTotalInvestmentOutgoing,
     calculateGrandTotalInvestmentNet,
+    calculateGrandTotalActualIncome,
+    calculateGrandTotalActualExpenses,
+    calculateGrandTotalActualInvestmentIncoming,
+    calculateGrandTotalActualInvestmentOutgoing,
+    calculateGrandTotalActualInvestmentNet,
+    calculateGrandTotalActual,
     
     // Savings calculations
     calculateCumulativeSavings,

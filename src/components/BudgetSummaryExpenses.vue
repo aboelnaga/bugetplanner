@@ -88,17 +88,37 @@ const props = defineProps({
     type: Function,
     required: true
   },
+  calculateMonthlyActualExpenses: {
+    type: Function,
+    required: false,
+    default: null
+  },
   calculateMonthlyInvestmentOutgoing: {
     type: Function,
     required: true
+  },
+  calculateMonthlyActualInvestmentOutgoing: {
+    type: Function,
+    required: false,
+    default: null
   },
   calculateGrandTotalExpenses: {
     type: Function,
     required: true
   },
+  calculateGrandTotalActualExpenses: {
+    type: Function,
+    required: false,
+    default: null
+  },
   calculateGrandTotalInvestmentOutgoing: {
     type: Function,
     required: true
+  },
+  calculateGrandTotalActualInvestmentOutgoing: {
+    type: Function,
+    required: false,
+    default: null
   },
   formatCurrency: {
     type: Function,
@@ -139,16 +159,12 @@ const props = defineProps({
 // Tooltip functions
 const getExpensesTooltip = (monthIndex) => {
   if (!props.calculateMonthlyPlannedExpenses) return ''
-  
-  const displayedAmount = props.calculateMonthlyExpenses(monthIndex)
   const plannedAmount = props.calculateMonthlyPlannedExpenses(monthIndex)
-  const actualAmount = displayedAmount - plannedAmount
-  const variance = actualAmount
-  
+  const actualAmount = props.calculateMonthlyActualExpenses ? props.calculateMonthlyActualExpenses(monthIndex) : 0
+  const variance = actualAmount - plannedAmount
   const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
   const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  
-  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-red-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
+  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class=\"text-red-300\">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
 }
 
 const getInvestmentOutgoingTooltip = (monthIndex) => {
@@ -160,15 +176,11 @@ const getInvestmentOutgoingTooltip = (monthIndex) => {
 
 const getExpensesYearlyTooltip = () => {
   if (!props.calculateGrandTotalPlannedExpenses) return ''
-  
-  const displayedAmount = props.calculateGrandTotalExpenses()
   const plannedAmount = props.calculateGrandTotalPlannedExpenses()
-  const actualAmount = displayedAmount - plannedAmount
-  const variance = actualAmount
-  
+  const actualAmount = props.calculateGrandTotalActualExpenses ? props.calculateGrandTotalActualExpenses() : 0
+  const variance = actualAmount - plannedAmount
   const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
   const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  
   return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-red-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
 }
 

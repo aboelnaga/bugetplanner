@@ -12,6 +12,10 @@
     :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
     :calculate-grand-total-income="calculateGrandTotalIncome"
     :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
+    :calculate-monthly-actual-income="calculateMonthlyActualIncome"
+    :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
+    :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
+    :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
     :format-currency="formatCurrency"
     :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
     :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
@@ -33,6 +37,10 @@
     :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
     :calculate-grand-total-expenses="calculateGrandTotalExpenses"
     :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
+    :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
+    :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
+    :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
+    :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
     :format-currency="formatCurrency"
     :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
     :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
@@ -56,6 +64,10 @@
     :calculate-monthly-investment-net="calculateMonthlyInvestmentNet"
     :calculate-grand-total="calculateGrandTotal"
     :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
+    :calculate-monthly-actual-total="calculateMonthlyActualTotal"
+    :calculate-grand-total-actual="calculateGrandTotalActual"
+    :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
+    :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
     :format-currency="formatCurrency"
     :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
     :calculate-grand-total-planned="calculateGrandTotalPlanned"
@@ -166,6 +178,55 @@ const props = defineProps({
     required: true
   },
   calculateGrandTotalInvestmentNet: {
+    type: Function,
+    required: true
+  },
+  // Actual-only calculation props
+  calculateMonthlyActualIncome: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalActualIncome: {
+    type: Function,
+    required: true
+  },
+  calculateMonthlyActualInvestmentIncoming: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalActualInvestmentIncoming: {
+    type: Function,
+    required: true
+  },
+  calculateMonthlyActualExpenses: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalActualExpenses: {
+    type: Function,
+    required: true
+  },
+  calculateMonthlyActualInvestmentOutgoing: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalActualInvestmentOutgoing: {
+    type: Function,
+    required: true
+  },
+  calculateMonthlyActualTotal: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalActual: {
+    type: Function,
+    required: true
+  },
+  calculateMonthlyActualInvestmentNet: {
+    type: Function,
+    required: true
+  },
+  calculateGrandTotalActualInvestmentNet: {
     type: Function,
     required: true
   },

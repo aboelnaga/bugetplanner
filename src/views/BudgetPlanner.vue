@@ -137,6 +137,18 @@
         :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
         :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
         :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
+        :calculate-monthly-actual-income="calculateMonthlyActualIncome"
+        :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
+        :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
+        :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
+        :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
+        :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
+        :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
+        :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
+        :calculate-monthly-actual-total="calculateMonthlyActualTotal"
+        :calculate-grand-total-actual="calculateGrandTotalActual"
+        :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
+        :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
         :get-category-type="getCategoryType"
         :calculate-category-total="calculateCategoryTotal"
         :calculate-category-monthly-total="calculateCategoryMonthlyTotal"
@@ -355,6 +367,19 @@
     calculateGrandTotalInvestmentIncoming,
     calculateGrandTotalInvestmentOutgoing,
     calculateGrandTotalInvestmentNet,
+    // Actual-only calculations
+    calculateMonthlyActualIncome,
+    calculateMonthlyActualExpenses,
+    calculateMonthlyActualInvestmentIncoming,
+    calculateMonthlyActualInvestmentOutgoing,
+    calculateMonthlyActualInvestmentNet,
+    calculateMonthlyActualTotal,
+    calculateGrandTotalActualIncome,
+    calculateGrandTotalActualExpenses,
+    calculateGrandTotalActualInvestmentIncoming,
+    calculateGrandTotalActualInvestmentOutgoing,
+    calculateGrandTotalActualInvestmentNet,
+    calculateGrandTotalActual,
     // Planned calculations for tooltips
     calculateMonthlyPlannedIncome,
     calculateMonthlyPlannedExpenses,
