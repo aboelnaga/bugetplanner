@@ -1557,7 +1557,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     const hasAnyValues = budget.amounts.some(amount => amount > 0)
     
     // If it's a future year, allow full deletion
-    if (selectedYear.value > currentYear.value) {
+    if (selectedYear.value > currentYear) {
       if (confirm('Are you sure you want to delete this budget item?')) {
         await budgetStore.deleteBudgetItem(budget.id)
       }
