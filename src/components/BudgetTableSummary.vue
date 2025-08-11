@@ -68,6 +68,10 @@
     :calculate-grand-total-actual="calculateGrandTotalActual"
     :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
     :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
+    :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
+    :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
+    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
     :format-currency="formatCurrency"
     :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
     :calculate-grand-total-planned="calculateGrandTotalPlanned"
@@ -180,6 +184,23 @@ const props = defineProps({
   calculateGrandTotalInvestmentNet: {
     type: Function,
     required: true
+  },
+  // Planned investment functions for Net Investment tooltips
+  calculateMonthlyPlannedInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
   },
   // Actual-only calculation props
   calculateMonthlyActualIncome: {

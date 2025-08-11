@@ -161,6 +161,23 @@ const props = defineProps({
     type: Function,
     default: null
   },
+  // Planned investment props for Net Investment tooltips
+  calculateMonthlyPlannedInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
   
   // Previous year calculations
   calculatePreviousYearNetTotal: {
@@ -201,10 +218,16 @@ const getNetBalanceTooltip = (monthIndex) => {
 }
 
 const getNetInvestmentTooltip = (monthIndex) => {
-  const displayedAmount = props.calculateMonthlyInvestmentNet(monthIndex)
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  
-  return `Net: <span class="text-green-300">${displayedFormatted}</span><br>(Returns - Purchases)`
+  const plannedIncoming = props.calculateMonthlyPlannedInvestmentIncoming ? props.calculateMonthlyPlannedInvestmentIncoming(monthIndex) : 0
+  const plannedOutgoing = props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0
+  const plannedNet = plannedIncoming - plannedOutgoing
+  const actualNet = props.calculateMonthlyActualInvestmentNet ? props.calculateMonthlyActualInvestmentNet(monthIndex) : 0
+  const variance = actualNet - plannedNet
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(plannedNet)}</span><br>` +
+         `Actual: <span class=\"text-green-300\">${props.formatCurrency(actualNet)}</span><br>` +
+         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
 }
 
 const getNetBalanceYearlyTooltip = () => {
@@ -218,10 +241,16 @@ const getNetBalanceYearlyTooltip = () => {
 }
 
 const getNetInvestmentYearlyTooltip = () => {
-  const displayedAmount = props.calculateGrandTotalInvestmentNet()
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  
-  return `Net: <span class="text-green-300">${displayedFormatted}</span><br>(Returns - Purchases)`
+  const plannedIncoming = props.calculateGrandTotalPlannedInvestmentIncoming ? props.calculateGrandTotalPlannedInvestmentIncoming() : 0
+  const plannedOutgoing = props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0
+  const plannedNet = plannedIncoming - plannedOutgoing
+  const actualNet = props.calculateGrandTotalActualInvestmentNet ? props.calculateGrandTotalActualInvestmentNet() : 0
+  const variance = actualNet - plannedNet
+  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(plannedNet)}</span><br>` +
+         `Actual: <span class=\"text-green-300\">${props.formatCurrency(actualNet)}</span><br>` +
+         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
 }
 
 // Previous year functions

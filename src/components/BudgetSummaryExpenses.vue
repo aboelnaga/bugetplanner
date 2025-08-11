@@ -168,10 +168,14 @@ const getExpensesTooltip = (monthIndex) => {
 }
 
 const getInvestmentOutgoingTooltip = (monthIndex) => {
-  const displayedAmount = props.calculateMonthlyInvestmentOutgoing(monthIndex)
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  
-  return `Purchases: <span class="text-red-300">${displayedFormatted}</span>`
+  const planned = props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0
+  const actual = props.calculateMonthlyActualInvestmentOutgoing ? props.calculateMonthlyActualInvestmentOutgoing(monthIndex) : 0
+  const variance = actual - planned
+  const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(planned)}</span><br>` +
+         `Actual: <span class=\"text-red-300\">${props.formatCurrency(actual)}</span><br>` +
+         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
 }
 
 const getExpensesYearlyTooltip = () => {
@@ -185,10 +189,14 @@ const getExpensesYearlyTooltip = () => {
 }
 
 const getInvestmentOutgoingYearlyTooltip = () => {
-  const displayedAmount = props.calculateGrandTotalInvestmentOutgoing()
-  const displayedFormatted = props.formatCurrency(displayedAmount)
-  
-  return `Purchases: <span class="text-red-300">${displayedFormatted}</span>`
+  const planned = props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0
+  const actual = props.calculateGrandTotalActualInvestmentOutgoing ? props.calculateGrandTotalActualInvestmentOutgoing() : 0
+  const variance = actual - planned
+  const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
+  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(planned)}</span><br>` +
+         `Actual: <span class=\"text-red-300\">${props.formatCurrency(actual)}</span><br>` +
+         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
 }
 
 // Previous year functions
