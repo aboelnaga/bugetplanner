@@ -154,6 +154,15 @@ const props = defineProps({
   },
   
   // Planned calculation props for tooltips
+  // Monthly planned breakdown (income/expenses)
+  calculateMonthlyPlannedIncome: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyPlannedExpenses: {
+    type: Function,
+    default: null
+  },
   calculateMonthlyPlannedTotal: {
     type: Function,
     default: null
@@ -179,7 +188,51 @@ const props = defineProps({
     type: Function,
     default: null
   },
+  // Yearly planned breakdown (income/expenses)
+  calculateGrandTotalPlannedIncome: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalPlannedExpenses: {
+    type: Function,
+    default: null
+  },
   
+  // Actual-only breakdown props used in Net tooltips
+  // Monthly actual (income/expenses and investment in/out)
+  calculateMonthlyActualIncome: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyActualExpenses: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyActualInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateMonthlyActualInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  // Yearly actual (income/expenses and investment in/out)
+  calculateGrandTotalActualIncome: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalActualExpenses: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalActualInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalActualInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
   // Previous year calculations
   calculatePreviousYearNetTotal: {
     type: Function,
@@ -208,13 +261,23 @@ const props = defineProps({
 
 
 // Tooltip functions via shared builder
-const { buildTooltip, actualColorFor } = useTooltipBuilder(props.formatCurrency)
+const { buildTooltip, actualColorFor, buildNetBreakdownTooltip } = useTooltipBuilder(props.formatCurrency)
 
 const getNetBalanceTooltip = (monthIndex) => {
   if (!props.calculateMonthlyPlannedTotal) return ''
-  const plannedAmount = props.calculateMonthlyPlannedTotal(monthIndex)
-  const actualAmount = props.calculateMonthlyActualTotal ? props.calculateMonthlyActualTotal(monthIndex) : 0
-  return buildTooltip(plannedAmount, actualAmount, 'net', actualColorFor(actualAmount, 'net'))
+  // Planned breakdown
+  const plannedIncome = (props.calculateMonthlyPlannedIncome ? props.calculateMonthlyPlannedIncome(monthIndex) : 0) +
+                        (props.calculateMonthlyPlannedInvestmentIncoming ? props.calculateMonthlyPlannedInvestmentIncoming(monthIndex) : 0)
+  const plannedExpense = (props.calculateMonthlyPlannedExpenses ? props.calculateMonthlyPlannedExpenses(monthIndex) : 0) +
+                         (props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0)
+
+  // Actual breakdown
+  const actualIncome = (props.calculateMonthlyActualIncome ? props.calculateMonthlyActualIncome(monthIndex) : 0) +
+                       (props.calculateMonthlyActualInvestmentIncoming ? props.calculateMonthlyActualInvestmentIncoming(monthIndex) : 0)
+  const actualExpense = (props.calculateMonthlyActualExpenses ? props.calculateMonthlyActualExpenses(monthIndex) : 0) +
+                        (props.calculateMonthlyActualInvestmentOutgoing ? props.calculateMonthlyActualInvestmentOutgoing(monthIndex) : 0)
+
+  return buildNetBreakdownTooltip(plannedIncome, actualIncome, plannedExpense, actualExpense)
 }
 
 const getNetInvestmentTooltip = (monthIndex) => {
@@ -227,9 +290,19 @@ const getNetInvestmentTooltip = (monthIndex) => {
 
 const getNetBalanceYearlyTooltip = () => {
   if (!props.calculateGrandTotalPlanned) return ''
-  const plannedAmount = props.calculateGrandTotalPlanned()
-  const actualAmount = props.calculateGrandTotalActual ? props.calculateGrandTotalActual() : 0
-  return buildTooltip(plannedAmount, actualAmount, 'net', actualColorFor(actualAmount, 'net'))
+  // Planned breakdown
+  const plannedIncome = (props.calculateGrandTotalPlannedIncome ? props.calculateGrandTotalPlannedIncome() : 0) +
+                        (props.calculateGrandTotalPlannedInvestmentIncoming ? props.calculateGrandTotalPlannedInvestmentIncoming() : 0)
+  const plannedExpense = (props.calculateGrandTotalPlannedExpenses ? props.calculateGrandTotalPlannedExpenses() : 0) +
+                         (props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0)
+
+  // Actual breakdown
+  const actualIncome = (props.calculateGrandTotalActualIncome ? props.calculateGrandTotalActualIncome() : 0) +
+                       (props.calculateGrandTotalActualInvestmentIncoming ? props.calculateGrandTotalActualInvestmentIncoming() : 0)
+  const actualExpense = (props.calculateGrandTotalActualExpenses ? props.calculateGrandTotalActualExpenses() : 0) +
+                        (props.calculateGrandTotalActualInvestmentOutgoing ? props.calculateGrandTotalActualInvestmentOutgoing() : 0)
+
+  return buildNetBreakdownTooltip(plannedIncome, actualIncome, plannedExpense, actualExpense)
 }
 
 const getNetInvestmentYearlyTooltip = () => {

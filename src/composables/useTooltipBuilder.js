@@ -78,9 +78,55 @@ export function useTooltipBuilder(formatCurrency) {
     return value >= 0 ? GREEN : RED
   }
 
+  const buildNetBreakdownTooltip = (plannedIncome, actualIncome, plannedExpense, actualExpense) => {
+    const incomeStatus = buildStatus(plannedIncome, actualIncome, 'income')
+    const expenseStatus = buildStatus(plannedExpense, actualExpense, 'expense')
+
+    const incomeActualClass = actualColorFor(actualIncome, 'income')
+    const expenseActualClass = actualColorFor(actualExpense, 'expense')
+
+    const incomeStatusText = incomeStatus.label === 'OnPlan'
+      ? 'OnPlan'
+      : `${incomeStatus.label}: ${incomeStatus.amountText} (${incomeStatus.percentText})`
+
+    const expenseStatusText = expenseStatus.label === 'OnPlan'
+      ? 'OnPlan'
+      : `${expenseStatus.label}: ${expenseStatus.amountText} (${expenseStatus.percentText})`
+
+    // Render as compact table with white borders for clarity
+    return `<table class="text-sm border border-white border-collapse">
+      <thead>
+        <tr>
+          <th class="text-white font-bold pr-3 border border-white px-2 py-1"></th>
+          <th class="text-white font-bold pr-3 border border-white px-2 py-1">Income</th>
+          <th class="text-white font-bold border border-white px-2 py-1">Expense</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-white font-bold pr-3 border border-white px-2 py-0.5">Planned</td>
+          <td class="${BLUE_PLANNED} font-bold border border-white px-2 py-0.5">${formatCurrency(plannedIncome)}</td>
+          <td class="${BLUE_PLANNED} font-bold border border-white px-2 py-0.5">${formatCurrency(plannedExpense)}</td>
+        </tr>
+        <tr>
+          <td class="text-white font-bold pr-3 border border-white px-2 py-0.5">Actual</td>
+          <td class="${incomeActualClass} font-bold border border-white px-2 py-0.5">${formatCurrency(actualIncome)}</td>
+          <td class="${expenseActualClass} font-bold border border-white px-2 py-0.5">${formatCurrency(actualExpense)}</td>
+        </tr>
+        <tr>
+          <td class="text-white font-bold pr-3 border border-white px-2 py-0.5">Status</td>
+          <td class="${incomeStatus.colorClass} font-bold border border-white px-2 py-0.5">${incomeStatusText}</td>
+          <td class="${expenseStatus.colorClass} font-bold border border-white px-2 py-0.5">${expenseStatusText}</td>
+        </tr>
+      </tbody>
+    </table>
+    `
+  }
+
   return {
     buildTooltip,
     actualColorFor,
+    buildNetBreakdownTooltip,
   }
 }
 
