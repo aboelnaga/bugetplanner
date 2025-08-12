@@ -5,8 +5,9 @@
     v-bind="$attrs"
     :placeholder="placeholder"
     :inputmode="inputmode"
-    @blur="emitValue"
-    @input="emitValue"
+    @blur="onBlur"
+    @input="onInput"
+    @focus="onFocus"
   />
 </template>
 
@@ -33,7 +34,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'change', 'blur', 'focus', 'input'])
 
 const { inputRef, numberValue, setValue } = useCurrencyInput(props.options)
 
@@ -47,8 +48,19 @@ watch(
   { immediate: true }
 )
 
-const emitValue = () => {
+const onInput = (e) => {
+  emit('input', e)
   emit('update:modelValue', numberValue.value ?? 0)
+}
+
+const onBlur = (e) => {
+  emit('blur', e)
+  emit('update:modelValue', numberValue.value ?? 0)
+  emit('change', numberValue.value ?? 0)
+}
+
+const onFocus = (e) => {
+  emit('focus', e)
 }
 </script>
 
