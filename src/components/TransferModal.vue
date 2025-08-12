@@ -76,13 +76,14 @@
           <span class="text-red-500">*</span> Amount
         </label>
         <div class="relative">
-          <input 
-            :value="formatCurrency(formData.amount)"
-            @input="handleAmountInput"
-            type="text" 
-            required 
+          <CurrencyInput
+            v-model="formData.amount"
+            :options="currencyOptions"
+            inputmode="decimal"
+            required
             placeholder="EGP 0"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+          />
         </div>
         <p class="text-xs text-gray-500 mt-1">
           Maximum: {{ formatCurrency(maxTransferAmount) }}
@@ -173,6 +174,8 @@ import { useTransactionStore } from '@/stores/transactions.js'
 import { useAccountsStore } from '@/stores/accounts.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 
 // Props
 const props = defineProps({

@@ -609,6 +609,7 @@ import {
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
 import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 
 // Props
 const props = defineProps({
@@ -672,15 +673,7 @@ const isMultiYear = computed(() => {
 // Validation errors state
 const validationErrors = ref([])
 
-// Currency input options
-const currencyOptions = {
-  currency: 'EGP',
-  locale: 'en-EG',
-  precision: 2,
-  valueRange: { min: 0, max: 9999999999.99 },
-  hideCurrencySymbolOnFocus: false,
-  hideGroupingSeparatorOnFocus: false
-}
+// Using centralized currency options
 
 // Modal composable
 const {

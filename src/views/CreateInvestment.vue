@@ -88,12 +88,12 @@
               <label for="purchase_amount" class="block text-sm font-medium text-gray-700 mb-2">
                 Purchase Amount *
               </label>
-              <input
+              <CurrencyInput
                 id="purchase_amount"
                 v-model="form.purchase_amount"
                 @blur="validateField('purchase_amount')"
-                type="number"
-                step="0.01"
+                :options="currencyOptions"
+                inputmode="decimal"
                 :class="[
                   'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
                   errors.purchase_amount ? 'border-red-300' : 'border-gray-300'
@@ -383,12 +383,12 @@
                 <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
                   Amount *
                 </label>
-                <input
+                <CurrencyInput
                   id="amount"
                   v-model="form.amount"
                   @blur="validateField('amount')"
-                  type="number"
-                  step="0.01"
+                  :options="currencyOptions"
+                  inputmode="decimal"
                   :class="[
                     'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
                     errors.amount ? 'border-red-300' : 'border-gray-300'
@@ -500,6 +500,8 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
+import CurrencyInput from '@/components/CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { investmentAssetsAPI } from '@/lib/supabase'

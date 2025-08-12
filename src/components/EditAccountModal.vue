@@ -39,12 +39,11 @@
         <label for="credit_limit" class="block text-sm font-medium text-gray-700 mb-2">
           Credit Limit
         </label>
-        <input
+        <CurrencyInput
           id="credit_limit"
-          v-model.number="formData.credit_limit"
-          type="number"
-          min="0"
-          step="0.01"
+          v-model="formData.credit_limit"
+          :options="currencyOptions"
+          inputmode="decimal"
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Enter credit limit"
@@ -121,6 +120,8 @@
 
 <script setup>
 import { ref, watch, computed } from 'vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 import { useAccountsStore } from '@/stores/accounts'
 import BaseModal from './BaseModal.vue'
 

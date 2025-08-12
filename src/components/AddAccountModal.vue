@@ -44,11 +44,11 @@
         <label for="balance" class="block text-sm font-medium text-gray-700 mb-2">
           Starting Balance
         </label>
-        <input
+        <CurrencyInput
           id="balance"
-          v-model.number="form.balance"
-          type="number"
-          step="0.01"
+          v-model="form.balance"
+          :options="currencyOptions"
+          inputmode="decimal"
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="0.00"
@@ -60,11 +60,11 @@
         <label for="credit_limit" class="block text-sm font-medium text-gray-700 mb-2">
           Credit Limit
         </label>
-        <input
+        <CurrencyInput
           id="credit_limit"
-          v-model.number="form.credit_limit"
-          type="number"
-          step="0.01"
+          v-model="form.credit_limit"
+          :options="currencyOptions"
+          inputmode="decimal"
           required
           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="0.00"
@@ -113,6 +113,8 @@
 
 <script setup>
 import { ref, reactive, watch } from 'vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 import { useAccountsStore } from '../stores/accounts'
 import BaseModal from './BaseModal.vue'
 

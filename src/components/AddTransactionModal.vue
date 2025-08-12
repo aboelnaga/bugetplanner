@@ -107,13 +107,14 @@
               <span class="text-red-500">*</span> Amount
             </label>
             <div class="relative">
-              <input 
-                :value="formatCurrency(formData.amount)"
-                @input="handleAmountInput"
-                type="text" 
-                required 
+              <CurrencyInput
+                v-model="formData.amount"
+                :options="currencyOptions"
+                inputmode="decimal"
+                required
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
             </div>
             <p class="text-xs text-gray-500 mt-1">
               Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
@@ -148,12 +149,13 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Gross Amount
               </label>
-              <input 
-                :value="formatCurrency(formData.gross_amount)"
-                @input="handleGrossAmountInput"
-                type="text" 
+              <CurrencyInput
+                v-model="formData.gross_amount"
+                :options="currencyOptions"
+                inputmode="decimal"
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
             </div>
             
             <!-- Tax Amount -->
@@ -161,12 +163,13 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Tax Amount
               </label>
-              <input 
-                :value="formatCurrency(formData.tax_amount)"
-                @input="handleTaxAmountInput"
-                type="text" 
+              <CurrencyInput
+                v-model="formData.tax_amount"
+                :options="currencyOptions"
+                inputmode="decimal"
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
             </div>
             
             <!-- Net Amount -->
@@ -174,12 +177,13 @@
               <label class="block text-sm font-medium text-gray-700 mb-2">
                 Net Amount
               </label>
-              <input 
-                :value="formatCurrency(formData.net_amount)"
-                @input="handleNetAmountInput"
-                type="text" 
+              <CurrencyInput
+                v-model="formData.net_amount"
+                :options="currencyOptions"
+                inputmode="decimal"
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
             </div>
           </div>
           
@@ -328,6 +332,8 @@ import {
 } from '@/constants/budgetConstants.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 
 // Props
 const props = defineProps({

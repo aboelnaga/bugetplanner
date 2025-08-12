@@ -106,15 +106,14 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="text-gray-500 sm:text-sm">$</span>
                 </div>
-                <input
-                  id="purchase_amount"
-                  v-model.number="form.purchase_amount"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="0.00"
-                />
+                 <CurrencyInput
+                   id="purchase_amount"
+                   v-model="form.purchase_amount"
+                   :options="currencyOptions"
+                   inputmode="decimal"
+                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                   placeholder="0.00"
+                 />
               </div>
             </div>
 
@@ -124,15 +123,14 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="text-gray-500 sm:text-sm">$</span>
                 </div>
-                <input
-                  id="down_payment"
-                  v-model.number="form.down_payment"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="0.00"
-                />
+                 <CurrencyInput
+                   id="down_payment"
+                   v-model="form.down_payment"
+                   :options="currencyOptions"
+                   inputmode="decimal"
+                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                   placeholder="0.00"
+                 />
               </div>
             </div>
 
@@ -142,15 +140,14 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="text-gray-500 sm:text-sm">$</span>
                 </div>
-                <input
-                  id="monthly_payment"
-                  v-model.number="form.monthly_payment"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="0.00"
-                />
+                 <CurrencyInput
+                   id="monthly_payment"
+                   v-model="form.monthly_payment"
+                   :options="currencyOptions"
+                   inputmode="decimal"
+                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                   placeholder="0.00"
+                 />
               </div>
             </div>
           </div>
@@ -177,15 +174,14 @@
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <span class="text-gray-500 sm:text-sm">$</span>
                 </div>
-                <input
-                  id="current_value"
-                  v-model.number="form.current_value"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="0.00"
-                />
+                 <CurrencyInput
+                   id="current_value"
+                   v-model="form.current_value"
+                   :options="currencyOptions"
+                   inputmode="decimal"
+                   class="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                   placeholder="0.00"
+                 />
               </div>
             </div>
 
@@ -448,6 +444,8 @@
 
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetStore } from '@/stores/budget.js'
 import { useAuthStore } from '@/stores/auth.js'
