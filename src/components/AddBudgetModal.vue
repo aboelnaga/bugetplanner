@@ -153,18 +153,18 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
               <span class="text-red-500">*</span> Default Amount
-          </label>
+            </label>
             <div class="relative">
-              <input 
-                :value="formatCurrency(formData.defaultAmount)"
-                @input="handleAmountInput"
-                type="text" 
-                required 
+              <CurrencyInput
+                v-model="formData.defaultAmount"
+                :options="currencyOptions"
+                inputmode="decimal"
+                required
                 placeholder="EGP 0"
                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                data-testid="default-amount-input" />
+                data-testid="default-amount-input"
+              />
             </div>
-
           </div>
           
           <!-- Payment Schedule -->
@@ -608,6 +608,7 @@ import {
 } from '@/constants/budgetConstants.js'
 import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
+import CurrencyInput from './CurrencyInput.vue'
 
 // Props
 const props = defineProps({
@@ -671,6 +672,16 @@ const isMultiYear = computed(() => {
 // Validation errors state
 const validationErrors = ref([])
 
+// Currency input options
+const currencyOptions = {
+  currency: 'EGP',
+  locale: 'en-EG',
+  precision: 2,
+  valueRange: { min: 0, max: 9999999999.99 },
+  hideCurrencySymbolOnFocus: false,
+  hideGroupingSeparatorOnFocus: false
+}
+
 // Modal composable
 const {
   formData,
@@ -685,7 +696,6 @@ const {
   getMonthLabel,
   getSchedulePreviewClass,
   calculateTotalAmount,
-  handleAmountInput,
   generateSchedule,
   updateMultiYearPreview,
   getAvailableYears,
