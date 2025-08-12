@@ -75,6 +75,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
+import { useTooltipBuilder } from '@/composables/useTooltipBuilder.js'
 import BudgetSummaryRowHelper from './BudgetSummaryRowHelper.vue'
 
 // Props
@@ -206,15 +207,14 @@ const props = defineProps({
 
 
 
-// Tooltip functions
+// Tooltip functions via shared builder
+const { buildTooltip, actualColorFor } = useTooltipBuilder(props.formatCurrency)
+
 const getNetBalanceTooltip = (monthIndex) => {
   if (!props.calculateMonthlyPlannedTotal) return ''
   const plannedAmount = props.calculateMonthlyPlannedTotal(monthIndex)
   const actualAmount = props.calculateMonthlyActualTotal ? props.calculateMonthlyActualTotal(monthIndex) : 0
-  const variance = actualAmount - plannedAmount
-  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
+  return buildTooltip(plannedAmount, actualAmount, 'net', actualColorFor(actualAmount, 'net'))
 }
 
 const getNetInvestmentTooltip = (monthIndex) => {
@@ -222,22 +222,14 @@ const getNetInvestmentTooltip = (monthIndex) => {
   const plannedOutgoing = props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0
   const plannedNet = plannedIncoming - plannedOutgoing
   const actualNet = props.calculateMonthlyActualInvestmentNet ? props.calculateMonthlyActualInvestmentNet(monthIndex) : 0
-  const variance = actualNet - plannedNet
-  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(plannedNet)}</span><br>` +
-         `Actual: <span class=\"text-green-300\">${props.formatCurrency(actualNet)}</span><br>` +
-         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
+  return buildTooltip(plannedNet, actualNet, 'net', actualColorFor(actualNet, 'net'))
 }
 
 const getNetBalanceYearlyTooltip = () => {
   if (!props.calculateGrandTotalPlanned) return ''
   const plannedAmount = props.calculateGrandTotalPlanned()
   const actualAmount = props.calculateGrandTotalActual ? props.calculateGrandTotalActual() : 0
-  const variance = actualAmount - plannedAmount
-  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-green-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
+  return buildTooltip(plannedAmount, actualAmount, 'net', actualColorFor(actualAmount, 'net'))
 }
 
 const getNetInvestmentYearlyTooltip = () => {
@@ -245,12 +237,7 @@ const getNetInvestmentYearlyTooltip = () => {
   const plannedOutgoing = props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0
   const plannedNet = plannedIncoming - plannedOutgoing
   const actualNet = props.calculateGrandTotalActualInvestmentNet ? props.calculateGrandTotalActualInvestmentNet() : 0
-  const variance = actualNet - plannedNet
-  const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(plannedNet)}</span><br>` +
-         `Actual: <span class=\"text-green-300\">${props.formatCurrency(actualNet)}</span><br>` +
-         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
+  return buildTooltip(plannedNet, actualNet, 'net', actualColorFor(actualNet, 'net'))
 }
 
 // Previous year functions

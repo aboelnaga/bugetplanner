@@ -1,5 +1,5 @@
 <template>
-  <div class="relative inline-block" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+  <div class="relative inline-block" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" :class="class">
     <slot />
     <Transition
       enter-active-class="transition ease-out duration-200"
@@ -33,6 +33,10 @@ const props = defineProps({
     type: String,
     default: 'top', // top, bottom, left, right
     validator: (value) => ['top', 'bottom', 'left', 'right'].includes(value)
+  },
+  class: {
+    type: String,
+    default: ''
   }
 })
 

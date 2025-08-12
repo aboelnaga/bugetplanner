@@ -39,7 +39,7 @@
     
     <!-- Total Column -->
     <td :class="`${getSummaryTotalClasses(grandTotalValue)} ${borderTopClass} border-l-2 border-gray-200 sticky right-32 ${rowStyling.stickyBgColor} z-20`">
-      <BaseTooltip :content="grandTotalTooltip" position="top">
+      <BaseTooltip :content="grandTotalTooltip" position="top" class="text-center">
         <div class="cursor-help">
           {{ formatSummaryValue(grandTotalValue, formatCurrency) }}
         </div>

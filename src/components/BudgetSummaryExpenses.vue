@@ -47,6 +47,7 @@
 <script setup>
 import { computed } from 'vue'
 import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
+import { useTooltipBuilder } from '@/composables/useTooltipBuilder.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import BudgetSummaryRowHelper from './BudgetSummaryRowHelper.vue'
 
@@ -156,47 +157,33 @@ const props = defineProps({
 
 
 
-// Tooltip functions
+// Tooltip functions via shared builder
+const { buildTooltip, actualColorFor } = useTooltipBuilder(props.formatCurrency)
+
 const getExpensesTooltip = (monthIndex) => {
   if (!props.calculateMonthlyPlannedExpenses) return ''
   const plannedAmount = props.calculateMonthlyPlannedExpenses(monthIndex)
   const actualAmount = props.calculateMonthlyActualExpenses ? props.calculateMonthlyActualExpenses(monthIndex) : 0
-  const variance = actualAmount - plannedAmount
-  const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class=\"text-red-300\">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
+  return buildTooltip(plannedAmount, actualAmount, 'expense', actualColorFor(actualAmount, 'expense'))
 }
 
 const getInvestmentOutgoingTooltip = (monthIndex) => {
   const planned = props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0
   const actual = props.calculateMonthlyActualInvestmentOutgoing ? props.calculateMonthlyActualInvestmentOutgoing(monthIndex) : 0
-  const variance = actual - planned
-  const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(planned)}</span><br>` +
-         `Actual: <span class=\"text-red-300\">${props.formatCurrency(actual)}</span><br>` +
-         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
+  return buildTooltip(planned, actual, 'expense', actualColorFor(actual, 'expense'))
 }
 
 const getExpensesYearlyTooltip = () => {
   if (!props.calculateGrandTotalPlannedExpenses) return ''
   const plannedAmount = props.calculateGrandTotalPlannedExpenses()
   const actualAmount = props.calculateGrandTotalActualExpenses ? props.calculateGrandTotalActualExpenses() : 0
-  const variance = actualAmount - plannedAmount
-  const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class="text-blue-300">${props.formatCurrency(plannedAmount)}</span><br>Actual: <span class="text-red-300">${props.formatCurrency(actualAmount)}</span><br>Variance: <span class="${varianceColor}">${varianceText}</span>`
+  return buildTooltip(plannedAmount, actualAmount, 'expense', actualColorFor(actualAmount, 'expense'))
 }
 
 const getInvestmentOutgoingYearlyTooltip = () => {
   const planned = props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0
   const actual = props.calculateGrandTotalActualInvestmentOutgoing ? props.calculateGrandTotalActualInvestmentOutgoing() : 0
-  const variance = actual - planned
-  const varianceColor = variance >= 0 ? 'text-red-300' : 'text-green-300'
-  const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-  return `Planned: <span class=\"text-blue-300\">${props.formatCurrency(planned)}</span><br>` +
-         `Actual: <span class=\"text-red-300\">${props.formatCurrency(actual)}</span><br>` +
-         `Variance: <span class=\"${varianceColor}\">${varianceText}</span>`
+  return buildTooltip(planned, actual, 'expense', actualColorFor(actual, 'expense'))
 }
 
 // Previous year functions
