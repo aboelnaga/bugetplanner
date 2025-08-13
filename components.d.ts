@@ -27,6 +27,8 @@ declare module 'vue' {
     BudgetTableList: typeof import('./src/components/BudgetTableList.vue')['default']
     BudgetTableRow: typeof import('./src/components/BudgetTableRow.vue')['default']
     BudgetTableSummary: typeof import('./src/components/BudgetTableSummary.vue')['default']
+    Button: typeof import('primevue/button')['default']
+    Card: typeof import('primevue/card')['default']
     CloseMonthModal: typeof import('./src/components/CloseMonthModal.vue')['default']
     CurrencyInput: typeof import('./src/components/CurrencyInput.vue')['default']
     EditAccountModal: typeof import('./src/components/EditAccountModal.vue')['default']

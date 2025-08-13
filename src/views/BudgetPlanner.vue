@@ -11,10 +11,9 @@
     </div>
     
     <div class="space-y-6">
-      <!-- Header -->
+      <!-- Actions Header (without page title) -->
       <div class="flex justify-between items-center">
         <div class="flex items-center space-x-3">
-          <h1 class="text-3xl font-bold text-gray-900">Budget Planner</h1>
           <!-- Auto-close Header Badge -->
           <div v-if="budgetStore.showHeaderBadge" class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -23,65 +22,72 @@
             <span>{{ budgetStore.headerBadgeText }}</span>
           </div>
         </div>
-        <div class="flex space-x-3">
-          <button @click="openAddBudgetModalUnified" class="btn-primary" data-testid="add-budget-btn">Add Budget Item</button>
-          <!-- <button @click="openHistoryModal" class="btn-secondary">View History</button> -->
+        <div class="flex gap-2">
+          <Button
+            data-testid="add-budget-btn"
+            label="Add Budget Item"
+            icon="pi pi-plus"
+            @click="openAddBudgetModalUnified"
+          />
+          <!-- <Button label="View History" icon="pi pi-history" severity="secondary" @click="openHistoryModal" /> -->
         </div>
       </div>
 
       <!-- Account Balances Summary -->
-      <div v-if="accountsStore.accounts.length > 0" class="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Account Balances</h2>
-          <router-link 
-            to="/banking" 
-            class="text-sm text-blue-600 hover:text-blue-800 font-medium"
-          >
-            Manage Accounts →
-          </router-link>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div 
-            v-for="account in accountsStore.accounts" 
-            :key="account.id"
-            class="bg-gray-50 rounded-lg p-4 border border-gray-200"
-          >
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <span class="text-lg">{{ getAccountIcon(account.type) }}</span>
-                <div>
-                  <h3 class="font-medium text-gray-900">{{ account.name }}</h3>
-                  <p class="text-sm text-gray-500 capitalize">{{ account.type.replace('_', ' ') }}</p>
+      <Card v-if="accountsStore.accounts.length > 0" class="mb-4">
+        <template #content>
+          <div class="flex items-center justify-between mb-2">
+            <h2 class="text-xl font-semibold text-gray-900 m-0">Account Balances</h2>
+            <RouterLink 
+              to="/banking" 
+              class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Manage Accounts →
+            </RouterLink>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div 
+              v-for="account in accountsStore.accounts" 
+              :key="account.id"
+              class="surface-50 border surface-border rounded-lg p-4"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-lg">{{ getAccountIcon(account.type) }}</span>
+                  <div>
+                    <h3 class="font-medium text-color">{{ account.name }}</h3>
+                    <p class="text-sm text-color-secondary capitalize">{{ account.type.replace('_', ' ') }}</p>
+                  </div>
                 </div>
-              </div>
-              <div class="text-right">
-                <div v-if="account.type === 'credit_card'" class="space-y-1">
-                  <p class="text-sm text-gray-500">Available</p>
-                  <p class="text-lg font-semibold text-green-600">
-                    {{ formatCurrency(getAvailableCredit(account.id)) }}
-                  </p>
-                </div>
-                <div v-else>
-                  <p class="text-lg font-semibold" :class="getBalanceColor(account.balance)">
-                    {{ formatCurrency(account.balance) }}
-                  </p>
+                <div class="text-right">
+                  <div v-if="account.type === 'credit_card'" class="space-y-1">
+                    <p class="text-sm text-color-secondary">Available</p>
+                    <p class="text-lg font-semibold text-green-600">
+                      {{ formatCurrency(getAvailableCredit(account.id)) }}
+                    </p>
+                  </div>
+                  <div v-else>
+                    <p class="text-lg font-semibold" :class="getBalanceColor(account.balance)">
+                      {{ formatCurrency(account.balance) }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <!-- Total Balance -->
-        <div class="mt-4 pt-4 border-t border-gray-200">
-          <div class="flex items-center justify-between">
-            <span class="text-lg font-medium text-gray-900">Total Balance</span>
-            <span class="text-xl font-bold" :class="getTotalBalanceColor(accountsStore.totalBalance)">
-              {{ formatCurrency(accountsStore.totalBalance) }}
-            </span>
+
+          <!-- Total Balance -->
+          <div class="mt-4 pt-4 border-top-1 surface-border">
+            <div class="flex items-center justify-between">
+              <span class="text-lg font-medium text-color">Total Balance</span>
+              <span class="text-xl font-bold" :class="getTotalBalanceColor(accountsStore.totalBalance)">
+                {{ formatCurrency(accountsStore.totalBalance) }}
+              </span>
+            </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </Card>
 
       <!-- Budget Control Panel -->
       <BudgetControlPanel
