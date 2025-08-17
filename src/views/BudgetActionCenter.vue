@@ -1,585 +1,141 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
-    <!-- Auto-Close Loading Indicator -->
-    <div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
-      <div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }"></div>
+<!-- Auto-Close Loading Indicator -->
+<div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
+<div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }"></div>
+</div>
+
+<!-- Month Navigation -->
+<Card class="mb-3">
+<template #content>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center space-x-4">
+      <Button icon="pi pi-chevron-left" rounded text :disabled="isLoading" @click="previousMonth" />
+      
+      <div class="flex items-center space-x-2">
+        <Select
+          v-model="selectedMonth"
+          :options="availableMonths"
+          optionLabel="label"
+          optionValue="value"
+          :disabled="isLoading"
+          class="w-50"
+          @change="onMonthChange"
+          placeholder="Select Month"
+        />
+        
+        <Select
+          v-model="selectedYear"
+          :options="availableYears"
+          :disabled="isLoading"
+          class="w-auto"
+          @change="onYearChange"
+          placeholder="Year"
+        />
+      </div>
+      
+      <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
     </div>
     
-    <!-- Header -->
-    <div class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <div class="flex items-center space-x-4">
-            <h1 class="text-2xl font-bold text-gray-900">Budget Action Center</h1>
-            <div class="text-sm text-gray-500">
-              Manage your budget items and track progress
-            </div>
-            <!-- Auto-close Header Badge -->
-            <div v-if="budgetStore.showHeaderBadge" class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              <span>{{ budgetStore.headerBadgeText }}</span>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <router-link
-              to="/budget-planner"
-              class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-              </svg>
-              Budget Planner
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="flex items-center space-x-2">
+      <!-- Month Closure Status -->
+      <Tag v-if="isMonthClosed" value="Month Closed" severity="success" />
+      
+      <!-- Close Month Button -->
+      <Button v-else-if="canCloseMonth" label="Close Month" icon="pi pi-step-forward" severity="info" outlined :disabled="isLoading" @click="handleCloseMonth" />
+      
+      <Button label="Current Month" link :disabled="isLoading" @click="goToCurrentMonth" />
 
-    <!-- Month Navigation -->
-    <div class="bg-white border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <button
-              @click="previousMonth"
-              class="p-2 rounded-md hover:bg-gray-100"
-              :disabled="isLoading"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-              </svg>
-            </button>
-            
-            <div class="flex items-center space-x-2">
-              <select
-                v-model="selectedMonth"
-                @change="onMonthChange"
-                class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                :disabled="isLoading"
-              >
-                <option v-for="month in availableMonths" :key="month.value" :value="month.value">
-                  {{ month.label }}
-                </option>
-              </select>
-              
-              <select
-                v-model="selectedYear"
-                @change="onYearChange"
-                class="border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                :disabled="isLoading"
-              >
-                <option v-for="year in availableYears" :key="year" :value="year">
-                  {{ year }}
-                </option>
-              </select>
-            </div>
-            
-            <button
-              @click="nextMonth"
-              class="p-2 rounded-md hover:bg-gray-100"
-              :disabled="isLoading"
-            >
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </button>
-          </div>
-          
-          <div class="flex items-center space-x-2">
-            <!-- Month Closure Status -->
-            <div v-if="isMonthClosed" class="flex items-center space-x-2 px-3 py-1 bg-green-100 rounded-md">
-              <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-              </svg>
-              <span class="text-sm font-medium text-green-700">Month Closed</span>
-            </div>
-            
-            <!-- Close Month Button -->
-            <button
-              v-else-if="canCloseMonth"
-              @click="handleCloseMonth"
-              class="flex items-center space-x-2 px-3 py-1 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-md transition-colors"
-              :disabled="isLoading"
-            >
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
-              </svg>
-              <span class="text-sm font-medium">Close Month</span>
-            </button>
-            
-            <button
-              @click="goToCurrentMonth"
-              class="text-sm text-indigo-600 hover:text-indigo-800"
-              :disabled="isLoading"
-            >
-              Current Month
-            </button>
-          </div>
-        </div>
-      </div>
+      <!-- View Mode Toggle -->
+      <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" :allowEmpty="false" />
     </div>
+  </div>
+</template>
+</Card>
 
+<!-- Budget Items List -->
+<Card>  
+  <template #content>
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center py-12">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       <span class="ml-3 text-gray-600">Loading budget items...</span>
     </div>
-
+    
     <!-- Content -->
-    <div v-else class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Statistics -->
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Total Items</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ budgetItems.length }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Completed</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ completedCount }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Pending</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ pendingCount }}</p>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-              </div>
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-500">Overdue</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ overdueCount }}</p>
-            </div>
-          </div>
-        </div>
+    <div v-else>
+      <div v-if="filteredItems.length === 0" class="px-6 py-12 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items found</h3>
+        <p class="mt-1 text-sm text-gray-500">
+          {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
+        </p>
       </div>
-
-      <!-- Filters -->
-      <div class="bg-white rounded-lg shadow mb-6">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-medium text-gray-900">Filters</h3>
-            <div class="flex items-center space-x-3">
-              <!-- View Toggle -->
-              <div class="flex items-center space-x-1 bg-gray-100 rounded-md p-1">
-                <button
-                  @click="viewMode = 'list'"
-                  :class="viewMode === 'list' ? 'bg-white shadow-sm' : 'text-gray-500'"
-                  class="px-3 py-1 rounded text-sm font-medium transition-colors"
-                  title="List View"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                  </svg>
-                </button>
-                <button
-                  @click="viewMode = 'grid'"
-                  :class="viewMode === 'grid' ? 'bg-white shadow-sm' : 'text-gray-500'"
-                  class="px-3 py-1 rounded text-sm font-medium transition-colors"
-                  title="Grid View"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                  </svg>
-                </button>
-              </div>
-              <button
-                @click="clearFilters"
-                class="text-sm text-indigo-600 hover:text-indigo-800"
-              >
-                Clear All
-              </button>
+      
+      <!-- Grid View -->
+      <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <Panel 
+          v-for="item in filteredItems" 
+          :key="item.id" 
+          class="hover:shadow-lg transition-shadow duration-200"
+        >
+          <template #header>
+            <div class="flex items-center gap-2">
+              <div
+                :class="getStatusColor(item).bg"
+                class="w-2 h-2 rounded-full flex-shrink-0"
+              ></div>
+              <span class="font-medium truncate">{{ item.name }}</span>
             </div>
-          </div>
-        </div>
-        <div class="px-6 py-4">
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-              <select
-                v-model="filters.status"
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">All Statuses</option>
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                <option value="overdue">Overdue</option>
-                <option value="skipped">Skipped</option>
-                <option value="partial">Partial</option>
-                <option value="full">Full</option>
-                <option value="exceeds">Exceeds Budget</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-              <select
-                v-model="filters.type"
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">All Types</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-              <select
-                v-model="filters.category"
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">All Categories</option>
-                <option v-for="category in availableCategories" :key="category" :value="category">
-                  {{ category }}
-                </option>
-              </select>
-            </div>
-            
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">Payment Schedule</label>
-              <select
-                v-model="filters.paymentSchedule"
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                <option value="">All Schedules</option>
-                <option value="monthly">Monthly</option>
-                <option value="quarterly">Quarterly</option>
-                <option value="yearly">Yearly</option>
-                <option value="one-time">One-time</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Budget Items List -->
-      <div class="bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h3 class="text-lg font-medium text-gray-900">
-            Budget Items for {{ monthYearLabel }}
-          </h3>
-        </div>
-        
-        <div v-if="filteredItems.length === 0" class="px-6 py-12 text-center">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-          </svg>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items found</h3>
-          <p class="mt-1 text-sm text-gray-500">
-            {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
-          </p>
-        </div>
-        
-        <!-- List View -->
-        <div v-if="viewMode === 'list'" class="divide-y divide-gray-200">
-          <div
-            v-for="item in filteredItems"
-            :key="item.id"
-            class="hover:bg-gray-50 transition-colors"
-          >
-            <!-- Main Row -->
-            <div class="flex items-center space-x-4 p-4">
-              <!-- Status -->
-              <div class="flex items-center space-x-2 flex-shrink-0">
-                <div
-                  :class="getStatusColor(item).bg"
-                  class="w-2 h-2 rounded-full"
-                ></div>
-                <span
-                  :class="getStatusBadgeColor(getItemStatus(item))"
-                  class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                  :title="getStatusLabel(getItemStatus(item))"
-                >
-                  {{ getStatusLabel(getItemStatus(item)) }}
-                </span>
-              </div>
-              
-              <!-- Name -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center space-x-2">
-                  <h4 class="text-sm font-medium text-gray-900 truncate">
-                    {{ item.name }}
-                  </h4>
-                  <span
-                    :class="getTypeBadgeColor(item.type)"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0"
-                  >
-                    {{ item.type }}
-                  </span>
-                  <span
-                    :class="getCategoryBadgeColor(item.category)"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0"
-                  >
-                    {{ item.category }}
-                  </span>
-                  <span v-if="item.notes" class="text-gray-400" title="Has Notes">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Actual/Budget with Progress Bar -->
-              <div class="text-right flex-shrink-0 w-32">
-                <div class="text-sm font-medium text-gray-900">
-                  {{ formatCurrency(getActualAmount(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
-                </div>
-                <!-- Progress Bar -->
-                <div class="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                  <div
-                    :class="getProgressBarColor(item)"
-                    :style="{ width: getProgressPercentage(item) + '%' }"
-                    class="h-1.5 rounded-full transition-all duration-300"
-                    :title="`${Math.round(getProgressPercentage(item))}% complete`"
-                  ></div>
-                </div>
-              </div>
-              
-              <!-- Due -->
-              <div class="text-right flex-shrink-0 w-24">
-                <div v-if="calculateDueDate(item)" :class="getDueDateColor(item)" class="text-sm font-medium" :title="formatDate(calculateDueDate(item))">
-                  {{ getDueDateText(item) }}
-                </div>
-                <div v-else class="text-sm text-gray-500">
-                  No due date
-                </div>
-              </div>
-              
-              <!-- Actions -->
-              <div class="flex items-center space-x-1 flex-shrink-0">
-                <button
-                  v-if="item.is_fixed_expense"
-                  @click="markAsPaid(item)"
-                  class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
-                  title="Mark as Paid"
-                >
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                  Paid
-                </button>
-                
-                <button
-                  @click="addTransaction(item)"
-                  class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  title="Add Transaction"
-                >
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                  </svg>
-                  Add
-                </button>
-                
-                <button
-                  @click="skipItem(item)"
-                  class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  title="Skip Item"
-                >
-                  <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                  </svg>
-                  Skip
-                </button>
-                
-                <!-- Transaction Count -->
-                <span v-if="item.transactions && item.transactions.length > 0" class="text-xs text-gray-500 px-1">
-                  {{ item.transactions.length }}
-                </span>
-                
-                <!-- Expand Arrow -->
-                <button
-                  @click="toggleHistory(item)"
-                  class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                  :title="expandedItems.includes(item.id) ? 'Hide History' : 'Show History'"
-                >
-                  <svg 
-                    class="w-3 h-3 transition-transform duration-200" 
-                    :class="expandedItems.includes(item.id) ? 'rotate-180' : ''"
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                  </svg>
-                </button>
-              </div>
-            </div>
-            
-            <!-- Transaction History (Collapsible) -->
-            <div v-if="expandedItems.includes(item.id)" class="px-4 pb-4">
-              <div class="bg-gray-50 rounded p-3 mt-2">
-                <h5 class="text-xs font-medium text-gray-900 mb-2">Transaction History</h5>
-                
-                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-2">
-                  <div
-                    v-for="transaction in item.transactions"
-                    :key="transaction.id"
-                    class="flex items-center justify-between p-2 bg-white rounded shadow-sm"
-                  >
-                    <div class="flex items-center space-x-2">
-                      <div
-                        :class="getTransactionTypeColor(transaction.type)"
-                        class="w-1.5 h-1.5 rounded-full"
-                      ></div>
-                      <div>
-                        <p class="text-xs font-medium text-gray-900">
-                          {{ transaction.description || 'Transaction' }}
-                        </p>
-                        <p class="text-xs text-gray-500">
-                          {{ formatDate(transaction.date) }}
-                        </p>
-                      </div>
-                    </div>
-                    <div class="text-right">
-                      <p
-                        :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-                        class="text-xs font-medium"
-                      >
-                        {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div v-else class="text-xs text-gray-500 text-center py-2">
-                  No transactions yet for this budget item.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Grid View -->
-        <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <div
-            v-for="item in filteredItems"
-            :key="item.id"
-            class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow"
-          >
-            <!-- Header -->
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center space-x-2 mb-1">
-                  <div
-                    :class="getStatusColor(item).bg"
-                    class="w-2 h-2 rounded-full flex-shrink-0"
-                  ></div>
-                  <h4 class="text-sm font-medium text-gray-900 truncate">
-                    {{ item.name }}
-                  </h4>
-                </div>
-                <div class="flex items-center space-x-1">
-                  <span
-                    :class="getTypeBadgeColor(item.type)"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                  >
-                    {{ item.type }}
-                  </span>
-                  <span
-                    :class="getStatusBadgeColor(getItemStatus(item))"
-                    class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium"
-                  >
-                    {{ getStatusLabel(getItemStatus(item)) }}
-                  </span>
-                </div>
-              </div>
+          </template>
+            <!-- Type and Status Tags -->
+            <div class="flex items-center gap-2 mb-3">
+              <Tag :value="item.type" :severity="getTypeSeverity(item.type)" />
+              <Tag :value="getStatusLabel(getItemStatus(item))" :severity="getStatusSeverity(getItemStatus(item))" />
             </div>
             
             <!-- Amount and Progress -->
-            <div class="mb-3">
-              <div class="text-lg font-bold text-gray-900 mb-1">
+            <div class="mb-4">
+              <div class="text-lg font-bold mb-2">
                 {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
-              <div v-if="getActualAmount(item) > 0" class="text-xs text-gray-500 mb-2">
+              <div v-if="getActualAmount(item) > 0" class="text-xs mb-3">
                 {{ formatCurrency(getActualAmount(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
               <!-- Progress Bar -->
-              <div v-if="item.transactions && item.transactions.length > 0" class="mb-2">
-                <div class="w-full bg-gray-200 rounded-full h-1.5">
-                  <div
-                    :class="getProgressBarColor(item)"
-                    :style="{ width: getProgressPercentage(item) + '%' }"
-                    class="h-1.5 rounded-full transition-all duration-300"
-                  ></div>
-                </div>
+              <div v-if="item.transactions && item.transactions.length > 0" class="mb-3">
+                <ProgressBar 
+                  :value="getProgressPercentage(item)" 
+                  :class="getProgressBarColor(item).replace('bg-', '')"
+                  class="h-2"
+                />
               </div>
             </div>
             
             <!-- Details -->
-            <div class="space-y-1 mb-3 text-xs text-gray-500">
+            <div class="space-y-2 mb-4 text-xs">
               <div class="flex items-center">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-                </svg>
+                <i class="pi pi-tag mr-2"></i>
                 {{ item.category }}
               </div>
               <div class="flex items-center">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+                <i class="pi pi-clock mr-2"></i>
                 {{ item.paymentSchedule }}
               </div>
               <div v-if="item.dueDate" class="flex items-center">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
+                <i class="pi pi-calendar mr-2"></i>
                 {{ formatDate(calculateDueDate(item)) }}
               </div>
               <div v-if="item.transactions && item.transactions.length > 0" class="flex items-center">
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                </svg>
+                <i class="pi pi-credit-card mr-2"></i>
                 {{ item.transactions.length }} transactions
               </div>
             </div>
             
             <!-- Quick Stats -->
-            <div class="mb-3">
-              <div class="text-xs text-gray-500">
+            <div class="mb-4">
+              <div class="text-xs">
                 <span v-if="getRemainingAmount(item) > 0" class="text-orange-600 font-medium">
                   Remaining: {{ formatCurrency(getRemainingAmount(item)) }}
                 </span>
@@ -593,139 +149,183 @@
             </div>
             
             <!-- Actions -->
-            <div class="flex flex-wrap gap-1">
-              <button
+            <div class="flex flex-wrap gap-2">
+              <Button
+                v-if="getItemStatus(item) !== 'completed'"
+                label="Paid"
+                icon="pi pi-check"
+                size="small"
+                severity="success"
                 @click="markAsPaid(item)"
-                class="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-1 focus:ring-green-500"
-                title="Mark as Paid"
-              >
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                Paid
-              </button>
+              />
               
-              <button
+              <Button
+                label="Add"
+                icon="pi pi-plus"
+                size="small"
+                outlined
                 @click="addTransaction(item)"
-                class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                title="Add Transaction"
-              >
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Add
-              </button>
+              />
               
-              <button
+              <Button
+                label="History"
+                icon="pi pi-clock"
+                size="small"
+                text
                 @click="toggleHistory(item)"
-                class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                title="View History"
-              >
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                History
-              </button>
+              />
               
-              <button
+              <Button
+                label="Skip"
+                icon="pi pi-times"
+                size="small"
+                outlined
+                severity="secondary"
                 @click="skipItem(item)"
-                class="inline-flex items-center px-2 py-1 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                title="Skip Item"
-              >
-                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-                Skip
-              </button>
+              />
             </div>
             
             <!-- Transaction History (Collapsible) -->
-            <div v-if="expandedItems.includes(item.id)" class="mt-3 pt-3 border-t border-gray-100">
-              <div class="bg-gray-50 rounded p-2">
-                <h5 class="text-xs font-medium text-gray-900 mb-2">Transaction History</h5>
+            <div v-if="expandedItems.includes(item.id)" class="mt-4 pt-4 border-t border-gray-100">
+              <div class="bg-gray-50 rounded p-3">
+                <h5 class="text-xs font-medium mb-3">Transaction History</h5>
                 
-                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-1">
+                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-2">
                   <div
                     v-for="transaction in item.transactions"
                     :key="transaction.id"
-                    class="flex items-center justify-between p-1 bg-white rounded text-xs"
+                    class="flex items-center justify-between p-2 bg-white rounded text-xs"
                   >
-                    <div class="flex items-center space-x-1">
+                    <div class="flex items-center gap-2">
                       <div
                         :class="getTransactionTypeColor(transaction.type)"
-                        class="w-1 h-1 rounded-full"
+                        class="w-2 h-2 rounded-full"
                       ></div>
                       <span class="truncate">{{ transaction.description || 'Transaction' }}</span>
                     </div>
                     <span
                       :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-                      class="font-medium ml-1"
+                      class="font-medium"
                     >
                       {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                     </span>
                   </div>
                 </div>
                 
-                <div v-else class="text-xs text-gray-500 text-center py-1">
+                <div v-else class="text-xs text-center py-2">
                   No transactions yet.
                 </div>
               </div>
             </div>
-          </div>
+        </Panel>
+      </div>
+
+      <!-- Table View -->
+      <div v-else-if="viewMode === 'table'">
+        <div class="flex justify-between items-center mb-3">
+          <IconField>
+            <InputIcon class="pi pi-search" />
+            <InputText v-model="globalFilter" placeholder="Search" @input="dtFilters.global.value = globalFilter" />
+          </IconField>
         </div>
+        <DataTable :value="tableItems" :filters="dtFilters" filterDisplay="menu" removableSort stripedRows showGridlines responsiveLayout="scroll">
+          <Column field="name" header="Name" sortable filter filterPlaceholder="Search by name">
+            <template #body="{ data }">
+              <span class="font-medium">{{ data.name }}</span>
+            </template>
+          </Column>
+          <Column field="type" header="Type" sortable>
+            <template #body="{ data }">
+              <Tag :value="data.type" :severity="getTypeSeverity(data.type)" rounded />
+            </template>
+          </Column>
+          <Column field="statusLabel" header="Status" sortable>
+            <template #body="{ data }">
+              <Tag :value="getStatusLabel(getItemStatus(data))" :severity="getStatusSeverity(getItemStatus(data))" rounded />
+            </template>
+          </Column>
+          <Column field="category" header="Category" sortable filter filterPlaceholder="Search by category">
+            <template #body="{ data }">
+              <Tag :value="data.category" severity="info" rounded />
+            </template>
+          </Column>
+          <Column field="due" header="Due" sortable>
+            <template #body="{ data }">
+              <span :class="getDueDateColor(data)">{{ getDueDateText(data) }}</span>
+            </template>
+          </Column>
+          <Column header="Progress">
+            <template #body="{ data }">
+              <div class="w-full bg-gray-200 rounded-full h-1.5">
+                <div :class="getProgressBarColor(data)" :style="{ width: getProgressPercentage(data) + '%' }" class="h-1.5 rounded-full"></div>
+              </div>
+            </template>
+          </Column>
+          <Column header="Actions" style="width: 220px">
+            <template #body="{ data }">
+              <div class="flex gap-2">
+                <Button v-if="data.is_fixed_expense" label="Paid" icon="pi pi-check" size="small" @click="markAsPaid(data)" />
+                <Button label="Add" icon="pi pi-plus" size="small" outlined @click="addTransaction(data)" />
+                <Button label="History" icon="pi pi-clock" size="small" text @click="toggleHistory(data)" />
+                <Button label="Skip" icon="pi pi-times" size="small" outlined @click="skipItem(data)" />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
       </div>
     </div>
+  </template>
+</Card>
 
-    <!-- Add Transaction Modal -->
-    <AddTransactionModal
-      v-model="showAddTransactionModal"
-      :budget-item="selectedBudgetItem"
-      @transaction-added="onTransactionAdded"
-      @transaction-updated="onTransactionUpdated"
-    />
+<!-- Add Transaction Modal -->
+<AddTransactionModal
+v-model="showAddTransactionModal"
+:budget-item="selectedBudgetItem"
+@transaction-added="onTransactionAdded"
+@transaction-updated="onTransactionUpdated"
+/>
 
-    <!-- Skip Item Modal -->
-    <BaseModal
-      v-if="showSkipModal"
-      @close="closeSkipModal"
-      title="Skip Budget Item"
-    >
-      <div class="space-y-4">
-        <p class="text-gray-600">
-          Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This will mark it as skipped for this month.
-        </p>
-        
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Reason (optional)
-          </label>
-          <textarea
-            v-model="skipReason"
-            rows="3"
-            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-            placeholder="Why are you skipping this item?"
-          ></textarea>
-        </div>
-      </div>
-      
-      <template #footer>
-        <div class="flex justify-end space-x-3">
-          <button
-            @click="closeSkipModal"
-            class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            Cancel
-          </button>
-          <button
-            @click="confirmSkip"
-            class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700"
-          >
-            Skip Item
-          </button>
-        </div>
-      </template>
-    </BaseModal>
+<!-- Skip Item Modal -->
+<BaseModal
+v-if="showSkipModal"
+@close="closeSkipModal"
+title="Skip Budget Item"
+>
+<div class="space-y-4">
+  <p>
+    Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This will mark it as skipped for this month.
+  </p>
+  
+  <div>
+    <label class="block text-sm font-medium mb-2">
+      Reason (optional)
+    </label>
+    <textarea
+      v-model="skipReason"
+      rows="3"
+      class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+      placeholder="Why are you skipping this item?"
+    ></textarea>
   </div>
+</div>
+
+<template #footer>
+  <div class="flex justify-end space-x-3">
+    <button
+      @click="closeSkipModal"
+      class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
+    >
+      Cancel
+    </button>
+    <button
+      @click="confirmSkip"
+      class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700"
+    >
+      Skip Item
+    </button>
+  </div>
+</template>
+</BaseModal>
 </template>
 
 <script setup>
@@ -736,6 +336,7 @@ import { useAuthStore } from '../stores/auth'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import BaseModal from '../components/BaseModal.vue'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
+// PrimeVue components via auto-import: Button, Dropdown, Tag, SelectButton, DataTable, Column, ProgressBar, Panel
 
 // Stores
 const budgetStore = useBudgetStore()
@@ -751,15 +352,24 @@ const showAddTransactionModal = ref(false)
 const showSkipModal = ref(false)
 const selectedBudgetItem = ref(null)
 const skipReason = ref('')
-const viewMode = ref('list')
+const viewMode = ref('table')
+const viewOptions = [
+  { label: 'Table', value: 'table' },
+  { label: 'Grid', value: 'grid' }
+]
 
-// Filters
-const filters = ref({
-  status: '',
-  type: '',
-  category: '',
-  paymentSchedule: ''
+// Filters (kept for existing computed filtering – no selects rendered)
+const filters = ref({ status: '', type: '', category: '', paymentSchedule: '' })
+
+// DataTable filtering
+const dtFilters = ref({
+  global: { value: null, matchMode: 'contains' },
+  name: { value: null, matchMode: 'contains' },
+  type: { value: null, matchMode: 'equals' },
+  statusLabel: { value: null, matchMode: 'equals' },
+  category: { value: null, matchMode: 'contains' }
 })
+const globalFilter = ref('')
 
 // Computed properties
 const monthYearLabel = computed(() => {
@@ -840,6 +450,11 @@ const filteredItems = computed(() => {
 
   return items
 })
+
+// Table data including derived status field
+const tableItems = computed(() =>
+  filteredItems.value.map((item) => ({ ...item, statusLabel: getItemStatus(item) }))
+)
 
 const completedCount = computed(() => {
   return filteredItems.value.filter(item => getItemStatus(item) === 'completed').length
@@ -988,6 +603,21 @@ const getStatusBadgeColor = (status) => {
   }
   return colors[status] || 'bg-gray-100 text-gray-800'
 }
+
+const getStatusSeverity = (status) => {
+  const map = {
+    pending: 'warning',
+    completed: 'success',
+    overdue: 'danger',
+    skipped: 'secondary',
+    partial: 'info',
+    full: 'success',
+    exceeds: 'danger'
+  }
+  return map[status] || 'secondary'
+}
+
+const getTypeSeverity = (type) => (type === 'income' ? 'success' : 'danger')
 
 const getTypeBadgeColor = (type) => {
   return type === 'income' 
