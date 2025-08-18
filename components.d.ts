@@ -8,8 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Accordion: typeof import('primevue/accordion')['default']
-    AccordionTab: typeof import('primevue/accordiontab')['default']
     AccountCard: typeof import('./src/components/AccountCard.vue')['default']
     AddAccountModal: typeof import('./src/components/AddAccountModal.vue')['default']
     AddBudgetModal: typeof import('./src/components/AddBudgetModal.vue')['default']
@@ -30,7 +28,6 @@ declare module 'vue' {
     BudgetTableRow: typeof import('./src/components/BudgetTableRow.vue')['default']
     BudgetTableSummary: typeof import('./src/components/BudgetTableSummary.vue')['default']
     Button: typeof import('primevue/button')['default']
-    Calendar: typeof import('primevue/calendar')['default']
     Card: typeof import('primevue/card')['default']
     CloseMonthModal: typeof import('./src/components/CloseMonthModal.vue')['default']
     Column: typeof import('primevue/column')['default']
@@ -40,7 +37,6 @@ declare module 'vue' {
     Dropdown: typeof import('primevue/dropdown')['default']
     EditAccountModal: typeof import('./src/components/EditAccountModal.vue')['default']
     ExpenseBreakdownChart: typeof import('./src/components/ExpenseBreakdownChart.vue')['default']
-    FloatLabel: typeof import('primevue/floatlabel')['default']
     HistoryModal: typeof import('./src/components/HistoryModal.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
@@ -52,8 +48,6 @@ declare module 'vue' {
     ProjectionChart: typeof import('./src/components/ProjectionChart.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Select: typeof import('primevue/select')['default']
-    SelectButton: typeof import('primevue/selectbutton')['default']
     StatCard: typeof import('./src/components/StatCard.vue')['default']
     Tag: typeof import('primevue/tag')['default']
     Toast: typeof import('primevue/toast')['default']
@@ -61,7 +55,6 @@ declare module 'vue' {
     TransferModal: typeof import('./src/components/TransferModal.vue')['default']
   }
   export interface GlobalDirectives {
-    StyleClass: typeof import('primevue/styleclass')['default']
     Tooltip: typeof import('primevue/tooltip')['default']
   }
 }
