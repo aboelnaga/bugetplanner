@@ -17,7 +17,7 @@
           v-model="selectedDate"
           view="month"
           dateFormat="MM yy"
-          :disabled="isLoading"
+                :disabled="isLoading"
           showIcon
           iconDisplay="input"
           :manualInput="false"
@@ -55,12 +55,12 @@
     <div v-else>
       <div v-if="budgetItems.length === 0" class="px-6 py-12 text-center">
         <i class="pi pi-box text-6xl text-gray-400 mb-4"></i>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items found</h3>
-        <p class="mt-1 text-sm text-gray-500">
-          {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
-        </p>
-      </div>
-
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items found</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
+          </p>
+        </div>
+        
       <!-- Grid View (Mobile) -->
       <div v-if="budgetItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 relative">
         <!-- Loading Overlay for Grid -->
@@ -68,22 +68,22 @@
           <div class="flex flex-col items-center gap-2">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
             <span class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
-          </div>
-        </div>
-
+                </div>
+              </div>
+              
         <Panel 
           v-for="item in budgetItems" 
-          :key="item.id"
+            :key="item.id"
           class="hover:shadow-lg transition-shadow duration-200"
         >
           <template #header>
             <div class="flex items-center gap-2">
-              <div
-                :class="getStatusColor(item).bg"
-                class="w-2 h-2 rounded-full flex-shrink-0"
-              ></div>
+                  <div
+                    :class="getStatusColor(item).bg"
+                    class="w-2 h-2 rounded-full flex-shrink-0"
+                  ></div>
               <span class="font-medium truncate">{{ item.name }}</span>
-            </div>
+                </div>
           </template>
             <!-- Type and Status Tags -->
             <div class="flex items-center gap-2 mb-3">
@@ -211,7 +211,7 @@
               </div>
             </div>
         </Panel>
-      </div>
+          </div>
 
       <!-- Table View (Desktop) -->
       <div v-if="budgetItems.length > 0" class="hidden lg:block">
@@ -275,7 +275,7 @@
                   <template #body="{ data: transaction }">
                     <div class="flex items-center gap-2">
                       <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
-                    </div>
+      </div>
                   </template>
                 </Column>
                 

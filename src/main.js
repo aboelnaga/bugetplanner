@@ -6,6 +6,7 @@ import App from './App.vue'
 // PrimeVue Theme Setup
 import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
+import ConfirmationService from 'primevue/confirmationservice';
 
 import '@/assets/styles.scss';
 
@@ -23,4 +24,5 @@ app.use(PrimeVue, {
       }
   }
 });
+app.use(ConfirmationService);
 app.mount('#app') 

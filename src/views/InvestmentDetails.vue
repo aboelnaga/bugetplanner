@@ -1,349 +1,334 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen">
       <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <router-link
-              to="/investments"
-              class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Investments
-            </router-link>
+    <Card class="mb-6">
+      <template #content>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <Button
+              @click="router.push('/investments')"
+              icon="pi pi-arrow-left"
+              label="Back to Investments"
+              outlined
+              size="small"
+            />
             
             <div>
-              <h1 class="text-3xl font-bold text-gray-900">{{ investment?.name || 'Investment Details' }}</h1>
-              <p class="mt-1 text-gray-600">{{ formatInvestmentType(investment?.investment_type) }}</p>
+              <h1 class="text-3xl font-bold">{{ investment?.name || 'Investment Details' }}</h1>
+              <p class="mt-1">{{ formatInvestmentType(investment?.investment_type) }}</p>
             </div>
           </div>
           
-          <div class="flex space-x-3">
-            <button
+          <div class="flex gap-2">
+            <Button
               @click="editMode = !editMode"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              {{ editMode ? 'Cancel Edit' : 'Edit Investment' }}
-            </button>
+              :icon="editMode ? 'pi pi-times' : 'pi pi-pencil'"
+              :label="editMode ? 'Cancel Edit' : 'Edit Investment'"
+              outlined
+              severity="info"
+            />
             
-            <button
+            <Button
               v-if="editMode"
               @click="saveChanges"
               :disabled="saving"
-              class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-            >
-              <svg v-if="saving" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              {{ saving ? 'Saving...' : 'Save Changes' }}
-            </button>
+              icon="pi pi-check"
+              label="Save Changes"
+              severity="success"
+            />
             
-            <button
-              @click="showDeleteConfirm = true"
-              class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete Investment
-            </button>
+            <Button
+              @click="deleteInvestment"
+              icon="pi pi-trash"
+              label="Delete Investment"
+              severity="danger"
+              outlined
+            />
           </div>
         </div>
-      </div>
+      </template>
+    </Card>
 
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center items-center py-12">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div class="flex flex-col items-center gap-3">
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+        <span>Loading investment details...</span>
+      </div>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-            </svg>
+    <Card v-else-if="error" class="mb-6" severity="danger">
+      <template #content>
+        <div class="flex items-center gap-3">
+          <i class="pi pi-exclamation-triangle text-xl"></i>
+          <div>
+            <h3 class="font-medium">Error</h3>
+            <p class="mt-1">{{ error }}</p>
           </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Error</h3>
-            <div class="mt-2 text-sm text-red-700">{{ error }}</div>
           </div>
-        </div>
-      </div>
+      </template>
+    </Card>
 
       <!-- Investment Content -->
-      <div v-else-if="investment" class="space-y-8">
+    <div v-else-if="investment" class="space-y-6">
         <!-- Investment Overview -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Investment Overview</h2>
-          </div>
-          <div class="p-6">
+      <Card>
+        <template #header>
+          <h2 class="text-xl font-semibold">Investment Overview</h2>
+        </template>
+        <template #content>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <h3 class="text-sm font-medium text-gray-500">Purchase Amount</h3>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ formatCurrency(investment.purchase_amount) }}</p>
+            <div class="text-center">
+              <h3 class="text-sm font-medium mb-2">Purchase Amount</h3>
+              <p class="text-2xl font-semibold">{{ formatCurrency(investment.purchase_amount) }}</p>
               </div>
-              <div>
-                <h3 class="text-sm font-medium text-gray-500">Current Value</h3>
-                <p class="mt-1 text-2xl font-semibold text-gray-900">{{ formatCurrency(investment.current_value || 0) }}</p>
+            <div class="text-center">
+              <h3 class="text-sm font-medium mb-2">Current Value</h3>
+              <p class="text-2xl font-semibold">{{ formatCurrency(investment.current_value || 0) }}</p>
               </div>
-              <div>
-                <h3 class="text-sm font-medium text-gray-500">ROI</h3>
-                <p class="mt-1 text-2xl font-semibold" :class="getROIColor(investment)">
+            <div class="text-center">
+              <h3 class="text-sm font-medium mb-2">ROI</h3>
+              <p class="text-2xl font-semibold" :class="getROIColor(investment)">
                   {{ formatROI(investment) }}
                 </p>
               </div>
             </div>
             
-            <div class="mt-6">
-              <h3 class="text-sm font-medium text-gray-500">Status</h3>
-              <span :class="[
-                'mt-1 inline-flex px-3 py-1 rounded-full text-sm font-medium',
-                getStatusColor(investment.real_estate_status || investment.status)
-              ]">
-                {{ formatStatus(investment.real_estate_status || investment.status) }}
-              </span>
+          <div class="mt-6 text-center">
+            <h3 class="text-sm font-medium mb-2">Status</h3>
+            <Tag
+              :value="formatStatus(investment.real_estate_status || investment.status)"
+              :severity="getStatusSeverity(investment.real_estate_status || investment.status)"
+              rounded
+            />
             </div>
-          </div>
-        </div>
+        </template>
+      </Card>
 
         <!-- Investment Details -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Investment Details</h2>
+      <Card>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Investment Details</h2>
+            <Button
+              v-if="editMode"
+              @click="saveChanges"
+              :disabled="saving"
+              icon="pi pi-check"
+              label="Save Changes"
+              severity="success"
+            />
           </div>
-          <div class="p-6">
+        </template>
+        <template #content>
             <div v-if="editMode" class="space-y-6">
               <!-- Edit Form -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Basic Information -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Name</label>
+                <InputText
                     v-model="editForm.name"
-                    type="text"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  class="w-full"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Investment Type</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Investment Type</label>
+                <InputText
                     :value="formatInvestmentType(investment.investment_type)"
-                    type="text"
                     disabled
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm"
+                  class="w-full"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Purchase Amount</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Purchase Amount</label>
+                <InputText
                     :value="formatCurrency(investment.purchase_amount)"
-                    type="text"
                     disabled
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500 sm:text-sm"
+                  class="w-full"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Current Value</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Current Value</label>
+                <InputNumber
                     v-model="editForm.current_value"
-                    type="number"
-                    step="0.01"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  mode="currency"
+                  currency="EGP"
+                  class="w-full"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Purchase Date</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Purchase Date</label>
+                <Calendar
                     v-model="editForm.purchase_date"
-                    type="date"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  dateFormat="dd/mm/yy"
+                  class="w-full"
                   />
                 </div>
                 
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Last Valuation Date</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Last Valuation Date</label>
+                <Calendar
                     v-model="editForm.last_valuation_date"
-                    type="date"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  dateFormat="dd/mm/yy"
+                  class="w-full"
                   />
                 </div>
                 
                 <!-- Real Estate Specific -->
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Status</label>
+                <Select
                     v-model="editForm.real_estate_status"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option v-for="status in realEstateStatuses" :key="status.value" :value="status.value">
-                      {{ status.label }}
-                    </option>
-                  </select>
+                  :options="realEstateStatuses"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select status"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Developer/Owner</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Developer/Owner</label>
+                <InputText
                     v-model="editForm.developer_owner"
-                    type="text"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  class="w-full"
                   />
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Location</label>
+                <InputText
                     v-model="editForm.location"
-                    type="text"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  class="w-full"
                   />
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Delivery Date</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Delivery Date</label>
+                <Calendar
                     v-model="editForm.delivery_date"
-                    type="date"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  dateFormat="dd/mm/yy"
+                  class="w-full"
                   />
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Construction Status</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Construction Status</label>
+                <Select
                     v-model="editForm.construction_status"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select status</option>
-                    <option value="under_construction">Under Construction</option>
-                    <option value="finished">Finished</option>
-                  </select>
+                  :options="constructionStatusOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select status"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Completion Date</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Completion Date</label>
+                <Calendar
                     v-model="editForm.completion_date"
-                    type="date"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  dateFormat="dd/mm/yy"
+                  class="w-full"
                   />
                 </div>
                 
                 <!-- Precious Metals Specific -->
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Metal Type</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Metal Type</label>
+                <Select
                     v-model="editForm.metal_type"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select metal type</option>
-                    <option value="gold">Gold</option>
-                    <option value="silver">Silver</option>
-                    <option value="platinum">Platinum</option>
-                    <option value="palladium">Palladium</option>
-                    <option value="rhodium">Rhodium</option>
-                  </select>
+                  :options="metalTypeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select metal type"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Karat/Purity</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Karat/Purity</label>
+                <Select
                     v-model="editForm.karat"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select karat</option>
-                    <option value="24K">24 Karat</option>
-                    <option value="22K">22 Karat</option>
-                    <option value="21K">21 Karat</option>
-                    <option value="18K">18 Karat</option>
-                    <option value="14K">14 Karat</option>
-                    <option value="10K">10 Karat</option>
-                    <option value="9K">9 Karat</option>
-                  </select>
+                  :options="karatOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select karat"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Condition</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Condition</label>
+                <Select
                     v-model="editForm.condition"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select condition</option>
-                    <option value="new">New</option>
-                    <option value="used">Used</option>
-                  </select>
+                  :options="conditionOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select condition"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Form</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Form</label>
+                <Select
                     v-model="editForm.form"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select form</option>
-                    <option value="bars">Bars</option>
-                    <option value="jewelry">Jewelry</option>
-                    <option value="coins">Coins</option>
-                    <option value="other">Other</option>
-                  </select>
+                  :options="formOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select form"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Purpose</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Purpose</label>
+                <Select
                     v-model="editForm.purpose"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select purpose</option>
-                    <option value="investment">Investment</option>
-                    <option value="personal_use_for_zakat">Personal Use (Zakat Calculation)</option>
-                  </select>
+                  :options="purposeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select purpose"
+                  class="w-full"
+                />
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
-                  <input
+                <label class="block text-sm font-medium mb-2">Amount</label>
+                <InputNumber
                     v-model="editForm.amount"
-                    type="number"
-                    step="0.01"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  mode="decimal"
+                  :minFractionDigits="2"
+                  :maxFractionDigits="2"
+                  class="w-full"
                   />
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Amount Unit</label>
-                  <select
+                <label class="block text-sm font-medium mb-2">Amount Unit</label>
+                <Select
                     v-model="editForm.amount_unit"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  >
-                    <option value="">Select unit</option>
-                    <option value="grams">Grams</option>
-                    <option value="kilograms">Kilograms</option>
-                    <option value="ounces">Ounces</option>
-                    <option value="pounds">Pounds</option>
-                  </select>
+                  :options="amountUnitOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select unit"
+                  class="w-full"
+                />
                 </div>
                 
                 <div class="md:col-span-2">
-                  <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                  <textarea
+                <label class="block text-sm font-medium mb-2">Description</label>
+                <Textarea
                     v-model="editForm.description"
                     rows="3"
-                    class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  class="w-full"
                   />
                 </div>
               </div>
@@ -354,124 +339,120 @@
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Basic Information -->
                 <div>
-                  <h3 class="text-sm font-medium text-gray-500">Name</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.name }}</p>
+                <h3 class="text-sm font-medium mb-1">Name</h3>
+                <p class="text-sm">{{ investment.name }}</p>
                 </div>
                 
                 <div>
-                  <h3 class="text-sm font-medium text-gray-500">Type</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatInvestmentType(investment.investment_type) }}</p>
+                <h3 class="text-sm font-medium mb-1">Type</h3>
+                <p class="text-sm">{{ formatInvestmentType(investment.investment_type) }}</p>
                 </div>
                 
                 <div>
-                  <h3 class="text-sm font-medium text-gray-500">Purchase Amount</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatCurrency(investment.purchase_amount) }}</p>
+                <h3 class="text-sm font-medium mb-1">Purchase Amount</h3>
+                <p class="text-sm">{{ formatCurrency(investment.purchase_amount) }}</p>
                 </div>
                 
                 <div>
-                  <h3 class="text-sm font-medium text-gray-500">Current Value</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatCurrency(investment.current_value || 0) }}</p>
+                <h3 class="text-sm font-medium mb-1">Current Value</h3>
+                <p class="text-sm">{{ formatCurrency(investment.current_value || 0) }}</p>
                 </div>
-                
-
                 
                 <div v-if="investment.purchase_date">
-                  <h3 class="text-sm font-medium text-gray-500">Purchase Date</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatDate(investment.purchase_date) }}</p>
+                <h3 class="text-sm font-medium mb-1">Purchase Date</h3>
+                <p class="text-sm">{{ formatDate(investment.purchase_date) }}</p>
                 </div>
                 
                 <div v-if="investment.last_valuation_date">
-                  <h3 class="text-sm font-medium text-gray-500">Last Valuation Date</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatDate(investment.last_valuation_date) }}</p>
+                <h3 class="text-sm font-medium mb-1">Last Valuation Date</h3>
+                <p class="text-sm">{{ formatDate(investment.last_valuation_date) }}</p>
                 </div>
                 
                 <div v-if="investment.description" class="md:col-span-2">
-                  <h3 class="text-sm font-medium text-gray-500">Description</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.description }}</p>
+                <h3 class="text-sm font-medium mb-1">Description</h3>
+                <p class="text-sm">{{ investment.description }}</p>
                 </div>
                 
                 <!-- Real Estate Specific -->
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <h3 class="text-sm font-medium text-gray-500">Developer/Owner</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.developer_owner || 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Developer/Owner</h3>
+                <p class="text-sm">{{ investment.developer_owner || 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <h3 class="text-sm font-medium text-gray-500">Location</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.location || 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Location</h3>
+                <p class="text-sm">{{ investment.location || 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <h3 class="text-sm font-medium text-gray-500">Delivery Date</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.delivery_date ? formatDate(investment.delivery_date) : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Delivery Date</h3>
+                <p class="text-sm">{{ investment.delivery_date ? formatDate(investment.delivery_date) : 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <h3 class="text-sm font-medium text-gray-500">Construction Status</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.construction_status ? formatConstructionStatus(investment.construction_status) : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Construction Status</h3>
+                <p class="text-sm">{{ investment.construction_status ? formatConstructionStatus(investment.construction_status) : 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <h3 class="text-sm font-medium text-gray-500">Completion Date</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.completion_date ? formatDate(investment.completion_date) : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Completion Date</h3>
+                <p class="text-sm">{{ investment.completion_date ? formatDate(investment.completion_date) : 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'real_estate'">
-                  <h3 class="text-sm font-medium text-gray-500">Real Estate Status</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatStatus(investment.real_estate_status) }}</p>
+                <h3 class="text-sm font-medium mb-1">Real Estate Status</h3>
+                <p class="text-sm">{{ formatStatus(investment.real_estate_status) }}</p>
                 </div>
                 
                 <!-- Precious Metals Specific -->
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <h3 class="text-sm font-medium text-gray-500">Metal Type</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ formatMetalType(investment.metal_type) }}</p>
+                <h3 class="text-sm font-medium mb-1">Metal Type</h3>
+                <p class="text-sm">{{ formatMetalType(investment.metal_type) }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <h3 class="text-sm font-medium text-gray-500">Karat/Purity</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.karat || 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Karat/Purity</h3>
+                <p class="text-sm">{{ investment.karat || 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <h3 class="text-sm font-medium text-gray-500">Condition</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.condition ? formatCondition(investment.condition) : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Condition</h3>
+                <p class="text-sm">{{ investment.condition ? formatCondition(investment.condition) : 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <h3 class="text-sm font-medium text-gray-500">Form</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.form ? formatForm(investment.form) : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Form</h3>
+                <p class="text-sm">{{ investment.form ? formatForm(investment.form) : 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <h3 class="text-sm font-medium text-gray-500">Purpose</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.purpose ? formatPurpose(investment.purpose) : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Purpose</h3>
+                <p class="text-sm">{{ investment.purpose ? formatPurpose(investment.purpose) : 'N/A' }}</p>
                 </div>
                 
                 <div v-if="investment.investment_type === 'precious_metals'">
-                  <h3 class="text-sm font-medium text-gray-500">Amount</h3>
-                  <p class="mt-1 text-sm text-gray-900">{{ investment.amount ? `${investment.amount} ${investment.amount_unit}` : 'N/A' }}</p>
+                <h3 class="text-sm font-medium mb-1">Amount</h3>
+                <p class="text-sm">{{ investment.amount ? `${investment.amount} ${investment.amount_unit}` : 'N/A' }}</p>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
+        </template>
+      </Card>
 
         <!-- Document Links -->
-        <div v-if="investment.document_links && investment.document_links.length > 0" class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-medium text-gray-900">Documents</h2>
-          </div>
-          <div class="p-6">
+      <Card v-if="investment.document_links && investment.document_links.length > 0">
+        <template #header>
+          <h2 class="text-xl font-semibold">Documents</h2>
+        </template>
+        <template #content>
             <div class="space-y-3">
               <div
                 v-for="(link, index) in investment.document_links"
                 :key="index"
-                class="flex items-center justify-between p-3 border border-gray-200 rounded-md"
+              class="flex items-center justify-between p-3 border rounded-md"
               >
                 <div class="flex items-center">
-                  <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+                <i class="pi pi-file text-gray-400 mr-3"></i>
                   <a
                     :href="link"
                     target="_blank"
@@ -480,220 +461,244 @@
                     Document {{ index + 1 }}
                   </a>
                 </div>
-                <button
+              <Button
                   v-if="editMode"
                   @click="removeDocumentLink(index)"
-                  class="text-red-600 hover:text-red-800"
-                >
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
+                icon="pi pi-trash"
+                size="small"
+                text
+                severity="danger"
+              />
               </div>
             </div>
             
             <div v-if="editMode" class="mt-4">
-              <button
+            <Button
                 @click="addDocumentLink"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Add Document Link
-              </button>
+              icon="pi pi-plus"
+              label="Add Document Link"
+              outlined
+            />
             </div>
-          </div>
-        </div>
+        </template>
+      </Card>
 
         <!-- Linked Budget Items -->
-        <div class="bg-white shadow rounded-lg">
-          <div class="px-6 py-4 border-b border-gray-200">
+      <Card>
+        <template #header>
             <div class="flex items-center justify-between">
-              <h2 class="text-lg font-medium text-gray-900">Linked Budget Items</h2>
-              <div class="flex space-x-2">
-                <button
+            <h2 class="text-xl font-semibold">Linked Budget Items</h2>
+            <div class="flex gap-2">
+              <Button
                   @click="showCreateBudgetModal = true"
-                  class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  Create Budget Item
-                </button>
-                <button
+                icon="pi pi-plus"
+                label="Create Budget Item"
+                outlined
+              />
+              <Button
                   @click="goToBudgetItems"
-                  class="inline-flex items-center px-3 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                  <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                  </svg>
-                  Link Existing
-                </button>
+                icon="pi pi-link"
+                label="Link Existing"
+                severity="primary"
+              />
               </div>
             </div>
-          </div>
-          <div class="p-6">
+        </template>
+        <template #content>
             <div v-if="linkedBudgetItems.length === 0" class="text-center py-8">
-              <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items linked</h3>
-              <p class="mt-1 text-sm text-gray-500">Link a budget item to track payments for this investment.</p>
+            <i class="pi pi-briefcase text-4xl mb-3"></i>
+            <h3 class="text-lg font-medium mb-2">No budget items linked</h3>
+            <p class="mb-6">Link a budget item to track payments for this investment.</p>
             </div>
             
-            <div v-else class="space-y-4">
-              <div
-                v-for="budgetItem in linkedBudgetItems"
-                :key="budgetItem.id"
-                class="border rounded-lg overflow-hidden"
-              >
-                <!-- Budget Item Header -->
-                <div class="p-4 bg-gray-50">
-                  <div class="flex justify-between items-start">
-                    <div class="flex-1">
-                      <h3 class="text-lg font-medium text-gray-900">{{ budgetItem.name }}</h3>
-                      <p class="text-sm text-gray-600">{{ budgetItem.category }} • {{ budgetItem.type }}</p>
-                      <div class="mt-2 flex space-x-4">
-                        <div>
-                          <p class="text-sm text-gray-500">Planned Amount</p>
-                          <p class="text-lg font-semibold">{{ formatCurrency(calculateTotalAmount(budgetItem.amounts)) }}</p>
+          <div v-else>
+            <DataTable 
+              :value="linkedBudgetItems" 
+              removableSort 
+              responsiveLayout="scroll"
+              v-model:expandedRows="expandedBudgetItems"
+              dataKey="id"
+              class="p-datatable-sm"
+              stripedRows
+              showGridlines
+            >
+              <template #expansion="{ data }">
+                <div v-if="!data.transactions || data.transactions.length === 0" class="p-4">
+                  <p class="text-sm">No transactions for this budget item</p>
                         </div>
-                        <div>
-                          <p class="text-sm text-gray-500">Actual Amount</p>
-                          <p class="text-lg font-semibold">{{ formatCurrency(calculateTotalAmount(budgetItem.actual_amounts)) }}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                      <div class="flex items-center space-x-2">
-                        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                          {{ getTransactionCount(budgetItem) }}
-                        </span>
-                        <button
-                          @click="toggleTransactions(budgetItem.id)"
-                          class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-full transition-colors"
-                          :title="expandedBudgetItems.includes(budgetItem.id) ? 'Hide transactions' : 'Show transactions'"
-                        >
-                          <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': expandedBudgetItems.includes(budgetItem.id) }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </button>
-                      </div>
-                      <button
-                        @click="editBudgetItem(budgetItem)"
-                        class="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-full transition-colors"
-                        title="Edit budget item"
-                      >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </button>
-                      <button
-                        @click="unlinkBudgetItem(budgetItem)"
-                        class="p-1 text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-full transition-colors"
-                        title="Unlink budget item"
-                      >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      </button>
-                      <button
-                        @click="deleteBudgetItem(budgetItem)"
-                        class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
-                        title="Delete budget item"
-                      >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                
-                <!-- Transactions Accordion -->
-                <div v-if="expandedBudgetItems.includes(budgetItem.id)" class="border-t border-gray-200">
-                  <div class="p-4">
-                    <div v-if="!budgetItem.transactions || budgetItem.transactions.length === 0" class="text-center py-4">
-                      <p class="text-sm text-gray-500">No transactions for this budget item</p>
-                    </div>
-                    <div v-else class="space-y-3">
-                      <div
-                        v-for="transaction in budgetItem.transactions"
-                        :key="transaction.id"
-                        class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div class="flex-1">
-                          <p class="text-sm font-medium text-gray-900">{{ transaction.description }}</p>
-                          <p class="text-xs text-gray-500">{{ formatDate(transaction.date) }}</p>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                          <span :class="[
-                            'px-2 py-1 rounded-full text-xs font-medium',
-                            transaction.type === 'income' ? 'bg-green-100 text-green-800' :
-                            transaction.type === 'expense' ? 'bg-red-100 text-red-800' :
-                            'bg-blue-100 text-blue-800'
-                          ]">
-                            {{ transaction.type }}
-                          </span>
-                          <p class="text-sm font-semibold" :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'">
-                            {{ formatCurrency(transaction.amount) }}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+                <div v-else class="p-4">
+                  <h5 class="text-sm font-medium mb-3">Transaction History</h5>
+                  
+                  <DataTable 
+                    :value="data.transactions || []" 
+                    responsiveLayout="scroll"
+                    class="nested-datatable"
+                    stripedRows
+                    showGridlines
+                  >
+                    <Column field="date" header="Date" sortable style="width: 120px">
+                      <template #body="{ data: transaction }">
+                        <span class="font-medium">{{ formatDate(transaction.date) }}</span>
+                      </template>
+                    </Column>
 
-        
+                    <Column field="description" header="Description" sortable style="min-width: 200px">
+                      <template #body="{ data: transaction }">
+                        <div class="flex items-center gap-2">
+                          <div
+                            :class="getTransactionTypeColor(transaction.type)"
+                            class="w-3 h-3 rounded-full flex-shrink-0"
+                          ></div>
+                          <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
+                        </div>
+                      </template>
+                    </Column>
+
+                    <Column field="type" header="Type" sortable style="width: 100px">
+                      <template #body="{ data: transaction }">
+                        <Tag :value="transaction.type" :severity="getTransactionSeverity(transaction.type)" rounded />
+                      </template>
+                    </Column>
+
+                    <Column field="amount" header="Amount" sortable style="width: 120px">
+                      <template #body="{ data: transaction }">
+                        <span
+                          :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                          class="font-semibold text-lg"
+                        >
+                          {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                          </span>
+                      </template>
+                    </Column>
+                    
+                    <Column field="account" header="Account" sortable style="width: 120px">
+                      <template #body="{ data: transaction }">
+                        <span v-if="transaction.accounts?.name" class="font-medium">{{ transaction.accounts.name }}</span>
+                        <span v-else>-</span>
+                      </template>
+                    </Column>
+                    
+                    <Column field="category" header="Category" sortable style="width: 120px">
+                      <template #body="{ data: transaction }">
+                        <span v-if="transaction.category" class="font-medium">{{ transaction.category }}</span>
+                        <span v-else>-</span>
+                      </template>
+                    </Column>
+
+                    <Column field="notes" header="Notes" sortable style="min-width: 150px">
+                      <template #body="{ data: transaction }">
+                        <span v-if="transaction.notes" class="truncate max-w-xs">{{ transaction.notes }}</span>
+                        <span v-else>-</span>
+                      </template>
+                    </Column>
+                    
+                    <Column header="Actions" style="width: 120px">
+                      <template #body="{ data: transaction }">
+                        <div class="flex gap-1">
+                          <Button
+                            icon="pi pi-pencil"
+                            size="small"
+                            text
+                            severity="info"
+                            @click="editTransaction(transaction)"
+                            v-tooltip.top="'Edit Transaction'"
+                          />
+                          <Button
+                            icon="pi pi-trash"
+                            size="small"
+                            text
+                            severity="danger"
+                            @click="deleteTransaction(transaction)"
+                            v-tooltip.top="'Delete Transaction'"
+                          />
+                        </div>
+                      </template>
+                    </Column>
+                  </DataTable>
+                      </div>
+              </template>
+              
+              <Column expander style="width: 3rem"/>
+              
+              <Column field="name" header="Name" sortable style="min-width: 200px">
+                <template #body="{ data }">
+                  <div>
+                    <div class="font-medium">{{ data.name }}</div>
+                    <div class="text-xs">
+                      {{ (data.transactions || []).length }} transactions
+                    </div>
+                  </div>
+                </template>
+              </Column>
+              
+              <Column field="type" header="Type" sortable style="width: 100px">
+                <template #body="{ data }">
+                  <Tag :value="data.type" :severity="getTypeSeverity(data)" rounded />
+                </template>
+              </Column>
+              
+              <Column field="category" header="Category" sortable style="width: 120px">
+                <template #body="{ data }">
+                  <Tag :value="data.category" severity="info" rounded />
+                </template>
+              </Column>
+              
+              <Column header="Progress" style="width: 150px">
+                <template #body="{ data }">
+                  <div class="space-y-2">
+                    <div class="font-medium text-center text-sm">
+                      {{ formatCurrency(calculateTotalAmount(data.actual_amounts)) }} / {{ formatCurrency(calculateTotalAmount(data.amounts)) }}
       </div>
+                    <ProgressBar 
+                      :value="getProgressPercentage(data)" 
+                      :class="getProgressBarColor(data).replace('bg-', '')"
+                      style="height: 4px;"
+                      :showValue="false"
+                    />
     </div>
-    
-    <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteConfirm" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-            <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
+                </template>
+              </Column>
+              
+              <Column field="status" header="Status" sortable style="width: 120px">
+                <template #body="{ data }">
+                  <Tag :value="getBudgetItemStatus(data)" :severity="getBudgetItemStatusSeverity(data)" rounded />
+                </template>
+              </Column>
+              
+              <Column header="Actions" style="width: 180px">
+                <template #body="{ data }">
+                  <div class="flex gap-2">
+                    <Button
+                      @click="editBudgetItem(data)"
+                      icon="pi pi-pencil"
+                      size="small"
+                      text
+                      severity="info"
+                      v-tooltip.top="'Edit Budget Item'"
+                    />
+                    <Button
+                      @click="unlinkBudgetItem(data)"
+                      icon="pi pi-times"
+                      size="small"
+                      text
+                      severity="warning"
+                      v-tooltip.top="'Unlink Budget Item'"
+                    />
+                    <Button
+                      @click="deleteBudgetItem(data)"
+                      icon="pi pi-trash"
+                      size="small"
+                      text
+                      severity="danger"
+                      v-tooltip.top="'Delete Budget Item'"
+                    />
           </div>
-          <h3 class="text-lg font-medium text-gray-900 mt-4">Delete Investment</h3>
-          <div class="mt-2 px-7 py-3">
-            <p class="text-sm text-gray-500">
-              Are you sure you want to delete "<strong>{{ investment?.name }}</strong>"? This action cannot be undone.
-            </p>
-            <p class="text-sm text-red-500 mt-2">
-              This will also remove any linked budget items and transactions.
-            </p>
+                </template>
+              </Column>
+            </DataTable>
           </div>
-          <div class="items-center px-4 py-3">
-            <div class="flex justify-center space-x-3">
-              <button
-                @click="showDeleteConfirm = false"
-                class="px-4 py-2 bg-gray-300 text-gray-700 text-base font-medium rounded-md w-24 shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300"
-              >
-                Cancel
-              </button>
-              <button
-                @click="deleteInvestment"
-                :disabled="deleting"
-                class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-24 shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50"
-              >
-                <svg v-if="deleting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ deleting ? 'Deleting...' : 'Delete' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+        </template>
+      </Card>
     </div>
     
     <!-- Create Budget Item Modal -->
@@ -718,12 +723,14 @@
 import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useConfirm } from 'primevue/useconfirm'
 import { investmentAssetsAPI, budgetAPI } from '@/lib/supabase'
 import AddBudgetModal from '@/components/AddBudgetModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const confirm = useConfirm()
 
 // State
 const loading = ref(false)
@@ -732,12 +739,10 @@ const deleting = ref(false)
 const error = ref('')
 const investment = ref(null)
 const editMode = ref(false)
-const showDeleteConfirm = ref(false)
 const showCreateBudgetModal = ref(false)
 const showEditBudgetModal = ref(false)
 const editingBudgetItem = ref(null)
 const linkedBudgetItems = ref([])
-const relatedTransactions = ref([])
 const realEstateStatuses = ref([])
 const expandedBudgetItems = ref([])
 
@@ -765,10 +770,56 @@ const editForm = reactive({
   amount_unit: ''
 })
 
+// Options for dropdowns
+const constructionStatusOptions = [
+  { label: 'Under Construction', value: 'under_construction' },
+  { label: 'Finished', value: 'finished' }
+]
+
+const metalTypeOptions = [
+  { label: 'Gold', value: 'gold' },
+  { label: 'Silver', value: 'silver' },
+  { label: 'Platinum', value: 'platinum' },
+  { label: 'Palladium', value: 'palladium' },
+  { label: 'Rhodium', value: 'rhodium' }
+]
+
+const karatOptions = [
+  { label: '24 Karat', value: '24K' },
+  { label: '22 Karat', value: '22K' },
+  { label: '21 Karat', value: '21K' },
+  { label: '18 Karat', value: '18K' },
+  { label: '14 Karat', value: '14K' },
+  { label: '10 Karat', value: '10K' },
+  { label: '9 Karat', value: '9K' }
+]
+
+const conditionOptions = [
+  { label: 'New', value: 'new' },
+  { label: 'Used', value: 'used' }
+]
+
+const formOptions = [
+  { label: 'Bars', value: 'bars' },
+  { label: 'Jewelry', value: 'jewelry' },
+  { label: 'Coins', value: 'coins' },
+  { label: 'Other', value: 'other' }
+]
+
+const purposeOptions = [
+  { label: 'Investment', value: 'investment' },
+  { label: 'Personal Use (Zakat Calculation)', value: 'personal_use_for_zakat' }
+]
+
+const amountUnitOptions = [
+  { label: 'Grams', value: 'grams' },
+  { label: 'Kilograms', value: 'kilograms' },
+  { label: 'Ounces', value: 'ounces' },
+  { label: 'Pounds', value: 'pounds' }
+]
+
 // Computed
 const investmentId = computed(() => route.params.id)
-
-
 
 // Methods
 const formatCurrency = (amount) => {
@@ -823,18 +874,31 @@ const formatPurpose = (purpose) => {
   return purpose.charAt(0).toUpperCase() + purpose.slice(1)
 }
 
-const getStatusColor = (status) => {
+const getStatusSeverity = (status) => {
   switch (status) {
     case 'owned':
     case 'finished_installments':
-      return 'bg-green-100 text-green-800'
+      return 'success'
     case 'paying':
     case 'delivered':
-      return 'bg-blue-100 text-blue-800'
+      return 'info'
     case 'planned':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'warning'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'secondary'
+  }
+}
+
+const getTransactionSeverity = (type) => {
+  switch (type) {
+    case 'income':
+      return 'success'
+    case 'expense':
+      return 'danger'
+    case 'investment':
+      return 'info'
+    default:
+      return 'secondary'
   }
 }
 
@@ -852,7 +916,7 @@ const getROIColor = (investment) => {
   const purchaseAmount = parseFloat(investment.purchase_amount) || 0
   const currentValue = parseFloat(investment.current_value) || 0
   
-  if (purchaseAmount === 0) return 'text-gray-600'
+  if (purchaseAmount === 0) return ''
   
   const roi = currentValue - purchaseAmount
   return roi >= 0 ? 'text-green-600' : 'text-red-600'
@@ -874,14 +938,14 @@ const loadInvestment = async () => {
     // Initialize edit form
     editForm.name = data.name || ''
     editForm.current_value = data.current_value || ''
-    editForm.purchase_date = data.purchase_date || ''
-    editForm.last_valuation_date = data.last_valuation_date || ''
+    editForm.purchase_date = data.purchase_date ? new Date(data.purchase_date) : null
+    editForm.last_valuation_date = data.last_valuation_date ? new Date(data.last_valuation_date) : null
     editForm.description = data.description || ''
     editForm.real_estate_status = data.real_estate_status || ''
     // Real estate specific
-    editForm.delivery_date = data.delivery_date || ''
+    editForm.delivery_date = data.delivery_date ? new Date(data.delivery_date) : null
     editForm.construction_status = data.construction_status || ''
-    editForm.completion_date = data.completion_date || ''
+    editForm.completion_date = data.completion_date ? new Date(data.completion_date) : null
     editForm.developer_owner = data.developer_owner || ''
     editForm.location = data.location || ''
     // Precious metals specific
@@ -954,26 +1018,27 @@ const saveChanges = async () => {
   }
 }
 
-const deleteInvestment = async () => {
-  deleting.value = true
-  error.value = ''
-  
-  try {
-    await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
-    
-    // Navigate back to investments list
-    router.push('/investments')
-    
-  } catch (err) {
-    console.error('Error deleting investment:', err)
-    error.value = err.message || 'Failed to delete investment'
-    showDeleteConfirm.value = false
-  } finally {
-    deleting.value = false
-  }
+const deleteInvestment = () => {
+  console.log('deleteInvestment called, confirm object:', confirm)
+  confirm.require({
+    message: `Are you sure you want to delete Investment item: ${investment.value?.name}?`,
+    header: 'Delete Investment?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        deleting.value = true
+        await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
+        router.push('/investments')
+      } catch (err) {
+        console.error('Error deleting investment:', err)
+        error.value = err.message || 'Failed to delete investment'
+      } finally {
+        deleting.value = false
+      }
+    }
+  })
 }
-
-
 
 const goToBudgetItems = () => {
   router.push('/')
@@ -985,60 +1050,47 @@ const editBudgetItem = (budgetItem) => {
 }
 
 const unlinkBudgetItem = async (budgetItem) => {
-  if (!confirm(`Are you sure you want to unlink "${budgetItem.name}" from this investment?`)) {
-    return
-  }
-  
-  try {
-    await investmentAssetsAPI.unlinkBudgetItemFromInvestment(budgetItem.id)
-    
-    // Reload the investment data to update the linked budget items
-    await loadInvestment()
-    
-    console.log('Budget item unlinked successfully')
-  } catch (err) {
-    console.error('Error unlinking budget item:', err)
-    error.value = err.message || 'Failed to unlink budget item'
-  }
+  confirm.require({
+    message: `Are you sure you want to unlink "${budgetItem.name}" from this investment?`,
+    header: 'Confirm Unlink?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        await investmentAssetsAPI.unlinkBudgetItemFromInvestment(budgetItem.id)
+        
+        // Reload the investment data to update the linked budget items
+        await loadInvestment()
+        
+        console.log('Budget item unlinked successfully')
+      } catch (err) {
+        console.error('Error unlinking budget item:', err)
+        error.value = err.message || 'Failed to unlink budget item'
+      }
+    }
+  })
 }
 
 const deleteBudgetItem = async (budgetItem) => {
-  if (!confirm(`Are you sure you want to delete "${budgetItem.name}"? This action cannot be undone and will also remove any linked transactions.`)) {
-    return
-  }
-  
-  try {
-    await budgetAPI.deleteBudgetItem(budgetItem.id)
-    
-    // Reload the investment data to update the linked budget items
-    await loadInvestment()
-    
-    console.log('Budget item deleted successfully')
-  } catch (err) {
-    console.error('Error deleting budget item:', err)
-    error.value = err.message || 'Failed to delete budget item'
-  }
-}
-
-
-
-const getBudgetItemName = (budgetItemId) => {
-  const budgetItem = linkedBudgetItems.value.find(item => item.id === budgetItemId)
-  return budgetItem?.name || 'Unknown budget item'
-}
-
-const toggleTransactions = (budgetItemId) => {
-  const index = expandedBudgetItems.value.indexOf(budgetItemId)
-  if (index > -1) {
-    expandedBudgetItems.value.splice(index, 1)
-  } else {
-    expandedBudgetItems.value.push(budgetItemId)
-  }
-}
-
-const getTransactionCount = (budgetItem) => {
-  if (!budgetItem.transactions) return '0'
-  return budgetItem.transactions.length.toString()
+  confirm.require({
+    message: `Are you sure you want to delete budget item: ${budgetItem.name}?`,
+    header: 'Confirm Delete?',
+    icon: 'pi pi-exclamation-triangle',
+    acceptClass: 'p-button-danger',
+    accept: async () => {
+      try {
+        await budgetAPI.deleteBudgetItem(budgetItem.id)
+        
+        // Reload the investment data to update the linked budget items
+        await loadInvestment()
+        
+        console.log('Budget item deleted successfully')
+      } catch (err) {
+        console.error('Error deleting budget item:', err)
+        error.value = err.message || 'Failed to delete budget item'
+      }
+    }
+  })
 }
 
 const handleBudgetItemCreated = async (budgetItem) => {
@@ -1096,6 +1148,90 @@ const removeDocumentLink = async (index) => {
     console.error('Error removing document link:', err)
     error.value = err.message || 'Failed to remove document link'
   }
+}
+
+const getTransactionTypeColor = (type) => {
+  const colors = {
+    income: 'bg-green-500',
+    expense: 'bg-red-500',
+    investment: 'bg-blue-500'
+  }
+  return colors[type] || 'bg-gray-500'
+}
+
+const getTypeSeverity = (type) => {
+  const severity = {
+    income: 'success',
+    expense: 'danger',
+    investment: 'info'
+  }
+  return severity[type] || 'secondary'
+}
+
+const getProgressPercentage = (item) => {
+  const actual = calculateTotalAmount(item.actual_amounts)
+  const budgetAmount = calculateTotalAmount(item.amounts)
+  if (budgetAmount === 0) return 0
+  const percentage = (actual / budgetAmount) * 100
+  return Math.min(percentage, 100)
+}
+
+const getProgressBarColor = (item) => {
+  const percentage = getProgressPercentage(item)
+  
+  if (percentage >= 100) {
+    return 'bg-green-500' // Complete
+  } else if (percentage >= 90) {
+    return 'bg-orange-500' // Approaching limit
+  } else if (percentage > 0) {
+    return 'bg-blue-500' // On track
+  } else {
+    return 'bg-gray-300' // No progress
+  }
+}
+
+const getBudgetItemStatus = (item) => {
+  const actualAmount = calculateTotalAmount(item.actual_amounts)
+  const budgetAmount = calculateTotalAmount(item.amounts)
+  
+  // Check if completed (amount matches exactly)
+  if (actualAmount === budgetAmount) {
+    return 'Completed'
+  }
+  
+  // Check if exceeds budget
+  if (actualAmount > budgetAmount) {
+    return 'Exceeds Budget'
+  }
+  
+  // Check if partial
+  if (actualAmount > 0 && actualAmount < budgetAmount) {
+    return 'Partial'
+  }
+  
+  return 'Pending'
+}
+
+const getBudgetItemStatusSeverity = (status) => {
+  const map = {
+    'Completed': 'success',
+    'Exceeds Budget': 'danger',
+    'Partial': 'info',
+    'Pending': 'warning'
+  }
+  return map[status] || 'secondary'
+}
+
+const editTransaction = (transaction) => {
+  // TODO: Implement transaction editing
+  console.log('Edit transaction:', transaction)
+  // This could open a modal or navigate to transaction edit page
+}
+
+const deleteTransaction = (transaction) => {
+  // TODO: Implement transaction deletion with confirmation
+  console.log('Delete transaction:', transaction)
+  // This should show a confirmation dialog before deleting
 }
 
 // Lifecycle

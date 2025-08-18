@@ -68,4 +68,6 @@ function isOutsideClicked(event) {
         <div class="layout-mask animate-fadein"></div>
     </div>
     <Toast />
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmDialog :draggable="false"/>
 </template>
