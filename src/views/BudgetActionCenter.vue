@@ -17,11 +17,9 @@
           view="month"
           dateFormat="MM yy"
           :disabled="isLoading"
-          showIcon
-          showButtonBar
+          showIconß
           fluid
           iconDisplay="input"
-          @update:modelValue="onDateChange"
         />
         
         <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
@@ -55,7 +53,7 @@
     
     <!-- Content -->
     <div v-else>
-      <div v-if="filteredItems.length === 0" class="px-6 py-12 text-center">
+      <div v-if="budgetItems.length === 0" class="px-6 py-12 text-center">
         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
         </svg>
@@ -68,7 +66,7 @@
       <!-- Grid View -->
       <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         <Panel 
-          v-for="item in filteredItems" 
+          v-for="item in budgetItems" 
           :key="item.id" 
           class="hover:shadow-lg transition-shadow duration-200"
         >
@@ -178,7 +176,7 @@
             </div>
             
             <!-- Transaction History (Collapsible) -->
-            <div v-if="expandedItems.includes(item.id)" class="pt-4">
+            <div v-if="expandedRows.includes(item.id)" class="pt-4">
               <div class="rounded p-3">
                 <h5 class="text-xs font-medium mb-3">Transaction History</h5>
                 
@@ -214,16 +212,8 @@
 
       <!-- Table View -->
       <div v-else-if="viewMode === 'table'">
-        <div class="flex justify-between items-center mb-3">
-          <IconField>
-            <InputIcon class="pi pi-search" />
-            <InputText v-model="globalFilter" placeholder="Search" @input="dtFilters.global.value = globalFilter" />
-          </IconField>
-        </div>
         <DataTable 
           :value="tableItems" 
-          :filters="dtFilters" 
-          filterDisplay="menu" 
           removableSort 
           responsiveLayout="scroll"
           v-model:expandedRows="expandedRows"
@@ -466,7 +456,6 @@ const authStore = useAuthStore()
 // Reactive data
 const isLoading = ref(false)
 const selectedDate = ref(new Date())
-const expandedItems = ref([])
 const showAddTransactionModal = ref(false)
 const showSkipModal = ref(false)
 const selectedBudgetItem = ref(null)
@@ -481,53 +470,6 @@ const viewOptions = [
 const selectedMonth = computed(() => selectedDate.value.getMonth())
 const selectedYear = computed(() => selectedDate.value.getFullYear())
 
-const monthYearLabel = computed(() => {
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ]
-  return `${monthNames[selectedMonth.value]} ${selectedYear.value}`
-})
-
-const availableMonths = computed(() => {
-  return [
-    { value: 0, label: 'January' },
-    { value: 1, label: 'February' },
-    { value: 2, label: 'March' },
-    { value: 3, label: 'April' },
-    { value: 4, label: 'May' },
-    { value: 5, label: 'June' },
-    { value: 6, label: 'July' },
-    { value: 7, label: 'August' },
-    { value: 8, label: 'September' },
-    { value: 9, label: 'October' },
-    { value: 10, label: 'November' },
-    { value: 11, label: 'December' }
-  ]
-})
-
-const availableYears = computed(() => {
-  const currentYear = new Date().getFullYear()
-  const years = []
-  for (let i = currentYear - 2; i <= currentYear + 2; i++) {
-    years.push(i)
-  }
-  return years
-})
-
-// Filters (kept for existing computed filtering – no selects rendered)
-const filters = ref({ status: '', type: '', category: '', paymentSchedule: '' })
-
-// DataTable filtering
-const dtFilters = ref({
-  global: { value: null, matchMode: 'contains' },
-  name: { value: null, matchMode: 'contains' },
-  type: { value: null, matchMode: 'equals' },
-  statusLabel: { value: null, matchMode: 'equals' },
-  category: { value: null, matchMode: 'contains' }
-})
-const globalFilter = ref('')
-
 const budgetItems = ref([])
 
 const loadBudgetItems = async () => {
@@ -541,56 +483,12 @@ const loadBudgetItems = async () => {
   }
 }
 
-const availableCategories = computed(() => {
-  const categories = new Set()
-  budgetItems.value.forEach(item => {
-    if (item.category) {
-      categories.add(item.category)
-    }
-  })
-  return Array.from(categories).sort()
-})
-
-const filteredItems = computed(() => {
-  let items = budgetItems.value
-
-  if (filters.value.status) {
-    items = items.filter(item => getItemStatus(item) === filters.value.status)
-  }
-
-  if (filters.value.type) {
-    items = items.filter(item => item.type === filters.value.type)
-  }
-
-  if (filters.value.category) {
-    items = items.filter(item => item.category === filters.value.category)
-  }
-
-  if (filters.value.paymentSchedule) {
-    items = items.filter(item => item.paymentSchedule === filters.value.paymentSchedule)
-  }
-
-  return items
-})
-
-// Table data including derived status field
+// Remove filteredItems and compute tableItems from budgetItems directly
 const tableItems = computed(() =>
-  filteredItems.value.map((item) => ({ ...item, statusLabel: getItemStatus(item) }))
+  budgetItems.value.map((item) => ({ ...item, statusLabel: getItemStatus(item) }))
 )
 
 const expandedRows = ref([])
-
-const completedCount = computed(() => {
-  return filteredItems.value.filter(item => getItemStatus(item) === 'completed').length
-})
-
-const pendingCount = computed(() => {
-  return filteredItems.value.filter(item => getItemStatus(item) === 'pending').length
-})
-
-const overdueCount = computed(() => {
-  return filteredItems.value.filter(item => getItemStatus(item) === 'overdue').length
-})
 
 // Methods
 const loadData = async () => {
@@ -625,19 +523,6 @@ const nextMonth = () => {
 
 const goToCurrentMonth = () => {
   selectedDate.value = new Date()
-}
-
-const onDateChange = async () => {
-  await loadBudgetItems()
-}
-
-const clearFilters = () => {
-  filters.value = {
-    status: '',
-    type: '',
-    category: '',
-    paymentSchedule: ''
-  }
 }
 
 const getItemStatus = (item) => {
@@ -703,19 +588,6 @@ const getStatusColor = (item) => {
   return colors[status] || { bg: 'bg-gray-400' }
 }
 
-const getStatusBadgeColor = (status) => {
-  const colors = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    completed: 'bg-green-100 text-green-800',
-    overdue: 'bg-red-100 text-red-800',
-    skipped: 'bg-gray-100 text-gray-800',
-    partial: 'bg-blue-100 text-blue-800',
-    full: 'bg-green-100 text-green-800',
-    exceeds: 'bg-red-100 text-red-800'
-  }
-  return colors[status] || 'bg-gray-100 text-gray-800'
-}
-
 const getStatusSeverity = (status) => {
   const map = {
     pending: 'warning',
@@ -731,19 +603,8 @@ const getStatusSeverity = (status) => {
 
 const getTypeSeverity = (type) => (type === 'income' ? 'success' : 'danger')
 
-const getTypeBadgeColor = (type) => {
-  return type === 'income' 
-    ? 'bg-green-100 text-green-800' 
-    : 'bg-red-100 text-red-800'
-}
-
 const getTransactionTypeColor = (type) => {
   return type === 'income' ? 'bg-green-400' : 'bg-red-400'
-}
-
-const getTotalTransactions = (item) => {
-  const transactions = item.transactions || []
-  return transactions.reduce((sum, t) => sum + t.amount, 0)
 }
 
 const getActualAmount = (item) => {
@@ -758,7 +619,6 @@ const getBudgetAmount = (item) => {
 
 // Month closure logic
 const closedMonths = ref([])
-const loadingClosedMonths = ref(false)
 
 const isMonthClosed = computed(() => {
   return closedMonths.value.some(closedMonth => 
@@ -802,14 +662,13 @@ const fetchClosedMonths = async () => {
   if (!authStore.isAuthenticated || !authStore.userId) return
   
   try {
-    loadingClosedMonths.value = true
     const data = await budgetStore.getClosedMonths(selectedYear.value)
     closedMonths.value = data || []
   } catch (error) {
     console.error('Error fetching closed months:', error)
     closedMonths.value = []
   } finally {
-    loadingClosedMonths.value = false
+    // loadingClosedMonths.value = false // This line is removed
   }
 }
 
@@ -823,14 +682,10 @@ const handleCloseMonth = async () => {
       await fetchClosedMonths()
       
       // Show success notification
-      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                         'July', 'August', 'September', 'October', 'November', 'December']
-      const monthName = monthNames[selectedMonth.value]
-      
       if (window.$toaster) {
         window.$toaster.success(
           'Month Closed Successfully',
-          `${monthName} ${selectedYear.value} has been closed and actual amounts are now displayed.`
+          `Month ${selectedMonth.value + 1} ${selectedYear.value} has been closed and actual amounts are now displayed.`
         )
       }
     }
@@ -873,22 +728,6 @@ const getRemainingAmount = (item) => {
   const actualAmount = getActualAmount(item)
   const budgetAmount = getBudgetAmount(item)
   return budgetAmount - actualAmount
-}
-
-const getCategoryBadgeColor = (category) => {
-  const colors = {
-    'Essential': 'bg-red-100 text-red-800',
-    'Housing': 'bg-blue-100 text-blue-800',
-    'Transportation': 'bg-green-100 text-green-800',
-    'Food': 'bg-yellow-100 text-yellow-800',
-    'Utilities': 'bg-purple-100 text-purple-800',
-    'Healthcare': 'bg-pink-100 text-pink-800',
-    'Entertainment': 'bg-indigo-100 text-indigo-800',
-    'Education': 'bg-teal-100 text-teal-800',
-    'Savings': 'bg-emerald-100 text-emerald-800',
-    'Investment': 'bg-cyan-100 text-cyan-800'
-  }
-  return colors[category] || 'bg-gray-100 text-gray-800'
 }
 
 const getDueDateText = (item) => {
@@ -970,11 +809,11 @@ const calculateDueDate = (item) => {
 }
 
 const toggleHistory = (item) => {
-  const index = expandedItems.value.indexOf(item.id)
+  const index = expandedRows.value.indexOf(item.id)
   if (index > -1) {
-    expandedItems.value.splice(index, 1)
+    expandedRows.value.splice(index, 1)
   } else {
-    expandedItems.value.push(item.id)
+    expandedRows.value.push(item.id)
   }
 }
 
@@ -1004,11 +843,6 @@ const deleteTransaction = (transaction) => {
   // TODO: Implement transaction deletion with confirmation
   console.log('Delete transaction:', transaction)
   // This should show a confirmation dialog before deleting
-}
-
-const getPaidTransactionCount = (item) => {
-  const transactions = item.transactions || []
-  return transactions.filter(t => t.type === 'income').length
 }
 
 
