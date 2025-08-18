@@ -1,507 +1,385 @@
 <template>
-  <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="mb-8">
-        <div class="flex items-center justify-between">
+  <div class="min-h-screen">
+    <!-- Header -->
+    <Card class="mb-6">
+      <template #content>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">Create Investment</h1>
-            <p class="mt-2 text-gray-600">Add a new investment to your portfolio</p>
+            <h1 class="text-3xl font-bold">Create Investment</h1>
+            <p class="mt-2">Add a new investment to your portfolio</p>
           </div>
-          <router-link
-            to="/investments"
-            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Investments
-          </router-link>
+          
+          <Button
+            @click="router.push('/investments')"
+            icon="pi pi-arrow-left"
+            label="Back to Investments"
+            outlined
+            severity="secondary"
+          />
         </div>
-      </div>
+      </template>
+    </Card>
 
-      <!-- Form -->
-      <div class="bg-white shadow rounded-lg">
-        <form @submit.prevent="handleSubmit" class="p-6 space-y-6">
+    <!-- Form -->
+    <Card>
+      <template #content>
+        <form @submit.prevent="handleSubmit" class="space-y-6">
           <!-- Error Alert -->
-          <div v-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                </svg>
-              </div>
-              <div class="ml-3">
-                <h3 class="text-sm font-medium text-red-800">Error</h3>
-                <div class="mt-2 text-sm text-red-700">{{ error }}</div>
-              </div>
-            </div>
-          </div>
+          <Message v-if="error" severity="error" :closable="false">
+            <template #messageicon>
+              <i class="pi pi-exclamation-triangle"></i>
+            </template>
+            {{ error }}
+          </Message>
 
           <!-- Investment Type Selection -->
           <div>
-            <label for="investment_type" class="block text-sm font-medium text-gray-700 mb-2">
+            <label for="investment_type" class="block text-sm font-medium mb-2">
               Investment Type *
             </label>
-            <select
+            <Select
               id="investment_type"
               v-model="form.investment_type"
+              :options="investmentTypes"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select investment type"
+              class="w-full"
+              :class="{ 'p-invalid': errors.investment_type }"
               @change="onInvestmentTypeChange"
-              :class="[
-                'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                errors.investment_type ? 'border-red-300' : 'border-gray-300'
-              ]"
-            >
-              <option value="">Select investment type</option>
-              <option v-for="type in investmentTypes" :key="type.value" :value="type.value">
-                {{ type.label }}
-              </option>
-            </select>
-            <p v-if="errors.investment_type" class="mt-1 text-sm text-red-600">
-              {{ errors.investment_type }}
-            </p>
+            />
+            <small v-if="errors.investment_type" class="p-error">{{ errors.investment_type }}</small>
           </div>
 
           <!-- Basic Information -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                Name/Title *
-              </label>
-              <input
+              <label for="name" class="block text-sm font-medium mb-2">Name/Title *</label>
+              <InputText
                 id="name"
                 v-model="form.name"
                 @blur="validateField('name')"
-                type="text"
-                :class="[
-                  'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                  errors.name ? 'border-red-300' : 'border-gray-300'
-                ]"
                 placeholder="Enter investment name"
+                class="w-full"
+                :class="{ 'p-invalid': errors.name }"
               />
-              <p v-if="errors.name" class="mt-1 text-sm text-red-600">
-                {{ errors.name }}
-              </p>
+              <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
             </div>
 
             <div>
-              <label for="purchase_amount" class="block text-sm font-medium text-gray-700 mb-2">
-                Purchase Amount *
-              </label>
-              <CurrencyInput
+              <label for="purchase_amount" class="block text-sm font-medium mb-2">Purchase Amount *</label>
+              <InputNumber
                 id="purchase_amount"
                 v-model="form.purchase_amount"
                 @blur="validateField('purchase_amount')"
-                :options="currencyOptions"
-                inputmode="decimal"
-                :class="[
-                  'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                  errors.purchase_amount ? 'border-red-300' : 'border-gray-300'
-                ]"
+                mode="currency"
+                currency="EGP"
                 placeholder="0.00"
+                class="w-full"
+                :class="{ 'p-invalid': errors.purchase_amount }"
               />
-              <p v-if="errors.purchase_amount" class="mt-1 text-sm text-red-600">
-                {{ errors.purchase_amount }}
-              </p>
+              <small v-if="errors.purchase_amount" class="p-error">{{ errors.purchase_amount }}</small>
             </div>
           </div>
 
           <!-- Real Estate Specific Fields -->
           <div v-if="form.investment_type === 'real_estate'" class="space-y-6">
-            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-              Real Estate Details
-            </h3>
+            <Divider>
+              <span class="text-lg font-medium">Real Estate Details</span>
+            </Divider>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="delivery_date" class="block text-sm font-medium text-gray-700 mb-2">
-                  Delivery Date
-                </label>
-                <input
+                <label for="delivery_date" class="block text-sm font-medium mb-2">Delivery Date</label>
+                <DatePicker
                   id="delivery_date"
                   v-model="form.delivery_date"
                   @blur="validateField('delivery_date')"
-                  type="date"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.delivery_date ? 'border-red-300' : 'border-gray-300'
-                  ]"
+                  dateFormat="dd/mm/yy"
+                  placeholder="Select delivery date"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.delivery_date }"
                 />
-                <p v-if="errors.delivery_date" class="mt-1 text-sm text-red-600">
-                  {{ errors.delivery_date }}
-                </p>
+                <small v-if="errors.delivery_date" class="p-error">{{ errors.delivery_date }}</small>
               </div>
 
               <div>
-                <label for="construction_status" class="block text-sm font-medium text-gray-700 mb-2">
-                  Construction Status
-                </label>
-                <select
+                <label for="construction_status" class="block text-sm font-medium mb-2">Construction Status</label>
+                <Select
                   id="construction_status"
                   v-model="form.construction_status"
+                  :options="constructionStatusOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select status"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.construction_status }"
                   @blur="validateField('construction_status')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.construction_status ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select status</option>
-                  <option value="under_construction">Under Construction</option>
-                  <option value="finished">Finished</option>
-                </select>
-                <p v-if="errors.construction_status" class="mt-1 text-sm text-red-600">
-                  {{ errors.construction_status }}
-                </p>
+                />
+                <small v-if="errors.construction_status" class="p-error">{{ errors.construction_status }}</small>
               </div>
 
               <div>
-                <label for="completion_date" class="block text-sm font-medium text-gray-700 mb-2">
-                  Completion Date
-                </label>
-                <input
+                <label for="completion_date" class="block text-sm font-medium mb-2">Completion Date</label>
+                <DatePicker
                   id="completion_date"
                   v-model="form.completion_date"
                   @blur="validateField('completion_date')"
-                  type="date"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.completion_date ? 'border-red-300' : 'border-gray-300'
-                  ]"
+                  dateFormat="dd/mm/yy"
+                  placeholder="Select completion date"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.completion_date }"
                 />
-                <p v-if="errors.completion_date" class="mt-1 text-sm text-red-600">
-                  {{ errors.completion_date }}
-                </p>
+                <small v-if="errors.completion_date" class="p-error">{{ errors.completion_date }}</small>
               </div>
 
               <div>
-                <label for="developer_owner" class="block text-sm font-medium text-gray-700 mb-2">
-                  Developer/Owner *
-                </label>
-                <input
+                <label for="developer_owner" class="block text-sm font-medium mb-2">Developer/Owner *</label>
+                <InputText
                   id="developer_owner"
                   v-model="form.developer_owner"
                   @blur="validateField('developer_owner')"
-                  type="text"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.developer_owner ? 'border-red-300' : 'border-gray-300'
-                  ]"
                   placeholder="Enter developer or owner name"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.developer_owner }"
                 />
-                <p v-if="errors.developer_owner" class="mt-1 text-sm text-red-600">
-                  {{ errors.developer_owner }}
-                </p>
+                <small v-if="errors.developer_owner" class="p-error">{{ errors.developer_owner }}</small>
               </div>
 
               <div class="md:col-span-2">
-                <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
-                  Location
-                </label>
-                <input
+                <label for="location" class="block text-sm font-medium mb-2">Location</label>
+                <InputText
                   id="location"
                   v-model="form.location"
                   @blur="validateField('location')"
-                  type="text"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.location ? 'border-red-300' : 'border-gray-300'
-                  ]"
                   placeholder="Enter property location"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.location }"
                 />
-                <p v-if="errors.location" class="mt-1 text-sm text-red-600">
-                  {{ errors.location }}
-                </p>
+                <small v-if="errors.location" class="p-error">{{ errors.location }}</small>
               </div>
 
               <div class="md:col-span-2">
-                <label for="real_estate_status" class="block text-sm font-medium text-gray-700 mb-2">
-                  Status
-                </label>
-                <select
+                <label for="real_estate_status" class="block text-sm font-medium mb-2">Status</label>
+                <Select
                   id="real_estate_status"
                   v-model="form.real_estate_status"
+                  :options="realEstateStatuses"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select status"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.real_estate_status }"
                   @blur="validateField('real_estate_status')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.real_estate_status ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option v-for="status in realEstateStatuses" :key="status.value" :value="status.value">
-                    {{ status.label }}
-                  </option>
-                </select>
-                <p v-if="errors.real_estate_status" class="mt-1 text-sm text-red-600">
-                  {{ errors.real_estate_status }}
-                </p>
+                />
+                <small v-if="errors.real_estate_status" class="p-error">{{ errors.real_estate_status }}</small>
               </div>
 
               <div class="md:col-span-2">
-                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                  General Information
-                </label>
-                <textarea
+                <label for="description" class="block text-sm font-medium mb-2">General Information</label>
+                <Textarea
                   id="description"
                   v-model="form.description"
                   @blur="validateField('description')"
                   rows="4"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.description ? 'border-red-300' : 'border-gray-300'
-                  ]"
                   placeholder="Enter any additional information about the property"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.description }"
                 />
-                <p v-if="errors.description" class="mt-1 text-sm text-red-600">
-                  {{ errors.description }}
-                </p>
+                <small v-if="errors.description" class="p-error">{{ errors.description }}</small>
               </div>
             </div>
           </div>
 
           <!-- Precious Metals Specific Fields -->
           <div v-if="form.investment_type === 'precious_metals'" class="space-y-6">
-            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-              Precious Metals Details
-            </h3>
+            <Divider>
+              <span class="text-lg font-medium">Precious Metals Details</span>
+            </Divider>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label for="metal_type" class="block text-sm font-medium text-gray-700 mb-2">
-                  Metal Type *
-                </label>
-                <select
+                <label for="metal_type" class="block text-sm font-medium mb-2">Metal Type *</label>
+                <Select
                   id="metal_type"
                   v-model="form.metal_type"
+                  :options="metalTypes"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select metal type"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.metal_type }"
                   @blur="validateField('metal_type')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.metal_type ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select metal type</option>
-                  <option v-for="metal in metalTypes" :key="metal.value" :value="metal.value">
-                    {{ metal.label }}
-                  </option>
-                </select>
-                <p v-if="errors.metal_type" class="mt-1 text-sm text-red-600">
-                  {{ errors.metal_type }}
-                </p>
+                />
+                <small v-if="errors.metal_type" class="p-error">{{ errors.metal_type }}</small>
               </div>
 
               <div>
-                <label for="karat" class="block text-sm font-medium text-gray-700 mb-2">
-                  Karat/Purity
-                </label>
-                <select
+                <label for="karat" class="block text-sm font-medium mb-2">Karat/Purity</label>
+                <Select
                   id="karat"
                   v-model="form.karat"
+                  :options="karatOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select karat"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.karat }"
                   @blur="validateField('karat')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.karat ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select karat</option>
-                  <option v-for="karat in karatOptions" :key="karat.value" :value="karat.value">
-                    {{ karat.label }}
-                  </option>
-                </select>
-                <p v-if="errors.karat" class="mt-1 text-sm text-red-600">
-                  {{ errors.karat }}
-                </p>
+                />
+                <small v-if="errors.karat" class="p-error">{{ errors.karat }}</small>
               </div>
 
               <div>
-                <label for="condition" class="block text-sm font-medium text-gray-700 mb-2">
-                  Condition
-                </label>
-                <select
+                <label for="condition" class="block text-sm font-medium mb-2">Condition</label>
+                <Select
                   id="condition"
                   v-model="form.condition"
+                  :options="conditionOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select condition"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.condition }"
                   @blur="validateField('condition')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.condition ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select condition</option>
-                  <option v-for="condition in conditionOptions" :key="condition.value" :value="condition.value">
-                    {{ condition.label }}
-                  </option>
-                </select>
-                <p v-if="errors.condition" class="mt-1 text-sm text-red-600">
-                  {{ errors.condition }}
-                </p>
+                />
+                <small v-if="errors.condition" class="p-error">{{ errors.condition }}</small>
               </div>
 
               <div>
-                <label for="form" class="block text-sm font-medium text-gray-700 mb-2">
-                  Form
-                </label>
-                <select
+                <label for="form" class="block text-sm font-medium mb-2">Form</label>
+                <Select
                   id="form"
                   v-model="form.form"
+                  :options="formOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select form"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.form }"
                   @blur="validateField('form')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.form ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select form</option>
-                  <option v-for="formOption in formOptions" :key="formOption.value" :value="formOption.value">
-                    {{ formOption.label }}
-                  </option>
-                </select>
-                <p v-if="errors.form" class="mt-1 text-sm text-red-600">
-                  {{ errors.form }}
-                </p>
+                />
+                <small v-if="errors.form" class="p-error">{{ errors.form }}</small>
               </div>
 
               <div>
-                <label for="purpose" class="block text-sm font-medium text-gray-700 mb-2">
-                  Purpose
-                </label>
-                <select
+                <label for="purpose" class="block text-sm font-medium mb-2">Purpose</label>
+                <Select
                   id="purpose"
                   v-model="form.purpose"
+                  :options="purposeOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select purpose"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.purpose }"
                   @blur="validateField('purpose')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.purpose ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select purpose</option>
-                  <option v-for="purpose in purposeOptions" :key="purpose.value" :value="purpose.value">
-                    {{ purpose.label }}
-                  </option>
-                </select>
-                <p v-if="errors.purpose" class="mt-1 text-sm text-red-600">
-                  {{ errors.purpose }}
-                </p>
+                />
+                <small v-if="errors.purpose" class="p-error">{{ errors.purpose }}</small>
               </div>
 
               <div>
-                <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                  Amount *
-                </label>
-                <CurrencyInput
+                <label for="amount" class="block text-sm font-medium mb-2">Amount *</label>
+                <InputNumber
                   id="amount"
                   v-model="form.amount"
                   @blur="validateField('amount')"
-                  :options="currencyOptions"
-                  inputmode="decimal"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.amount ? 'border-red-300' : 'border-gray-300'
-                  ]"
+                  mode="decimal"
+                  :minFractionDigits="2"
+                  :maxFractionDigits="2"
                   placeholder="0.00"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.amount }"
                 />
-                <p v-if="errors.amount" class="mt-1 text-sm text-red-600">
-                  {{ errors.amount }}
-                </p>
+                <small v-if="errors.amount" class="p-error">{{ errors.amount }}</small>
               </div>
 
               <div>
-                <label for="amount_unit" class="block text-sm font-medium text-gray-700 mb-2">
-                  Unit *
-                </label>
-                <select
+                <label for="amount_unit" class="block text-sm font-medium mb-2">Unit *</label>
+                <Select
                   id="amount_unit"
                   v-model="form.amount_unit"
+                  :options="amountUnitOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select unit"
+                  class="w-full"
+                  :class="{ 'p-invalid': errors.amount_unit }"
                   @blur="validateField('amount_unit')"
-                  :class="[
-                    'block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                    errors.amount_unit ? 'border-red-300' : 'border-gray-300'
-                  ]"
-                >
-                  <option value="">Select unit</option>
-                  <option v-for="unit in amountUnitOptions" :key="unit.value" :value="unit.value">
-                    {{ unit.label }}
-                  </option>
-                </select>
-                <p v-if="errors.amount_unit" class="mt-1 text-sm text-red-600">
-                  {{ errors.amount_unit }}
-                </p>
+                />
+                <small v-if="errors.amount_unit" class="p-error">{{ errors.amount_unit }}</small>
               </div>
             </div>
           </div>
 
           <!-- Document Links -->
           <div class="space-y-4">
-            <h3 class="text-lg font-medium text-gray-900 border-b border-gray-200 pb-2">
-              Document Links
-            </h3>
+            <Divider>
+              <span class="text-lg font-medium">Document Links</span>
+            </Divider>
             
-            <div v-for="(link, index) in form.document_links" :key="index" class="flex items-center space-x-2">
-              <input
+            <div v-for="(link, index) in form.document_links" :key="index" class="flex items-center gap-2">
+              <InputText
                 v-model="form.document_links[index]"
                 type="url"
-                :class="[
-                  'flex-1 px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm',
-                  'border-gray-300'
-                ]"
                 placeholder="Enter document URL (Google Drive, Apple Drive, etc.)"
+                class="flex-1"
               />
-              <button
+              <Button
                 type="button"
                 @click="removeDocumentLink(index)"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+                icon="pi pi-trash"
+                severity="danger"
+                text
+                size="small"
+              />
             </div>
             
-            <button
+            <Button
               type="button"
               @click="addDocumentLink"
-              class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Add Document Link
-            </button>
+              icon="pi pi-plus"
+              label="Add Document Link"
+              outlined
+              severity="secondary"
+            />
           </div>
 
           <!-- Form Actions -->
-          <div class="flex items-center justify-between pt-6 border-t border-gray-200">
-            <div class="text-sm text-gray-600">
-              <span v-if="hasErrors" class="text-red-600">Please fix errors</span>
-              <span v-else class="text-green-600">All fields valid</span>
+          <Divider />
+          
+          <div class="flex items-center justify-between">
+            <div class="text-sm">
+              <span v-if="hasErrors" class="text-red-600 font-medium">Please fix errors</span>
+              <span v-else class="text-green-600 font-medium">All fields valid</span>
             </div>
             
-            <div class="flex space-x-3">
-              <router-link
-                to="/investments"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              >
-                Cancel
-              </router-link>
+            <div class="flex gap-3">
+              <Button
+                @click="router.push('/investments')"
+                label="Cancel"
+                outlined
+                severity="secondary"
+              />
               
-              <button
+              <Button
                 type="submit"
                 :disabled="loading || hasErrors"
-                class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <svg v-if="loading" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                {{ loading ? 'Creating...' : 'Create Investment' }}
-              </button>
+                :loading="loading"
+                icon="pi pi-check"
+                label="Create Investment"
+                severity="primary"
+              />
             </div>
           </div>
         </form>
-      </div>
-    </div>
+      </template>
+    </Card>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import CurrencyInput from '@/components/CurrencyInput.vue'
-import { currencyOptions } from '@/constants/currencyOptions.js'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { investmentAssetsAPI } from '@/lib/supabase'
@@ -551,6 +429,12 @@ const conditionOptions = ref([])
 const formOptions = ref([])
 const purposeOptions = ref([])
 const amountUnitOptions = ref([])
+
+// Static options for construction status
+const constructionStatusOptions = [
+  { label: 'Under Construction', value: 'under_construction' },
+  { label: 'Finished', value: 'finished' }
+]
 
 // Computed
 const hasErrors = computed(() => Object.keys(errors).length > 0)
