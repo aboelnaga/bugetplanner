@@ -11,29 +11,21 @@
     <div class="flex items-center space-x-4">
       <Button icon="pi pi-chevron-left" rounded text :disabled="isLoading" @click="previousMonth" />
       
-      <div class="flex items-center space-x-2">
-        <Select
-          v-model="selectedMonth"
-          :options="availableMonths"
-          optionLabel="label"
-          optionValue="value"
+      <div class="flex items-center space-x-4">
+        <DatePicker
+          v-model="selectedDate"
+          view="month"
+          dateFormat="MM yy"
           :disabled="isLoading"
-          class="w-50"
-          @change="onMonthChange"
-          placeholder="Select Month"
+          showIcon
+          showButtonBar
+          fluid
+          iconDisplay="input"
+          @update:modelValue="onDateChange"
         />
         
-        <Select
-          v-model="selectedYear"
-          :options="availableYears"
-          :disabled="isLoading"
-          class="w-auto"
-          @change="onYearChange"
-          placeholder="Year"
-        />
+        <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
       </div>
-      
-      <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
     </div>
     
     <div class="flex items-center space-x-2">
@@ -464,7 +456,7 @@ import { useAuthStore } from '../stores/auth'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import BaseModal from '../components/BaseModal.vue'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
-// PrimeVue components via auto-import: Button, Dropdown, Tag, SelectButton, DataTable, Column, ProgressBar, Panel
+// PrimeVue components via auto-import: Button, Dropdown, Tag, SelectButton, DataTable, Column, ProgressBar, Panel, DatePicker
 
 // Stores
 const budgetStore = useBudgetStore()
@@ -473,8 +465,7 @@ const authStore = useAuthStore()
 
 // Reactive data
 const isLoading = ref(false)
-const selectedMonth = ref(new Date().getMonth())
-const selectedYear = ref(new Date().getFullYear())
+const selectedDate = ref(new Date())
 const expandedItems = ref([])
 const showAddTransactionModal = ref(false)
 const showSkipModal = ref(false)
@@ -486,20 +477,10 @@ const viewOptions = [
   { label: 'Grid', value: 'grid' }
 ]
 
-// Filters (kept for existing computed filtering – no selects rendered)
-const filters = ref({ status: '', type: '', category: '', paymentSchedule: '' })
+// Computed properties for month/year from selectedDate
+const selectedMonth = computed(() => selectedDate.value.getMonth())
+const selectedYear = computed(() => selectedDate.value.getFullYear())
 
-// DataTable filtering
-const dtFilters = ref({
-  global: { value: null, matchMode: 'contains' },
-  name: { value: null, matchMode: 'contains' },
-  type: { value: null, matchMode: 'equals' },
-  statusLabel: { value: null, matchMode: 'equals' },
-  category: { value: null, matchMode: 'contains' }
-})
-const globalFilter = ref('')
-
-// Computed properties
 const monthYearLabel = computed(() => {
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -533,6 +514,19 @@ const availableYears = computed(() => {
   }
   return years
 })
+
+// Filters (kept for existing computed filtering – no selects rendered)
+const filters = ref({ status: '', type: '', category: '', paymentSchedule: '' })
+
+// DataTable filtering
+const dtFilters = ref({
+  global: { value: null, matchMode: 'contains' },
+  name: { value: null, matchMode: 'contains' },
+  type: { value: null, matchMode: 'equals' },
+  statusLabel: { value: null, matchMode: 'equals' },
+  category: { value: null, matchMode: 'contains' }
+})
+const globalFilter = ref('')
 
 const budgetItems = ref([])
 
@@ -618,34 +612,22 @@ const loadData = async () => {
 }
 
 const previousMonth = () => {
-  if (selectedMonth.value === 0) {
-    selectedMonth.value = 11
-    selectedYear.value--
-  } else {
-    selectedMonth.value--
-  }
+  const newDate = new Date(selectedDate.value)
+  newDate.setMonth(newDate.getMonth() - 1)
+  selectedDate.value = newDate
 }
 
 const nextMonth = () => {
-  if (selectedMonth.value === 11) {
-    selectedMonth.value = 0
-    selectedYear.value++
-  } else {
-    selectedMonth.value++
-  }
+  const newDate = new Date(selectedDate.value)
+  newDate.setMonth(newDate.getMonth() + 1)
+  selectedDate.value = newDate
 }
 
 const goToCurrentMonth = () => {
-  const now = new Date()
-  selectedMonth.value = now.getMonth()
-  selectedYear.value = now.getFullYear()
+  selectedDate.value = new Date()
 }
 
-const onMonthChange = async () => {
-  await loadBudgetItems()
-}
-
-const onYearChange = async () => {
+const onDateChange = async () => {
   await loadBudgetItems()
 }
 
@@ -1062,6 +1044,10 @@ const onTransactionUpdated = async () => {
 // Lifecycle
 onMounted(() => {
   loadData()
+})
+
+watch(selectedDate, async () => {
+  await loadBudgetItems()
 })
 
 
