@@ -1,17 +1,18 @@
 <template>
-<!-- Auto-Close Loading Indicator -->
-<div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
-<div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }"></div>
-</div>
+    <!-- Auto-Close Loading Indicator -->
+    <div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
+      <div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }"></div>
+    </div>
 
-<!-- Month Navigation -->
+    <!-- Month Navigation -->
 <Card class="mb-3">
 <template #content>
-  <div class="flex items-center justify-between">
-    <div class="flex items-center space-x-4">
-      <Button icon="pi pi-chevron-left" rounded text :disabled="isLoading" @click="previousMonth" />
-      
-      <div class="flex items-center space-x-4 text-center">
+  <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <!-- Month Navigation Controls -->
+    <div class="flex flex-col sm:flex-row items-center gap-4">
+      <div class="flex items-center gap-2">
+        <Button icon="pi pi-chevron-left" rounded text :disabled="isLoading" @click="previousMonth" />
+        
         <DatePicker
           v-model="selectedDate"
           view="month"
@@ -19,27 +20,25 @@
           :disabled="isLoading"
           showIcon
           iconDisplay="input"
-          manualInput="false"
-          inputClass="text-center"
+          :manualInput="false"
+          inputClass="text-center w-32 sm:w-40"
         />
         
         <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
-      </div>
-    </div>
-    
-    <div class="flex items-center space-x-2">
-      <!-- Month Closure Status -->
+            </div>
+          </div>
+          
+    <!-- Month Actions -->
+    <div class="flex flex-col sm:flex-row items-center gap-2">
+            <!-- Month Closure Status -->
       <Tag v-if="isMonthClosed" value="Month Closed" severity="success" />
-      
-      <!-- Close Month Button -->
+            
+            <!-- Close Month Button -->
       <Button v-else-if="canCloseMonth" label="Close Month" icon="pi pi-step-forward" severity="info" outlined :disabled="isLoading" @click="handleCloseMonth" />
       
-      <Button label="Current Month" link :disabled="isLoading" @click="goToCurrentMonth" />
-
-      <!-- View Mode Toggle -->
-      <SelectButton v-model="viewMode" :options="viewOptions" optionLabel="label" optionValue="value" :allowEmpty="false" />
-    </div>
-  </div>
+      <Button v-if="!isCurrentMonthSelected" label="Current Month" link :disabled="isLoading" @click="goToCurrentMonth" />
+          </div>
+        </div>
 </template>
 </Card>
 
@@ -51,21 +50,27 @@
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       <span class="ml-3 text-gray-600">Loading budget items...</span>
     </div>
-    
+
     <!-- Content -->
     <div v-else>
       <div v-if="budgetItems.length === 0" class="px-6 py-12 text-center">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-        </svg>
+        <i class="pi pi-box text-6xl text-gray-400 mb-4"></i>
         <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items found</h3>
         <p class="mt-1 text-sm text-gray-500">
           {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
         </p>
       </div>
       
-      <!-- Grid View -->
-      <div v-else-if="viewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <!-- Grid View (Mobile) -->
+      <div v-if="budgetItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 relative">
+        <!-- Loading Overlay for Grid -->
+        <div v-if="isLoading" class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-10 flex items-center justify-center rounded-lg">
+          <div class="flex flex-col items-center gap-2">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+          </div>
+        </div>
+        
         <Panel 
           v-for="item in budgetItems" 
           :key="item.id" 
@@ -177,7 +182,7 @@
             </div>
             
             <!-- Transaction History (Collapsible) -->
-            <div v-if="expandedRows.includes(item.id)" class="pt-4">
+            <div v-if="getExpandedRows.includes(item.id)" class="pt-4">
               <div class="rounded p-3">
                 <h5 class="text-xs font-medium mb-3">Transaction History</h5>
                 
@@ -185,7 +190,7 @@
                   <div
                     v-for="transaction in item.transactions"
                     :key="transaction.id"
-                    class="flex items-center justify-between p-2 rounded text-xs"
+                    class="flex items-center gap-2 p-2 rounded text-xs"
                   >
                     <div class="flex items-center gap-2">
                       <span class="truncate">{{ transaction.description || 'Transaction' }}</span>
@@ -207,8 +212,8 @@
         </Panel>
       </div>
 
-      <!-- Table View -->
-      <div v-else-if="viewMode === 'table'">
+      <!-- Table View (Desktop) -->
+      <div v-if="budgetItems.length > 0" class="hidden lg:block">
         <DataTable 
           :value="tableItems" 
           removableSort 
@@ -219,7 +224,7 @@
           <template #expansion="{ data }">
             <div v-if="!data.transactions || data.transactions.length === 0" class="p-4">
                 <p class="text-sm">No transactions yet</p>
-              </div>
+        </div>
             <div v-else class="p-4">
               <h5 class="text-sm font-medium mb-3">Transaction History</h5>
               
@@ -378,55 +383,55 @@
   </template>
 </Card>
 
-<!-- Add Transaction Modal -->
-<AddTransactionModal
-v-model="showAddTransactionModal"
-:budget-item="selectedBudgetItem"
-@transaction-added="onTransactionAdded"
-@transaction-updated="onTransactionUpdated"
-/>
+    <!-- Add Transaction Modal -->
+    <AddTransactionModal
+      v-model="showAddTransactionModal"
+      :budget-item="selectedBudgetItem"
+      @transaction-added="onTransactionAdded"
+      @transaction-updated="onTransactionUpdated"
+    />
 
-<!-- Skip Item Modal -->
-<BaseModal
-v-if="showSkipModal"
-@close="closeSkipModal"
-title="Skip Budget Item"
->
-<div class="space-y-4">
+    <!-- Skip Item Modal -->
+    <BaseModal
+      v-if="showSkipModal"
+      @close="closeSkipModal"
+      title="Skip Budget Item"
+    >
+      <div class="space-y-4">
   <p>
-    Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This will mark it as skipped for this month.
-  </p>
-  
-  <div>
+          Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This will mark it as skipped for this month.
+        </p>
+        
+        <div>
     <label class="block text-sm font-medium mb-2">
-      Reason (optional)
-    </label>
-    <textarea
-      v-model="skipReason"
-      rows="3"
-      class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-      placeholder="Why are you skipping this item?"
-    ></textarea>
-  </div>
-</div>
-
-<template #footer>
-  <div class="flex justify-end space-x-3">
-    <button
-      @click="closeSkipModal"
+            Reason (optional)
+          </label>
+          <textarea
+            v-model="skipReason"
+            rows="3"
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Why are you skipping this item?"
+          ></textarea>
+        </div>
+      </div>
+      
+      <template #footer>
+        <div class="flex justify-end space-x-3">
+          <button
+            @click="closeSkipModal"
       class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
-    >
-      Cancel
-    </button>
-    <button
-      @click="confirmSkip"
-      class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700"
-    >
-      Skip Item
-    </button>
-  </div>
-</template>
-</BaseModal>
+          >
+            Cancel
+          </button>
+          <button
+            @click="confirmSkip"
+            class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700"
+          >
+            Skip Item
+          </button>
+        </div>
+      </template>
+    </BaseModal>
 </template>
 
 <script setup>
@@ -451,15 +456,15 @@ const showAddTransactionModal = ref(false)
 const showSkipModal = ref(false)
 const selectedBudgetItem = ref(null)
 const skipReason = ref('')
-const viewMode = ref('table')
-const viewOptions = [
-  { label: 'Table', value: 'table' },
-  { label: 'Grid', value: 'grid' }
-]
 
 // Computed properties for month/year from selectedDate
 const selectedMonth = computed(() => selectedDate.value.getMonth())
 const selectedYear = computed(() => selectedDate.value.getFullYear())
+
+const isCurrentMonthSelected = computed(() => {
+  const now = new Date()
+  return selectedYear.value === now.getFullYear() && selectedMonth.value === now.getMonth()
+})
 
 const budgetItems = ref([])
 
@@ -480,6 +485,11 @@ const tableItems = computed(() =>
 )
 
 const expandedRows = ref([])
+
+// Ensure expandedRows is always an array
+const getExpandedRows = computed(() => {
+  return Array.isArray(expandedRows.value) ? expandedRows.value : []
+})
 
 // Methods
 const loadData = async () => {
@@ -866,11 +876,26 @@ const onTransactionUpdated = async () => {
 
 // Lifecycle
 onMounted(() => {
+  // Ensure expandedRows is properly initialized
+  if (!Array.isArray(expandedRows.value)) {
+    expandedRows.value = []
+  }
   loadData()
 })
 
 watch(selectedDate, async () => {
-  await loadBudgetItems()
+  isLoading.value = true
+  try {
+    await Promise.all([
+      transactionStore.fetchTransactions(selectedYear.value),
+      fetchClosedMonths(),
+      loadBudgetItems()
+    ])
+  } catch (error) {
+    console.error('Error reloading data for selected date:', error)
+  } finally {
+    isLoading.value = false
+  }
 })
 
 
