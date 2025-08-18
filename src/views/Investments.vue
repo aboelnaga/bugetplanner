@@ -1,154 +1,257 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-900">Investment Portfolio</h1>
-      <router-link
-        to="/investments/create"
-        class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-      >
-        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-        </svg>
-        Add Investment
-      </router-link>
-    </div>
-
-    <!-- Portfolio Overview -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Total Portfolio Value</h3>
-        <p class="text-3xl font-bold text-green-600">{{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}</p>
-        <p class="text-sm text-gray-500 mt-1">Current market value</p>
-      </div>
-      
-      <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Total Investments</h3>
-        <p class="text-3xl font-bold text-blue-600">{{ investmentAssets?.length || 0 }}</p>
-        <p class="text-sm text-gray-500 mt-1">Portfolio items</p>
-      </div>
-      
-      <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Total ROI</h3>
-        <p class="text-3xl font-bold text-purple-600">{{ formatCurrency(portfolioValue?.totalROI || 0) }}</p>
-        <p class="text-sm text-gray-500 mt-1">Return on investment</p>
-      </div>
-    </div>
-
-    <!-- Investment Items -->
-    <div class="card">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-semibold">Investment Portfolio</h3>
-        <div class="flex space-x-2">
-          <select
-            v-model="selectedType"
-            class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Types</option>
-            <option value="real_estate">Real Estate</option>
-            <option value="precious_metals">Precious Metals</option>
-            <option value="other">Other</option>
-          </select>
-          <input
-            v-model="searchTerm"
-            type="text"
-            placeholder="Search investments..."
-            class="px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+  <div class="min-h-screen">
+    <!-- Header -->
+    <Card class="mb-6">
+      <template #content>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold">Investment Portfolio</h1>
+            <p class="mt-2">Manage your investments and track portfolio performance</p>
+          </div>
+          
+          <Button
+            @click="router.push('/investments/create')"
+            icon="pi pi-plus"
+            label="Add Investment"
+            severity="primary"
           />
         </div>
-      </div>
-      
-      <div v-if="loading" class="flex justify-center items-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-      
-      <div v-else-if="filteredInvestments.length === 0" class="text-center py-8">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 2a2 2 0 00-2 2v6a2 2 0 002 2m0 0V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No investments found</h3>
-        <p class="mt-1 text-sm text-gray-500">Get started by creating your first investment.</p>
-        <div class="mt-6">
-          <router-link
-            to="/investments/create"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add Investment
-          </router-link>
-        </div>
-      </div>
-      
-      <div v-else class="space-y-4">
-        <div
-          v-for="investment in filteredInvestments"
-          :key="investment.id"
-          class="border rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer relative"
-          @click="viewInvestment(investment.id)"
-        >
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <h4 class="text-lg font-semibold">{{ investment.name }}</h4>
-              <p class="text-gray-600 capitalize">{{ formatInvestmentType(investment.investment_type) }}</p>
+      </template>
+    </Card>
+
+    <!-- Portfolio Overview Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <Card>
+        <template #content>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+              <i class="pi pi-chart-line text-green-600 text-lg"></i>
             </div>
-            <div class="flex items-center space-x-2">
-              <span :class="[
-                'px-3 py-1 rounded-full text-sm font-medium',
-                getStatusColor(investment.real_estate_status || investment.status)
-              ]">
-                {{ formatStatus(investment.real_estate_status || investment.status) }}
-              </span>
-              <button
-                @click.stop="deleteInvestment(investment)"
-                class="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-full transition-colors"
-                title="Delete investment"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+            <div>
+              <p class="text-sm font-medium">Total Portfolio Value</p>
+              <p class="text-2xl font-semibold text-green-600">{{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}</p>
             </div>
           </div>
-          
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <p class="text-sm text-gray-500">Purchase Amount</p>
-              <p class="text-lg font-semibold">{{ formatCurrency(investment.purchase_amount) }}</p>
+        </template>
+      </Card>
+
+      <Card>
+        <template #content>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <i class="pi pi-briefcase text-blue-600 text-lg"></i>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Current Value</p>
-              <p class="text-lg font-semibold">{{ formatCurrency(investment.current_value || 0) }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">ROI</p>
-              <p class="text-lg font-semibold" :class="getROIColor(investment)">
-                {{ formatROI(investment) }}
-              </p>
+              <p class="text-sm font-medium">Total Investments</p>
+              <p class="text-2xl font-semibold text-blue-600">{{ investmentAssets?.length || 0 }}</p>
             </div>
           </div>
-          
-          <div v-if="investment.description" class="mt-4 pt-4 border-t">
-            <p class="text-sm text-gray-600">{{ investment.description }}</p>
+        </template>
+      </Card>
+
+      <Card>
+        <template #content>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+              <i class="pi pi-percentage text-purple-600 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium">Total ROI</p>
+              <p class="text-2xl font-semibold text-purple-600">{{ formatCurrency(portfolioValue?.totalROI || 0) }}</p>
+            </div>
           </div>
-        </div>
-      </div>
+        </template>
+      </Card>
+
+      <Card>
+        <template #content>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+              <i class="pi pi-chart-pie text-orange-600 text-lg"></i>
+            </div>
+            <div>
+              <p class="text-sm font-medium">ROI %</p>
+              <p class="text-2xl font-semibold text-orange-600">{{ formatPercentage(portfolioValue?.totalROIPercentage || 0) }}</p>
+            </div>
+          </div>
+        </template>
+      </Card>
     </div>
 
+    <!-- Investment DataTable -->
+    <Card>
+      <template #header>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <h3 class="text-xl font-semibold">Investment Portfolio</h3>
+          
+          <div class="flex flex-col sm:flex-row gap-3">
+            <Dropdown
+              v-model="selectedType"
+              :options="typeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="All Types"
+              class="w-full sm:w-40"
+              :showClear="true"
+            />
+            
+            <IconField>
+              <InputIcon class="pi pi-search" />
+              <InputText
+                v-model="searchTerm"
+                placeholder="Search investments..."
+                class="w-full sm:w-64"
+              />
+            </IconField>
+          </div>
+        </div>
+      </template>
+      
+      <template #content>
+        <div v-if="loading" class="flex justify-center items-center py-12">
+          <div class="flex flex-col items-center gap-3">
+            <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+            <span>Loading investments...</span>
+          </div>
+        </div>
+        
+        <div v-else-if="filteredInvestments.length === 0" class="text-center py-12">
+          <i class="pi pi-briefcase text-6xl mb-4"></i>
+          <h3 class="text-lg font-medium mb-2">No investments found</h3>
+          <p class="mb-6">
+            {{ investmentAssets?.length === 0 ? 'Get started by creating your first investment.' : 'No investments match your current filters.' }}
+          </p>
+          <Button
+            @click="router.push('/investments/create')"
+            icon="pi pi-plus"
+            label="Add Investment"
+            severity="primary"
+          />
+        </div>
+        
+        <DataTable
+          v-else
+          :value="filteredInvestments"
+          removableSort
+          responsiveLayout="scroll"
+          class="p-datatable-sm"
+          stripedRows
+          showGridlines
+          paginator
+          :rows="10"
+          :rowsPerPageOptions="[5, 10, 25, 50]"
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} investments"
+        >
+          <template #empty>
+            <div class="text-center py-8">
+              <i class="pi pi-briefcase text-4xl mb-3"></i>
+              <p>No investments found</p>
+            </div>
+          </template>
+
+          <Column field="name" header="Investment Name" sortable style="min-width: 200px">
+            <template #body="{ data }">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <i class="pi pi-briefcase text-blue-600 text-sm"></i>
+                </div>
+                <div>
+                  <span class="font-medium">{{ data.name }}</span>
+                  <p class="text-sm capitalize">{{ formatInvestmentType(data.investment_type) }}</p>
+                </div>
+              </div>
+            </template>
+          </Column>
+
+          <Column field="status" header="Status" sortable style="width: 120px">
+            <template #body="{ data }">
+              <Tag
+                :value="formatStatus(data.real_estate_status || data.status)"
+                :severity="getStatusSeverity(data.real_estate_status || data.status)"
+                rounded
+              />
+            </template>
+          </Column>
+
+          <Column field="purchase_amount" header="Purchase Amount" sortable style="width: 140px">
+            <template #body="{ data }">
+              <span class="font-semibold">{{ formatCurrency(data.purchase_amount) }}</span>
+            </template>
+          </Column>
+
+          <Column field="current_value" header="Current Value" sortable style="width: 140px">
+            <template #body="{ data }">
+              <span class="font-semibold">{{ formatCurrency(data.current_value || 0) }}</span>
+            </template>
+          </Column>
+
+          <Column field="roi" header="ROI" sortable style="width: 120px">
+            <template #body="{ data }">
+              <span
+                :class="getROIColor(data)"
+                class="font-semibold"
+              >
+                {{ formatROI(data) }}
+              </span>
+            </template>
+          </Column>
+
+          <Column field="roi_percentage" header="ROI %" sortable style="width: 100px">
+            <template #body="{ data }">
+              <span
+                :class="getROIColor(data)"
+                class="font-semibold"
+              >
+                {{ formatROIPercentage(data) }}
+              </span>
+            </template>
+          </Column>
+
+          <Column header="Actions" style="width: 120px">
+            <template #body="{ data }">
+              <div class="flex gap-1">
+                <Button
+                  icon="pi pi-eye"
+                  size="small"
+                  text
+                  severity="info"
+                  @click="viewInvestment(data.id)"
+                  v-tooltip.top="'View Details'"
+                />
+                <Button
+                  icon="pi pi-trash"
+                  size="small"
+                  text
+                  severity="danger"
+                  @click="deleteInvestment(data)"
+                  v-tooltip.top="'Delete Investment'"
+                />
+              </div>
+            </template>
+          </Column>
+        </DataTable>
+      </template>
+    </Card>
+
     <!-- Investment Strategy -->
-    <div class="card">
-      <h3 class="text-lg font-semibold mb-4">Investment Strategy</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <h4 class="font-medium mb-2">Portfolio Overview</h4>
-          <p class="text-gray-600 text-sm">Your current portfolio includes {{ investmentAssets?.length || 0 }} investments with a total value of {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}.</p>
+    <Card v-if="investmentAssets?.length > 0">
+      <template #header>
+        <h3 class="text-xl font-semibold">Investment Strategy</h3>
+      </template>
+      <template #content>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h4 class="font-medium mb-2">Portfolio Overview</h4>
+            <p class="text-sm">Your current portfolio includes {{ investmentAssets?.length || 0 }} investments with a total value of {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}.</p>
+          </div>
+          <div>
+            <h4 class="font-medium mb-2">Diversification Opportunity</h4>
+            <p class="text-sm">Consider diversifying with different investment types to balance your portfolio and reduce risk.</p>
+          </div>
         </div>
-        <div>
-          <h4 class="font-medium mb-2">Diversification Opportunity</h4>
-          <p class="text-gray-600 text-sm">Consider diversifying with different investment types to balance your portfolio and reduce risk.</p>
-        </div>
-      </div>
-    </div>
+      </template>
+    </Card>
   </div>
 </template>
 
@@ -166,6 +269,13 @@ const investmentAssetsStore = useInvestmentAssetsStore()
 const loading = ref(false)
 const searchTerm = ref('')
 const selectedType = ref('')
+
+// Filter options
+const typeOptions = [
+  { label: 'Real Estate', value: 'real_estate' },
+  { label: 'Precious Metals', value: 'precious_metals' },
+  { label: 'Other', value: 'other' }
+]
 
 // Computed
 const investmentAssets = computed(() => investmentAssetsStore.investmentAssets)
@@ -204,6 +314,11 @@ const formatCurrency = (amount) => {
   }).format(Math.abs(amount))
 }
 
+const formatPercentage = (percentage) => {
+  if (percentage === null || percentage === undefined) return '0%'
+  return `${percentage.toFixed(2)}%`
+}
+
 const formatInvestmentType = (type) => {
   if (!type) return 'Unknown'
   return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
@@ -214,18 +329,18 @@ const formatStatus = (status) => {
   return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
 }
 
-const getStatusColor = (status) => {
+const getStatusSeverity = (status) => {
   switch (status) {
     case 'owned':
     case 'finished_installments':
-      return 'bg-green-100 text-green-800'
+      return 'success'
     case 'paying':
     case 'delivered':
-      return 'bg-blue-100 text-blue-800'
+      return 'info'
     case 'planned':
-      return 'bg-yellow-100 text-yellow-800'
+      return 'warning'
     default:
-      return 'bg-gray-100 text-gray-800'
+      return 'secondary'
   }
 }
 
@@ -239,11 +354,22 @@ const formatROI = (investment) => {
   return formatCurrency(roi)
 }
 
+const formatROIPercentage = (investment) => {
+  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
+  const currentValue = parseFloat(investment.current_value) || 0
+  
+  if (purchaseAmount === 0) return 'N/A'
+  
+  const roi = currentValue - purchaseAmount
+  const roiPercentage = (roi / purchaseAmount) * 100
+  return `${roiPercentage.toFixed(2)}%`
+}
+
 const getROIColor = (investment) => {
   const purchaseAmount = parseFloat(investment.purchase_amount) || 0
   const currentValue = parseFloat(investment.current_value) || 0
   
-  if (purchaseAmount === 0) return 'text-gray-600'
+  if (purchaseAmount === 0) return ''
   
   const roi = currentValue - purchaseAmount
   return roi >= 0 ? 'text-green-600' : 'text-red-600'
@@ -261,7 +387,6 @@ const deleteInvestment = async (investment) => {
   try {
     const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
     if (success) {
-      // The store will automatically update the list
       console.log('Investment deleted successfully')
     } else {
       alert('Failed to delete investment. Please try again.')
@@ -277,7 +402,6 @@ const loadData = async () => {
   loading.value = true
   try {
     await investmentAssetsStore.fetchInvestmentAssets()
-    // Portfolio value is calculated from the fetched assets, no need for separate call
   } catch (error) {
     console.error('Error loading investment data:', error)
   } finally {
@@ -285,6 +409,7 @@ const loadData = async () => {
   }
 }
 
+// Lifecycle
 onMounted(() => {
   if (authStore.isAuthenticated) {
     loadData()
