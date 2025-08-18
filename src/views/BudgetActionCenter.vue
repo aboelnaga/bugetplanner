@@ -11,15 +11,16 @@
     <div class="flex items-center space-x-4">
       <Button icon="pi pi-chevron-left" rounded text :disabled="isLoading" @click="previousMonth" />
       
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-4 text-center">
         <DatePicker
           v-model="selectedDate"
           view="month"
           dateFormat="MM yy"
           :disabled="isLoading"
-          showIconß
-          fluid
+          showIcon
           iconDisplay="input"
+          manualInput="false"
+          inputClass="text-center"
         />
         
         <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
@@ -81,7 +82,7 @@
           </template>
             <!-- Type and Status Tags -->
             <div class="flex items-center gap-2 mb-3">
-              <Tag :value="item.type" :severity="getTypeSeverity(item.type)" />
+              <Tag :value="item.type" :severity="getTypeSeverity(item)" />
               <Tag :value="getStatusLabel(getItemStatus(item))" :severity="getStatusSeverity(getItemStatus(item))" />
             </div>
             
@@ -187,10 +188,6 @@
                     class="flex items-center justify-between p-2 rounded text-xs"
                   >
                     <div class="flex items-center gap-2">
-                      <div
-                        :class="getTransactionTypeColor(transaction.type)"
-                        class="w-2 h-2 rounded-full"
-                      ></div>
                       <span class="truncate">{{ transaction.description || 'Transaction' }}</span>
                     </div>
                     <span
@@ -220,10 +217,8 @@
           dataKey="id"
         >
           <template #expansion="{ data }">
-            <div v-if="!data.transactions || data.transactions.length === 0" class="text-center py-6">
-                <i class="pi pi-credit-card text-3xl mb-3"></i>
+            <div v-if="!data.transactions || data.transactions.length === 0" class="p-4">
                 <p class="text-sm">No transactions yet</p>
-                <p class="text-xs text-gray-500 mt-1">Add a transaction to see it here</p>
               </div>
             <div v-else class="p-4">
               <h5 class="text-sm font-medium mb-3">Transaction History</h5>
@@ -273,10 +268,6 @@
                 <Column field="description" header="Description" sortable>
                   <template #body="{ data: transaction }">
                     <div class="flex items-center gap-2">
-                      <div
-                        :class="getTransactionTypeColor(transaction.type)"
-                        class="w-2 h-2 rounded-full"
-                      ></div>
                       <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
                     </div>
                   </template>
@@ -318,7 +309,7 @@
           <Column expander style="width: 3rem"/>
           <Column field="type" header="Type" sortable>
             <template #body="{ data }">
-              <Tag :value="data.type" :severity="getTypeSeverity(data.type)" rounded />
+              <Tag :value="data.type" :severity="getTypeSeverity(data)" rounded />
             </template>
           </Column>
           <Column field="name" header="Name" sortable filter filterPlaceholder="Search by name">
@@ -601,11 +592,9 @@ const getStatusSeverity = (status) => {
   return map[status] || 'secondary'
 }
 
-const getTypeSeverity = (type) => (type === 'income' ? 'success' : 'danger')
+const getTypeSeverity = (item) => ((item.type === 'income' || (item.type === 'investment' && item.investment_direction === 'incoming')) ? 'success' : 'danger')
 
-const getTransactionTypeColor = (type) => {
-  return type === 'income' ? 'bg-green-400' : 'bg-red-400'
-}
+
 
 const getActualAmount = (item) => {
   if (!item.actual_amounts || !Array.isArray(item.actual_amounts)) return 0
