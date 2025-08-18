@@ -186,15 +186,15 @@
             </div>
             
             <!-- Transaction History (Collapsible) -->
-            <div v-if="expandedItems.includes(item.id)" class="mt-4 pt-4 border-t border-gray-100">
-              <div class="bg-gray-50 rounded p-3">
+            <div v-if="expandedItems.includes(item.id)" class="pt-4">
+              <div class="rounded p-3">
                 <h5 class="text-xs font-medium mb-3">Transaction History</h5>
                 
                 <div v-if="item.transactions && item.transactions.length > 0" class="space-y-2">
                   <div
                     v-for="transaction in item.transactions"
                     :key="transaction.id"
-                    class="flex items-center justify-between p-2 bg-white rounded text-xs"
+                    class="flex items-center justify-between p-2 rounded text-xs"
                   >
                     <div class="flex items-center gap-2">
                       <div
@@ -228,15 +228,139 @@
             <InputText v-model="globalFilter" placeholder="Search" @input="dtFilters.global.value = globalFilter" />
           </IconField>
         </div>
-        <DataTable :value="tableItems" :filters="dtFilters" filterDisplay="menu" removableSort stripedRows showGridlines responsiveLayout="scroll">
-          <Column field="name" header="Name" sortable filter filterPlaceholder="Search by name">
-            <template #body="{ data }">
-              <span class="font-medium">{{ data.name }}</span>
-            </template>
-          </Column>
+        <DataTable 
+          :value="tableItems" 
+          :filters="dtFilters" 
+          filterDisplay="menu" 
+          removableSort 
+          responsiveLayout="scroll"
+          v-model:expandedRows="expandedRows"
+          dataKey="id"
+        >
+          <template #expansion="{ data }">
+            <div v-if="!data.transactions || data.transactions.length === 0" class="text-center py-6">
+                <i class="pi pi-credit-card text-3xl mb-3"></i>
+                <p class="text-sm">No transactions yet</p>
+                <p class="text-xs text-gray-500 mt-1">Add a transaction to see it here</p>
+              </div>
+            <div v-else class="p-4">
+              <h5 class="text-sm font-medium mb-3">Transaction History</h5>
+              
+              <DataTable 
+                :value="data.transactions || []" 
+                responsiveLayout="scroll"
+                class="nested-datatable"
+              >
+              <Column field="date" header="Date" sortable>
+                  <template #body="{ data: transaction }">
+                    <span>{{ formatDate(transaction.date) }}</span>
+                  </template>
+                </Column>
+
+                <Column field="amount" header="Amount" sortable>
+                  <template #body="{ data: transaction }">
+                    <span
+                      :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                      class="font-medium"
+                    >
+                      {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                    </span>
+                  </template>
+                </Column>
+                
+                <Column field="type" header="Type" sortable>
+                  <template #body="{ data: transaction }">
+                    <Tag :value="transaction.type" :severity="transaction.type === 'income' ? 'success' : 'danger'" />
+                  </template>
+                </Column>
+                
+                <Column field="account" header="Account" sortable>
+                  <template #body="{ data: transaction }">
+                    <span v-if="transaction.accounts?.name">{{ transaction.accounts?.name }}</span>
+                    <span v-else class="text-gray-400">-</span>
+                  </template>
+                </Column>
+                
+                <Column field="category" header="Category" sortable>
+                  <template #body="{ data: transaction }">
+                    <span v-if="transaction.category">{{ transaction.category }}</span>
+                    <span v-else class="text-gray-400">-</span>
+                  </template>
+                </Column>
+
+                <Column field="description" header="Description" sortable>
+                  <template #body="{ data: transaction }">
+                    <div class="flex items-center gap-2">
+                      <div
+                        :class="getTransactionTypeColor(transaction.type)"
+                        class="w-2 h-2 rounded-full"
+                      ></div>
+                      <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
+                    </div>
+                  </template>
+                </Column>
+                
+                <Column field="notes" header="Notes" sortable>
+                  <template #body="{ data: transaction }">
+                    <span v-if="transaction.notes" class="truncate max-w-xs">{{ transaction.notes }}</span>
+                    <span v-else class="text-gray-400">-</span>
+                  </template>
+                </Column>
+                
+                <Column header="Actions" style="width: 120px">
+                  <template #body="{ data: transaction }">
+                    <div class="flex gap-1">
+                      <Button
+                        icon="pi pi-pencil"
+                        size="small"
+                        text
+                        severity="info"
+                        @click="editTransaction(transaction)"
+                        v-tooltip.top="'Edit Transaction'"
+                      />
+                      <Button
+                        icon="pi pi-trash"
+                        size="small"
+                        text
+                        severity="danger"
+                        @click="deleteTransaction(transaction)"
+                        v-tooltip.top="'Delete Transaction'"
+                      />
+                    </div>
+                  </template>
+                </Column>
+              </DataTable>
+            </div>
+          </template>
+          
+          <Column expander style="width: 3rem"/>
           <Column field="type" header="Type" sortable>
             <template #body="{ data }">
               <Tag :value="data.type" :severity="getTypeSeverity(data.type)" rounded />
+            </template>
+          </Column>
+          <Column field="name" header="Name" sortable filter filterPlaceholder="Search by name">
+            <template #body="{ data }">
+              <div>
+                <div class="font-medium">{{ data.name }}</div>
+                <div class="text-xs text-gray-500">
+                  {{ (data.transactions || []).length }} paid
+                </div>
+              </div>
+            </template>
+          </Column>
+          <Column header="Progress">
+            <template #body="{ data }">
+              <div class="space-y-1">
+                <ProgressBar 
+                  :value="getProgressPercentage(data)" 
+                  :class="getProgressBarColor(data).replace('bg-', '')"
+                  class="h-2"
+                />
+                <div class="text-xs text-center">
+                  {{ formatCurrency(getActualAmount(data)) }} / {{ formatCurrency(getBudgetAmount(data)) }}
+                </div>
+              </div>
             </template>
           </Column>
           <Column field="statusLabel" header="Status" sortable>
@@ -244,29 +368,33 @@
               <Tag :value="getStatusLabel(getItemStatus(data))" :severity="getStatusSeverity(getItemStatus(data))" rounded />
             </template>
           </Column>
-          <Column field="category" header="Category" sortable filter filterPlaceholder="Search by category">
+          <Column field="due" header="Due"">
+            <template #body="{ data }">
+              <span 
+                :class="getDueDateColor(data)" 
+                v-tooltip.top="getDueDateTooltip(data)"
+              >
+                {{ getDueDateText(data) }}
+              </span>
+            </template>
+          </Column>
+          <Column field="category" header="Category">
             <template #body="{ data }">
               <Tag :value="data.category" severity="info" rounded />
             </template>
           </Column>
-          <Column field="due" header="Due" sortable>
-            <template #body="{ data }">
-              <span :class="getDueDateColor(data)">{{ getDueDateText(data) }}</span>
-            </template>
-          </Column>
-          <Column header="Progress">
-            <template #body="{ data }">
-              <div class="w-full bg-gray-200 rounded-full h-1.5">
-                <div :class="getProgressBarColor(data)" :style="{ width: getProgressPercentage(data) + '%' }" class="h-1.5 rounded-full"></div>
-              </div>
-            </template>
-          </Column>
-          <Column header="Actions" style="width: 220px">
+          <Column header="Actions" style="width: 180px">
             <template #body="{ data }">
               <div class="flex gap-2">
-                <Button v-if="data.is_fixed_expense" label="Paid" icon="pi pi-check" size="small" @click="markAsPaid(data)" />
+                <Button 
+                  v-if="getItemStatus(data) !== 'completed'"
+                  label="Pay" 
+                  icon="pi pi-check" 
+                  size="small" 
+                  severity="success"
+                  @click="markAsPaid(data)" 
+                />
                 <Button label="Add" icon="pi pi-plus" size="small" outlined @click="addTransaction(data)" />
-                <Button label="History" icon="pi pi-clock" size="small" text @click="toggleHistory(data)" />
                 <Button label="Skip" icon="pi pi-times" size="small" outlined @click="skipItem(data)" />
               </div>
             </template>
@@ -455,6 +583,8 @@ const filteredItems = computed(() => {
 const tableItems = computed(() =>
   filteredItems.value.map((item) => ({ ...item, statusLabel: getItemStatus(item) }))
 )
+
+const expandedRows = ref([])
 
 const completedCount = computed(() => {
   return filteredItems.value.filter(item => getItemStatus(item) === 'completed').length
@@ -815,6 +945,10 @@ const getDueDateColor = (item) => {
   }
 }
 
+const getDueDateTooltip = (item) => {
+  return formatDate(calculateDueDate(item));
+}
+
 const calculateDueDate = (item) => {
   if (!item.payment_schedule) return null
   
@@ -878,6 +1012,22 @@ const skipItem = (item) => {
   showSkipModal.value = true
 }
 
+const editTransaction = (transaction) => {
+  // TODO: Implement transaction editing
+  console.log('Edit transaction:', transaction)
+  // This could open a modal or navigate to transaction edit page
+}
+
+const deleteTransaction = (transaction) => {
+  // TODO: Implement transaction deletion with confirmation
+  console.log('Delete transaction:', transaction)
+  // This should show a confirmation dialog before deleting
+}
+
+const getPaidTransactionCount = (item) => {
+  const transactions = item.transactions || []
+  return transactions.filter(t => t.type === 'income').length
+}
 
 
 const closeSkipModal = () => {
