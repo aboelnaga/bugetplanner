@@ -6,10 +6,10 @@
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <div>
-              <h1 class="text-2xl font-bold text-gray-900">
+              <h1 class="text-2xl font-bold">
                 {{ selectedAccountName ? `${selectedAccountName} Transactions` : 'Transactions' }}
               </h1>
-              <p class="text-sm text-gray-500 mt-1">
+              <p class="text-sm mt-1">
                 {{ selectedAccountName ? `Transaction history for ${selectedAccountName}` : 'Track all your income, expenses, and transfers' }}
               </p>
             </div>
@@ -43,8 +43,8 @@
               <i class="pi pi-list text-blue-600 text-lg"></i>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500">Total Transactions</p>
-              <p class="text-2xl font-semibold text-gray-900">{{ transactions.length }}</p>
+              <p class="text-sm font-medium">Total Transactions</p>
+              <p class="text-2xl font-semibold">{{ transactions.length }}</p>
             </div>
           </div>
         </template>
@@ -57,7 +57,7 @@
               <i class="pi pi-arrow-up text-green-600 text-lg"></i>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500">Total Income</p>
+              <p class="text-sm font-medium">Total Income</p>
               <p class="text-2xl font-semibold text-green-600">{{ formatCurrency(totalIncome) }}</p>
             </div>
           </div>
@@ -71,7 +71,7 @@
               <i class="pi pi-arrow-down text-red-600 text-lg"></i>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500">Total Expenses</p>
+              <p class="text-sm font-medium">Total Expenses</p>
               <p class="text-2xl font-semibold text-red-600">{{ formatCurrency(totalExpenses) }}</p>
             </div>
           </div>
@@ -85,7 +85,7 @@
               <i class="pi pi-chart-line text-purple-600 text-lg"></i>
             </div>
             <div>
-              <p class="text-sm font-medium text-gray-500">Net Balance</p>
+              <p class="text-sm font-medium">Net Balance</p>
               <p class="text-2xl font-semibold" :class="netBalance >= 0 ? 'text-green-600' : 'text-red-600'">
                 {{ formatCurrency(netBalance) }}
               </p>
@@ -99,7 +99,7 @@
     <Card class="mb-6">
       <template #header>
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium text-gray-900">Filters</h3>
+          <h3 class="text-lg font-medium">Filters</h3>
           <Button
             @click="clearFilters"
             label="Clear All"
@@ -111,7 +111,7 @@
       <template #content>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+            <label class="block text-sm font-medium mb-2">Type</label>
             <Dropdown
               v-model="filters.type"
               :options="typeOptions"
@@ -124,7 +124,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+            <label class="block text-sm font-medium mb-2">Category</label>
             <Dropdown
               v-model="filters.category"
               :options="categoryOptions"
@@ -137,7 +137,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+            <label class="block text-sm font-medium mb-2">Date Range</label>
             <Dropdown
               v-model="filters.dateRange"
               :options="dateRangeOptions"
@@ -150,7 +150,7 @@
           </div>
           
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
+            <label class="block text-sm font-medium mb-2">Account</label>
             <Dropdown
               v-model="filters.account"
               :options="accountOptions"
@@ -169,7 +169,7 @@
     <Card>
       <template #header>
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium text-gray-900">
+          <h3 class="text-lg font-medium">
             Transactions ({{ filteredTransactions.length }})
           </h3>
           
@@ -188,9 +188,9 @@
       
       <template #content>
         <div v-if="filteredTransactions.length === 0" class="text-center py-12">
-          <i class="pi pi-inbox text-6xl text-gray-400 mb-4"></i>
-          <h3 class="text-lg font-medium text-gray-900 mb-2">No transactions found</h3>
-          <p class="text-gray-500 mb-6">
+          <i class="pi pi-inbox text-6xl mb-4"></i>
+          <h3 class="text-lg font-medium mb-2">No transactions found</h3>
+          <p class="mb-6">
             {{ transactions.length === 0 ? 'Get started by adding your first transaction.' : 'No transactions match your current filters.' }}
           </p>
           <Button
@@ -220,8 +220,8 @@
         >
           <template #empty>
             <div class="text-center py-8">
-              <i class="pi pi-inbox text-4xl text-gray-400 mb-3"></i>
-              <p class="text-gray-500">No transactions found</p>
+              <i class="pi pi-inbox text-4xl mb-3"></i>
+              <p>No transactions found</p>
             </div>
           </template>
 
@@ -252,7 +252,7 @@
           <Column field="category" header="Category" sortable style="width: 120px">
             <template #body="{ data }">
               <span v-if="data.category" class="font-medium">{{ data.category }}</span>
-              <span v-else class="text-gray-400">-</span>
+              <span v-else>-</span>
             </template>
           </Column>
 
@@ -270,7 +270,7 @@
           <Column field="account" header="Account" sortable style="width: 120px">
             <template #body="{ data }">
               <span v-if="data.accounts?.name" class="font-medium">{{ data.accounts.name }}</span>
-              <span v-else class="text-gray-400">-</span>
+              <span v-else>-</span>
             </template>
           </Column>
 
@@ -283,7 +283,7 @@
                 rounded
                 size="small"
               />
-              <span v-else class="text-gray-400">-</span>
+              <span v-else>-</span>
             </template>
           </Column>
 

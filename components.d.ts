@@ -42,6 +42,7 @@ declare module 'vue' {
     InputIcon: typeof import('primevue/inputicon')['default']
     InputText: typeof import('primevue/inputtext')['default']
     MonthlyTrendChart: typeof import('./src/components/MonthlyTrendChart.vue')['default']
+    OverlayPanel: typeof import('primevue/overlaypanel')['default']
     Panel: typeof import('primevue/panel')['default']
     Popover: typeof import('primevue/popover')['default']
     ProgressBar: typeof import('primevue/progressbar')['default']
