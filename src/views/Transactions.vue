@@ -112,7 +112,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label class="block text-sm font-medium mb-2">Type</label>
-            <Dropdown
+            <Select
               v-model="filters.type"
               :options="typeOptions"
               optionLabel="label"
@@ -125,7 +125,7 @@
           
           <div>
             <label class="block text-sm font-medium mb-2">Category</label>
-            <Dropdown
+            <Select
               v-model="filters.category"
               :options="categoryOptions"
               optionLabel="label"
@@ -138,7 +138,7 @@
           
           <div>
             <label class="block text-sm font-medium mb-2">Date Range</label>
-            <Dropdown
+            <Select
               v-model="filters.dateRange"
               :options="dateRangeOptions"
               optionLabel="label"
@@ -151,7 +151,7 @@
           
           <div>
             <label class="block text-sm font-medium mb-2">Account</label>
-            <Dropdown
+            <Select
               v-model="filters.account"
               :options="accountOptions"
               optionLabel="label"

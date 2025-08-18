@@ -85,7 +85,7 @@
           <h3 class="text-xl font-semibold">Investment Portfolio</h3>
           
           <div class="flex flex-col sm:flex-row gap-3">
-            <Dropdown
+            <Select
               v-model="selectedType"
               :options="typeOptions"
               optionLabel="label"
