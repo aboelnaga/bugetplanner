@@ -468,17 +468,6 @@ const isCurrentMonthSelected = computed(() => {
 
 const budgetItems = ref([])
 
-const loadBudgetItems = async () => {
-  console.log('Loading budget items for month:', selectedMonth.value, 'year:', selectedYear.value)
-  try {
-    budgetItems.value = await budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
-    console.log('Loaded budget items:', budgetItems.value.length)
-  } catch (error) {
-    console.error('Error loading budget items:', error)
-    budgetItems.value = []
-  }
-}
-
 // Remove filteredItems and compute tableItems from budgetItems directly
 const tableItems = computed(() =>
   budgetItems.value.map((item) => ({ ...item, statusLabel: getItemStatus(item) }))
@@ -494,17 +483,44 @@ const getExpandedRows = computed(() => {
 // Methods
 const loadData = async () => {
   console.log('loadData called')
+  await loadDataForYear()
+}
+
+const loadDataForYear = async () => {
+  console.log('Loading data for year:', selectedYear.value)
   isLoading.value = true
   try {
-    console.log('Loading transactions...')
-    await Promise.all([
-      transactionStore.fetchTransactions(selectedYear.value),
-      fetchClosedMonths()
-    ])
-    console.log('Loading budget items...')
-    await loadBudgetItems()
+    // Fetch budget items for the year (they're stored per year)
+    await budgetStore.fetchBudgetItems(selectedYear.value)
+    
+    // Fetch transactions for the current month of the year
+    await transactionStore.fetchTransactions(selectedYear.value, selectedMonth.value)
+    
+    // Load budget items with transactions for the current month
+    budgetItems.value = await budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
+    
+    // Fetch closed months
+    await fetchClosedMonths()
   } catch (error) {
-    console.error('Error loading data:', error)
+    console.error('Error loading data for year:', error)
+    budgetItems.value = []
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const loadDataForMonth = async () => {
+  console.log('Loading data for month:', selectedMonth.value, 'year:', selectedYear.value)
+  isLoading.value = true
+  try {
+    // Only fetch transactions for the specific month (budget items are already loaded for the year)
+    await transactionStore.fetchTransactions(selectedYear.value, selectedMonth.value)
+    
+    // Reload budget items to get updated transactions for the current month
+    budgetItems.value = await budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
+  } catch (error) {
+    console.error('Error loading data for month:', error)
+    budgetItems.value = []
   } finally {
     isLoading.value = false
   }
@@ -883,18 +899,20 @@ onMounted(() => {
   loadData()
 })
 
-watch(selectedDate, async () => {
-  isLoading.value = true
-  try {
-    await Promise.all([
-      transactionStore.fetchTransactions(selectedYear.value),
-      fetchClosedMonths(),
-      loadBudgetItems()
-    ])
-  } catch (error) {
-    console.error('Error reloading data for selected date:', error)
-  } finally {
-    isLoading.value = false
+watch(selectedDate, async (newDate, oldDate) => {
+  if (!oldDate) return // Skip on initial mount
+  
+  const newYear = newDate.getFullYear()
+  const newMonth = newDate.getMonth()
+  const oldYear = oldDate.getFullYear()
+  const oldMonth = oldDate.getMonth()
+  
+  // If year changed, fetch budget items for the new year
+  if (newYear !== oldYear) {
+    await loadDataForYear()
+  } else {
+    // If only month changed, just fetch transactions for the new month
+    await loadDataForMonth()
   }
 })
 
