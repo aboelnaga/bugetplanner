@@ -60,7 +60,7 @@
           {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
         </p>
       </div>
-      
+
       <!-- Grid View (Mobile) -->
       <div v-if="budgetItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 relative">
         <!-- Loading Overlay for Grid -->
@@ -70,10 +70,10 @@
             <span class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
           </div>
         </div>
-        
+
         <Panel 
           v-for="item in budgetItems" 
-          :key="item.id" 
+          :key="item.id"
           class="hover:shadow-lg transition-shadow duration-200"
         >
           <template #header>
@@ -104,7 +104,8 @@
                 <ProgressBar 
                   :value="getProgressPercentage(item)" 
                   :class="getProgressBarColor(item).replace('bg-', '')"
-                  class="h-2"
+                  class="h-1.5"
+                  :showValue="false"
                 />
               </div>
             </div>
@@ -304,7 +305,7 @@
                         @click="deleteTransaction(transaction)"
                         v-tooltip.top="'Delete Transaction'"
                       />
-                    </div>
+    </div>
                   </template>
                 </Column>
               </DataTable>
@@ -329,15 +330,16 @@
           </Column>
           <Column header="Progress">
             <template #body="{ data }">
-              <div class="space-y-1">
+              <div class="space-y-2">
+                <div class="font-medium text-center">
+                  {{ formatCurrency(getActualAmount(data)) }} / {{ formatCurrency(getBudgetAmount(data)) }}
+                </div>
                 <ProgressBar 
                   :value="getProgressPercentage(data)" 
                   :class="getProgressBarColor(data).replace('bg-', '')"
-                  class="h-2"
+                  style="height: 4px;"
+                  :showValue="false"
                 />
-                <div class="text-xs text-center">
-                  {{ formatCurrency(getActualAmount(data)) }} / {{ formatCurrency(getBudgetAmount(data)) }}
-                </div>
               </div>
             </template>
           </Column>

@@ -8,6 +8,8 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Accordion: typeof import('primevue/accordion')['default']
+    AccordionTab: typeof import('primevue/accordiontab')['default']
     AccountCard: typeof import('./src/components/AccountCard.vue')['default']
     AddAccountModal: typeof import('./src/components/AddAccountModal.vue')['default']
     AddBudgetModal: typeof import('./src/components/AddBudgetModal.vue')['default']
