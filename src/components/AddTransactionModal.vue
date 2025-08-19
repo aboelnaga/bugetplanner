@@ -9,85 +9,80 @@
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Basic Information Section -->
       <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
+        <h4 class="text-lg font-semibold flex items-center gap-2">
+          <i class="pi pi-info-circle text-primary"></i>
           Transaction Details
         </h4>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Description -->
           <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Description
             </label>
-            <input 
+            <InputText
               v-model="formData.description" 
-              type="text" 
               required 
               placeholder="e.g., Grocery shopping, Salary payment"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+              class="w-full" />
           </div>
           
           <!-- Transaction Type -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Transaction Type
             </label>
-            <select 
+            <Select
               v-model="formData.type" 
+              :options="typeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select transaction type"
               @change="updateCategoryOnTypeChange"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, type) in TRANSACTION_TYPE_LABELS" :key="type" :value="type">
-                {{ TRANSACTION_TYPE_ICONS[type] }} {{ label }}
-              </option>
-            </select>
+              class="w-full" />
           </div>
           
           <!-- Category -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Category
             </label>
-            <select 
+            <Select
               v-model="formData.category"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="category in getCategoriesByType(formData.type)" :key="category" :value="category">
-                {{ category }}
-              </option>
-            </select>
+              :options="categoryOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select category"
+              class="w-full" />
           </div>
           
           <!-- Investment Direction (only for investment type) -->
           <div v-if="formData.type === 'investment'">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Investment Direction
             </label>
-            <select 
+            <Select
               v-model="formData.investment_direction"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option v-for="(label, direction) in INVESTMENT_DIRECTION_LABELS" :key="direction" :value="direction">
-                {{ label }}
-              </option>
-            </select>
+              :options="investmentDirectionOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select direction"
+              class="w-full" />
           </div>
         </div>
       </div>
 
       <!-- Financial Details Section -->
       <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-          </svg>
+        <h4 class="text-lg font-semibold flex items-center gap-2">
+          <i class="pi pi-dollar text-green-600"></i>
           Financial Details
         </h4>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Amount -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Amount
             </label>
             <div class="relative">
@@ -97,40 +92,38 @@
                 inputmode="decimal"
                 required
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full"
               />
             </div>
-            <p class="text-xs text-gray-500 mt-1">
+            <p class="text-xs text-surface-500 mt-1">
               Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
             </p>
           </div>
           
           <!-- Date -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Date
             </label>
-            <input 
+            <DatePicker
               v-model="formData.date" 
-              type="date" 
               required 
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+              dateFormat="yy-mm-dd"
+              class="w-full" />
           </div>
         </div>
 
         <!-- Tax Tracking (optional) -->
-        <div class="space-y-4 pt-4 border-t border-gray-200">
-          <h5 class="text-md font-medium text-gray-900 flex items-center">
-            <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-            </svg>
+        <div class="space-y-4 pt-4 border-t border-surface-200">
+          <h5 class="text-md font-medium flex items-center gap-2">
+            <i class="pi pi-calculator text-purple-600"></i>
             Tax Information (Optional)
           </h5>
           
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Gross Amount -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium mb-2">
                 Gross Amount
               </label>
               <CurrencyInput
@@ -138,13 +131,13 @@
                 :options="currencyOptions"
                 inputmode="decimal"
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full"
               />
             </div>
             
             <!-- Tax Amount -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium mb-2">
                 Tax Amount
               </label>
               <CurrencyInput
@@ -152,13 +145,13 @@
                 :options="currencyOptions"
                 inputmode="decimal"
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full"
               />
             </div>
             
             <!-- Net Amount -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-2">
+              <label class="block text-sm font-medium mb-2">
                 Net Amount
               </label>
               <CurrencyInput
@@ -166,109 +159,101 @@
                 :options="currencyOptions"
                 inputmode="decimal"
                 placeholder="EGP 0"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                class="w-full"
               />
             </div>
           </div>
           
-          <p class="text-xs text-gray-500">
-            💡 Tip: Fill any two fields and the third will be calculated automatically
-          </p>
+          <Message severity="info" icon="pi pi-lightbulb">
+            Fill any two fields and the third will be calculated automatically
+          </Message>
         </div>
       </div>
 
       <!-- Linking Section -->
       <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-          </svg>
+        <h4 class="text-lg font-semibold flex items-center gap-2">
+          <i class="pi pi-link text-indigo-600"></i>
           Linking & Organization
         </h4>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Budget Item Link -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               Link to Budget Item (Optional)
             </label>
-            <select 
+            <Select
               v-model="formData.budget_item_id"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option value="">No budget item linked</option>
-              <option v-for="budgetItem in availableBudgetItems" :key="budgetItem.id" :value="budgetItem.id">
-                {{ budgetItem.name }} ({{ budgetItem.type }} - {{ budgetItem.category }})
-              </option>
-            </select>
+              :options="budgetItemOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="No budget item linked"
+              class="w-full" />
           </div>
           
           <!-- Account -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Account
             </label>
-            <select 
+            <Select
               v-model="formData.account_id"
+              :options="accountOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select an account"
               required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
-              <option value="">Select an account</option>
-              <option v-for="account in accountsStore.accounts" :key="account.id" :value="account.id">
-                {{ getAccountIcon(account.type) }} {{ account.name }} - {{ formatCurrency(account.balance) }}
-              </option>
-            </select>
+              class="w-full" />
           </div>
         </div>
       </div>
 
       <!-- Additional Information Section -->
       <div class="space-y-4">
-        <h4 class="text-lg font-semibold text-gray-900 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-          </svg>
+        <h4 class="text-lg font-semibold flex items-center gap-2">
+          <i class="pi pi-tag text-orange-600"></i>
           Additional Information
         </h4>
         
         <div class="space-y-4">
           <!-- Tags -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               Tags
             </label>
-            <input 
+            <InputText
               v-model="tagInput" 
               @keydown.enter.prevent="addTag"
-              type="text" 
               placeholder="Type a tag and press Enter"
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors" />
+              class="w-full" />
             
             <!-- Display tags -->
             <div v-if="formData.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
-              <span 
+              <Tag 
                 v-for="(tag, index) in formData.tags" 
                 :key="index"
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                {{ tag }}
-                <button 
-                  @click="removeTag(index)"
-                  type="button"
-                  class="ml-2 text-blue-600 hover:text-blue-800">
-                  ×
-                </button>
-              </span>
+                :value="tag"
+                severity="info"
+                class="cursor-pointer"
+                @click="removeTag(index)">
+                <template #icon>
+                  <i class="pi pi-times text-xs"></i>
+                </template>
+              </Tag>
             </div>
           </div>
           
           <!-- Notes -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium mb-2">
               Notes
             </label>
-            <textarea 
+            <Textarea
               v-model="formData.notes" 
               rows="3"
               placeholder="Additional notes about this transaction..."
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-none"></textarea>
+              class="w-full" />
           </div>
         </div>
       </div>
@@ -276,26 +261,22 @@
     
     <!-- Footer -->
     <template #footer>
-      <div class="flex justify-end space-x-3 w-full">
-        <button 
+      <div class="flex justify-end gap-3 w-full">
+        <Button
           type="button" 
           @click="closeModal" 
           :disabled="isLoading" 
-          class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-          Cancel
-        </button>
-        <button 
+          label="Cancel"
+          outlined
+          severity="secondary" />
+        <Button
           type="submit" 
           @click="handleSubmit"
           :disabled="isLoading" 
-          class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center">
-          <svg v-if="isLoading" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span v-if="isLoading">{{ isEditMode ? 'Updating...' : 'Adding...' }}</span>
-          <span v-else>{{ isEditMode ? 'Update Transaction' : 'Add Transaction' }}</span>
-        </button>
+          :loading="isLoading"
+          icon="pi pi-check"
+          :label="isEditMode ? 'Update Transaction' : 'Add Transaction'"
+          severity="primary" />
       </div>
     </template>
   </BaseModal>
@@ -320,6 +301,13 @@ import { formatCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
 import CurrencyInput from './CurrencyInput.vue'
 import { currencyOptions } from '@/constants/currencyOptions.js'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import DatePicker from 'primevue/datepicker'
+import Textarea from 'primevue/textarea'
+import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import Message from 'primevue/message'
 
 // Props
 const props = defineProps({
@@ -376,6 +364,38 @@ const {
   handleEditSubmit,
   initializeFormDataFromTransaction
 } = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast, confirm)
+
+// Computed options for form fields
+const typeOptions = computed(() => 
+  Object.entries(TRANSACTION_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label: `${TRANSACTION_TYPE_ICONS[value]} ${label}`
+  }))
+)
+
+const categoryOptions = computed(() => 
+  getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
+)
+
+const investmentDirectionOptions = computed(() => 
+  Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
+)
+
+const budgetItemOptions = computed(() => [
+  { label: 'No budget item linked', value: '' },
+  ...availableBudgetItems.value.map(item => ({
+    label: `${item.name} (${item.type} - ${item.category})`,
+    value: item.id
+  }))
+])
+
+const accountOptions = computed(() => [
+  { label: 'Select an account', value: '' },
+  ...accountsStore.accounts.map(account => ({
+    label: `${getAccountIcon(account.type)} ${account.name} - ${formatCurrency(account.balance)}`,
+    value: account.id
+  }))
+])
 
 // Tag management
 const addTag = () => {
