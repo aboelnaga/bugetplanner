@@ -225,6 +225,7 @@
   import { useAccountsStore } from '@/stores/accounts.js'
   import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
   import { useTransactionStore } from '@/stores/transactions.js'
+  import { useToast } from 'primevue/usetoast'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import CloseMonthModal from '@/components/CloseMonthModal.vue'
   // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
@@ -251,6 +252,9 @@
   const yearlySummariesStore = useYearlySummariesStore()
   const transactionStore = useTransactionStore()
   const router = useRouter()
+
+  // Toast
+  const toast = useToast()
 
   // Budget items from store (now includes virtual unlinked item)
   const budgetItems = computed(() => budgetStore.budgetItemsWithUnlinked || [])
@@ -305,7 +309,7 @@
     deleteBudget,
     addNewYear,
     copyFromPreviousYear
-  } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth)
+  } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth, toast.add)
 
   // Budget modal mode
   const budgetModalMode = ref('add')
@@ -431,7 +435,7 @@
   const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } = useSmartRefresh()
 
   // Error handling
-  const { handleError, retryWithBackoff, clearErrors } = useErrorHandler()
+  const { handleError, retryWithBackoff, clearErrors } = useErrorHandler(toast.add)
 
   // Check if previous year has data (only when needed)
   const checkPreviousYearData = async () => {
@@ -495,12 +499,12 @@
                            'July', 'August', 'September', 'October', 'November', 'December']
         const monthName = monthNames[month]
         
-        if (window.$toaster) {
-          window.$toaster.success(
-            'Month Closed Successfully',
-            `${monthName} ${year} has been closed and actual amounts are now displayed.`
-          )
-        }
+        toast.add({ 
+          severity: 'success', 
+          summary: 'Month Closed Successfully', 
+          detail: `${monthName} ${year} has been closed and actual amounts are now displayed.`, 
+          life: 5000 
+        })
       }
     } catch (error) {
       await handleError(error, 'closing month', {

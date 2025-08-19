@@ -441,6 +441,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useBudgetStore } from '../stores/budget'
 import { useTransactionStore } from '../stores/transactions'
 import { useAuthStore } from '../stores/auth'
+import { useToast } from 'primevue/usetoast'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import BaseModal from '../components/BaseModal.vue'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
@@ -450,6 +451,9 @@ import { formatCurrency, formatDate } from '../utils/budgetUtils'
 const budgetStore = useBudgetStore()
 const transactionStore = useTransactionStore()
 const authStore = useAuthStore()
+
+// Toast
+const toast = useToast()
 
 // Reactive data
 const isLoading = ref(false)
@@ -699,23 +703,23 @@ const handleCloseMonth = async () => {
       await fetchClosedMonths()
       
       // Show success notification
-      if (window.$toaster) {
-        window.$toaster.success(
-          'Month Closed Successfully',
-          `Month ${selectedMonth.value + 1} ${selectedYear.value} has been closed and actual amounts are now displayed.`
-        )
-      }
+      toast.add({ 
+        severity: 'success', 
+        summary: 'Month Closed Successfully', 
+        detail: `Month ${selectedMonth.value + 1} ${selectedYear.value} has been closed and actual amounts are now displayed.`, 
+        life: 5000 
+      })
     }
   } catch (error) {
     console.error('Error closing month:', error)
     
     // Show error notification
-    if (window.$toaster) {
-      window.$toaster.error(
-        'Error Closing Month',
-        'There was an error closing the month. Please try again.'
-      )
-    }
+    toast.add({ 
+      severity: 'error', 
+      summary: 'Error Closing Month', 
+      detail: 'There was an error closing the month. Please try again.', 
+      life: 7000 
+    })
   }
 }
 

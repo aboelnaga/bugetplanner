@@ -20,7 +20,7 @@ import {
 } from '@/constants/budgetConstants.js'
 import { dateUtils, validationHelpers, scheduleUtils, formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth) {
+export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth, toastFunction = null) {
   // Modal state
   const showAddBudgetModal = ref(false)
   const showEditBudgetModal = ref(false)
@@ -37,6 +37,17 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     totalAmount: 0,
     duration: 0
   })
+
+  // Helper function to show toast if available
+  const showToast = (severity, summary, detail, life = 5000) => {
+    if (toastFunction && typeof toastFunction === 'function') {
+      toastFunction({ severity, summary, detail, life })
+    } else if (window.$toaster) {
+      // Fallback to old toaster for backward compatibility
+      const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
+      window.$toaster[method](summary, detail)
+    }
+  }
 
   // Initialize form data
   const initializeFormData = () => {
@@ -1400,9 +1411,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       console.log('Success message:', message)
       
       // Show success toast
-      if (window.$toaster) {
-        window.$toaster.success('Multi-Year Budget Created', message)
-      }
+      showToast('success', 'Multi-Year Budget Created', message)
     } else {
       // Single-year budget - single budget item
       const budgetName = budgetItem?.name || 'Budget item'
@@ -1414,22 +1423,10 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       // If the budget was created for a different year than the current view
       if (budgetYear !== currentViewYear) {
         message += ` for ${budgetYear}`
-        if (window.$toaster) {
-          window.$toaster.success('Budget Created', message, {
-            action: {
-              text: `View ${budgetYear}`,
-              onClick: () => {
-                // Switch to the year where the budget was created
-                selectedYear.value = budgetYear
-              }
-            }
-          })
-        }
+        showToast('success', 'Budget Created', message)
       } else {
         // Same year, show normal success message
-        if (window.$toaster) {
-          window.$toaster.success('Budget Created', message)
-        }
+        showToast('success', 'Budget Created', message)
       }
     }
   }
@@ -1441,9 +1438,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     console.log('Success message:', message)
     
     // Show success toast
-    if (window.$toaster) {
-      window.$toaster.success('Budget Updated', message)
-    }
+    showToast('success', 'Budget Updated', message)
   }
 
   // Budget actions

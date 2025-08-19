@@ -611,12 +611,13 @@ import { computed, watch, ref, onMounted } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetModals } from '@/composables/useBudgetModals.js'
-import { 
-  MONTHS, 
-  BUDGET_TYPES, 
-  BUDGET_TYPE_LABELS, 
-  RECURRENCE_LABELS, 
-  INVESTMENT_DIRECTIONS, 
+import { useToast } from 'primevue/usetoast'
+import {
+  MONTHS,
+  BUDGET_TYPES,
+  BUDGET_TYPE_LABELS,
+  RECURRENCE_LABELS,
+  INVESTMENT_DIRECTIONS,
   INVESTMENT_DIRECTION_LABELS,
   PAYMENT_SCHEDULES,
   PAYMENT_SCHEDULE_LABELS,
@@ -662,6 +663,9 @@ const emit = defineEmits(['update:modelValue', 'budget-added', 'budget-updated']
 // Store
 const budgetStore = useBudgetStore()
 const investmentAssetsStore = useInvestmentAssetsStore()
+
+// Toast
+const toast = useToast()
 
 // Constants
 const months = MONTHS
@@ -951,9 +955,7 @@ const handleSubmit = async () => {
       console.log('Error message:', errorMessage)
       
       // Show error toast
-      if (window.$toaster) {
-        window.$toaster.error('Error', errorMessage)
-      }
+      toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 })
     }
   } catch (error) {
     console.error('Budget submission error:', error)
@@ -961,9 +963,7 @@ const handleSubmit = async () => {
     console.log('Error message:', errorMessage)
     
     // Show error toast
-    if (window.$toaster) {
-      window.$toaster.error('Error', errorMessage)
-    }
+    toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 })
   }
 }
 

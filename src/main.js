@@ -8,6 +8,7 @@ import PrimeVue from 'primevue/config'
 import Aura from '@primevue/themes/aura'
 import { definePreset } from '@primeuix/themes';
 import ConfirmationService from 'primevue/confirmationservice';
+import ToastService from 'primevue/toastservice';
 
 import '@/assets/styles.scss';
 
@@ -64,4 +65,5 @@ app.use(PrimeVue, {
   }
 });
 app.use(ConfirmationService);
+app.use(ToastService);
 app.mount('#app') 

@@ -14,14 +14,15 @@
     <AppLayout />
   </div>
 
-  <!-- Toaster Notifications -->
-  <Toaster />
+  <!-- PrimeVue Toast Notifications -->
+  <Toast />
+  <!-- Delete Confirmation Dialog -->
+  <ConfirmDialog :draggable="false"/>
 </template>
 
 <script setup>
 import { onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.js'
-import Toaster from '@/components/Toaster.vue'
 import AppLayout from '@/layout/AppLayout.vue'
 
 const authStore = useAuthStore()
