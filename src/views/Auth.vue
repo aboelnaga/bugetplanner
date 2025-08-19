@@ -222,9 +222,11 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
+import { useToast } from 'primevue/usetoast'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const toast = useToast()
 
 const activeTab = ref('login')
 
@@ -298,7 +300,12 @@ const handleForgotPassword = async () => {
   try {
     await authStore.resetPassword(loginForm.value.email)
     authStore.error = null
-    alert('Password reset email sent! Check your inbox.')
+    toast.add({ 
+      severity: 'success', 
+      summary: 'Password Reset', 
+      detail: 'Password reset email sent! Check your inbox.', 
+      life: 5000 
+    })
   } catch (error) {
     console.error('Password reset error:', error)
   }

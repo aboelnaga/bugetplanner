@@ -307,6 +307,7 @@ import { useTransactionStore } from '@/stores/transactions.js'
 import { useBudgetStore } from '@/stores/budget.js'
 import { useAccountsStore } from '@/stores/accounts.js'
 import { useTransactionModals } from '@/composables/useTransactionModals.js'
+import { useToast } from 'primevue/usetoast'
 import { 
   TRANSACTION_TYPE_LABELS, 
   TRANSACTION_TYPE_ICONS,
@@ -342,6 +343,7 @@ const emit = defineEmits(['update:modelValue', 'transaction-added', 'transaction
 const transactionStore = useTransactionStore()
 const budgetStore = useBudgetStore()
 const accountsStore = useAccountsStore()
+const toast = useToast()
 
 // Computed
 const currentYear = computed(() => transactionStore.currentYear)
@@ -371,7 +373,7 @@ const {
   handleAddSubmit,
   handleEditSubmit,
   initializeFormDataFromTransaction
-} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth)
+} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast)
 
 // Tag management
 const addTag = () => {

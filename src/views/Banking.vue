@@ -305,6 +305,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAccountsStore } from '../stores/accounts'
 import { useTransactionStore } from '../stores/transactions'
+import { useToast } from 'primevue/usetoast'
 import AddAccountModal from '../components/AddAccountModal.vue'
 import EditAccountModal from '../components/EditAccountModal.vue'
 import TransferModal from '../components/TransferModal.vue'
@@ -313,6 +314,7 @@ import { formatCurrency, formatDate } from '../utils/budgetUtils'
 const router = useRouter()
 const accountsStore = useAccountsStore()
 const transactionStore = useTransactionStore()
+const toast = useToast()
 
 // Reactive data
 const showAddModal = ref(false)
@@ -442,7 +444,7 @@ const handleDeleteAccount = async (account) => {
     console.log('Account deleted:', account.name)
   } catch (error) {
     console.error('Error deleting account:', error)
-    alert(`Failed to delete account: ${error.message}`)
+    toast.add({ severity: 'error', summary: 'Error deleting account', detail: error.message, life: 3000 })
   }
 }
 

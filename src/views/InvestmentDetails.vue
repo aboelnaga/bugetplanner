@@ -1028,14 +1028,14 @@ const deleteInvestment = () => {
     accept: async () => {
       try {
         deleting.value = true
-        await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
-        router.push('/investments')
-      } catch (err) {
-        console.error('Error deleting investment:', err)
-        error.value = err.message || 'Failed to delete investment'
-      } finally {
-        deleting.value = false
-      }
+    await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
+    router.push('/investments')
+  } catch (err) {
+    console.error('Error deleting investment:', err)
+    error.value = err.message || 'Failed to delete investment'
+  } finally {
+    deleting.value = false
+  }
     }
   })
 }
@@ -1056,18 +1056,18 @@ const unlinkBudgetItem = async (budgetItem) => {
     icon: 'pi pi-exclamation-triangle',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      try {
-        await investmentAssetsAPI.unlinkBudgetItemFromInvestment(budgetItem.id)
-        
-        // Reload the investment data to update the linked budget items
-        await loadInvestment()
-        
-        console.log('Budget item unlinked successfully')
-      } catch (err) {
-        console.error('Error unlinking budget item:', err)
-        error.value = err.message || 'Failed to unlink budget item'
-      }
-    }
+  try {
+    await investmentAssetsAPI.unlinkBudgetItemFromInvestment(budgetItem.id)
+    
+    // Reload the investment data to update the linked budget items
+    await loadInvestment()
+    
+    console.log('Budget item unlinked successfully')
+  } catch (err) {
+    console.error('Error unlinking budget item:', err)
+    error.value = err.message || 'Failed to unlink budget item'
+  }
+}
   })
 }
 
@@ -1078,18 +1078,18 @@ const deleteBudgetItem = async (budgetItem) => {
     icon: 'pi pi-exclamation-triangle',
     acceptClass: 'p-button-danger',
     accept: async () => {
-      try {
-        await budgetAPI.deleteBudgetItem(budgetItem.id)
-        
-        // Reload the investment data to update the linked budget items
-        await loadInvestment()
-        
-        console.log('Budget item deleted successfully')
-      } catch (err) {
-        console.error('Error deleting budget item:', err)
-        error.value = err.message || 'Failed to delete budget item'
-      }
-    }
+  try {
+    await budgetAPI.deleteBudgetItem(budgetItem.id)
+    
+    // Reload the investment data to update the linked budget items
+    await loadInvestment()
+    
+    console.log('Budget item deleted successfully')
+  } catch (err) {
+    console.error('Error deleting budget item:', err)
+    error.value = err.message || 'Failed to delete budget item'
+  }
+}
   })
 }
 

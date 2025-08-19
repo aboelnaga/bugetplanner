@@ -260,10 +260,12 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets'
+import { useToast } from 'primevue/usetoast'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const investmentAssetsStore = useInvestmentAssetsStore()
+const toast = useToast()
 
 // State
 const loading = ref(false)
@@ -389,11 +391,11 @@ const deleteInvestment = async (investment) => {
     if (success) {
       console.log('Investment deleted successfully')
     } else {
-      alert('Failed to delete investment. Please try again.')
+      toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
     }
   } catch (error) {
     console.error('Error deleting investment:', error)
-    alert('Failed to delete investment. Please try again.')
+    toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
   }
 }
 
