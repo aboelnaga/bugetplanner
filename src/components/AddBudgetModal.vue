@@ -121,29 +121,27 @@
           </div>
           
           <!-- Linked Investment Info -->
-           <div v-if="formData.linked_investment_id" class="bg-primary-50 border border-primary-200 rounded-lg p-3">
-            <div class="flex items-center justify-between">
-               <div class="flex items-center gap-2">
-                 <i class="pi pi-chart-line text-primary-600"></i>
-                 <div class="flex items-center gap-2">
-                   <span class="text-sm font-medium text-primary-900">
+          <Message v-if="formData.linked_investment_id" severity="info" :closable="false" icon="pi pi-chart-line" class="mb-4">
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <span class="font-medium">
                     {{ getLinkedInvestmentName() }}
                   </span>
-                   <span class="text-xs text-color-secondary">
+                  <span class="text-sm opacity-75">
                     (Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }})
                   </span>
                 </div>
+                <Button
+                  type="button"
+                  @click="formData.linked_investment_id = ''"
+                  icon="pi pi-times"
+                  text
+                  size="small"
+                  severity="danger"
+                  class="ml-2"
+                />
               </div>
-               <Button
-                type="button"
-                @click="formData.linked_investment_id = ''"
-                 icon="pi pi-times"
-                 text
-                 size="small"
-                 severity="danger"
-               />
-            </div>
-          </div>
+          </Message>
         </div>
       </div>
 

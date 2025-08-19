@@ -3,40 +3,36 @@
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Account Name -->
       <div>
-        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="name" class="block text-sm font-medium mb-2">
           Account Name
         </label>
-        <input
+        <InputText
           id="name"
           v-model="formData.name"
-          type="text"
           required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Enter account name"
-        />
+          class="w-full" />
       </div>
 
       <!-- Account Type -->
       <div>
-        <label for="type" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="type" class="block text-sm font-medium mb-2">
           Account Type
         </label>
-        <select
+        <Select
           id="type"
           v-model="formData.type"
+          :options="accountTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select account type"
           required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="checking">Checking</option>
-          <option value="savings">Savings</option>
-          <option value="credit_card">Credit Card</option>
-          <option value="cash">Cash</option>
-        </select>
+          class="w-full" />
       </div>
 
       <!-- Credit Limit (only for credit cards) -->
       <div v-if="formData.type === 'credit_card'">
-        <label for="credit_limit" class="block text-sm font-medium text-gray-700 mb-2">
+        <label for="credit_limit" class="block text-sm font-medium mb-2">
           Credit Limit
         </label>
         <CurrencyInput
@@ -45,74 +41,59 @@
           :options="currencyOptions"
           inputmode="decimal"
           required
-          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           placeholder="Enter credit limit"
-        />
+          class="w-full" />
       </div>
 
       <!-- Current Balance (read-only for reference) -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium mb-2">
           Current Balance
         </label>
-        <div class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-gray-700">
+        <div class="w-full px-3 py-2 bg-surface-50 border border-surface-300 rounded-md text-surface-700">
           {{ formatCurrency(account.balance) }}
         </div>
-        <p class="text-sm text-gray-500 mt-1">
+        <p class="text-sm text-surface-500 mt-1">
           Balance is calculated from transactions and cannot be edited directly
         </p>
       </div>
 
       <!-- Is Default Account -->
       <div class="flex items-center">
-        <input
+        <Checkbox
           id="is_default"
           v-model="formData.is_default"
-          type="checkbox"
-          class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-        />
-        <label for="is_default" class="ml-2 block text-sm text-gray-700">
+          :binary="true" />
+        <label for="is_default" class="ml-2 block text-sm">
           Set as default account
         </label>
       </div>
 
       <!-- Error Message -->
-      <div v-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-red-700">{{ error }}</p>
-          </div>
-        </div>
-      </div>
+      <Message v-if="error" severity="error" :closable="false">
+        <template #messageicon>
+          <i class="pi pi-exclamation-triangle"></i>
+        </template>
+        <template #message>
+          {{ error }}
+        </template>
+      </Message>
 
       <!-- Action Buttons -->
-      <div class="flex justify-end space-x-3 pt-4">
-        <button
+      <div class="flex justify-end gap-3 pt-4">
+        <Button
           type="button"
           @click="$emit('close')"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Cancel
-        </button>
-        <button
+          label="Cancel"
+          outlined
+          severity="secondary" />
+        <Button
           type="submit"
           :disabled="loading"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <span v-if="loading" class="flex items-center">
-            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Updating...
-          </span>
-          <span v-else>Update Account</span>
-        </button>
+          :loading="loading"
+          icon="pi pi-check"
+          :label="loading ? 'Updating...' : 'Update Account'"
+          severity="primary" />
       </div>
     </form>
   </BaseModal>
@@ -124,6 +105,11 @@ import CurrencyInput from './CurrencyInput.vue'
 import { currencyOptions } from '@/constants/currencyOptions.js'
 import { useAccountsStore } from '@/stores/accounts'
 import BaseModal from './BaseModal.vue'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Checkbox from 'primevue/checkbox'
+import Message from 'primevue/message'
+import Button from 'primevue/button'
 
 const props = defineProps({
   isOpen: {
@@ -149,6 +135,14 @@ const formData = ref({
   credit_limit: 0,
   is_default: false
 })
+
+// Computed options for form fields
+const accountTypeOptions = [
+  { label: 'Checking', value: 'checking' },
+  { label: 'Savings', value: 'savings' },
+  { label: 'Credit Card', value: 'credit_card' },
+  { label: 'Cash', value: 'cash' }
+]
 
 // Initialize form data when account changes
 watch(() => props.account, (newAccount) => {
