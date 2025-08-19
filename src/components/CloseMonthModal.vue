@@ -1,5 +1,5 @@
 <template>
-  <BaseModal v-model="isOpen" title="Close Month" max-width="md">
+  <BaseModal v-model="isOpen" title="Close Month">
     <div class="space-y-4">
       <!-- Warning Icon and Message -->
       <div class="flex items-start space-x-3">

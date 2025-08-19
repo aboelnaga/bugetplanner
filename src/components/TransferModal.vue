@@ -1,15 +1,5 @@
 <template>
-  <BaseModal :modelValue="modelValue" @update:modelValue="$emit('update:modelValue')" title="Transfer Funds">
-    <!-- Header -->
-    <template #icon>
-      <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-      </svg>
-    </template>
-    
-    <template #title>Transfer Funds</template>
-    <template #subtitle>Move money between your accounts or cash operations</template>
-    
+  <BaseModal :modelValue="modelValue" @update:modelValue="$emit('update:modelValue')" title="Transfer Funds"> 
     <!-- Content -->
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Transfer Type -->
@@ -104,9 +94,7 @@
 
       <!-- Description -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Description
-        </label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
         <input 
           v-model="formData.description" 
           type="text" 
@@ -116,9 +104,7 @@
 
       <!-- Notes -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
-          Notes
-        </label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Notes</label>
         <textarea 
           v-model="formData.notes" 
           rows="3"

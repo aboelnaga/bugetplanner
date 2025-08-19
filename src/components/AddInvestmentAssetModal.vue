@@ -1,9 +1,5 @@
 <template>
-  <BaseModal :model-value="true" @update:model-value="$emit('close')">
-    <template #title>
-      {{ asset ? 'Edit Investment Asset' : 'Add Investment Asset' }}
-    </template>
-
+  <BaseModal :model-value="true" @update:model-value="$emit('close')" :title="asset ? 'Edit Investment Asset' : 'Add Investment Asset'">
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Error Alert -->
       <div v-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
@@ -489,7 +485,8 @@ const form = ref({
   current_value: null,
   last_valuation_date: '',
   location: '',
-  details: {}
+  details: {},
+  budget_item_id: null
 })
 
 // Budget item form
