@@ -252,6 +252,7 @@
         </div>
       </template>
     </Card>
+    
   </div>
 </template>
 
@@ -261,11 +262,13 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const investmentAssetsStore = useInvestmentAssetsStore()
 const toast = useToast()
+const confirm = useConfirm()
 
 // State
 const loading = ref(false)
@@ -382,21 +385,28 @@ const viewInvestment = (investmentId) => {
 }
 
 const deleteInvestment = async (investment) => {
-  if (!confirm(`Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`)) {
-    return
-  }
-  
-  try {
-    const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
-    if (success) {
-      console.log('Investment deleted successfully')
-    } else {
-      toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+  confirm.require({
+    message: `Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`,
+    header: 'Confirm Deletion',
+    icon: 'pi pi-exclamation-triangle',
+    accept: async () => {
+      try {
+        const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
+        if (success) {
+          console.log('Investment deleted successfully')
+          toast.add({ severity: 'success', summary: 'Investment Deleted', detail: `Investment "${investment.name}" deleted.` })
+        } else {
+          toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+        }
+      } catch (error) {
+        console.error('Error deleting investment:', error)
+        toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+      }
+    },
+    reject: () => {
+      // User cancelled the deletion
     }
-  } catch (error) {
-    console.error('Error deleting investment:', error)
-    toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
-  }
+  })
 }
 
 // Load data

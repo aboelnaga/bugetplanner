@@ -10,7 +10,7 @@ import {
 } from '@/constants/budgetConstants.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toastFunction = null) {
+export function useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
   // Modal state
   const showAddTransactionModal = ref(false)
   const showEditTransactionModal = ref(false)
@@ -24,11 +24,59 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const showToast = (severity, summary, detail, life = 5000) => {
     if (toastFunction && typeof toastFunction === 'function') {
       toastFunction({ severity, summary, detail, life })
+    } else if (toastFunction && toastFunction.add) {
+      // Handle full toast instance
+      toastFunction.add({ severity, summary, detail, life })
     } else if (window.$toaster) {
       // Fallback to old toaster for backward compatibility
       const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
       window.$toaster[method](summary, detail)
     }
+  }
+
+  // Helper function to show confirmation dialog if available
+  const showConfirm = (message, header = 'Confirmation', icon = 'pi pi-exclamation-triangle') => {
+    return new Promise((resolve) => {
+      if (confirmFunction && typeof confirmFunction === 'function') {
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else if (confirmFunction && confirmFunction.require) {
+        // Handle full confirm instance
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else {
+        // Fallback to browser confirm
+        resolve(confirm(message))
+      }
+    })
   }
 
   // Initialize form data
@@ -377,7 +425,8 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   }
 
   const deleteTransaction = async (transactionId) => {
-    if (confirm('Are you sure you want to delete this transaction?')) {
+    const confirmed = await showConfirm('Are you sure you want to delete this transaction?')
+    if (confirmed) {
       const result = await transactionStore.deleteTransaction(transactionId)
       if (!result) {
         showToast('error', 'Delete Transaction Failed', 'Failed to delete transaction. Please try again.')

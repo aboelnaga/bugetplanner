@@ -226,6 +226,7 @@
   import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
   import { useTransactionStore } from '@/stores/transactions.js'
   import { useToast } from 'primevue/usetoast'
+  import { useConfirm } from 'primevue/useconfirm'
   import AddBudgetModal from '@/components/AddBudgetModal.vue'
   import CloseMonthModal from '@/components/CloseMonthModal.vue'
   // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
@@ -255,6 +256,9 @@
 
   // Toast
   const toast = useToast()
+
+  // Confirm
+  const confirm = useConfirm()
 
   // Budget items from store (now includes virtual unlinked item)
   const budgetItems = computed(() => budgetStore.budgetItemsWithUnlinked || [])
@@ -309,7 +313,7 @@
     deleteBudget,
     addNewYear,
     copyFromPreviousYear
-  } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth, toast.add)
+  } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth, toast, confirm)
 
   // Budget modal mode
   const budgetModalMode = ref('add')

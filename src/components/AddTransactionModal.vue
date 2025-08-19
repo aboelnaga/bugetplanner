@@ -308,6 +308,7 @@ import { useBudgetStore } from '@/stores/budget.js'
 import { useAccountsStore } from '@/stores/accounts.js'
 import { useTransactionModals } from '@/composables/useTransactionModals.js'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { 
   TRANSACTION_TYPE_LABELS, 
   TRANSACTION_TYPE_ICONS,
@@ -344,6 +345,7 @@ const transactionStore = useTransactionStore()
 const budgetStore = useBudgetStore()
 const accountsStore = useAccountsStore()
 const toast = useToast()
+const confirm = useConfirm()
 
 // Computed
 const currentYear = computed(() => transactionStore.currentYear)
@@ -373,7 +375,7 @@ const {
   handleAddSubmit,
   handleEditSubmit,
   initializeFormDataFromTransaction
-} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast)
+} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast, confirm)
 
 // Tag management
 const addTag = () => {

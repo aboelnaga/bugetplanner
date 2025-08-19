@@ -20,7 +20,7 @@ import {
 } from '@/constants/budgetConstants.js'
 import { dateUtils, validationHelpers, scheduleUtils, formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth, toastFunction = null) {
+export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
   // Modal state
   const showAddBudgetModal = ref(false)
   const showEditBudgetModal = ref(false)
@@ -42,11 +42,59 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const showToast = (severity, summary, detail, life = 5000) => {
     if (toastFunction && typeof toastFunction === 'function') {
       toastFunction({ severity, summary, detail, life })
+    } else if (toastFunction && toastFunction.add) {
+      // Handle full toast instance
+      toastFunction.add({ severity, summary, detail, life })
     } else if (window.$toaster) {
       // Fallback to old toaster for backward compatibility
       const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
       window.$toaster[method](summary, detail)
     }
+  }
+
+  // Helper function to show confirmation dialog if available
+  const showConfirm = (message, header = 'Confirmation', icon = 'pi pi-exclamation-triangle') => {
+    return new Promise((resolve) => {
+      if (confirmFunction && typeof confirmFunction === 'function') {
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else if (confirmFunction && confirmFunction.require) {
+        // Handle full confirm instance
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else {
+        // Fallback to browser confirm
+        resolve(confirm(message))
+      }
+    })
   }
 
   // Initialize form data
@@ -1537,10 +1585,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     if (hasPlannedValues) {
       const confirmMessage = `This multi-year budget (${yearsRange}) contains planned values for current/future months. Are you sure you want to delete the entire ${totalYears}-year schedule?`
-      if (!confirm(confirmMessage)) return
+      const confirmed = await showConfirm(confirmMessage, 'Delete Multi-Year Budget', 'pi pi-exclamation-triangle')
+      if (!confirmed) return
     } else {
       const confirmMessage = `Are you sure you want to delete this multi-year budget (${yearsRange})?`
-      if (!confirm(confirmMessage)) return
+      const confirmed = await showConfirm(confirmMessage, 'Delete Multi-Year Budget', 'pi pi-exclamation-triangle')
+      if (!confirmed) return
     }
     
     // Delete all linked items
@@ -1554,7 +1604,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     // If it's a future year, allow full deletion
     if (selectedYear.value > currentYear) {
-      if (confirm('Are you sure you want to delete this budget item?')) {
+      const confirmed = await showConfirm('Are you sure you want to delete this budget item?', 'Delete Budget Item', 'pi pi-exclamation-triangle')
+      if (confirmed) {
         await budgetStore.deleteBudgetItem(budget.id)
       }
       return
@@ -1562,7 +1613,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     // If no values for the whole year, allow deletion
     if (!hasAnyValues) {
-      if (confirm('Are you sure you want to delete this empty budget item?')) {
+      const confirmed = await showConfirm('Are you sure you want to delete this empty budget item?', 'Delete Empty Budget Item', 'pi pi-exclamation-triangle')
+      if (confirmed) {
         await budgetStore.deleteBudgetItem(budget.id)
       }
       return
@@ -1575,7 +1627,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       
       if (hasPastValues && hasFutureValues) {
         // Has both past and future values - clear only future values
-        if (confirm('This budget item has historical data. Clear only the remaining months (current month onwards)?')) {
+        const confirmed = await showConfirm('This budget item has historical data. Clear only the remaining months (current month onwards)?', 'Clear Future Months', 'pi pi-info-circle')
+        if (confirmed) {
           for (let i = currentMonth.value; i < 12; i++) {
             if (budget.amounts[i] > 0) {
               await budgetStore.updateMonthlyAmount(budget.id, i, 0)
@@ -1587,7 +1640,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         showToast('warn', 'Delete Budget Failed', 'Cannot delete this budget item as it contains historical data and all future months are already empty.')
       } else if (!hasPastValues && hasFutureValues) {
         // Has only future values - allow full deletion
-        if (confirm('Are you sure you want to delete this budget item? (It only contains future planning data)')) {
+        const confirmed = await showConfirm('Are you sure you want to delete this budget item? (It only contains future planning data)', 'Delete Future Budget Item', 'pi pi-exclamation-triangle')
+        if (confirmed) {
           await budgetStore.deleteBudgetItem(budget.id)
         }
       }
@@ -1607,7 +1661,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const copyFromPreviousYear = async () => {
     const previousYear = selectedYear.value - 1
     
-    if (confirm(`Copy all budget items from ${previousYear} to ${selectedYear.value}?`)) {
+    const confirmed = await showConfirm(`Copy all budget items from ${previousYear} to ${selectedYear.value}?`, 'Copy Budget Items', 'pi pi-copy')
+    if (confirmed) {
       const result = await budgetStore.copyFromPreviousYear(previousYear, selectedYear.value)
       
       if (!result) {

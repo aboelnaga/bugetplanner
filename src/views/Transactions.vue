@@ -329,6 +329,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useTransactionStore } from '../stores/transactions'
 import { useAccountsStore } from '../stores/accounts'
+import { useConfirm } from 'primevue/useconfirm'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
 
@@ -337,6 +338,7 @@ const transactionStore = useTransactionStore()
 const accountsStore = useAccountsStore()
 const route = useRoute()
 const router = useRouter()
+const confirm = useConfirm()
 
 // Reactive data
 const isLoading = ref(false)
@@ -523,13 +525,21 @@ const editTransaction = (transaction) => {
 }
 
 const deleteTransaction = async (transaction) => {
-  if (confirm(`Are you sure you want to delete this transaction?`)) {
-    try {
-      await transactionStore.deleteTransaction(transaction.id)
-    } catch (error) {
-      console.error('Error deleting transaction:', error)
+  confirm.require({
+    message: `Are you sure you want to delete this transaction?`,
+    header: 'Confirm Deletion',
+    icon: 'pi pi-exclamation-triangle',
+    accept: () => {
+      try {
+        transactionStore.deleteTransaction(transaction.id)
+      } catch (error) {
+        console.error('Error deleting transaction:', error)
+      }
+    },
+    reject: () => {
+      // User cancelled
     }
-  }
+  })
 }
 
 const onTransactionAdded = async () => {

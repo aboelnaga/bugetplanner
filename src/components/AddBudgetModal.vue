@@ -612,6 +612,7 @@ import { useBudgetStore } from '@/stores/budget.js'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetModals } from '@/composables/useBudgetModals.js'
 import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
 import { 
   MONTHS, 
   BUDGET_TYPES, 
@@ -666,6 +667,9 @@ const investmentAssetsStore = useInvestmentAssetsStore()
 
 // Toast
 const toast = useToast()
+
+// Confirm
+const confirm = useConfirm()
 
 // Constants
 const months = MONTHS
@@ -724,7 +728,7 @@ const {
   updateLegacyRecurrence,
   getAvailableOnceMonths,
   validateFormData
-} = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth, toast.add)
+} = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth, toast, confirm)
 
 // Computed options for form fields
 const typeOptions = computed(() => 
