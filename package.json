@@ -24,6 +24,7 @@
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.3.7",
+    "tailwindcss-primeui": "^0.6.1",
     "vue": "^3.3.4",
     "vue-chartjs": "^5.2.0",
     "vue-currency-input": "^3.2.1",
