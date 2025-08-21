@@ -124,38 +124,50 @@
           <div class="flex justify-center space-x-1">
             <!-- Virtual item actions -->
             <template v-if="slotProps.data.is_virtual">
-              <button @click="$emit('view-transactions')" 
-                      title="View unlinked transactions"
-                      aria-label="View unlinked transactions"
-                      class="p-1.5 rounded transition-colors"
-                      data-testid="view-unlinked-transactions-btn">
-                <i class="pi pi-eye text-sm"></i>
-              </button>
+              <Button 
+                @click="$emit('view-transactions')" 
+                icon="pi pi-eye"
+                severity="secondary"
+                size="small"
+                text
+                rounded
+                title="View unlinked transactions"
+                aria-label="View unlinked transactions"
+                data-testid="view-unlinked-transactions-btn" />
             </template>
             
             <!-- Regular budget item actions -->
             <template v-else>
-              <button @click="$emit('edit-budget', slotProps.data)" 
-                      title="Edit budget item"
-                      aria-label="Edit budget item"
-                      class="p-1.5 text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                      data-testid="edit-budget-btn">
-                <Edit class="w-4 h-4" />
-              </button>
-              <button @click="$emit('duplicate-budget', slotProps.data)" 
-                      title="Duplicate budget item"
-                      aria-label="Duplicate budget item"
-                      class="p-1.5 text-green-500 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
-                      data-testid="duplicate-budget-btn">
-                <Copy class="w-4 h-4" />
-              </button>
-              <button @click="$emit('delete-budget', slotProps.data)" 
-                      title="Delete budget item"
-                      aria-label="Delete budget item"
-                      class="p-1.5 text-red-500 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
-                      data-testid="delete-budget-btn">
-                <Trash2 class="w-4 h-4" />
-              </button>
+              <Button 
+                @click="$emit('edit-budget', slotProps.data)" 
+                icon="pi pi-pencil"
+                severity="info"
+                size="small"
+                text
+                rounded
+                title="Edit budget item"
+                aria-label="Edit budget item"
+                data-testid="edit-budget-btn" />
+              <Button 
+                @click="$emit('duplicate-budget', slotProps.data)" 
+                icon="pi pi-copy"
+                severity="success"
+                size="small"
+                text
+                rounded
+                title="Duplicate budget item"
+                aria-label="Duplicate budget item"
+                data-testid="duplicate-budget-btn" />
+              <Button 
+                @click="$emit('delete-budget', slotProps.data)" 
+                icon="pi pi-trash"
+                severity="danger"
+                size="small"
+                text
+                rounded
+                title="Delete budget item"
+                aria-label="Delete budget item"
+                data-testid="delete-budget-btn" />
             </template>
           </div>
         </template>
@@ -219,10 +231,10 @@
 
 <script setup>
 import { computed } from 'vue'
-import { Edit, Copy, Trash2 } from 'lucide-vue-next'
 import { useBudgetDataTable } from '@/composables/useBudgetDataTable.js'
 import { MONTHS } from '@/constants/budgetConstants.js'
 import Tag from 'primevue/tag'
+import Button from 'primevue/button'
 
 // Props
 const props = defineProps({
