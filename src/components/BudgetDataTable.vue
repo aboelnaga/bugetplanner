@@ -159,7 +159,7 @@
                 aria-label="Duplicate budget item"
                 data-testid="duplicate-budget-btn" />
               <Button 
-                @click="$emit('delete-budget', slotProps.data)" 
+                @click="$emit('delete-budget', slotProps.data.id)" 
                 icon="pi pi-trash"
                 severity="danger"
                 size="small"

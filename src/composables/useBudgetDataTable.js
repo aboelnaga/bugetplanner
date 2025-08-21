@@ -13,23 +13,15 @@ export function useBudgetDataTable(budgetItems, selectedYear, currentYear, curre
 
     return budgetItems.value.map(budget => {
       const flattened = {
-        id: budget.id,
-        name: budget.name,
-        category: budget.category,
-        type: budget.type,
-        investment_direction: budget.investment_direction,
-        is_virtual: budget.is_virtual,
-        is_multi_year: budget.is_multi_year,
-        linked_investment_id: budget.linked_investment_id,
-        start_year: budget.start_year,
-        end_year: budget.end_year,
+        // Keep ALL original budget properties for modal compatibility
+        ...budget,
         // Previous year data (placeholder for now)
         previousYear: 0,
-        // Monthly planned amounts
+        // Monthly planned amounts (flatten for DataTable display)
         ...generateMonthlyFields(budget.amounts || [], ''),
-        // Monthly actual amounts
+        // Monthly actual amounts (flatten for DataTable display)
         ...generateMonthlyFields(budget.actual_amounts || [], '_actual'),
-        // Yearly totals
+        // Yearly totals (calculated for display)
         total: calculateYearlyTotal(budget.amounts || []),
         total_actual: calculateYearlyTotal(budget.actual_amounts || [])
       }
