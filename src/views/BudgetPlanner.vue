@@ -108,6 +108,29 @@
         @clear-filters="clearAllFilters"
       />
 
+
+    <!-- New DataTable Implementation (for comparison/testing) -->
+    <div class="mt-8">
+      <BudgetDataTable
+        :loading="budgetStore.loading"
+        :error="budgetStore.error"
+        :budget-items="budgetItems"
+        :selected-year="selectedYear"
+        :current-year="budgetStore.currentYear"
+        :current-month="currentMonth"
+        :format-currency="formatCurrency"
+        :calculate-monthly-income="calculateMonthlyIncome"
+        :calculate-monthly-expenses="calculateMonthlyExpenses"
+        :calculate-monthly-total="calculateMonthlyTotal"
+        :calculate-grand-total-income="calculateGrandTotalIncome"
+        :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+        :calculate-grand-total="calculateGrandTotal"
+        @edit-budget="editBudgetUnified"
+        @duplicate-budget="duplicateBudget"
+        @delete-budget="deleteBudget"
+        @view-transactions="handleViewTransactions" />
+    </div>
+
       <!-- Budget Table -->
       <BudgetTable
         data-testid="budget-table"
@@ -232,6 +255,7 @@
   // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
   import BudgetTable from '@/components/BudgetTable.vue'
   import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
+  import BudgetDataTable from '@/components/BudgetDataTable.vue'
   
   // Import constants and utilities
   import { MONTHS } from '@/constants/budgetConstants.js'

@@ -8,8 +8,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Accordion: typeof import('primevue/accordion')['default']
-    AccordionTab: typeof import('primevue/accordiontab')['default']
     AccountCard: typeof import('./src/components/AccountCard.vue')['default']
     AddAccountModal: typeof import('./src/components/AddAccountModal.vue')['default']
     AddBudgetModal: typeof import('./src/components/AddBudgetModal.vue')['default']
@@ -19,6 +17,7 @@ declare module 'vue' {
     BaseModal: typeof import('./src/components/BaseModal.vue')['default']
     BaseTooltip: typeof import('./src/components/BaseTooltip.vue')['default']
     BudgetControlPanel: typeof import('./src/components/BudgetControlPanel.vue')['default']
+    BudgetDataTable: typeof import('./src/components/BudgetDataTable.vue')['default']
     BudgetSummaryExpenses: typeof import('./src/components/BudgetSummaryExpenses.vue')['default']
     BudgetSummaryIncome: typeof import('./src/components/BudgetSummaryIncome.vue')['default']
     BudgetSummaryNet: typeof import('./src/components/BudgetSummaryNet.vue')['default']
@@ -35,16 +34,15 @@ declare module 'vue' {
     Checkbox: typeof import('primevue/checkbox')['default']
     CloseMonthModal: typeof import('./src/components/CloseMonthModal.vue')['default']
     Column: typeof import('primevue/column')['default']
+    ColumnGroup: typeof import('primevue/columngroup')['default']
     ConfirmDialog: typeof import('primevue/confirmdialog')['default']
     CurrencyInput: typeof import('./src/components/CurrencyInput.vue')['default']
     DataTable: typeof import('primevue/datatable')['default']
     DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
-    Dropdown: typeof import('primevue/dropdown')['default']
     EditAccountModal: typeof import('./src/components/EditAccountModal.vue')['default']
     ExpenseBreakdownChart: typeof import('./src/components/ExpenseBreakdownChart.vue')['default']
-    FloatLabel: typeof import('primevue/floatlabel')['default']
     HistoryModal: typeof import('./src/components/HistoryModal.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
@@ -59,17 +57,15 @@ declare module 'vue' {
     ProjectionChart: typeof import('./src/components/ProjectionChart.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Row: typeof import('primevue/row')['default']
     Select: typeof import('primevue/select')['default']
-    SelectButton: typeof import('primevue/selectbutton')['default']
     StatCard: typeof import('./src/components/StatCard.vue')['default']
     Tag: typeof import('primevue/tag')['default']
     Textarea: typeof import('primevue/textarea')['default']
     Toast: typeof import('primevue/toast')['default']
-    Toaster: typeof import('./src/components/Toaster.vue')['default']
     TransferModal: typeof import('./src/components/TransferModal.vue')['default']
   }
   export interface GlobalDirectives {
-    StyleClass: typeof import('primevue/styleclass')['default']
     Tooltip: typeof import('primevue/tooltip')['default']
   }
 }
