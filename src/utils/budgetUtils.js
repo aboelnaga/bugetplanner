@@ -350,10 +350,10 @@ export const tableUtils = {
 
   // Format amount with sign based on budget type
   formatAmountWithSign: (amount, budget, formatCurrency) => {
-    if (amount <= 0) return '—'
+    if (amount === 0) return '—'
     
     const isExpense = budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')
-    const sign = isExpense ? '-' : ''
+    const sign = isExpense ? '-' : '+'
     return `${sign}${formatCurrency(amount)}`
   },
 

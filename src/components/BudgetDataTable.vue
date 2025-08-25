@@ -192,21 +192,33 @@
             <Column 
               :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
             >
-              <template #footer>{{ getPreviousYearIncomeTotal() }}</template>
+              <template #footer>
+                <div :class="getPreviousYearIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getPreviousYearIncomeTotal() }}
+                </div>
+              </template>
             </Column>
             <Column 
               v-for="month in months" 
               :key="month" 
               :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
             >
-              <template #footer>{{ getMonthlyIncomeTotal(month) }}</template>
+              <template #footer>
+                <div :class="getMonthlyIncomeTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getMonthlyIncomeTotal(month) }}
+                </div>
+              </template>
             </Column>
             <Column 
               frozen 
               alignFrozen="right" 
               :footerStyle="childRowStyle + 'z-index: 1; border-top: 2px solid var(--surface-border);'"
             >
-              <template #footer>{{ getYearlyIncomeTotal() }}</template>
+              <template #footer>
+                <div :class="getYearlyIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getYearlyIncomeTotal() }}
+                </div>
+              </template>
             </Column>
             <Column 
               footer="" 
@@ -230,21 +242,33 @@
             <Column 
               :footerStyle="childRowStyle"
             >
-              <template #footer>{{ getPreviousYearExpensesTotal() }}</template>
+              <template #footer>
+                <div :class="getPreviousYearExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getPreviousYearExpensesTotal() }}
+                </div>
+              </template>
             </Column>
             <Column 
               v-for="month in months" 
               :key="month" 
               :footerStyle="childRowStyle"
             >
-              <template #footer>{{ getMonthlyExpensesTotal(month) }}</template>
+              <template #footer>
+                <div :class="getMonthlyExpensesTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getMonthlyExpensesTotal(month) }}
+                </div>
+              </template>
             </Column>
             <Column 
               frozen 
               alignFrozen="right" 
               :footerStyle="childRowStyle + 'z-index: 1'"
             >
-              <template #footer>{{ getYearlyExpensesTotal() }}</template>
+              <template #footer>
+                <div :class="getYearlyExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getYearlyExpensesTotal() }}
+                </div>
+              </template>
             </Column>
             <Column 
               footer="" 
@@ -269,21 +293,33 @@
                 <Column 
                     :footerStyle="grandchildRowStyle"
                 >
-                    <template #footer>{{ getPreviousYearInvestmentIncomingTotal() }}</template>
+                    <template #footer>
+                        <div :class="getPreviousYearInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                            {{ getPreviousYearInvestmentIncomingTotal() }}
+                        </div>
+                    </template>
                 </Column>
                 <Column 
                     v-for="month in months" 
                     :key="month" 
                     :footerStyle="grandchildRowStyle"
                 >
-                    <template #footer>{{ getMonthlyInvestmentIncomingTotal(month) }}</template>
+                    <template #footer>
+                        <div :class="getMonthlyInvestmentIncomingTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                            {{ getMonthlyInvestmentIncomingTotal(month) }}
+                        </div>
+                    </template>
                 </Column>
                 <Column 
                     frozen 
                     alignFrozen="right" 
                     :footerStyle="grandchildRowStyle + 'z-index: 1'"
                 >
-                    <template #footer>{{ getYearlyInvestmentIncomingTotal() }}</template>
+                    <template #footer>
+                        <div :class="getYearlyInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                            {{ getYearlyInvestmentIncomingTotal() }}
+                        </div>
+                    </template>
                 </Column>
                 <Column 
                     footer="" 
@@ -307,21 +343,33 @@
                 <Column 
                     :footerStyle="grandchildRowStyle"
                 >
-                    <template #footer>{{ getPreviousYearInvestmentOutgoingTotal() }}</template>
+                    <template #footer>
+                        <div :class="getPreviousYearInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                            {{ getPreviousYearInvestmentOutgoingTotal() }}
+                        </div>
+                    </template>
                 </Column>
                 <Column 
                     v-for="month in months" 
                     :key="month" 
                     :footerStyle="grandchildRowStyle"
                 >
-                    <template #footer>{{ getMonthlyInvestmentOutgoingTotal(month) }}</template>
+                    <template #footer>
+                        <div :class="getMonthlyInvestmentOutgoingTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                            {{ getMonthlyInvestmentOutgoingTotal(month) }}
+                        </div>
+                    </template>
                 </Column>
                 <Column 
                     frozen 
                     alignFrozen="right" 
                     :footerStyle="grandchildRowStyle + 'z-index: 1'"
                 >
-                    <template #footer>{{ getYearlyInvestmentOutgoingTotal() }}</template>
+                    <template #footer>
+                        <div :class="getYearlyInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                            {{ getYearlyInvestmentOutgoingTotal() }}
+                        </div>
+                    </template>
                 </Column>
                 <Column 
                     footer="" 
@@ -357,21 +405,33 @@
             <Column 
               :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
             >
-              <template #footer>{{ getPreviousYearInvestmentNetTotal() }}</template>
+              <template #footer>
+                <div :class="getPreviousYearInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getPreviousYearInvestmentNetTotal() }}
+                </div>
+              </template>
             </Column>
             <Column 
               v-for="month in months" 
               :key="month" 
               :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
             >
-              <template #footer>{{ getMonthlyInvestmentNetTotal(month) }}</template>
+              <template #footer>
+                <div :class="getMonthlyInvestmentNetTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getMonthlyInvestmentNetTotal(month) }}
+                </div>
+              </template>
             </Column>
             <Column 
               frozen 
               alignFrozen="right" 
               :footerStyle="childRowStyle + 'z-index: 1; border-bottom: 2px solid var(--surface-border);'"
             >
-              <template #footer>{{ getYearlyInvestmentNetTotal() }}</template>
+              <template #footer>
+                <div :class="getYearlyInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  {{ getYearlyInvestmentNetTotal() }}
+                </div>
+              </template>
             </Column>
             <Column 
               footer="" 
@@ -403,21 +463,36 @@
             </template>
           </Column>
           <Column 
-            :footer="getPreviousYearNetTotal()" 
             :footerStyle="parentRowStyle"
-          />
+          >
+            <template #footer>
+              <div :class="getPreviousYearNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                {{ getPreviousYearNetTotal() }}
+              </div>
+            </template>
+          </Column>
           <Column 
             v-for="month in months" 
             :key="month" 
-            :footer="getMonthlyNetTotal(month)" 
             :footerStyle="parentRowStyle"
-          />
+          >
+            <template #footer>
+              <div :class="getMonthlyNetTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                {{ getMonthlyNetTotal(month) }}
+              </div>
+            </template>
+          </Column>
           <Column 
-            :footer="getYearlyNetTotal()" 
             frozen 
             alignFrozen="right" 
             :footerStyle="parentRowStyle + 'z-index: 1'"
-          />
+          >
+            <template #footer>
+              <div :class="getYearlyNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                {{ getYearlyNetTotal() }}
+              </div>
+            </template>
+          </Column>
           <Column 
             footer="" 
             frozen 
@@ -434,21 +509,36 @@
             :footerStyle="parentRowStyle"
           />
           <Column 
-            :footer="getPreviousYearSavingsTotal()" 
             :footerStyle="parentRowStyle"
-          />
+          >
+            <template #footer>
+              <div :class="getPreviousYearSavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                {{ getPreviousYearSavingsTotal() }}
+              </div>
+            </template>
+          </Column>
           <Column 
             v-for="month in months" 
             :key="month" 
-            :footer="getMonthlySavingsTotal(month)" 
             :footerStyle="parentRowStyle"
-          />
+          >
+            <template #footer>
+              <div :class="getMonthlySavingsTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                {{ getMonthlySavingsTotal(month) }}
+              </div>
+            </template>
+          </Column>
           <Column 
-            :footer="getYearlySavingsTotal()" 
             frozen 
             alignFrozen="right" 
             :footerStyle="parentRowStyle + 'z-index: 1'"
-          />
+          >
+            <template #footer>
+              <div :class="getYearlySavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                {{ getYearlySavingsTotal() }}
+              </div>
+            </template>
+          </Column>
           <Column 
             footer="" 
             frozen 
@@ -614,20 +704,24 @@ const getMonthlyAmount = (budget, month) => {
 }
 
 const formatAmountWithSign = (amount, item, formatCurrency) => {
-  if (amount === 0) return formatCurrency(0)
+  if (amount === 0) return '—'
   
   // For income and investment incoming, always show positive
   // For expenses and investment outgoing, always show negative
   if (item.type === 'income') {
-    return formatCurrency(Math.abs(amount))
+    return `+${formatCurrency(Math.abs(amount))}`
   } else if (item.type === 'expense') {
     return `-${formatCurrency(Math.abs(amount))}`
   } else if (item.type === 'investment') {
     if (item.investment_direction === 'incoming') {
-      return formatCurrency(Math.abs(amount))
+      return `+${formatCurrency(Math.abs(amount))}`
     } else if (item.investment_direction === 'outgoing') {
       return `-${formatCurrency(Math.abs(amount))}`
     }
+  } else if (item.type === 'net') {
+    // For net values, show + for positive, - for negative
+    const sign = amount > 0 ? '+' : (amount < 0 ? '-' : '')
+    return amount !== 0 ? `${sign}${formatCurrency(Math.abs(amount))}` : formatCurrency(0)
   }
   
   // Fallback: show with sign based on amount value
@@ -693,8 +787,9 @@ const getMonthlyExpensesTotal = (month) => {
 const getMonthlyNetTotal = (month) => {
   const monthIndex = months.indexOf(month)
   const total = props.calculateMonthlyTotal(monthIndex)
-  const sign = total > 0 ? '+' : ''
-  return `${sign}${props.formatCurrency(total)}`
+  // Create a summary item object to represent "net" type
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getYearlyIncomeTotal = () => {
@@ -709,8 +804,8 @@ const getYearlyExpensesTotal = () => {
 
 const getYearlyNetTotal = () => {
   const total = props.calculateGrandTotal()
-  const sign = total > 0 ? '+' : ''
-  return `${sign}${props.formatCurrency(total)}`
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 // Previous year footer totals
@@ -726,7 +821,9 @@ const getPreviousYearExpensesTotal = () => {
 
 const getPreviousYearNetTotal = () => {
   // Placeholder for now - will need to implement with actual previous year data
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 // Investment Returns (Investment Incoming)
@@ -812,18 +909,20 @@ const getMonthlySavingsTotal = (month) => {
     cumulativeSavings += monthlyNet
   }
   
-  const sign = cumulativeSavings > 0 ? '+' : ''
-  return `${sign}${props.formatCurrency(cumulativeSavings)}`
+  const summaryItem = { type: 'net', amount: cumulativeSavings }
+  return formatAmountWithSign(cumulativeSavings, summaryItem, props.formatCurrency)
 }
 
 const getYearlySavingsTotal = () => {
   // Yearly total is the same as December's cumulative savings
-  return getMonthlySavingsTotal('December')
+  return getMonthlySavingsTotal('Dec')
 }
 
 const getPreviousYearSavingsTotal = () => {
   // TODO: Implement previous year savings total
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 // Net Investment
@@ -868,14 +967,11 @@ const getPreviousYearInvestmentNetTotal = () => {
     :deep(.p-datatable-tfoot) {
     position: relative !important;
     }
-
-    /* Expandable indicator styling */
-    :deep(.p-datatable-footer .p-button) {
-      opacity: 0.7;
-      transition: opacity 0.2s ease;
+    :deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(1)) {
+        inset-inline-end: -1px !important;
     }
 
-    :deep(.p-datatable-footer .p-button:hover) {
-      opacity: 1;
+    :deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(2)) {
+        inset-inline-end: 120px !important;
     }
 </style>
