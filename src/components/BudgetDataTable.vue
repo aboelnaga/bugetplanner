@@ -10,7 +10,7 @@
       :loading="loading"
       tableStyle=""
       scrollable
-      scrollHeight="900px"
+      scrollHeight="70vh"
       class="budget-datatable"
       showGridlines
     >
@@ -32,7 +32,7 @@
       </ColumnGroup>
 
               <!-- Budget Item Column -->
-        <Column field="name" frozen alignFrozen="left" style="z-index: 1;">
+        <Column field="name" frozen alignFrozen="left">
           <template #body="slotProps">
             <div class="space-y-1">
               <!-- Budget Name -->
@@ -78,7 +78,7 @@
         </Column>
 
       <!-- Previous Year Column -->
-              <Column field="previousYear" style="min-width: 120px">
+              <Column field="previousYear">
           <template #body="slotProps">
             <div v-if="getPreviousYearAmount(slotProps.data) > 0" class="text-center">
               <div class="text-sm cursor-help text-muted-color" :title="getPreviousYearTooltip(slotProps.data)">
@@ -94,7 +94,6 @@
         v-for="month in months" 
         :key="month"
         :field="month.toLowerCase()"
-        style="min-width: 100px"
         :class="getMonthColumnClass(month)"
       >
                   <template #body="slotProps">
@@ -109,7 +108,7 @@
       </Column>
 
       <!-- Total Column -->
-              <Column field="total" frozen alignFrozen="right" style="min-width: 120px; z-index: 1;">
+              <Column field="total" frozen alignFrozen="right">
           <template #body="slotProps">
             <div class="text-center">
               <div v-if="slotProps.data.total > 0" class="font-medium">
@@ -121,7 +120,7 @@
         </Column>
 
       <!-- Actions Column -->
-      <Column field="actions" frozen alignFrozen="right" style="min-width: 120px; z-index: 1;">
+      <Column field="actions" frozen alignFrozen="right">
         <template #body="slotProps">
           <div class="flex justify-center space-x-1">
             <!-- Virtual item actions -->
@@ -183,7 +182,7 @@
             <Column 
               frozen 
               alignFrozen="left" 
-              :footerStyle="childRowStyle + 'z-index: 1; border-top: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
             >
               <template #footer>
                 <div class="ml-6 text-muted-color">Income Total:</div>
@@ -212,7 +211,7 @@
             <Column 
               frozen 
               alignFrozen="right" 
-              :footerStyle="childRowStyle + 'z-index: 1; border-top: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
             >
               <template #footer>
                 <div :class="getYearlyIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -224,7 +223,7 @@
               footer="" 
               frozen 
               alignFrozen="right" 
-              :footerStyle="childRowStyle + 'z-index: 1; border-top: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
             />
           </Row>
           
@@ -233,7 +232,7 @@
             <Column 
               frozen 
               alignFrozen="left" 
-              :footerStyle="childRowStyle + 'z-index: 1'"
+              :footerStyle="childRowStyle"
             >
               <template #footer>
                 <div class="ml-6 text-muted-color">Expenses Total:</div>
@@ -262,7 +261,7 @@
             <Column 
               frozen 
               alignFrozen="right" 
-              :footerStyle="childRowStyle + 'z-index: 1'"
+              :footerStyle="childRowStyle"
             >
               <template #footer>
                 <div :class="getYearlyExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -274,7 +273,7 @@
               footer="" 
               frozen 
               alignFrozen="right" 
-              :footerStyle="childRowStyle + 'z-index: 1'"
+              :footerStyle="childRowStyle"
             />
           </Row>
           
@@ -284,7 +283,7 @@
                 <Column 
                     frozen 
                     alignFrozen="left" 
-                    :footerStyle="grandchildRowStyle + 'z-index: 1'"
+                    :footerStyle="grandchildRowStyle"
                 >
                     <template #footer>
                         <div class="ml-12 text-muted-color">Investment in:</div>
@@ -313,7 +312,7 @@
                 <Column 
                     frozen 
                     alignFrozen="right" 
-                    :footerStyle="grandchildRowStyle + 'z-index: 1'"
+                    :footerStyle="grandchildRowStyle"
                 >
                     <template #footer>
                         <div :class="getYearlyInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -325,7 +324,7 @@
                     footer="" 
                     frozen 
                     alignFrozen="right" 
-                    :footerStyle="grandchildRowStyle + 'z-index: 1'"
+                    :footerStyle="grandchildRowStyle"
                 />
             </Row>
             
@@ -334,7 +333,7 @@
                 <Column 
                     frozen 
                     alignFrozen="left" 
-                    :footerStyle="grandchildRowStyle + 'z-index: 1'"
+                    :footerStyle="grandchildRowStyle"
                 >
                     <template #footer>
                         <div class="ml-12 text-muted-color">Investment out:</div>
@@ -363,7 +362,7 @@
                 <Column 
                     frozen 
                     alignFrozen="right" 
-                    :footerStyle="grandchildRowStyle + 'z-index: 1'"
+                    :footerStyle="grandchildRowStyle"
                 >
                     <template #footer>
                         <div :class="getYearlyInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -375,7 +374,7 @@
                     footer="" 
                     frozen 
                     alignFrozen="right" 
-                    :footerStyle="grandchildRowStyle + 'z-index: 1'"
+                    :footerStyle="grandchildRowStyle"
                 />
             </Row>
           </template>
@@ -385,7 +384,7 @@
               footer="" 
               frozen 
               alignFrozen="left" 
-              :footerStyle="childRowStyle + 'z-index: 1; border-bottom: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
             >
               <template #footer>
                 <div class="ml-6 flex items-center space-x-2">
@@ -425,7 +424,7 @@
             <Column 
               frozen 
               alignFrozen="right" 
-              :footerStyle="childRowStyle + 'z-index: 1; border-bottom: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
             >
               <template #footer>
                 <div :class="getYearlyInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -437,7 +436,7 @@
               footer="" 
               frozen 
               alignFrozen="right" 
-              :footerStyle="childRowStyle + 'z-index: 1; border-bottom: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
             />
           </Row>
         </template>
@@ -446,7 +445,7 @@
           <Column 
             frozen 
             alignFrozen="left" 
-            :footerStyle="parentRowStyle + 'z-index: 1'"
+            :footerStyle="parentRowStyle"
           >
             <template #footer>
               <div class="flex items-center space-x-2">
@@ -485,7 +484,7 @@
           <Column 
             frozen 
             alignFrozen="right" 
-            :footerStyle="parentRowStyle + 'z-index: 1'"
+            :footerStyle="parentRowStyle"
           >
             <template #footer>
               <div :class="getYearlyNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -497,7 +496,7 @@
             footer="" 
             frozen 
             alignFrozen="right" 
-            :footerStyle="parentRowStyle + 'z-index: 1'"
+            :footerStyle="parentRowStyle"
           />
         </Row>
         
@@ -531,7 +530,7 @@
           <Column 
             frozen 
             alignFrozen="right" 
-            :footerStyle="parentRowStyle + 'z-index: 1'"
+            :footerStyle="parentRowStyle"
           >
             <template #footer>
               <div :class="getYearlySavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
@@ -543,7 +542,7 @@
             footer="" 
             frozen 
             alignFrozen="right" 
-            :footerStyle="parentRowStyle + 'z-index: 1'"
+            :footerStyle="parentRowStyle"
           />
         </Row>
       </ColumnGroup>
@@ -750,7 +749,9 @@ const getSmartDefaultTooltip = (budget, month) => {
 // Previous year functions (placeholder for now)
 const getPreviousYearAmount = (budget) => {
   // This will need to be implemented with actual previous year data
-  return 0
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearTooltip = (budget) => {
@@ -775,13 +776,15 @@ const getMonthHeaderContent = (month) => {
 const getMonthlyIncomeTotal = (month) => {
   const monthIndex = months.indexOf(month)
   const total = props.calculateMonthlyIncome(monthIndex)
-  return total > 0 ? `+${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getMonthlyExpensesTotal = (month) => {
   const monthIndex = months.indexOf(month)
   const total = props.calculateMonthlyExpenses(monthIndex)
-  return total > 0 ? `-${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'expense', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getMonthlyNetTotal = (month) => {
@@ -794,12 +797,14 @@ const getMonthlyNetTotal = (month) => {
 
 const getYearlyIncomeTotal = () => {
   const total = props.calculateGrandTotalIncome()
-  return total > 0 ? `+${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getYearlyExpensesTotal = () => {
   const total = props.calculateGrandTotalExpenses()
-  return total > 0 ? `-${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'expense', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getYearlyNetTotal = () => {
@@ -811,12 +816,16 @@ const getYearlyNetTotal = () => {
 // Previous year footer totals
 const getPreviousYearIncomeTotal = () => {
   // Placeholder for now - will need to implement with actual previous year data
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearExpensesTotal = () => {
   // Placeholder for now - will need to implement with actual previous year data
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'expense', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearNetTotal = () => {
@@ -835,7 +844,8 @@ const getMonthlyInvestmentIncomingTotal = (month) => {
       total += item[monthField] || 0
     }
   })
-  return total > 0 ? `+${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getYearlyInvestmentIncomingTotal = () => {
@@ -845,12 +855,15 @@ const getYearlyInvestmentIncomingTotal = () => {
       total += item.total || 0
     }
   })
-  return total > 0 ? `+${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearInvestmentIncomingTotal = () => {
   // TODO: Implement previous year investment incoming total
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'income', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 // Investment Purchases (Investment Outgoing)
@@ -862,7 +875,8 @@ const getMonthlyInvestmentOutgoingTotal = (month) => {
       total += item[monthField] || 0
     }
   })
-  return total > 0 ? `-${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'expense', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getYearlyInvestmentOutgoingTotal = () => {
@@ -872,12 +886,15 @@ const getYearlyInvestmentOutgoingTotal = () => {
       total += item.total || 0
     }
   })
-  return total > 0 ? `-${props.formatCurrency(total)}` : props.formatCurrency(total)
+  const summaryItem = { type: 'expense', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearInvestmentOutgoingTotal = () => {
   // TODO: Implement previous year investment outgoing total
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'expense', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 // Cumulative Savings
@@ -938,8 +955,8 @@ const getMonthlyInvestmentNetTotal = (month) => {
       }
     }
   })
-  const sign = total > 0 ? '+' : ''
-  return `${sign}${props.formatCurrency(total)}`
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getYearlyInvestmentNetTotal = () => {
@@ -952,13 +969,15 @@ const getYearlyInvestmentNetTotal = () => {
       total -= item.total || 0
     }
   })
-  const sign = total > 0 ? '+' : ''
-  return `${sign}${props.formatCurrency(total)}`
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearInvestmentNetTotal = () => {
   // TODO: Implement previous year investment net total
-  return props.formatCurrency(0)
+  const total = 0 // This will be replaced with actual previous year data
+  const summaryItem = { type: 'net', amount: total }
+  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 </script>
 
@@ -971,7 +990,14 @@ const getPreviousYearInvestmentNetTotal = () => {
         inset-inline-end: -1px !important;
     }
 
+    :deep(.p-datatable-scrollable .p-datatable-frozen-column) {
+        z-index: 1;
+    }
+
     :deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(2)) {
         inset-inline-end: 120px !important;
+    }
+    :deep(.p-datatable-scrollable-table > .p-datatable-thead) {
+        z-index: 2;
     }
 </style>

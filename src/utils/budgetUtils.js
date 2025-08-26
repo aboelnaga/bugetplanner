@@ -8,9 +8,10 @@ export const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'EGP',
+    currencyDisplay: 'symbol',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(Math.abs(amount || 0))
+  }).format(Math.abs(amount || 0)).replace("EGP", "LE");
 }
 
 // Compact currency formatting for better display in small spaces
