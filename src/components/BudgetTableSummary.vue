@@ -1,99 +1,3 @@
-<template>
-  <!-- Income Summary -->
-  <BudgetSummaryIncome
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="hasIncomeData"
-    :has-investment-incoming-data="hasInvestmentIncomingData"
-    :calculate-monthly-income="calculateMonthlyIncome"
-    :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
-    :calculate-grand-total-income="calculateGrandTotalIncome"
-    :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
-    :calculate-monthly-actual-income="calculateMonthlyActualIncome"
-    :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
-    :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
-    :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
-    :format-currency="formatCurrency"
-    :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
-    :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
-    :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
-    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
-    :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
-    :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal" />
-
-  <!-- Expenses Summary -->
-  <BudgetSummaryExpenses
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-expense-data="hasExpenseData"
-    :has-investment-outgoing-data="hasInvestmentOutgoingData"
-    :calculate-monthly-expenses="calculateMonthlyExpenses"
-    :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
-    :calculate-grand-total-expenses="calculateGrandTotalExpenses"
-    :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
-    :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
-    :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
-    :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
-    :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
-    :format-currency="formatCurrency"
-    :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
-    :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
-    :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
-    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
-    :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
-    :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal" />
-
-   
-      
-  <!-- Net Summary -->
-  <BudgetSummaryNet
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-investment-data="hasInvestmentData"
-    :has-any-data="hasAnyData"
-    :calculate-monthly-total="calculateMonthlyTotal"
-    :calculate-monthly-investment-net="calculateMonthlyInvestmentNet"
-    :calculate-grand-total="calculateGrandTotal"
-    :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
-    :calculate-monthly-actual-total="calculateMonthlyActualTotal"
-    :calculate-grand-total-actual="calculateGrandTotalActual"
-    :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
-    :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
-    :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
-    :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
-    :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
-    :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
-    :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
-    :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
-    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
-    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
-    :calculate-monthly-actual-income="calculateMonthlyActualIncome"
-    :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
-    :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
-    :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
-    :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
-    :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
-    :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
-    :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
-    :format-currency="formatCurrency"
-    :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
-    :calculate-grand-total-planned="calculateGrandTotalPlanned"
-    :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
-    :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
-    :calculate-cumulative-savings="calculateCumulativeSavings"
-    :calculate-grand-total-savings="calculateGrandTotalSavings"
-    :calculate-previous-year-savings="calculatePreviousYearSavings" />
-</template>
-
 <script setup>
 import BudgetSummaryIncome from './BudgetSummaryIncome.vue'
 import BudgetSummaryExpenses from './BudgetSummaryExpenses.vue'
@@ -352,4 +256,100 @@ const props = defineProps({
   
 
 })
-</script> 
+</script>
+
+<template>
+  <!-- Income Summary -->
+  <BudgetSummaryIncome
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="hasIncomeData"
+    :has-investment-incoming-data="hasInvestmentIncomingData"
+    :calculate-monthly-income="calculateMonthlyIncome"
+    :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
+    :calculate-grand-total-income="calculateGrandTotalIncome"
+    :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
+    :calculate-monthly-actual-income="calculateMonthlyActualIncome"
+    :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
+    :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
+    :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
+    :format-currency="formatCurrency"
+    :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
+    :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
+    :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
+    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+    :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
+    :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal" />
+
+  <!-- Expenses Summary -->
+  <BudgetSummaryExpenses
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-expense-data="hasExpenseData"
+    :has-investment-outgoing-data="hasInvestmentOutgoingData"
+    :calculate-monthly-expenses="calculateMonthlyExpenses"
+    :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
+    :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+    :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
+    :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
+    :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
+    :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
+    :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
+    :format-currency="formatCurrency"
+    :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
+    :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
+    :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
+    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
+    :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
+    :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal" />
+
+   
+      
+  <!-- Net Summary -->
+  <BudgetSummaryNet
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-investment-data="hasInvestmentData"
+    :has-any-data="hasAnyData"
+    :calculate-monthly-total="calculateMonthlyTotal"
+    :calculate-monthly-investment-net="calculateMonthlyInvestmentNet"
+    :calculate-grand-total="calculateGrandTotal"
+    :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
+    :calculate-monthly-actual-total="calculateMonthlyActualTotal"
+    :calculate-grand-total-actual="calculateGrandTotalActual"
+    :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
+    :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
+    :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
+    :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
+    :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
+    :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
+    :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
+    :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
+    :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+    :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
+    :calculate-monthly-actual-income="calculateMonthlyActualIncome"
+    :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
+    :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
+    :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
+    :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
+    :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
+    :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
+    :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
+    :format-currency="formatCurrency"
+    :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
+    :calculate-grand-total-planned="calculateGrandTotalPlanned"
+    :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
+    :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+    :calculate-cumulative-savings="calculateCumulativeSavings"
+    :calculate-grand-total-savings="calculateGrandTotalSavings"
+    :calculate-previous-year-savings="calculatePreviousYearSavings" />
+</template> 

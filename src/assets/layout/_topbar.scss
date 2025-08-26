@@ -1,0 +1,87 @@
+@use 'mixins' as *;
+
+.layout-topbar {
+    position: fixed;
+    height: 4rem;
+    z-index: 997;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 0 2rem;
+    background-color: var(--surface-card);
+    transition: left var(--layout-section-transition-duration);
+    display: flex;
+    align-items: center;
+
+    .layout-topbar-logo-container {
+        width: 20rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .layout-topbar-logo {
+        display: inline-flex;
+        align-items: center;
+        font-size: 1.5rem;
+        border-radius: var(--content-border-radius);
+        color: var(--text-color);
+        font-weight: 500;
+        gap: 0.5rem;
+
+        &:focus-visible {
+            @include focused();
+        }
+    }
+
+    .layout-topbar-action {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        width: 2.5rem;
+        height: 2.5rem;
+        color: var(--text-color);
+        transition: background-color var(--element-transition-duration);
+        cursor: pointer;
+
+        &:hover {
+            background-color: var(--surface-hover);
+        }
+
+        &:focus-visible {
+            @include focused();
+        }
+
+        i {
+            font-size: 1.25rem;
+        }
+
+    }
+
+    .layout-menu-button {
+        margin-right: 0.5rem;
+    }
+
+
+    .layout-topbar-actions {
+        margin-left: auto;
+        display: flex;
+        gap: 1rem;
+    }
+
+
+    .layout-config-menu {
+        display: flex;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 991px) {
+    .layout-topbar {
+        padding: 0 2rem;
+    }
+}
+
+.layout-topbar-menu-item:hover {
+    background-color: var(--surface-hover);
+}

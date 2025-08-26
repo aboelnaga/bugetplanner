@@ -1,3 +1,19 @@
+<script setup>
+import { useBudgetStore } from '@/stores/budget'
+
+const store = useBudgetStore()
+const { familyBudgets, totalFamilyExpenses, currentMonth } = store
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'EGP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.abs(amount))
+}
+</script>
+
 <template>
   <div class="space-y-6">
     <div class="flex justify-between items-center">
@@ -51,20 +67,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { useBudgetStore } from '@/stores/budget'
-
-const store = useBudgetStore()
-const { familyBudgets, totalFamilyExpenses, currentMonth } = store
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(amount))
-}
-</script> 
+</template> 

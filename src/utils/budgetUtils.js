@@ -8,9 +8,10 @@ export const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'EGP',
+    currencyDisplay: 'symbol',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(Math.abs(amount || 0))
+  }).format(Math.abs(amount || 0)).replace("EGP", "LE");
 }
 
 // Compact currency formatting for better display in small spaces
@@ -226,7 +227,7 @@ export const emptyStateUtils = {
     
     if (selectedTypeFilter !== 'all') {
       const typeLabel = selectedTypeFilter === 'income' ? 'income' : 
-                       selectedTypeFilter === 'expense' ? 'expense' : 'investment'
+        selectedTypeFilter === 'expense' ? 'expense' : 'investment'
       parts.push(`No ${typeLabel} items`)
     }
     
@@ -350,10 +351,10 @@ export const tableUtils = {
 
   // Format amount with sign based on budget type
   formatAmountWithSign: (amount, budget, formatCurrency) => {
-    if (amount <= 0) return '—'
+    if (amount === 0) return '—'
     
     const isExpense = budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')
-    const sign = isExpense ? '-' : ''
+    const sign = isExpense ? '-' : '+'
     return `${sign}${formatCurrency(amount)}`
   },
 

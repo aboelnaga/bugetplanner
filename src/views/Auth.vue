@@ -1,3 +1,104 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.js'
+import { useToast } from 'primevue/usetoast'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const toast = useToast()
+
+const activeTab = ref('login')
+
+const loginForm = ref({
+  email: '',
+  password: ''
+})
+
+const signupForm = ref({
+  fullName: '',
+  email: '',
+  password: '',
+  confirmPassword: ''
+})
+
+const passwordsMatch = computed(() => {
+  return signupForm.value.password === signupForm.value.confirmPassword
+})
+
+const handleLogin = async () => {
+  try {
+    await authStore.signIn(loginForm.value.email, loginForm.value.password)
+    router.push('/')
+  } catch (error) {
+    console.error('Login error:', error)
+  }
+}
+
+const handleSignup = async () => {
+  if (!passwordsMatch.value) {
+    authStore.error = 'Passwords do not match'
+    return
+  }
+
+  try {
+    await authStore.signUp(
+      signupForm.value.email,
+      signupForm.value.password,
+      signupForm.value.fullName
+    )
+    // Show success message or redirect
+    activeTab.value = 'login'
+    authStore.error = null
+  } catch (error) {
+    console.error('Signup error:', error)
+  }
+}
+
+const handleGoogleLogin = async () => {
+  try {
+    await authStore.signInWithGoogle()
+  } catch (error) {
+    console.error('Google login error:', error)
+  }
+}
+
+const handleGoogleSignup = async () => {
+  try {
+    await authStore.signInWithGoogle()
+  } catch (error) {
+    console.error('Google signup error:', error)
+  }
+}
+
+const handleForgotPassword = async () => {
+  if (!loginForm.value.email) {
+    authStore.error = 'Please enter your email address first'
+    return
+  }
+
+  try {
+    await authStore.resetPassword(loginForm.value.email)
+    authStore.error = null
+    toast.add({ 
+      severity: 'success', 
+      summary: 'Password Reset', 
+      detail: 'Password reset email sent! Check your inbox.', 
+      life: 5000 
+    })
+  } catch (error) {
+    console.error('Password reset error:', error)
+  }
+}
+
+onMounted(() => {
+  // Redirect if already authenticated
+  if (authStore.isAuthenticated) {
+    router.push('/')
+  }
+})
+</script>
+
 <template>
   <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
     <div class="max-w-md w-full space-y-8">
@@ -216,98 +317,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth.js'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-const activeTab = ref('login')
-
-const loginForm = ref({
-  email: '',
-  password: ''
-})
-
-const signupForm = ref({
-  fullName: '',
-  email: '',
-  password: '',
-  confirmPassword: ''
-})
-
-const passwordsMatch = computed(() => {
-  return signupForm.value.password === signupForm.value.confirmPassword
-})
-
-const handleLogin = async () => {
-  try {
-    await authStore.signIn(loginForm.value.email, loginForm.value.password)
-    router.push('/')
-  } catch (error) {
-    console.error('Login error:', error)
-  }
-}
-
-const handleSignup = async () => {
-  if (!passwordsMatch.value) {
-    authStore.error = 'Passwords do not match'
-    return
-  }
-
-  try {
-    await authStore.signUp(
-      signupForm.value.email,
-      signupForm.value.password,
-      signupForm.value.fullName
-    )
-    // Show success message or redirect
-    activeTab.value = 'login'
-    authStore.error = null
-  } catch (error) {
-    console.error('Signup error:', error)
-  }
-}
-
-const handleGoogleLogin = async () => {
-  try {
-    await authStore.signInWithGoogle()
-  } catch (error) {
-    console.error('Google login error:', error)
-  }
-}
-
-const handleGoogleSignup = async () => {
-  try {
-    await authStore.signInWithGoogle()
-  } catch (error) {
-    console.error('Google signup error:', error)
-  }
-}
-
-const handleForgotPassword = async () => {
-  if (!loginForm.value.email) {
-    authStore.error = 'Please enter your email address first'
-    return
-  }
-
-  try {
-    await authStore.resetPassword(loginForm.value.email)
-    authStore.error = null
-    alert('Password reset email sent! Check your inbox.')
-  } catch (error) {
-    console.error('Password reset error:', error)
-  }
-}
-
-onMounted(() => {
-  // Redirect if already authenticated
-  if (authStore.isAuthenticated) {
-    router.push('/')
-  }
-})
-</script> 
+</template> 

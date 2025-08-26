@@ -1,8 +1,19 @@
 import { ref } from 'vue'
 
-export function useErrorHandler() {
+export function useErrorHandler(toastFunction = null) {
   const errors = ref([])
   const isHandlingError = ref(false)
+
+  // Helper function to show toast if available
+  const showToast = (severity, summary, detail, life = 5000) => {
+    if (toastFunction && typeof toastFunction === 'function') {
+      toastFunction({ severity, summary, detail, life })
+    } else if (window.$toaster) {
+      // Fallback to old toaster for backward compatibility
+      const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
+      window.$toaster[method](summary, detail)
+    }
+  }
 
   // Error types
   const ERROR_TYPES = {
@@ -201,12 +212,9 @@ export function useErrorHandler() {
       errors.value.push(errorEntry)
 
       // Show notification
-      if (showNotification && window.$toaster) {
-        const notificationType = severity === ERROR_SEVERITY.CRITICAL ? 'error' : 'warning'
-        window.$toaster[notificationType](
-          `Error in ${context}`,
-          message
-        )
+      if (showNotification) {
+        const notificationType = severity === ERROR_SEVERITY.CRITICAL ? 'error' : 'warn'
+        showToast(notificationType, `Error in ${context}`, message)
       }
 
       // Handle recovery

@@ -20,7 +20,7 @@ import {
 } from '@/constants/budgetConstants.js'
 import { dateUtils, validationHelpers, scheduleUtils, formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth) {
+export function useBudgetModals(budgetStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
   // Modal state
   const showAddBudgetModal = ref(false)
   const showEditBudgetModal = ref(false)
@@ -37,6 +37,65 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     totalAmount: 0,
     duration: 0
   })
+
+  // Helper function to show toast if available
+  const showToast = (severity, summary, detail, life = 5000) => {
+    if (toastFunction && typeof toastFunction === 'function') {
+      toastFunction({ severity, summary, detail, life })
+    } else if (toastFunction && toastFunction.add) {
+      // Handle full toast instance
+      toastFunction.add({ severity, summary, detail, life })
+    } else if (window.$toaster) {
+      // Fallback to old toaster for backward compatibility
+      const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
+      window.$toaster[method](summary, detail)
+    }
+  }
+
+  // Helper function to show confirmation dialog if available
+  const showConfirm = (message, header = 'Confirmation', icon = 'pi pi-exclamation-triangle') => {
+    return new Promise((resolve) => {
+      if (confirmFunction && typeof confirmFunction === 'function') {
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else if (confirmFunction && confirmFunction.require) {
+        // Handle full confirm instance
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else {
+        // Fallback to browser confirm
+        resolve(confirm(message))
+      }
+    })
+  }
 
   // Initialize form data
   const initializeFormData = () => {
@@ -683,7 +742,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
       // Show warning to user
       if (!window.amountLimitWarningShown) {
-        alert(`Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`)
+        showToast('warn', 'Amount Limit', `Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`)
         window.amountLimitWarningShown = true
       }
     }
@@ -844,7 +903,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       console.log('Validation completed, errors:', errors)
       if (errors.length > 0) {
         console.log('Validation errors found, showing alert')
-        alert('Please fix the following errors:\n' + errors.join('\n'))
+        showToast('error', 'Validation Error', 'Please fix the following errors:\n' + errors.join('\n'))
         return false
       }
 
@@ -870,12 +929,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         return result
       } else {
         console.log('Failed to create budget item')
-        alert('Failed to add budget item. Please try again.')
+        showToast('error', 'Add Budget Failed', 'Failed to add budget item. Please try again.')
         return false
       }
     } catch (error) {
       console.error('Error adding budget item:', error)
-      alert('Error adding budget item: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Add Budget Failed', 'Error adding budget item: ' + (error.message || 'Unknown error'))
       return false
     } finally {
       console.log('Setting isLoading to false')
@@ -892,6 +951,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       console.log('Validation errors:', errors)
       if (errors.length > 0) {
         console.log('Please fix the following errors:\n' + errors.join('\n'))
+        showToast('error', 'Validation Error', 'Please fix the following errors:\n' + errors.join('\n'))
         return false
       }
 
@@ -948,7 +1008,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
       if (!budget || !budget.linked_group_id) {
         console.error('Invalid multi-year budget item or missing linked_group_id')
-        alert('Invalid multi-year budget item')
+        showToast('error', 'Invalid Multi-Year Budget', 'Invalid multi-year budget item')
         return false
       }
 
@@ -959,7 +1019,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       const multiYearErrors = validateMultiYearSettings()
       if (multiYearErrors.length > 0) {
         console.error('Multi-year validation errors:', multiYearErrors)
-        alert('Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
+        showToast('error', 'Multi-Year Validation Error', 'Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
         return false
       }
 
@@ -1011,12 +1071,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       if (result) {
         return result
       } else {
-        alert('Failed to update multi-year budget. Please try again.')
+        showToast('error', 'Update Multi-Year Budget Failed', 'Failed to update multi-year budget. Please try again.')
         return false
       }
     } catch (error) {
       console.error('Error updating multi-year budget:', error)
-      alert('Error updating multi-year budget: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Update Multi-Year Budget Failed', 'Error updating multi-year budget: ' + (error.message || 'Unknown error'))
       return false
     }
   }
@@ -1029,7 +1089,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       // Validate multi-year settings
       const multiYearErrors = validateMultiYearSettings()
       if (multiYearErrors.length > 0) {
-        alert('Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
+        showToast('error', 'Multi-Year Validation Error', 'Please fix the following multi-year errors:\n' + multiYearErrors.join('\n'))
         return false
       }
 
@@ -1081,7 +1141,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
           return result
         } else {
           console.error('addMultiYearBudgetItem returned falsy or empty result')
-          alert('Failed to convert to multi-year budget. Please try again.')
+          showToast('error', 'Convert to Multi-Year Failed', 'Failed to convert to multi-year budget. Please try again.')
           return false
         }
       } catch (conversionError) {
@@ -1090,7 +1150,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       }
     } catch (error) {
       console.error('Error converting to multi-year budget:', error)
-      alert('Error converting to multi-year budget: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Convert to Multi-Year Failed', 'Error converting to multi-year budget: ' + (error.message || 'Unknown error'))
       return false
     }
   }
@@ -1103,7 +1163,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       // Get the original budget to find the linked group
       const budget = budgetStore.budgetItems.find(item => item.id === budgetId)
       if (!budget || !budget.linked_group_id) {
-        alert('Invalid multi-year budget item')
+        showToast('error', 'Invalid Multi-Year Budget', 'Invalid multi-year budget item')
         return false
       }
 
@@ -1152,12 +1212,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         await budgetStore.deleteMultiYearBudget(budget)
         return result
       } else {
-        alert('Failed to convert to single year budget. Please try again.')
+        showToast('error', 'Convert to Single Year Failed', 'Failed to convert to single year budget. Please try again.')
         return false
       }
     } catch (error) {
       console.error('Error converting to single year budget:', error)
-      alert('Error converting to single year budget: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Convert to Single Year Failed', 'Error converting to single year budget: ' + (error.message || 'Unknown error'))
       return false
     }
   }
@@ -1227,12 +1287,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       if (result) {
         return result
       } else {
-        alert('Failed to update budget item. Please try again.')
+        showToast('error', 'Update Budget Failed', 'Failed to update budget item. Please try again.')
         return false
       }
     } catch (error) {
       console.error('Error updating single year budget:', error)
-      alert('Error updating budget item: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Update Budget Failed', 'Error updating budget item: ' + (error.message || 'Unknown error'))
       return false
     }
   }
@@ -1400,9 +1460,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       console.log('Success message:', message)
       
       // Show success toast
-      if (window.$toaster) {
-        window.$toaster.success('Multi-Year Budget Created', message)
-      }
+      showToast('success', 'Multi-Year Budget Created', message)
     } else {
       // Single-year budget - single budget item
       const budgetName = budgetItem?.name || 'Budget item'
@@ -1414,22 +1472,10 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       // If the budget was created for a different year than the current view
       if (budgetYear !== currentViewYear) {
         message += ` for ${budgetYear}`
-        if (window.$toaster) {
-          window.$toaster.success('Budget Created', message, {
-            action: {
-              text: `View ${budgetYear}`,
-              onClick: () => {
-                // Switch to the year where the budget was created
-                selectedYear.value = budgetYear
-              }
-            }
-          })
-        }
+        showToast('success', 'Budget Created', message)
       } else {
         // Same year, show normal success message
-        if (window.$toaster) {
-          window.$toaster.success('Budget Created', message)
-        }
+        showToast('success', 'Budget Created', message)
       }
     }
   }
@@ -1441,9 +1487,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     console.log('Success message:', message)
     
     // Show success toast
-    if (window.$toaster) {
-      window.$toaster.success('Budget Updated', message)
-    }
+    showToast('success', 'Budget Updated', message)
   }
 
   // Budget actions
@@ -1523,7 +1567,7 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     )
     
     if (hasActualValues) {
-      alert(`Cannot delete this multi-year budget (${yearsRange}) as it contains actual transaction data. Please clear all actual amounts first.`)
+      showToast('warn', 'Delete Multi-Year Budget Failed', `Cannot delete this multi-year budget (${yearsRange}) as it contains actual transaction data. Please clear all actual amounts first.`)
       return
     }
     
@@ -1541,10 +1585,12 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     if (hasPlannedValues) {
       const confirmMessage = `This multi-year budget (${yearsRange}) contains planned values for current/future months. Are you sure you want to delete the entire ${totalYears}-year schedule?`
-      if (!confirm(confirmMessage)) return
+      const confirmed = await showConfirm(confirmMessage, 'Delete Multi-Year Budget', 'pi pi-exclamation-triangle')
+      if (!confirmed) return
     } else {
       const confirmMessage = `Are you sure you want to delete this multi-year budget (${yearsRange})?`
-      if (!confirm(confirmMessage)) return
+      const confirmed = await showConfirm(confirmMessage, 'Delete Multi-Year Budget', 'pi pi-exclamation-triangle')
+      if (!confirmed) return
     }
     
     // Delete all linked items
@@ -1558,7 +1604,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     // If it's a future year, allow full deletion
     if (selectedYear.value > currentYear) {
-      if (confirm('Are you sure you want to delete this budget item?')) {
+      const confirmed = await showConfirm('Are you sure you want to delete this budget item?', 'Delete Budget Item', 'pi pi-exclamation-triangle')
+      if (confirmed) {
         await budgetStore.deleteBudgetItem(budget.id)
       }
       return
@@ -1566,7 +1613,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
     
     // If no values for the whole year, allow deletion
     if (!hasAnyValues) {
-      if (confirm('Are you sure you want to delete this empty budget item?')) {
+      const confirmed = await showConfirm('Are you sure you want to delete this empty budget item?', 'Delete Empty Budget Item', 'pi pi-exclamation-triangle')
+      if (confirmed) {
         await budgetStore.deleteBudgetItem(budget.id)
       }
       return
@@ -1579,7 +1627,8 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
       
       if (hasPastValues && hasFutureValues) {
         // Has both past and future values - clear only future values
-        if (confirm('This budget item has historical data. Clear only the remaining months (current month onwards)?')) {
+        const confirmed = await showConfirm('This budget item has historical data. Clear only the remaining months (current month onwards)?', 'Clear Future Months', 'pi pi-info-circle')
+        if (confirmed) {
           for (let i = currentMonth.value; i < 12; i++) {
             if (budget.amounts[i] > 0) {
               await budgetStore.updateMonthlyAmount(budget.id, i, 0)
@@ -1588,16 +1637,17 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
         }
       } else if (hasPastValues && !hasFutureValues) {
         // Has only past values - don't allow deletion
-        alert('Cannot delete this budget item as it contains historical data and all future months are already empty.')
+        showToast('warn', 'Delete Budget Failed', 'Cannot delete this budget item as it contains historical data and all future months are already empty.')
       } else if (!hasPastValues && hasFutureValues) {
         // Has only future values - allow full deletion
-        if (confirm('Are you sure you want to delete this budget item? (It only contains future planning data)')) {
+        const confirmed = await showConfirm('Are you sure you want to delete this budget item? (It only contains future planning data)', 'Delete Future Budget Item', 'pi pi-exclamation-triangle')
+        if (confirmed) {
           await budgetStore.deleteBudgetItem(budget.id)
         }
       }
     } else if (selectedYear.value < currentYear) {
       // Past year with values - don't allow deletion
-      alert('Cannot delete budget items from past years that contain data.')
+      showToast('warn', 'Delete Budget Failed', 'Cannot delete budget items from past years that contain data.')
     }
   }
 
@@ -1611,11 +1661,14 @@ export function useBudgetModals(budgetStore, selectedYear, currentYear, currentM
   const copyFromPreviousYear = async () => {
     const previousYear = selectedYear.value - 1
     
-    if (confirm(`Copy all budget items from ${previousYear} to ${selectedYear.value}?`)) {
+    const confirmed = await showConfirm(`Copy all budget items from ${previousYear} to ${selectedYear.value}?`, 'Copy Budget Items', 'pi pi-copy')
+    if (confirmed) {
       const result = await budgetStore.copyFromPreviousYear(previousYear, selectedYear.value)
       
       if (!result) {
-        alert('Failed to copy budget items. Please try again.')
+        showToast('error', 'Copy Budget Failed', 'Failed to copy budget items. Please try again.')
+      } else {
+        showToast('success', 'Budget Copied', `Budget items copied from ${previousYear} to ${selectedYear.value} successfully.`)
       }
     }
   }

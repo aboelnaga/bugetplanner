@@ -1,81 +1,6 @@
-<template>
-  <!-- Net Balance Line -->
-  <BudgetSummaryRowHelper
-    row-type="NET_BALANCE"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false"
-    :has-expense-data="false"
-    :has-investment-data="hasInvestmentData"
-    :has-investment-incoming-data="false"
-    :has-investment-outgoing-data="false"
-    :has-any-data="hasAnyData"
-    :calculate-monthly="calculateMonthlyTotal"
-    :calculate-grand-total="calculateGrandTotal"
-    :calculate-previous-year="calculatePreviousYearNetTotal"
-    :get-monthly-tooltip="getNetBalanceTooltip"
-    :get-grand-total-tooltip="getNetBalanceYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearNetTooltip"
-    :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200 font-bold" 
-    :use-value-based-styling="true"/>
-
-  <!-- Savings Row -->
-  <BudgetSummaryRowHelper
-    row-type="SAVINGS"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false"
-    :has-expense-data="false"
-    :has-investment-data="hasInvestmentData"
-    :has-investment-incoming-data="false"
-    :has-investment-outgoing-data="false"
-    :has-any-data="hasAnyData"
-    :calculate-monthly="calculateCumulativeSavings"
-    :calculate-grand-total="calculateGrandTotalSavings"
-    :calculate-previous-year="calculatePreviousYearSavings"
-    :get-monthly-tooltip="getSavingsTooltip"
-    :get-grand-total-tooltip="getGrandTotalSavingsTooltip"
-    :get-previous-year-tooltip="getPreviousYearSavingsTooltip"
-    :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200 font-bold"
-    :use-value-based-styling="true" />
-
-  <!-- Net Investment Row -->
-  <BudgetSummaryRowHelper
-    row-type="NET_INVESTMENT"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false"
-    :has-expense-data="false"
-    :has-investment-data="hasInvestmentData"
-    :has-investment-incoming-data="false"
-    :has-investment-outgoing-data="false"
-    :has-any-data="hasAnyData"
-    :calculate-monthly="calculateMonthlyInvestmentNet"
-    :calculate-grand-total="calculateGrandTotalInvestmentNet"
-    :calculate-previous-year="calculatePreviousYearInvestmentNetTotal"
-    :get-monthly-tooltip="getNetInvestmentTooltip"
-    :get-grand-total-tooltip="getNetInvestmentYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearInvestmentNetTooltip"
-    :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200"
-    :use-value-based-styling="true" />
-</template>
-
 <script setup>
-import { computed } from 'vue'
-import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import { useTooltipBuilder } from '@/composables/useTooltipBuilder.js'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import BudgetSummaryRowHelper from './BudgetSummaryRowHelper.vue'
 
 // Props
@@ -100,7 +25,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  
+
   // Computed properties
   hasInvestmentData: {
     type: Boolean,
@@ -110,7 +35,7 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
-  
+
   // Functions
   calculateMonthlyTotal: {
     type: Function,
@@ -152,7 +77,7 @@ const props = defineProps({
     type: Function,
     required: true
   },
-  
+
   // Planned calculation props for tooltips
   // Monthly planned breakdown (income/expenses)
   calculateMonthlyPlannedIncome: {
@@ -197,7 +122,7 @@ const props = defineProps({
     type: Function,
     default: null
   },
-  
+
   // Actual-only breakdown props used in Net tooltips
   // Monthly actual (income/expenses and investment in/out)
   calculateMonthlyActualIncome: {
@@ -242,7 +167,7 @@ const props = defineProps({
     type: Function,
     default: null
   },
-  
+
   // Savings calculations
   calculateCumulativeSavings: {
     type: Function,
@@ -267,15 +192,15 @@ const getNetBalanceTooltip = (monthIndex) => {
   if (!props.calculateMonthlyPlannedTotal) return ''
   // Planned breakdown
   const plannedIncome = (props.calculateMonthlyPlannedIncome ? props.calculateMonthlyPlannedIncome(monthIndex) : 0) +
-                        (props.calculateMonthlyPlannedInvestmentIncoming ? props.calculateMonthlyPlannedInvestmentIncoming(monthIndex) : 0)
+    (props.calculateMonthlyPlannedInvestmentIncoming ? props.calculateMonthlyPlannedInvestmentIncoming(monthIndex) : 0)
   const plannedExpense = (props.calculateMonthlyPlannedExpenses ? props.calculateMonthlyPlannedExpenses(monthIndex) : 0) +
-                         (props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0)
+    (props.calculateMonthlyPlannedInvestmentOutgoing ? props.calculateMonthlyPlannedInvestmentOutgoing(monthIndex) : 0)
 
   // Actual breakdown
   const actualIncome = (props.calculateMonthlyActualIncome ? props.calculateMonthlyActualIncome(monthIndex) : 0) +
-                       (props.calculateMonthlyActualInvestmentIncoming ? props.calculateMonthlyActualInvestmentIncoming(monthIndex) : 0)
+    (props.calculateMonthlyActualInvestmentIncoming ? props.calculateMonthlyActualInvestmentIncoming(monthIndex) : 0)
   const actualExpense = (props.calculateMonthlyActualExpenses ? props.calculateMonthlyActualExpenses(monthIndex) : 0) +
-                        (props.calculateMonthlyActualInvestmentOutgoing ? props.calculateMonthlyActualInvestmentOutgoing(monthIndex) : 0)
+    (props.calculateMonthlyActualInvestmentOutgoing ? props.calculateMonthlyActualInvestmentOutgoing(monthIndex) : 0)
 
   return buildNetBreakdownTooltip(plannedIncome, actualIncome, plannedExpense, actualExpense)
 }
@@ -292,15 +217,15 @@ const getNetBalanceYearlyTooltip = () => {
   if (!props.calculateGrandTotalPlanned) return ''
   // Planned breakdown
   const plannedIncome = (props.calculateGrandTotalPlannedIncome ? props.calculateGrandTotalPlannedIncome() : 0) +
-                        (props.calculateGrandTotalPlannedInvestmentIncoming ? props.calculateGrandTotalPlannedInvestmentIncoming() : 0)
+    (props.calculateGrandTotalPlannedInvestmentIncoming ? props.calculateGrandTotalPlannedInvestmentIncoming() : 0)
   const plannedExpense = (props.calculateGrandTotalPlannedExpenses ? props.calculateGrandTotalPlannedExpenses() : 0) +
-                         (props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0)
+    (props.calculateGrandTotalPlannedInvestmentOutgoing ? props.calculateGrandTotalPlannedInvestmentOutgoing() : 0)
 
   // Actual breakdown
   const actualIncome = (props.calculateGrandTotalActualIncome ? props.calculateGrandTotalActualIncome() : 0) +
-                       (props.calculateGrandTotalActualInvestmentIncoming ? props.calculateGrandTotalActualInvestmentIncoming() : 0)
+    (props.calculateGrandTotalActualInvestmentIncoming ? props.calculateGrandTotalActualInvestmentIncoming() : 0)
   const actualExpense = (props.calculateGrandTotalActualExpenses ? props.calculateGrandTotalActualExpenses() : 0) +
-                        (props.calculateGrandTotalActualInvestmentOutgoing ? props.calculateGrandTotalActualInvestmentOutgoing() : 0)
+    (props.calculateGrandTotalActualInvestmentOutgoing ? props.calculateGrandTotalActualInvestmentOutgoing() : 0)
 
   return buildNetBreakdownTooltip(plannedIncome, actualIncome, plannedExpense, actualExpense)
 }
@@ -327,11 +252,11 @@ const getPreviousYearInvestmentNetTotal = () => {
 const getPreviousYearNetTooltip = () => {
   const total = getPreviousYearNetTotal()
   const previousYear = props.selectedYear - 1
-  
+
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
   const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
-  
+
   if (detailedValues) {
     const incomePlanned = detailedValues.income.planned
     const incomeActual = detailedValues.income.actual
@@ -341,19 +266,19 @@ const getPreviousYearNetTooltip = () => {
     const investmentIncomingActual = detailedValues.investmentIncoming.actual
     const investmentOutgoingPlanned = detailedValues.investmentOutgoing.planned
     const investmentOutgoingActual = detailedValues.investmentOutgoing.actual
-    
+
     const plannedNet = (incomePlanned + investmentIncomingPlanned) - (expensesPlanned + investmentOutgoingPlanned)
     const actualNet = (incomeActual + investmentIncomingActual) - (expensesActual + investmentOutgoingActual)
     const variance = actualNet - plannedNet
     const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
     const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-    
+
     return `PY ${previousYear} Net Balance<br>` +
-           `Planned: <span class="text-blue-300">${props.formatCurrency(plannedNet)}</span><br>` +
-           `Actual: <span class="text-green-300">${props.formatCurrency(actualNet)}</span><br>` +
-           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+      `Planned: <span class="text-blue-300">${props.formatCurrency(plannedNet)}</span><br>` +
+      `Actual: <span class="text-green-300">${props.formatCurrency(actualNet)}</span><br>` +
+      `Variance: <span class="${varianceColor}">${varianceText}</span>`
   }
-  
+
   // Fallback to simple display
   return `PY ${previousYear} Net Balance (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
@@ -361,29 +286,29 @@ const getPreviousYearNetTooltip = () => {
 const getPreviousYearInvestmentNetTooltip = () => {
   const total = getPreviousYearInvestmentNetTotal()
   const previousYear = props.selectedYear - 1
-  
+
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
   const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
-  
+
   if (detailedValues) {
     const incomingPlanned = detailedValues.investmentIncoming.planned
     const incomingActual = detailedValues.investmentIncoming.actual
     const outgoingPlanned = detailedValues.investmentOutgoing.planned
     const outgoingActual = detailedValues.investmentOutgoing.actual
-    
+
     const plannedNet = incomingPlanned - outgoingPlanned
     const actualNet = incomingActual - outgoingActual
     const variance = actualNet - plannedNet
     const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
     const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-    
+
     return `PY ${previousYear} Net Investment<br>` +
-           `Planned: <span class="text-blue-300">${props.formatCurrency(plannedNet)}</span><br>` +
-           `Actual: <span class="text-green-300">${props.formatCurrency(actualNet)}</span><br>` +
-           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+      `Planned: <span class="text-blue-300">${props.formatCurrency(plannedNet)}</span><br>` +
+      `Actual: <span class="text-green-300">${props.formatCurrency(actualNet)}</span><br>` +
+      `Variance: <span class="${varianceColor}">${varianceText}</span>`
   }
-  
+
   // Fallback to simple display
   return `PY ${previousYear} Net Investment (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
@@ -411,4 +336,38 @@ const getPreviousYearSavingsTooltip = () => {
 
   return `Cumulative Savings for ${previousYear}: ${props.formatCurrency(previousYearSavings)}`
 }
-</script> 
+</script>
+
+<template>
+  <!-- Net Balance Line -->
+  <BudgetSummaryRowHelper row-type="NET_BALANCE" :months="months" :selected-year="selectedYear"
+    :current-year="currentYear" :current-month="currentMonth" :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false" :has-expense-data="false" :has-investment-data="hasInvestmentData"
+    :has-investment-incoming-data="false" :has-investment-outgoing-data="false" :has-any-data="hasAnyData"
+    :calculate-monthly="calculateMonthlyTotal" :calculate-grand-total="calculateGrandTotal"
+    :calculate-previous-year="calculatePreviousYearNetTotal" :get-monthly-tooltip="getNetBalanceTooltip"
+    :get-grand-total-tooltip="getNetBalanceYearlyTooltip" :get-previous-year-tooltip="getPreviousYearNetTooltip"
+    :format-currency="formatCurrency" border-top-class="border-t-2 border-gray-200 font-bold"
+    :use-value-based-styling="true" />
+
+  <!-- Savings Row -->
+  <BudgetSummaryRowHelper row-type="SAVINGS" :months="months" :selected-year="selectedYear" :current-year="currentYear"
+    :current-month="currentMonth" :selected-type-filter="selectedTypeFilter" :has-income-data="false"
+    :has-expense-data="false" :has-investment-data="hasInvestmentData" :has-investment-incoming-data="false"
+    :has-investment-outgoing-data="false" :has-any-data="hasAnyData" :calculate-monthly="calculateCumulativeSavings"
+    :calculate-grand-total="calculateGrandTotalSavings" :calculate-previous-year="calculatePreviousYearSavings"
+    :get-monthly-tooltip="getSavingsTooltip" :get-grand-total-tooltip="getGrandTotalSavingsTooltip"
+    :get-previous-year-tooltip="getPreviousYearSavingsTooltip" :format-currency="formatCurrency"
+    border-top-class="border-t-2 border-gray-200 font-bold" :use-value-based-styling="true" />
+
+  <!-- Net Investment Row -->
+  <BudgetSummaryRowHelper row-type="NET_INVESTMENT" :months="months" :selected-year="selectedYear"
+    :current-year="currentYear" :current-month="currentMonth" :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false" :has-expense-data="false" :has-investment-data="hasInvestmentData"
+    :has-investment-incoming-data="false" :has-investment-outgoing-data="false" :has-any-data="hasAnyData"
+    :calculate-monthly="calculateMonthlyInvestmentNet" :calculate-grand-total="calculateGrandTotalInvestmentNet"
+    :calculate-previous-year="calculatePreviousYearInvestmentNetTotal" :get-monthly-tooltip="getNetInvestmentTooltip"
+    :get-grand-total-tooltip="getNetInvestmentYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearInvestmentNetTooltip" :format-currency="formatCurrency"
+    border-top-class="border-t-2 border-gray-200" :use-value-based-styling="true" />
+</template>

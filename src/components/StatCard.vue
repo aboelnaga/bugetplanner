@@ -1,25 +1,3 @@
-<template>
-  <div class="stat-card">
-    <div class="flex items-start justify-between">
-      <div class="flex-1">
-        <p class="text-sm font-medium text-gray-600">{{ title }}</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">{{ value }}</p>
-        <p :class="['text-sm mt-2 flex items-center', getChangeColor()]">
-          <component 
-            :is="getTrendIcon()" 
-            class="w-4 h-4 mr-1" 
-            v-if="change && !change.includes('savings')"
-          />
-          {{ change }}
-        </p>
-      </div>
-      <div :class="['p-3 rounded-lg', getIconBackgroundColor()]">
-        <component :is="iconComponent" :class="['w-6 h-6', getIconColor()]" />
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import { 
@@ -93,5 +71,27 @@ const getTrendIcon = () => {
   }
   return null
 }
-</script> 
+</script>
+
+<template>
+  <div class="stat-card">
+    <div class="flex items-start justify-between">
+      <div class="flex-1">
+        <p class="text-sm font-medium text-gray-600">{{ title }}</p>
+        <p class="text-2xl font-bold text-gray-900 mt-1">{{ value }}</p>
+        <p :class="['text-sm mt-2 flex items-center', getChangeColor()]">
+          <component 
+            :is="getTrendIcon()" 
+            class="w-4 h-4 mr-1" 
+            v-if="change && !change.includes('savings')"
+          />
+          {{ change }}
+        </p>
+      </div>
+      <div :class="['p-3 rounded-lg', getIconBackgroundColor()]">
+        <component :is="iconComponent" :class="['w-6 h-6', getIconColor()]" />
+      </div>
+    </div>
+  </div>
+</template> 
  

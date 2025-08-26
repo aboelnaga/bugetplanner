@@ -1,56 +1,3 @@
-<template>
-  <!-- Summary Row -->
-  <tr v-if="shouldShowSummaryRow(rowType)" :class="`${rowStyling.bgColor} ${borderTopClass}`">
-    <td :class="`px-6 py-3 ${rowConfig.fontSize} ${rowConfig.fontWeight} ${rowStyling.textColor} sticky left-0 ${rowStyling.stickyBgColor} z-20 border-r ${borderTopClass} border-gray-200`">
-      <div class="flex items-center truncate">
-        <span :class="`text-lg font-bold ${rowStyling.textColor} mr-2`">{{ rowConfig.symbol }}</span>
-        {{ rowConfig.label }}
-      </div>
-      <div v-if="rowConfig.subtitle" class="text-xs text-gray-500 mt-1">
-        {{ rowConfig.subtitle }}
-      </div>
-    </td>
-    
-    <!-- Previous Year Column -->
-    <td :class="`${useValueBasedStyling
-        ? getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1)
-        : getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1, rowType)
-      } ${borderTopClass} border-gray-200`">
-      <BaseTooltip :content="previousYearTooltip" position="top">
-        <div v-if="previousYearValue !== 0" class="cursor-help">
-          {{ formatSummaryValue(previousYearValue, formatCurrency) }}
-        </div>
-        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
-      </BaseTooltip>
-    </td>
-    
-    <!-- Monthly Columns -->
-    <td v-for="(month, index) in months" :key="`${rowType}-${month}`" 
-        :class="`${useValueBasedStyling
-          ? getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index)
-          : getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index, rowType)
-        } ${borderTopClass} border-gray-200`">
-      <BaseTooltip :content="monthlyTooltips[index]" position="top">
-        <div class="cursor-help">
-          {{ formatSummaryValue(monthlyValues[index], formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    
-    <!-- Total Column -->
-    <td :class="`${getSummaryTotalClasses(grandTotalValue)} ${borderTopClass} border-l-2 border-gray-200 sticky right-32 ${rowStyling.stickyBgColor} z-20`">
-      <BaseTooltip :content="grandTotalTooltip" position="top" class="text-center">
-        <div class="cursor-help">
-          {{ formatSummaryValue(grandTotalValue, formatCurrency) }}
-        </div>
-      </BaseTooltip>
-    </td>
-    
-    <!-- Action Column -->
-    <td :class="`px-4 py-3 sticky right-0 ${rowStyling.stickyBgColor} border-l border-gray-200 ${borderTopClass}`"></td>
-  </tr>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import { useBudgetSummaries } from '@/composables/useBudgetSummaries.js'
@@ -184,4 +131,57 @@ const {
 // Get row configuration and styling
 const rowConfig = computed(() => getSummaryRowConfig(props.rowType))
 const rowStyling = computed(() => getSummaryRowStyling(props.rowType))
-</script> 
+</script>
+
+<template>
+  <!-- Summary Row -->
+  <tr v-if="shouldShowSummaryRow(rowType)" :class="`${rowStyling.bgColor} ${borderTopClass}`">
+    <td :class="`px-6 py-3 ${rowConfig.fontSize} ${rowConfig.fontWeight} ${rowStyling.textColor} sticky left-0 ${rowStyling.stickyBgColor} z-20 border-r ${borderTopClass} border-gray-200`">
+      <div class="flex items-center truncate">
+        <span :class="`text-lg font-bold ${rowStyling.textColor} mr-2`">{{ rowConfig.symbol }}</span>
+        {{ rowConfig.label }}
+      </div>
+      <div v-if="rowConfig.subtitle" class="text-xs text-gray-500 mt-1">
+        {{ rowConfig.subtitle }}
+      </div>
+    </td>
+    
+    <!-- Previous Year Column -->
+    <td :class="`${useValueBasedStyling
+      ? getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1)
+      : getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1, rowType)
+    } ${borderTopClass} border-gray-200`">
+      <BaseTooltip :content="previousYearTooltip" position="top">
+        <div v-if="previousYearValue !== 0" class="cursor-help">
+          {{ formatSummaryValue(previousYearValue, formatCurrency) }}
+        </div>
+        <div v-else class="text-gray-400 font-normal cursor-help">—</div>
+      </BaseTooltip>
+    </td>
+    
+    <!-- Monthly Columns -->
+    <td v-for="(month, index) in months" :key="`${rowType}-${month}`" 
+        :class="`${useValueBasedStyling
+          ? getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index)
+          : getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index, rowType)
+        } ${borderTopClass} border-gray-200`">
+      <BaseTooltip :content="monthlyTooltips[index]" position="top">
+        <div class="cursor-help">
+          {{ formatSummaryValue(monthlyValues[index], formatCurrency) }}
+        </div>
+      </BaseTooltip>
+    </td>
+    
+    <!-- Total Column -->
+    <td :class="`${getSummaryTotalClasses(grandTotalValue)} ${borderTopClass} border-l-2 border-gray-200 sticky right-32 ${rowStyling.stickyBgColor} z-20`">
+      <BaseTooltip :content="grandTotalTooltip" position="top" class="text-center">
+        <div class="cursor-help">
+          {{ formatSummaryValue(grandTotalValue, formatCurrency) }}
+        </div>
+      </BaseTooltip>
+    </td>
+    
+    <!-- Action Column -->
+    <td :class="`px-4 py-3 sticky right-0 ${rowStyling.stickyBgColor} border-l border-gray-200 ${borderTopClass}`"></td>
+  </tr>
+</template> 

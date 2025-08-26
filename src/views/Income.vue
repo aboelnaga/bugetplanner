@@ -1,3 +1,19 @@
+<script setup>
+import { useBudgetStore } from '@/stores/budget'
+
+const store = useBudgetStore()
+const { currentMonth } = store
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'EGP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.abs(amount))
+}
+</script>
+
 <template>
   <div class="space-y-6">
     <div class="flex justify-between items-center">
@@ -7,23 +23,23 @@
 
     <!-- Current Income Overview -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-             <div class="card">
-         <h3 class="text-lg font-semibold mb-3">Current Salary</h3>
-         <p class="text-3xl font-bold text-green-600">{{ formatCurrency(currentMonth?.salary || 0) }}</p>
-         <p class="text-sm text-gray-500 mt-1">Monthly base salary</p>
-       </div>
+      <div class="card">
+        <h3 class="text-lg font-semibold mb-3">Current Salary</h3>
+        <p class="text-3xl font-bold text-green-600">{{ formatCurrency(currentMonth?.salary || 0) }}</p>
+        <p class="text-sm text-gray-500 mt-1">Monthly base salary</p>
+      </div>
        
-       <div class="card">
-         <h3 class="text-lg font-semibold mb-3">Last Bonus</h3>
-         <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(currentMonth?.bonus || 0) }}</p>
-         <p class="text-sm text-gray-500 mt-1">Performance bonus</p>
-       </div>
+      <div class="card">
+        <h3 class="text-lg font-semibold mb-3">Last Bonus</h3>
+        <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(currentMonth?.bonus || 0) }}</p>
+        <p class="text-sm text-gray-500 mt-1">Performance bonus</p>
+      </div>
        
-       <div class="card">
-         <h3 class="text-lg font-semibold mb-3">Total Monthly</h3>
-         <p class="text-3xl font-bold text-primary-600">{{ formatCurrency(currentMonth?.monthlyIncome || 0) }}</p>
-         <p class="text-sm text-gray-500 mt-1">All income sources</p>
-       </div>
+      <div class="card">
+        <h3 class="text-lg font-semibold mb-3">Total Monthly</h3>
+        <p class="text-3xl font-bold text-primary-600">{{ formatCurrency(currentMonth?.monthlyIncome || 0) }}</p>
+        <p class="text-sm text-gray-500 mt-1">All income sources</p>
+      </div>
     </div>
 
     <!-- Income Sources Table -->
@@ -41,24 +57,24 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-                         <tr>
-               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Base Salary</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Regular</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(currentMonth?.salary || 0) }}</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Monthly</td>
-               <td class="px-6 py-4 whitespace-nowrap">
-                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
-               </td>
-             </tr>
-             <tr v-if="(currentMonth?.bonus || 0) > 0">
-               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Performance Bonus</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bonus</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(currentMonth?.bonus || 0) }}</td>
-               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Variable</td>
-               <td class="px-6 py-4 whitespace-nowrap">
-                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Received</span>
-               </td>
-             </tr>
+            <tr>
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Base Salary</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Regular</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(currentMonth?.salary || 0) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Monthly</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+              </td>
+            </tr>
+            <tr v-if="(currentMonth?.bonus || 0) > 0">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Performance Bonus</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Bonus</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatCurrency(currentMonth?.bonus || 0) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Variable</td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Received</span>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -74,20 +90,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { useBudgetStore } from '@/stores/budget'
-
-const store = useBudgetStore()
-const { currentMonth } = store
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(amount))
-}
-</script> 
+</template> 

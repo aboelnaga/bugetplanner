@@ -10,7 +10,7 @@ import {
 } from '@/constants/budgetConstants.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth) {
+export function useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
   // Modal state
   const showAddTransactionModal = ref(false)
   const showEditTransactionModal = ref(false)
@@ -19,6 +19,65 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
 
   // Form data
   const formData = ref({ ...DEFAULT_TRANSACTION_VALUES })
+
+  // Helper function to show toast if available
+  const showToast = (severity, summary, detail, life = 5000) => {
+    if (toastFunction && typeof toastFunction === 'function') {
+      toastFunction({ severity, summary, detail, life })
+    } else if (toastFunction && toastFunction.add) {
+      // Handle full toast instance
+      toastFunction.add({ severity, summary, detail, life })
+    } else if (window.$toaster) {
+      // Fallback to old toaster for backward compatibility
+      const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
+      window.$toaster[method](summary, detail)
+    }
+  }
+
+  // Helper function to show confirmation dialog if available
+  const showConfirm = (message, header = 'Confirmation', icon = 'pi pi-exclamation-triangle') => {
+    return new Promise((resolve) => {
+      if (confirmFunction && typeof confirmFunction === 'function') {
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else if (confirmFunction && confirmFunction.require) {
+        // Handle full confirm instance
+        confirmFunction.require({
+          message,
+          header,
+          icon,
+          rejectProps: {
+            label: 'Cancel',
+            severity: 'secondary',
+            outlined: true
+          },
+          acceptProps: {
+            label: 'Confirm',
+            severity: 'primary'
+          },
+          accept: () => resolve(true),
+          reject: () => resolve(false)
+        })
+      } else {
+        // Fallback to browser confirm
+        resolve(confirm(message))
+      }
+    })
+  }
 
   // Initialize form data
   const initializeFormData = () => {
@@ -81,7 +140,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
       // Show warning to user
       if (!window.amountLimitWarningShown) {
-        alert(`Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`)
+        showToast('warn', 'Amount Limit', `Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`)
         window.amountLimitWarningShown = true
       }
     }
@@ -256,7 +315,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       
       const errors = validateFormData()
       if (errors.length > 0) {
-        alert('Please fix the following errors:\n' + errors.join('\n'))
+        showToast('error', 'Validation Error', 'Please fix the following errors:\n' + errors.join('\n'))
         return false
       }
 
@@ -270,12 +329,12 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
         resetFormData()
         return result
       } else {
-        alert('Failed to add transaction. Please try again.')
+        showToast('error', 'Add Transaction Failed', 'Failed to add transaction. Please try again.')
         return false
       }
     } catch (error) {
       console.error('Error adding transaction:', error)
-      alert('Error adding transaction: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Add Transaction Failed', 'Error adding transaction: ' + (error.message || 'Unknown error'))
       return false
     } finally {
       isLoading.value = false
@@ -289,7 +348,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       
       const errors = validateFormData()
       if (errors.length > 0) {
-        alert('Please fix the following errors:\n' + errors.join('\n'))
+        showToast('error', 'Validation Error', 'Please fix the following errors:\n' + errors.join('\n'))
         return false
       }
 
@@ -302,12 +361,12 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       if (result) {
         return result
       } else {
-        alert('Failed to update transaction. Please try again.')
+        showToast('error', 'Update Transaction Failed', 'Failed to update transaction. Please try again.')
         return false
       }
     } catch (error) {
       console.error('Error updating transaction:', error)
-      alert('Error updating transaction: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Update Transaction Failed', 'Error updating transaction: ' + (error.message || 'Unknown error'))
       return false
     } finally {
       isLoading.value = false
@@ -366,10 +425,11 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   }
 
   const deleteTransaction = async (transactionId) => {
-    if (confirm('Are you sure you want to delete this transaction?')) {
+    const confirmed = await showConfirm('Are you sure you want to delete this transaction?')
+    if (confirmed) {
       const result = await transactionStore.deleteTransaction(transactionId)
       if (!result) {
-        alert('Failed to delete transaction. Please try again.')
+        showToast('error', 'Delete Transaction Failed', 'Failed to delete transaction. Please try again.')
       }
     }
   }

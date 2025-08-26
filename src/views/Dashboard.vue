@@ -1,3 +1,38 @@
+<script setup>
+import { computed } from 'vue'
+import { useBudgetStore } from '@/stores/budget'
+import StatCard from '@/components/StatCard.vue'
+import MonthlyTrendChart from '@/components/MonthlyTrendChart.vue'
+import ExpenseBreakdownChart from '@/components/ExpenseBreakdownChart.vue'
+import ProjectionChart from '@/components/ProjectionChart.vue'
+
+const store = useBudgetStore()
+
+const {
+  currentMonthData,
+  monthlyData,
+  projections,
+  familyBudgets,
+  currentSavingsRate,
+  zakatDue,
+  totalFamilyExpenses,
+  totalInvestments
+} = store
+
+const savingsChangeText = computed(() => {
+  return `${currentSavingsRate?.value || 0}%`
+})
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'EGP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.abs(amount))
+}
+</script>
+
 <template>
   <div class="space-y-8">
     <!-- Header -->
@@ -143,39 +178,4 @@
       <ProjectionChart :projections="projections" />
     </div>
   </div>
-</template>
-
-<script setup>
-import { computed } from 'vue'
-import { useBudgetStore } from '@/stores/budget'
-import StatCard from '@/components/StatCard.vue'
-import MonthlyTrendChart from '@/components/MonthlyTrendChart.vue'
-import ExpenseBreakdownChart from '@/components/ExpenseBreakdownChart.vue'
-import ProjectionChart from '@/components/ProjectionChart.vue'
-
-const store = useBudgetStore()
-
-const {
-  currentMonthData,
-  monthlyData,
-  projections,
-  familyBudgets,
-  currentSavingsRate,
-  zakatDue,
-  totalFamilyExpenses,
-  totalInvestments
-} = store
-
-const savingsChangeText = computed(() => {
-  return `${currentSavingsRate?.value || 0}%`
-})
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(amount))
-}
-</script> 
+</template> 

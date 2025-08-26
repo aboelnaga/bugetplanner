@@ -1,50 +1,3 @@
-<template>
-  <!-- Income Line -->
-  <BudgetSummaryRowHelper
-    row-type="TOTAL_INCOME"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="hasIncomeData"
-    :has-expense-data="false"
-    :has-investment-data="false"
-    :has-investment-incoming-data="hasInvestmentIncomingData"
-    :has-investment-outgoing-data="false"
-    :has-any-data="false"
-    :calculate-monthly="calculateMonthlyIncome"
-    :calculate-grand-total="calculateGrandTotalIncome"
-    :calculate-previous-year="calculatePreviousYearIncomeTotal"
-    :get-monthly-tooltip="getIncomeTooltip"
-    :get-grand-total-tooltip="getIncomeYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearIncomeTooltip"
-    :format-currency="formatCurrency" />
-
-  <!-- Investment Returns Line -->
-  <BudgetSummaryRowHelper
-    row-type="INVESTMENT_RETURNS"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="hasIncomeData"
-    :has-expense-data="false"
-    :has-investment-data="false"
-    :has-investment-incoming-data="hasInvestmentIncomingData"
-    :has-investment-outgoing-data="false"
-    :has-any-data="false"
-    :calculate-monthly="calculateMonthlyInvestmentIncoming"
-    :calculate-grand-total="calculateGrandTotalInvestmentIncoming"
-    :calculate-previous-year="calculatePreviousYearInvestmentIncomingTotal"
-    :get-monthly-tooltip="getInvestmentIncomingTooltip"
-    :get-grand-total-tooltip="getInvestmentIncomingYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearInvestmentIncomingTooltip"
-    :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200" />
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
@@ -247,4 +200,51 @@ const getPreviousYearInvestmentIncomingTooltip = () => {
   // Fallback to simple display
   return `PY ${previousYear} Investment Returns (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
-</script> 
+</script>
+
+<template>
+  <!-- Income Line -->
+  <BudgetSummaryRowHelper
+    row-type="TOTAL_INCOME"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="hasIncomeData"
+    :has-expense-data="false"
+    :has-investment-data="false"
+    :has-investment-incoming-data="hasInvestmentIncomingData"
+    :has-investment-outgoing-data="false"
+    :has-any-data="false"
+    :calculate-monthly="calculateMonthlyIncome"
+    :calculate-grand-total="calculateGrandTotalIncome"
+    :calculate-previous-year="calculatePreviousYearIncomeTotal"
+    :get-monthly-tooltip="getIncomeTooltip"
+    :get-grand-total-tooltip="getIncomeYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearIncomeTooltip"
+    :format-currency="formatCurrency" />
+
+  <!-- Investment Returns Line -->
+  <BudgetSummaryRowHelper
+    row-type="INVESTMENT_RETURNS"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="hasIncomeData"
+    :has-expense-data="false"
+    :has-investment-data="false"
+    :has-investment-incoming-data="hasInvestmentIncomingData"
+    :has-investment-outgoing-data="false"
+    :has-any-data="false"
+    :calculate-monthly="calculateMonthlyInvestmentIncoming"
+    :calculate-grand-total="calculateGrandTotalInvestmentIncoming"
+    :calculate-previous-year="calculatePreviousYearInvestmentIncomingTotal"
+    :get-monthly-tooltip="getInvestmentIncomingTooltip"
+    :get-grand-total-tooltip="getInvestmentIncomingYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearInvestmentIncomingTooltip"
+    :format-currency="formatCurrency"
+    border-top-class="border-t-2 border-gray-200" />
+</template> 

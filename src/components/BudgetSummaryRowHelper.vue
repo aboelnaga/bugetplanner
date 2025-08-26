@@ -1,28 +1,3 @@
-<template>
-  <BudgetSummaryRow
-    :row-type="rowType"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="hasIncomeData"
-    :has-expense-data="hasExpenseData"
-    :has-investment-data="hasInvestmentData"
-    :has-investment-incoming-data="hasInvestmentIncomingData"
-    :has-investment-outgoing-data="hasInvestmentOutgoingData"
-    :has-any-data="hasAnyData"
-    :previous-year-value="previousYearValue"
-    :monthly-values="monthlyValues"
-    :grand-total-value="grandTotalValue"
-    :previous-year-tooltip="previousYearTooltip"
-    :monthly-tooltips="monthlyTooltips"
-    :grand-total-tooltip="grandTotalTooltip"
-    :format-currency="formatCurrency"
-    :border-top-class="borderTopClass"
-    :use-value-based-styling="useValueBasedStyling" />
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import BudgetSummaryRow from './BudgetSummaryRow.vue'
@@ -141,4 +116,29 @@ const monthlyTooltips = computed(() => {
 
 const previousYearTooltip = computed(() => props.getPreviousYearTooltip())
 const grandTotalTooltip = computed(() => props.getGrandTotalTooltip())
-</script> 
+</script>
+
+<template>
+  <BudgetSummaryRow
+    :row-type="rowType"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="hasIncomeData"
+    :has-expense-data="hasExpenseData"
+    :has-investment-data="hasInvestmentData"
+    :has-investment-incoming-data="hasInvestmentIncomingData"
+    :has-investment-outgoing-data="hasInvestmentOutgoingData"
+    :has-any-data="hasAnyData"
+    :previous-year-value="previousYearValue"
+    :monthly-values="monthlyValues"
+    :grand-total-value="grandTotalValue"
+    :previous-year-tooltip="previousYearTooltip"
+    :monthly-tooltips="monthlyTooltips"
+    :grand-total-tooltip="grandTotalTooltip"
+    :format-currency="formatCurrency"
+    :border-top-class="borderTopClass"
+    :use-value-based-styling="useValueBasedStyling" />
+</template> 

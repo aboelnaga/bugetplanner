@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/* (Sakai SCSS is imported in src/main.js) */
+
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 font-sans;

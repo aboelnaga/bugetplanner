@@ -1,16 +1,3 @@
-<template>
-  <input
-    ref="inputRef"
-    type="text"
-    v-bind="$attrs"
-    :placeholder="placeholder"
-    :inputmode="inputmode"
-    @blur="onBlur"
-    @input="onInput"
-    @focus="onFocus"
-  />
-</template>
-
 <script setup>
 import { watch } from 'vue'
 import { useCurrencyInput } from 'vue-currency-input'
@@ -63,5 +50,18 @@ const onFocus = (e) => {
   emit('focus', e)
 }
 </script>
+
+<template>
+  <input
+    ref="inputRef"
+    type="text"
+    v-bind="$attrs"
+    :placeholder="placeholder"
+    :inputmode="inputmode"
+    @blur="onBlur"
+    @input="onInput"
+    @focus="onFocus"
+  />
+</template>
 
 
