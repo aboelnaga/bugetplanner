@@ -1,27 +1,3 @@
-<template>
-  <Dialog
-    :visible="modelValue"
-    @update:visible="$emit('update:modelValue', $event)"
-    :modal="true"
-    :closable="true"
-    :closeOnEscape="true"
-    :dismissableMask="false"
-    :draggable="false"
-    :style="getModalStyle()"
-    :breakpoints="getModalBreakpoints()"
-    :header="getModalHeader()"
-    class="p-fluid"
-  >
-    <!-- Content -->
-    <slot></slot>
-    
-    <!-- Footer -->
-    <template #footer v-if="$slots.footer">
-      <slot name="footer"></slot>
-    </template>
-  </Dialog>
-</template>
-
 <script setup>
 // Props
 const props = defineProps({
@@ -90,5 +66,29 @@ const getModalHeader = () => {
   return props.title || 'Modal Title'
 }
 </script>
+
+<template>
+  <Dialog
+    :visible="modelValue"
+    @update:visible="$emit('update:modelValue', $event)"
+    :modal="true"
+    :closable="true"
+    :closeOnEscape="true"
+    :dismissableMask="false"
+    :draggable="false"
+    :style="getModalStyle()"
+    :breakpoints="getModalBreakpoints()"
+    :header="getModalHeader()"
+    class="p-fluid"
+  >
+    <!-- Content -->
+    <slot></slot>
+    
+    <!-- Footer -->
+    <template #footer v-if="$slots.footer">
+      <slot name="footer"></slot>
+    </template>
+  </Dialog>
+</template>
 
  

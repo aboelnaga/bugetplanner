@@ -1,3 +1,324 @@
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
+import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
+import { useBudgetStore } from '@/stores/budget.js'
+import { useAuthStore } from '@/stores/auth.js'
+import BaseModal from './BaseModal.vue'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Textarea from 'primevue/textarea'
+import DatePicker from 'primevue/datepicker'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+
+// Props
+const props = defineProps({
+  asset: {
+    type: Object,
+    default: null
+  }
+})
+
+// Emits
+const emit = defineEmits(['close', 'saved'])
+
+// Stores
+const investmentAssetsStore = useInvestmentAssetsStore()
+const budgetStore = useBudgetStore()
+const authStore = useAuthStore()
+
+// State
+const loading = ref(false)
+const error = ref('')
+const createBudgetItem = ref(false)
+const skipBudgetItem = ref(false)
+const selectedBudgetItemId = ref('')
+const errors = ref({})
+const budgetItemErrors = ref({})
+
+// Form data
+const form = ref({
+  name: '',
+  type: '',
+  status: 'active',
+  description: '',
+  purchase_amount: null,
+  down_payment: null,
+  monthly_payment: null,
+  purchase_date: '',
+  current_value: null,
+  last_valuation_date: '',
+  location: '',
+  details: {},
+  budget_item_id: null
+})
+
+// Budget item form
+const budgetItemForm = ref({
+  name: '',
+  category: 'Investment',
+  type: 'investment',
+  investment_direction: 'outgoing',
+  amounts: new Array(12).fill(0)
+})
+
+// Computed
+const availableBudgetItems = computed(() => {
+  if (!budgetStore.budgetItems) return []
+  return budgetStore.budgetItems.filter(item => 
+    item.type === 'investment' && !item.investment_asset_id
+  )
+})
+
+const linkedBudgetItem = computed(() => {
+  if (!form.value.budget_item_id) return null
+  return budgetStore.budgetItems?.find(item => item.id === form.value.budget_item_id)
+})
+
+const detailsText = computed({
+  get() {
+    return form.value.details ? JSON.stringify(form.value.details, null, 2) : ''
+  },
+  set(value) {
+    try {
+      form.value.details = value ? JSON.parse(value) : {}
+    } catch (e) {
+      // Keep as string if invalid JSON
+      form.value.details = { raw: value }
+    }
+  }
+})
+
+// Options for Select components
+const assetTypeOptions = [
+  { label: 'Select type', value: '' },
+  { label: 'Real Estate', value: 'real_estate' },
+  { label: 'Precious Metals', value: 'precious_metals' },
+  { label: 'Stocks', value: 'stocks' },
+  { label: 'Other', value: 'other' }
+]
+
+const statusOptions = [
+  { label: 'Active', value: 'active' },
+  { label: 'Planned', value: 'planned' },
+  { label: 'Sold', value: 'sold' }
+]
+
+const budgetItemOptions = computed(() => [
+  { label: 'Select budget item', value: '' },
+  ...availableBudgetItems.value.map(item => ({
+    label: `${item.name} (${item.category})`,
+    value: item.id
+  }))
+])
+
+const budgetCategoryOptions = [
+  { label: 'Select category', value: '' },
+  { label: 'Housing', value: 'Housing' },
+  { label: 'Transportation', value: 'Transportation' },
+  { label: 'Food', value: 'Food' },
+  { label: 'Utilities', value: 'Utilities' },
+  { label: 'Healthcare', value: 'Healthcare' },
+  { label: 'Entertainment', value: 'Entertainment' },
+  { label: 'Investment', value: 'Investment' },
+  { label: 'Other', value: 'Other' }
+]
+
+// Validation methods
+const validateField = (fieldName) => {
+  errors.value[fieldName] = ''
+  
+  switch (fieldName) {
+    case 'name':
+      if (!form.value.name || form.value.name.trim() === '') {
+        errors.value.name = 'Asset name is required'
+      } else if (form.value.name.length < 2) {
+        errors.value.name = 'Asset name must be at least 2 characters'
+      }
+      break
+    case 'type':
+      if (!form.value.type) {
+        errors.value.type = 'Asset type is required'
+      }
+      break
+    case 'purchase_amount':
+      if (form.value.purchase_amount && form.value.purchase_amount < 0) {
+        errors.value.purchase_amount = 'Purchase amount cannot be negative'
+      }
+      break
+    case 'current_value':
+      if (form.value.current_value && form.value.current_value < 0) {
+        errors.value.current_value = 'Current value cannot be negative'
+      }
+      break
+  }
+}
+
+const validateBudgetItemField = (fieldName) => {
+  budgetItemErrors.value[fieldName] = ''
+  
+  switch (fieldName) {
+    case 'name':
+      if (!budgetItemForm.value.name || budgetItemForm.value.name.trim() === '') {
+        budgetItemErrors.value.name = 'Budget item name is required'
+      } else if (budgetItemForm.value.name.length < 2) {
+        budgetItemErrors.value.name = 'Budget item name must be at least 2 characters'
+      }
+      break
+    case 'category':
+      if (!budgetItemForm.value.category) {
+        budgetItemErrors.value.category = 'Category is required'
+      }
+      break
+  }
+}
+
+const validateForm = () => {
+  // Clear all errors
+  errors.value = {}
+  budgetItemErrors.value = {}
+  
+  // Validate main form
+  validateField('name')
+  validateField('type')
+  validateField('purchase_amount')
+  validateField('current_value')
+  
+  // Validate budget item form if creating one
+  if (createBudgetItem.value) {
+    validateBudgetItemField('name')
+    validateBudgetItemField('category')
+  }
+  
+  // Check if there are any errors
+  const hasMainErrors = Object.keys(errors.value).some(key => errors.value[key])
+  const hasBudgetItemErrors = Object.keys(budgetItemErrors.value).some(key => budgetItemErrors.value[key])
+  
+  return !hasMainErrors && !hasBudgetItemErrors
+}
+
+// Methods
+const initializeForm = () => {
+  if (props.asset) {
+    // Edit mode
+    form.value = {
+      name: props.asset.name || '',
+      type: props.asset.type || '',
+      status: props.asset.status || 'active',
+      description: props.asset.description || '',
+      purchase_amount: props.asset.purchase_amount || null,
+      down_payment: props.asset.down_payment || null,
+      monthly_payment: props.asset.monthly_payment || null,
+      purchase_date: props.asset.purchase_date || '',
+      current_value: props.asset.current_value || null,
+      last_valuation_date: props.asset.last_valuation_date || '',
+      location: props.asset.location || '',
+      details: props.asset.details || {},
+      budget_item_id: props.asset.budget_item_id || null
+    }
+    
+    // Set budget item form if creating new budget item
+    if (props.asset.budget_items) {
+      budgetItemForm.value.name = props.asset.budget_items.name
+      budgetItemForm.value.category = props.asset.budget_items.category
+    }
+  } else {
+    // Create mode
+    form.value = {
+      name: '',
+      type: '',
+      status: 'active',
+      description: '',
+      purchase_amount: null,
+      down_payment: null,
+      monthly_payment: null,
+      purchase_date: '',
+      current_value: null,
+      last_valuation_date: '',
+      location: '',
+      details: {},
+      budget_item_id: null
+    }
+  }
+}
+
+const handleSubmit = async () => {
+  // Clear previous errors
+  error.value = ''
+  
+  // Validate form
+  if (!validateForm()) {
+    error.value = 'Please fix the errors above before submitting.'
+    return
+  }
+  
+  loading.value = true
+  
+  try {
+    let budgetItemId = form.value.budget_item_id
+
+    // Create budget item if needed
+    if (createBudgetItem.value && budgetItemForm.value.name) {
+      const budgetItem = {
+        ...budgetItemForm.value,
+        user_id: authStore.user.id,
+        year: new Date().getFullYear()
+      }
+      
+      const createdBudgetItem = await budgetStore.createBudgetItem(budgetItem)
+      budgetItemId = createdBudgetItem.id
+    } else if (selectedBudgetItemId.value) {
+      budgetItemId = selectedBudgetItemId.value
+    }
+
+    // Prepare asset data
+    const assetData = {
+      ...form.value,
+      budget_item_id: budgetItemId
+    }
+
+    // Create or update asset
+    let result
+    if (props.asset) {
+      result = await investmentAssetsStore.updateInvestmentAsset(props.asset.id, assetData)
+    } else {
+      result = await investmentAssetsStore.createInvestmentAsset(assetData)
+    }
+
+    if (result) {
+      emit('saved', result)
+    }
+  } catch (err) {
+    console.error('Error saving investment asset:', err)
+    error.value = err.message || 'Failed to save investment asset. Please try again.'
+  } finally {
+    loading.value = false
+  }
+}
+
+const unlinkBudgetItem = async () => {
+  if (props.asset) {
+    await investmentAssetsStore.unlinkFromBudgetItem(props.asset.id)
+    form.value.budget_item_id = null
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  initializeForm()
+})
+
+// Watch for budget item selection
+watch(selectedBudgetItemId, (newId) => {
+  if (newId) {
+    form.value.budget_item_id = newId
+    createBudgetItem.value = false
+  }
+})
+</script>
+
 <template>
   <BaseModal :model-value="true" @update:model-value="$emit('close')" :title="asset ? 'Edit Investment Asset' : 'Add Investment Asset'">
     <form @submit.prevent="handleSubmit" class="space-y-6">
@@ -363,325 +684,4 @@
       </div>
     </template>
   </BaseModal>
-</template>
-
-<script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import CurrencyInput from './CurrencyInput.vue'
-import { currencyOptions } from '@/constants/currencyOptions.js'
-import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
-import { useBudgetStore } from '@/stores/budget.js'
-import { useAuthStore } from '@/stores/auth.js'
-import BaseModal from './BaseModal.vue'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import Textarea from 'primevue/textarea'
-import DatePicker from 'primevue/datepicker'
-import Button from 'primevue/button'
-import Message from 'primevue/message'
-
-// Props
-const props = defineProps({
-  asset: {
-    type: Object,
-    default: null
-  }
-})
-
-// Emits
-const emit = defineEmits(['close', 'saved'])
-
-// Stores
-const investmentAssetsStore = useInvestmentAssetsStore()
-const budgetStore = useBudgetStore()
-const authStore = useAuthStore()
-
-// State
-const loading = ref(false)
-const error = ref('')
-const createBudgetItem = ref(false)
-const skipBudgetItem = ref(false)
-const selectedBudgetItemId = ref('')
-const errors = ref({})
-const budgetItemErrors = ref({})
-
-// Form data
-const form = ref({
-  name: '',
-  type: '',
-  status: 'active',
-  description: '',
-  purchase_amount: null,
-  down_payment: null,
-  monthly_payment: null,
-  purchase_date: '',
-  current_value: null,
-  last_valuation_date: '',
-  location: '',
-  details: {},
-  budget_item_id: null
-})
-
-// Budget item form
-const budgetItemForm = ref({
-  name: '',
-  category: 'Investment',
-  type: 'investment',
-  investment_direction: 'outgoing',
-  amounts: new Array(12).fill(0)
-})
-
-// Computed
-const availableBudgetItems = computed(() => {
-  if (!budgetStore.budgetItems) return []
-  return budgetStore.budgetItems.filter(item => 
-    item.type === 'investment' && !item.investment_asset_id
-  )
-})
-
-const linkedBudgetItem = computed(() => {
-  if (!form.value.budget_item_id) return null
-  return budgetStore.budgetItems?.find(item => item.id === form.value.budget_item_id)
-})
-
-const detailsText = computed({
-  get() {
-    return form.value.details ? JSON.stringify(form.value.details, null, 2) : ''
-  },
-  set(value) {
-    try {
-      form.value.details = value ? JSON.parse(value) : {}
-    } catch (e) {
-      // Keep as string if invalid JSON
-      form.value.details = { raw: value }
-    }
-  }
-})
-
-// Options for Select components
-const assetTypeOptions = [
-  { label: 'Select type', value: '' },
-  { label: 'Real Estate', value: 'real_estate' },
-  { label: 'Precious Metals', value: 'precious_metals' },
-  { label: 'Stocks', value: 'stocks' },
-  { label: 'Other', value: 'other' }
-]
-
-const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Planned', value: 'planned' },
-  { label: 'Sold', value: 'sold' }
-]
-
-const budgetItemOptions = computed(() => [
-  { label: 'Select budget item', value: '' },
-  ...availableBudgetItems.value.map(item => ({
-    label: `${item.name} (${item.category})`,
-    value: item.id
-  }))
-])
-
-const budgetCategoryOptions = [
-  { label: 'Select category', value: '' },
-  { label: 'Housing', value: 'Housing' },
-  { label: 'Transportation', value: 'Transportation' },
-  { label: 'Food', value: 'Food' },
-  { label: 'Utilities', value: 'Utilities' },
-  { label: 'Healthcare', value: 'Healthcare' },
-  { label: 'Entertainment', value: 'Entertainment' },
-  { label: 'Investment', value: 'Investment' },
-  { label: 'Other', value: 'Other' }
-]
-
-// Validation methods
-const validateField = (fieldName) => {
-  errors.value[fieldName] = ''
-  
-  switch (fieldName) {
-    case 'name':
-      if (!form.value.name || form.value.name.trim() === '') {
-        errors.value.name = 'Asset name is required'
-      } else if (form.value.name.length < 2) {
-        errors.value.name = 'Asset name must be at least 2 characters'
-      }
-      break
-    case 'type':
-      if (!form.value.type) {
-        errors.value.type = 'Asset type is required'
-      }
-      break
-    case 'purchase_amount':
-      if (form.value.purchase_amount && form.value.purchase_amount < 0) {
-        errors.value.purchase_amount = 'Purchase amount cannot be negative'
-      }
-      break
-    case 'current_value':
-      if (form.value.current_value && form.value.current_value < 0) {
-        errors.value.current_value = 'Current value cannot be negative'
-      }
-      break
-  }
-}
-
-const validateBudgetItemField = (fieldName) => {
-  budgetItemErrors.value[fieldName] = ''
-  
-  switch (fieldName) {
-    case 'name':
-      if (!budgetItemForm.value.name || budgetItemForm.value.name.trim() === '') {
-        budgetItemErrors.value.name = 'Budget item name is required'
-      } else if (budgetItemForm.value.name.length < 2) {
-        budgetItemErrors.value.name = 'Budget item name must be at least 2 characters'
-      }
-      break
-    case 'category':
-      if (!budgetItemForm.value.category) {
-        budgetItemErrors.value.category = 'Category is required'
-      }
-      break
-  }
-}
-
-const validateForm = () => {
-  // Clear all errors
-  errors.value = {}
-  budgetItemErrors.value = {}
-  
-  // Validate main form
-  validateField('name')
-  validateField('type')
-  validateField('purchase_amount')
-  validateField('current_value')
-  
-  // Validate budget item form if creating one
-  if (createBudgetItem.value) {
-    validateBudgetItemField('name')
-    validateBudgetItemField('category')
-  }
-  
-  // Check if there are any errors
-  const hasMainErrors = Object.keys(errors.value).some(key => errors.value[key])
-  const hasBudgetItemErrors = Object.keys(budgetItemErrors.value).some(key => budgetItemErrors.value[key])
-  
-  return !hasMainErrors && !hasBudgetItemErrors
-}
-
-// Methods
-const initializeForm = () => {
-  if (props.asset) {
-    // Edit mode
-    form.value = {
-      name: props.asset.name || '',
-      type: props.asset.type || '',
-      status: props.asset.status || 'active',
-      description: props.asset.description || '',
-      purchase_amount: props.asset.purchase_amount || null,
-      down_payment: props.asset.down_payment || null,
-      monthly_payment: props.asset.monthly_payment || null,
-      purchase_date: props.asset.purchase_date || '',
-      current_value: props.asset.current_value || null,
-      last_valuation_date: props.asset.last_valuation_date || '',
-      location: props.asset.location || '',
-      details: props.asset.details || {},
-      budget_item_id: props.asset.budget_item_id || null
-    }
-    
-    // Set budget item form if creating new budget item
-    if (props.asset.budget_items) {
-      budgetItemForm.value.name = props.asset.budget_items.name
-      budgetItemForm.value.category = props.asset.budget_items.category
-    }
-  } else {
-    // Create mode
-    form.value = {
-      name: '',
-      type: '',
-      status: 'active',
-      description: '',
-      purchase_amount: null,
-      down_payment: null,
-      monthly_payment: null,
-      purchase_date: '',
-      current_value: null,
-      last_valuation_date: '',
-      location: '',
-      details: {},
-      budget_item_id: null
-    }
-  }
-}
-
-const handleSubmit = async () => {
-  // Clear previous errors
-  error.value = ''
-  
-  // Validate form
-  if (!validateForm()) {
-    error.value = 'Please fix the errors above before submitting.'
-    return
-  }
-  
-  loading.value = true
-  
-  try {
-    let budgetItemId = form.value.budget_item_id
-
-    // Create budget item if needed
-    if (createBudgetItem.value && budgetItemForm.value.name) {
-      const budgetItem = {
-        ...budgetItemForm.value,
-        user_id: authStore.user.id,
-        year: new Date().getFullYear()
-      }
-      
-      const createdBudgetItem = await budgetStore.createBudgetItem(budgetItem)
-      budgetItemId = createdBudgetItem.id
-    } else if (selectedBudgetItemId.value) {
-      budgetItemId = selectedBudgetItemId.value
-    }
-
-    // Prepare asset data
-    const assetData = {
-      ...form.value,
-      budget_item_id: budgetItemId
-    }
-
-    // Create or update asset
-    let result
-    if (props.asset) {
-      result = await investmentAssetsStore.updateInvestmentAsset(props.asset.id, assetData)
-    } else {
-      result = await investmentAssetsStore.createInvestmentAsset(assetData)
-    }
-
-    if (result) {
-      emit('saved', result)
-    }
-  } catch (err) {
-    console.error('Error saving investment asset:', err)
-    error.value = err.message || 'Failed to save investment asset. Please try again.'
-  } finally {
-    loading.value = false
-  }
-}
-
-const unlinkBudgetItem = async () => {
-  if (props.asset) {
-    await investmentAssetsStore.unlinkFromBudgetItem(props.asset.id)
-    form.value.budget_item_id = null
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  initializeForm()
-})
-
-// Watch for budget item selection
-watch(selectedBudgetItemId, (newId) => {
-  if (newId) {
-    form.value.budget_item_id = newId
-    createBudgetItem.value = false
-  }
-})
-</script> 
+</template> 

@@ -1,3 +1,200 @@
+<script setup>
+import { computed, watch, ref, onMounted } from 'vue'
+import { useTransactionStore } from '@/stores/transactions.js'
+import { useBudgetStore } from '@/stores/budget.js'
+import { useAccountsStore } from '@/stores/accounts.js'
+import { useTransactionModals } from '@/composables/useTransactionModals.js'
+import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
+import { 
+  TRANSACTION_TYPE_LABELS, 
+  TRANSACTION_TYPE_ICONS,
+  INVESTMENT_DIRECTIONS,
+  INVESTMENT_DIRECTION_LABELS,
+  DATABASE_LIMITS
+} from '@/constants/budgetConstants.js'
+import { formatCurrency } from '@/utils/budgetUtils.js'
+import BaseModal from './BaseModal.vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import DatePicker from 'primevue/datepicker'
+import Textarea from 'primevue/textarea'
+import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import Message from 'primevue/message'
+
+// Props
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  },
+  budgetItem: {
+    type: Object,
+    default: null
+  },
+  selectedAccount: {
+    type: Object,
+    default: null
+  }
+})
+
+// Emits
+const emit = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated'])
+
+// Stores
+const transactionStore = useTransactionStore()
+const budgetStore = useBudgetStore()
+const accountsStore = useAccountsStore()
+const toast = useToast()
+const confirm = useConfirm()
+
+// Computed
+const currentYear = computed(() => transactionStore.currentYear)
+const currentMonth = computed(() => transactionStore.currentMonth)
+const selectedYear = computed(() => budgetStore.selectedYear)
+
+// Available budget items for linking
+const availableBudgetItems = computed(() => {
+  return budgetStore.budgetItems.filter(item => item.year === selectedYear.value)
+})
+
+// Tag input
+const tagInput = ref('')
+
+// Modal composable
+const {
+  formData,
+  isLoading,
+  initializeFormData,
+  resetFormData,
+  getCategoriesByType,
+  updateCategoryOnTypeChange,
+  handleAmountInput,
+  handleTaxAmountInput,
+  handleGrossAmountInput,
+  handleNetAmountInput,
+  handleAddSubmit,
+  handleEditSubmit,
+  initializeFormDataFromTransaction
+} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast, confirm)
+
+// Computed options for form fields
+const typeOptions = computed(() => 
+  Object.entries(TRANSACTION_TYPE_LABELS).map(([value, label]) => ({
+    value,
+    label: `${TRANSACTION_TYPE_ICONS[value]} ${label}`
+  }))
+)
+
+const categoryOptions = computed(() => 
+  getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
+)
+
+const investmentDirectionOptions = computed(() => 
+  Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
+)
+
+const budgetItemOptions = computed(() => [
+  { label: 'No budget item linked', value: '' },
+  ...availableBudgetItems.value.map(item => ({
+    label: `${item.name} (${item.type} - ${item.category})`,
+    value: item.id
+  }))
+])
+
+const accountOptions = computed(() => [
+  { label: 'Select an account', value: '' },
+  ...accountsStore.accounts.map(account => ({
+    label: `${getAccountIcon(account.type)} ${account.name} - ${formatCurrency(account.balance)}`,
+    value: account.id
+  }))
+])
+
+// Tag management
+const addTag = () => {
+  const tag = tagInput.value.trim()
+  if (tag && !formData.value.tags.includes(tag)) {
+    formData.value.tags.push(tag)
+    tagInput.value = ''
+  }
+}
+
+const removeTag = (index) => {
+  formData.value.tags.splice(index, 1)
+}
+
+// Close modal
+const closeModal = () => {
+  emit('update:modelValue', false)
+}
+
+// Computed for edit mode - check if it's actually a transaction (has account_id)
+const isEditMode = computed(() => {
+  return !!props.budgetItem && props.budgetItem.id && props.budgetItem.account_id
+})
+
+// Handle form submission
+const handleSubmit = async () => {
+  let result
+  if (isEditMode.value) {
+    result = await handleEditSubmit(props.budgetItem.id)
+    if (result) {
+      closeModal()
+      emit('transaction-updated', result)
+    }
+  } else {
+    result = await handleAddSubmit()
+    if (result) {
+      closeModal()
+      emit('transaction-added', result)
+    }
+  }
+}
+
+// Helper functions
+const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
+
+// Initialize accounts when component mounts
+onMounted(async () => {
+  await accountsStore.fetchAccounts()
+})
+
+// Watch for modal opening to initialize form
+watch(() => props.modelValue, (isOpen) => {
+  if (isOpen) {
+    if (isEditMode.value) {
+      // Initialize form with transaction data for editing
+      initializeFormDataFromTransaction(props.budgetItem)
+    } else {
+      // Initialize form for new transaction
+      initializeFormData()
+      
+      // Pre-fill form if budget item is provided (for new transactions from budget items)
+      if (props.budgetItem && !props.budgetItem.account_id) {
+        formData.value.budget_item_id = props.budgetItem.id
+        formData.value.type = props.budgetItem.type
+        formData.value.category = props.budgetItem.category
+        formData.value.amount = props.budgetItem.amount
+        formData.value.description = props.budgetItem.name
+        formData.value.date = new Date().toISOString().split('T')[0] // Today's date
+      }
+      
+      // Set account based on priority: selectedAccount > defaultAccount
+      if (!formData.value.account_id) {
+        if (props.selectedAccount) {
+          formData.value.account_id = props.selectedAccount.id
+        } else if (accountsStore.defaultAccount) {
+          formData.value.account_id = accountsStore.defaultAccount.id
+        }
+      }
+    }
+  }
+})
+</script>
+
 <template>
   <BaseModal 
     :modelValue="modelValue" 
@@ -280,201 +477,4 @@
       </div>
     </template>
   </BaseModal>
-</template>
-
-<script setup>
-import { computed, watch, ref, onMounted } from 'vue'
-import { useTransactionStore } from '@/stores/transactions.js'
-import { useBudgetStore } from '@/stores/budget.js'
-import { useAccountsStore } from '@/stores/accounts.js'
-import { useTransactionModals } from '@/composables/useTransactionModals.js'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
-import { 
-  TRANSACTION_TYPE_LABELS, 
-  TRANSACTION_TYPE_ICONS,
-  INVESTMENT_DIRECTIONS,
-  INVESTMENT_DIRECTION_LABELS,
-  DATABASE_LIMITS
-} from '@/constants/budgetConstants.js'
-import { formatCurrency } from '@/utils/budgetUtils.js'
-import BaseModal from './BaseModal.vue'
-import CurrencyInput from './CurrencyInput.vue'
-import { currencyOptions } from '@/constants/currencyOptions.js'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import DatePicker from 'primevue/datepicker'
-import Textarea from 'primevue/textarea'
-import Button from 'primevue/button'
-import Tag from 'primevue/tag'
-import Message from 'primevue/message'
-
-// Props
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  budgetItem: {
-    type: Object,
-    default: null
-  },
-  selectedAccount: {
-    type: Object,
-    default: null
-  }
-})
-
-// Emits
-const emit = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated'])
-
-// Stores
-const transactionStore = useTransactionStore()
-const budgetStore = useBudgetStore()
-const accountsStore = useAccountsStore()
-const toast = useToast()
-const confirm = useConfirm()
-
-// Computed
-const currentYear = computed(() => transactionStore.currentYear)
-const currentMonth = computed(() => transactionStore.currentMonth)
-const selectedYear = computed(() => budgetStore.selectedYear)
-
-// Available budget items for linking
-const availableBudgetItems = computed(() => {
-  return budgetStore.budgetItems.filter(item => item.year === selectedYear.value)
-})
-
-// Tag input
-const tagInput = ref('')
-
-// Modal composable
-const {
-  formData,
-  isLoading,
-  initializeFormData,
-  resetFormData,
-  getCategoriesByType,
-  updateCategoryOnTypeChange,
-  handleAmountInput,
-  handleTaxAmountInput,
-  handleGrossAmountInput,
-  handleNetAmountInput,
-  handleAddSubmit,
-  handleEditSubmit,
-  initializeFormDataFromTransaction
-} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast, confirm)
-
-// Computed options for form fields
-const typeOptions = computed(() => 
-  Object.entries(TRANSACTION_TYPE_LABELS).map(([value, label]) => ({
-    value,
-    label: `${TRANSACTION_TYPE_ICONS[value]} ${label}`
-  }))
-)
-
-const categoryOptions = computed(() => 
-  getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
-)
-
-const investmentDirectionOptions = computed(() => 
-  Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
-)
-
-const budgetItemOptions = computed(() => [
-  { label: 'No budget item linked', value: '' },
-  ...availableBudgetItems.value.map(item => ({
-    label: `${item.name} (${item.type} - ${item.category})`,
-    value: item.id
-  }))
-])
-
-const accountOptions = computed(() => [
-  { label: 'Select an account', value: '' },
-  ...accountsStore.accounts.map(account => ({
-    label: `${getAccountIcon(account.type)} ${account.name} - ${formatCurrency(account.balance)}`,
-    value: account.id
-  }))
-])
-
-// Tag management
-const addTag = () => {
-  const tag = tagInput.value.trim()
-  if (tag && !formData.value.tags.includes(tag)) {
-    formData.value.tags.push(tag)
-    tagInput.value = ''
-  }
-}
-
-const removeTag = (index) => {
-  formData.value.tags.splice(index, 1)
-}
-
-// Close modal
-const closeModal = () => {
-  emit('update:modelValue', false)
-}
-
-// Computed for edit mode - check if it's actually a transaction (has account_id)
-const isEditMode = computed(() => {
-  return !!props.budgetItem && props.budgetItem.id && props.budgetItem.account_id
-})
-
-// Handle form submission
-const handleSubmit = async () => {
-  let result
-  if (isEditMode.value) {
-    result = await handleEditSubmit(props.budgetItem.id)
-    if (result) {
-      closeModal()
-      emit('transaction-updated', result)
-    }
-  } else {
-    result = await handleAddSubmit()
-    if (result) {
-      closeModal()
-      emit('transaction-added', result)
-    }
-  }
-}
-
-// Helper functions
-const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
-
-// Initialize accounts when component mounts
-onMounted(async () => {
-  await accountsStore.fetchAccounts()
-})
-
-// Watch for modal opening to initialize form
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    if (isEditMode.value) {
-      // Initialize form with transaction data for editing
-      initializeFormDataFromTransaction(props.budgetItem)
-    } else {
-      // Initialize form for new transaction
-      initializeFormData()
-      
-      // Pre-fill form if budget item is provided (for new transactions from budget items)
-      if (props.budgetItem && !props.budgetItem.account_id) {
-        formData.value.budget_item_id = props.budgetItem.id
-        formData.value.type = props.budgetItem.type
-        formData.value.category = props.budgetItem.category
-        formData.value.amount = props.budgetItem.amount
-        formData.value.description = props.budgetItem.name
-        formData.value.date = new Date().toISOString().split('T')[0] // Today's date
-      }
-      
-      // Set account based on priority: selectedAccount > defaultAccount
-      if (!formData.value.account_id) {
-        if (props.selectedAccount) {
-          formData.value.account_id = props.selectedAccount.id
-        } else if (accountsStore.defaultAccount) {
-          formData.value.account_id = accountsStore.defaultAccount.id
-        }
-      }
-    }
-  }
-})
-</script> 
+</template> 

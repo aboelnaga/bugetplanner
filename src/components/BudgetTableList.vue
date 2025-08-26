@@ -1,25 +1,3 @@
-<template>
-      <BudgetTableRow
-      v-for="budget in filteredBudgetItems"
-      :key="budget.id"
-      :budget="budget"
-      :months="months"
-      :selected-year="selectedYear"
-      :current-year="currentYear"
-      :current-month="currentMonth"
-      :is-scheduled-month="isScheduledMonth"
-      :get-budget-amount="getBudgetAmount"
-      :has-changes="hasChanges"
-      :calculate-yearly-total="calculateYearlyTotal"
-      :format-currency="formatCurrency"
-      :closed-months="closedMonths"
-      :get-actual-amount="getActualAmount"
-      @edit-budget="$emit('edit-budget', $event)"
-      @duplicate-budget="$emit('duplicate-budget', $event)"
-      @delete-budget="$emit('delete-budget', $event)"
-      @view-transactions="$emit('view-transactions')" />
-</template>
-
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
 
@@ -88,4 +66,26 @@ const emit = defineEmits([
   'delete-budget',
   'view-transactions'
 ])
-</script> 
+</script>
+
+<template>
+  <BudgetTableRow
+    v-for="budget in filteredBudgetItems"
+    :key="budget.id"
+    :budget="budget"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :is-scheduled-month="isScheduledMonth"
+    :get-budget-amount="getBudgetAmount"
+    :has-changes="hasChanges"
+    :calculate-yearly-total="calculateYearlyTotal"
+    :format-currency="formatCurrency"
+    :closed-months="closedMonths"
+    :get-actual-amount="getActualAmount"
+    @edit-budget="$emit('edit-budget', $event)"
+    @duplicate-budget="$emit('duplicate-budget', $event)"
+    @delete-budget="$emit('delete-budget', $event)"
+    @view-transactions="$emit('view-transactions')" />
+</template> 

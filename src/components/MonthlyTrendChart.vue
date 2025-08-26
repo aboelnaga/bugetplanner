@@ -1,13 +1,3 @@
-<template>
-  <div class="relative h-80">
-    <Line
-      ref="chart"
-      :data="chartData"
-      :options="chartOptions"
-    />
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import {
@@ -107,4 +97,14 @@ const chartOptions = {
     }
   }
 }
-</script> 
+</script>
+
+<template>
+  <div class="relative h-80">
+    <Line
+      ref="chart"
+      :data="chartData"
+      :options="chartOptions"
+    />
+  </div>
+</template> 

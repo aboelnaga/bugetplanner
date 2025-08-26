@@ -227,7 +227,7 @@ export const emptyStateUtils = {
     
     if (selectedTypeFilter !== 'all') {
       const typeLabel = selectedTypeFilter === 'income' ? 'income' : 
-                       selectedTypeFilter === 'expense' ? 'expense' : 'investment'
+        selectedTypeFilter === 'expense' ? 'expense' : 'investment'
       parts.push(`No ${typeLabel} items`)
     }
     

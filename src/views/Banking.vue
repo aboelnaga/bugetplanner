@@ -1,3 +1,166 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAccountsStore } from '../stores/accounts'
+import { useTransactionStore } from '../stores/transactions'
+import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
+import AddAccountModal from '../components/AddAccountModal.vue'
+import EditAccountModal from '../components/EditAccountModal.vue'
+import TransferModal from '../components/TransferModal.vue'
+import { formatCurrency, formatDate } from '../utils/budgetUtils'
+
+const router = useRouter()
+const accountsStore = useAccountsStore()
+const transactionStore = useTransactionStore()
+const toast = useToast()
+const confirm = useConfirm()
+
+// Reactive data
+const showAddModal = ref(false)
+const showEditModal = ref(false)
+const showTransferModal = ref(false)
+const selectedAccount = ref(null)
+const transferFromAccount = ref(null)
+const selectedAccountForMenu = ref(null)
+const accountMenu = ref()
+
+// Computed properties
+const recentTransactions = computed(() => {
+  return transactionStore.transactions
+    .slice(0, 5)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+})
+
+// Methods
+const getAccountIcon = (type) => {
+  const icons = {
+    checking: 'pi pi-credit-card',
+    savings: 'pi pi-wallet',
+    credit_card: 'pi pi-credit-card',
+    cash: 'pi pi-money-bill'
+  }
+  return icons[type] || 'pi pi-bank'
+}
+
+const getBalanceColor = (balance) => {
+  if (balance >= 0) return 'text-green-600'
+  return 'text-red-600'
+}
+
+const getTotalBalanceColor = (balance) => {
+  if (balance >= 0) return 'text-green-600'
+  return 'text-red-600'
+}
+
+const getTransactionTypeColor = (type) => {
+  const colors = {
+    income: 'bg-green-500',
+    expense: 'bg-red-500',
+    investment: 'bg-blue-500'
+  }
+  return colors[type] || 'bg-gray-500'
+}
+
+const getTypeSeverity = (type) => {
+  const severity = {
+    income: 'success',
+    expense: 'danger',
+    investment: 'info'
+  }
+  return severity[type] || 'secondary'
+}
+
+const handleAccountClick = (account) => {
+  // Navigate to account details or transactions filtered by account
+  router.push({
+    name: 'Transactions',
+    query: { 
+      account: account.id,
+      action: 'history'
+    }
+  })
+}
+
+const showAccountMenu = (event, account) => {
+  selectedAccountForMenu.value = account
+  accountMenu.value.toggle(event)
+}
+
+const handleEditAccount = (account) => {
+  selectedAccount.value = account
+  showEditModal.value = true
+}
+
+const handleCloseEditModal = () => {
+  showEditModal.value = false
+  selectedAccount.value = null
+}
+
+const handleTransfer = (account) => {
+  transferFromAccount.value = account
+  showTransferModal.value = true
+}
+
+const handleAccountHistory = (account) => {
+  router.push({
+    name: 'Transactions',
+    query: { 
+      account: account.id,
+      action: 'history'
+    }
+  })
+}
+
+const handleSetDefault = async (account) => {
+  try {
+    await accountsStore.setDefaultAccount(account.id)
+  } catch (error) {
+    console.error('Error setting default account:', error)
+  }
+}
+
+const handleAccountAdded = (account) => {
+  console.log('Account added:', account)
+}
+
+const handleAccountUpdated = (account) => {
+  console.log('Account updated:', account)
+  handleCloseEditModal()
+}
+
+const handleTransferCompleted = (transactions) => {
+  console.log('Transfer completed:', transactions)
+  accountsStore.fetchAccounts()
+}
+
+const handleDeleteAccount = async (account) => {
+  confirm.require({
+    message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
+    header: 'Confirm Deletion',
+    icon: 'pi pi-exclamation-triangle',
+    accept: async () => {
+      try {
+        await accountsStore.deleteAccount(account.id)
+        console.log('Account deleted:', account.name)
+      } catch (error) {
+        console.error('Error deleting account:', error)
+        toast.add({ severity: 'error', summary: 'Error deleting account', detail: error.message, life: 3000 })
+      }
+    },
+    reject: () => {
+      // User cancelled
+    }
+  })
+}
+
+// Lifecycle
+onMounted(async () => {
+  await accountsStore.fetchAccounts()
+  await transactionStore.fetchTransactions()
+})
+</script>
+
 <template>
   <div class="min-h-screen">
     <!-- Header -->
@@ -298,167 +461,4 @@
       @transfer-completed="handleTransferCompleted"
     />
   </div>
-</template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAccountsStore } from '../stores/accounts'
-import { useTransactionStore } from '../stores/transactions'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
-import AddAccountModal from '../components/AddAccountModal.vue'
-import EditAccountModal from '../components/EditAccountModal.vue'
-import TransferModal from '../components/TransferModal.vue'
-import { formatCurrency, formatDate } from '../utils/budgetUtils'
-
-const router = useRouter()
-const accountsStore = useAccountsStore()
-const transactionStore = useTransactionStore()
-const toast = useToast()
-const confirm = useConfirm()
-
-// Reactive data
-const showAddModal = ref(false)
-const showEditModal = ref(false)
-const showTransferModal = ref(false)
-const selectedAccount = ref(null)
-const transferFromAccount = ref(null)
-const selectedAccountForMenu = ref(null)
-const accountMenu = ref()
-
-// Computed properties
-const recentTransactions = computed(() => {
-  return transactionStore.transactions
-    .slice(0, 5)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-})
-
-// Methods
-const getAccountIcon = (type) => {
-  const icons = {
-    checking: 'pi pi-credit-card',
-    savings: 'pi pi-wallet',
-    credit_card: 'pi pi-credit-card',
-    cash: 'pi pi-money-bill'
-  }
-  return icons[type] || 'pi pi-bank'
-}
-
-const getBalanceColor = (balance) => {
-  if (balance >= 0) return 'text-green-600'
-  return 'text-red-600'
-}
-
-const getTotalBalanceColor = (balance) => {
-  if (balance >= 0) return 'text-green-600'
-  return 'text-red-600'
-}
-
-const getTransactionTypeColor = (type) => {
-  const colors = {
-    income: 'bg-green-500',
-    expense: 'bg-red-500',
-    investment: 'bg-blue-500'
-  }
-  return colors[type] || 'bg-gray-500'
-}
-
-const getTypeSeverity = (type) => {
-  const severity = {
-    income: 'success',
-    expense: 'danger',
-    investment: 'info'
-  }
-  return severity[type] || 'secondary'
-}
-
-const handleAccountClick = (account) => {
-  // Navigate to account details or transactions filtered by account
-  router.push({
-    name: 'Transactions',
-    query: { 
-      account: account.id,
-      action: 'history'
-    }
-  })
-}
-
-const showAccountMenu = (event, account) => {
-  selectedAccountForMenu.value = account
-  accountMenu.value.toggle(event)
-}
-
-const handleEditAccount = (account) => {
-  selectedAccount.value = account
-  showEditModal.value = true
-}
-
-const handleCloseEditModal = () => {
-  showEditModal.value = false
-  selectedAccount.value = null
-}
-
-const handleTransfer = (account) => {
-  transferFromAccount.value = account
-  showTransferModal.value = true
-}
-
-const handleAccountHistory = (account) => {
-  router.push({
-    name: 'Transactions',
-    query: { 
-      account: account.id,
-      action: 'history'
-    }
-  })
-}
-
-const handleSetDefault = async (account) => {
-  try {
-    await accountsStore.setDefaultAccount(account.id)
-  } catch (error) {
-    console.error('Error setting default account:', error)
-  }
-}
-
-const handleAccountAdded = (account) => {
-  console.log('Account added:', account)
-}
-
-const handleAccountUpdated = (account) => {
-  console.log('Account updated:', account)
-  handleCloseEditModal()
-}
-
-const handleTransferCompleted = (transactions) => {
-  console.log('Transfer completed:', transactions)
-  accountsStore.fetchAccounts()
-}
-
-const handleDeleteAccount = async (account) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: async () => {
-      try {
-        await accountsStore.deleteAccount(account.id)
-        console.log('Account deleted:', account.name)
-      } catch (error) {
-        console.error('Error deleting account:', error)
-        toast.add({ severity: 'error', summary: 'Error deleting account', detail: error.message, life: 3000 })
-      }
-    },
-    reject: () => {
-      // User cancelled
-    }
-  })
-}
-
-// Lifecycle
-onMounted(async () => {
-  await accountsStore.fetchAccounts()
-  await transactionStore.fetchTransactions()
-})
-</script> 
+</template> 

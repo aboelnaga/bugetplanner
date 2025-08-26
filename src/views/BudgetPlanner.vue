@@ -1,3 +1,412 @@
+<script setup>
+import { computed, onMounted, watch } from 'vue'
+import { useBudgetStore } from '@/stores/budget.js'
+import { useAuthStore } from '@/stores/auth.js'
+import { useAccountsStore } from '@/stores/accounts.js'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
+import { useTransactionStore } from '@/stores/transactions.js'
+import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
+import AddBudgetModal from '@/components/AddBudgetModal.vue'
+import CloseMonthModal from '@/components/CloseMonthModal.vue'
+// import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
+import BudgetTable from '@/components/BudgetTable.vue'
+import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
+import BudgetDataTable from '@/components/BudgetDataTable.vue'
+  
+// Import constants and utilities
+import { MONTHS } from '@/constants/budgetConstants.js'
+import { formatCurrency } from '@/utils/budgetUtils.js'
+  
+// Import composables
+import { useBudgetFilters } from '@/composables/useBudgetFilters.js'
+import { useBudgetModals } from '@/composables/useBudgetModals.js'
+import { useBudgetCalculations } from '@/composables/useBudgetCalculations.js'
+import { useSmartRefresh } from '@/composables/useSmartRefresh.js'
+import { useErrorHandler } from '@/composables/useErrorHandler.js'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+// Stores
+const budgetStore = useBudgetStore()
+const authStore = useAuthStore()
+const accountsStore = useAccountsStore()
+const yearlySummariesStore = useYearlySummariesStore()
+const transactionStore = useTransactionStore()
+const router = useRouter()
+
+// Toast
+const toast = useToast()
+
+// Confirm
+const confirm = useConfirm()
+
+// Budget items from store (now includes virtual unlinked item)
+const budgetItems = computed(() => budgetStore.budgetItemsWithUnlinked || [])
+
+// Selected year (from store)
+const selectedYear = computed({
+  get: () => budgetStore.selectedYear,
+  set: (value) => {
+    budgetStore.selectedYear = value
+    budgetStore.fetchBudgetItems(value)
+  }
+})
+
+// Current month from store
+const currentMonth = computed(() => budgetStore.currentMonth)
+
+// Available years (computed from store)
+const availableYears = computed(() => {
+  const currentYear = budgetStore.currentYear
+  return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
+})
+
+// Use composables
+const {
+  selectedTypeFilter,
+  selectedCategoryFilter,
+  groupByCategory,
+  uniqueCategories,
+  filteredBudgetItems,
+  groupedBudgetItems,
+  hasIncomeData,
+  hasExpenseData,
+  hasInvestmentIncomingData,
+  hasInvestmentOutgoingData,
+  hasInvestmentData,
+  hasAnyData,
+  clearAllFilters,
+  getCategoryType
+} = useBudgetFilters(budgetItems, budgetStore)
+
+const {
+  showAddBudgetModal,
+  showEditBudgetModal,
+  // showHistoryModal, // History functionality commented out
+  editingBudget,
+  openAddBudgetModal,
+  // openHistoryModal, // History functionality commented out
+  handleBudgetAdded,
+  handleBudgetUpdated,
+  editBudget,
+  duplicateBudget,
+  deleteBudget,
+  addNewYear,
+  copyFromPreviousYear
+} = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth, toast, confirm)
+
+// Budget modal mode
+const budgetModalMode = ref('add')
+
+// Override openAddBudgetModal to set mode correctly
+const openAddBudgetModalUnified = () => {
+  budgetModalMode.value = 'add'
+  editingBudget.value = null
+  openAddBudgetModal()
+}
+
+// Override editBudget to use unified modal
+const editBudgetUnified = (budget) => {
+  if (budget.is_multi_year) {
+    // For multi-year items, we need to fetch all linked items first
+    const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
+    if (linkedItems.length > 0) {
+      // Use the master item (first item) for editing
+      const masterItem = linkedItems.find(item => item.is_master) || linkedItems[0]
+      editingBudget.value = masterItem
+    } else {
+      // Fallback to single item editing
+      editingBudget.value = budget
+    }
+  } else {
+    // Single year budget item
+    editingBudget.value = budget
+  }
+    
+  // Set mode to edit and show unified modal
+  budgetModalMode.value = 'edit'
+  showAddBudgetModal.value = true
+}
+
+// Handle view transactions for unlinked transactions
+const handleViewTransactions = () => {
+  // Navigate to transactions page with unlinked filter
+  router.push('/transactions?filter=unlinked')
+}
+
+// Month closure state
+const closedMonths = ref([])
+const loadingClosedMonths = ref(false)
+const showCloseMonthModal = ref(false)
+const closingMonthYear = ref(0)
+const closingMonthIndex = ref(0)
+
+const {
+  isScheduledMonth,
+  getBudgetAmount,
+  getActualAmount,
+  isMonthClosed,
+  getSmartDefaultAmount,
+  hasChanges,
+  calculateYearlyTotal,
+  calculateMonthlyTotal,
+  calculateMonthlyIncome,
+  calculateMonthlyExpenses,
+  calculateMonthlyInvestmentIncoming,
+  calculateMonthlyInvestmentOutgoing,
+  calculateMonthlyInvestmentNet,
+  calculateGrandTotal,
+  calculateGrandTotalIncome,
+  calculateGrandTotalExpenses,
+  calculateGrandTotalInvestmentIncoming,
+  calculateGrandTotalInvestmentOutgoing,
+  calculateGrandTotalInvestmentNet,
+  // Actual-only calculations
+  calculateMonthlyActualIncome,
+  calculateMonthlyActualExpenses,
+  calculateMonthlyActualInvestmentIncoming,
+  calculateMonthlyActualInvestmentOutgoing,
+  calculateMonthlyActualInvestmentNet,
+  calculateMonthlyActualTotal,
+  calculateGrandTotalActualIncome,
+  calculateGrandTotalActualExpenses,
+  calculateGrandTotalActualInvestmentIncoming,
+  calculateGrandTotalActualInvestmentOutgoing,
+  calculateGrandTotalActualInvestmentNet,
+  calculateGrandTotalActual,
+  // Planned calculations for tooltips
+  calculateMonthlyPlannedIncome,
+  calculateMonthlyPlannedExpenses,
+  calculateMonthlyPlannedInvestmentIncoming,
+  calculateMonthlyPlannedInvestmentOutgoing,
+  calculateMonthlyPlannedTotal,
+  calculateGrandTotalPlannedIncome,
+  calculateGrandTotalPlannedExpenses,
+  calculateGrandTotalPlannedInvestmentIncoming,
+  calculateGrandTotalPlannedInvestmentOutgoing,
+  calculateGrandTotalPlanned,
+  calculateCategoryTotal,
+  calculateCategoryMonthlyTotal,
+  // Previous year calculations
+  calculatePreviousYearIncomeTotal,
+  calculatePreviousYearExpensesTotal,
+  calculatePreviousYearInvestmentIncomingTotal,
+  calculatePreviousYearInvestmentOutgoingTotal,
+  calculatePreviousYearNetTotal,
+  calculatePreviousYearInvestmentNetTotal,
+  // Savings calculations
+  calculateCumulativeSavings,
+  calculateGrandTotalSavings,
+  calculatePreviousYearSavings
+} = useBudgetCalculations(
+  budgetItems, 
+  budgetStore, 
+  closedMonths, 
+  budgetStore.currentYear, 
+  budgetStore.currentMonth, 
+  selectedYear
+)
+
+// Year management
+const previousYearHasData = ref(false)
+  
+const canCopyFromPreviousYear = computed(() => {
+  const previousYear = selectedYear.value - 1
+  return previousYear >= 2020 && previousYearHasData.value
+})
+
+// Smart refresh
+const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } = useSmartRefresh()
+
+// Error handling
+const { handleError, retryWithBackoff, clearErrors } = useErrorHandler(toast.add)
+
+// Check if previous year has data (only when needed)
+const checkPreviousYearData = async () => {
+  // Only check previous year if current year has no budget items
+  if (budgetStore.budgetItems.length === 0) {
+    const previousYear = selectedYear.value - 1
+    if (previousYear >= 2020) {
+      previousYearHasData.value = await budgetStore.hasBudgetItemsForYear(previousYear)
+    } else {
+      previousYearHasData.value = false
+    }
+  } else {
+    // Current year has data, no need to check previous year
+    previousYearHasData.value = false
+  }
+}
+
+// Month closure functions
+const fetchClosedMonths = async () => {
+  if (!authStore.isAuthenticated || !authStore.userId) return
+    
+  try {
+    loadingClosedMonths.value = true
+    const data = await retryWithBackoff(() => budgetStore.getClosedMonths(selectedYear.value))
+    closedMonths.value = data || []
+  } catch (error) {
+    await handleError(error, 'fetching closed months', {
+      showNotification: true,
+      onRecovery: async (errorEntry) => {
+        if (errorEntry.recovery.action === 'retry') {
+          await fetchClosedMonths()
+        }
+      }
+    })
+    closedMonths.value = []
+  } finally {
+    loadingClosedMonths.value = false
+  }
+}
+
+const handleCloseMonth = async (year, month) => {
+  if (!authStore.isAuthenticated || !authStore.userId) return
+    
+  // Show confirmation dialog
+  closingMonthYear.value = year
+  closingMonthIndex.value = month
+  showCloseMonthModal.value = true
+}
+
+const confirmCloseMonth = async (year, month) => {
+  if (!authStore.isAuthenticated || !authStore.userId) return
+    
+  try {
+    const success = await retryWithBackoff(() => budgetStore.closeMonth(year, month))
+    if (success) {
+      // Refresh closed months
+      await fetchClosedMonths()
+        
+      // Show success notification
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+        'July', 'August', 'September', 'October', 'November', 'December']
+      const monthName = monthNames[month]
+        
+      toast.add({ 
+        severity: 'success', 
+        summary: 'Month Closed Successfully', 
+        detail: `${monthName} ${year} has been closed and actual amounts are now displayed.`, 
+        life: 5000 
+      })
+    }
+  } catch (error) {
+    await handleError(error, 'closing month', {
+      showNotification: true,
+      onRecovery: async (errorEntry) => {
+        if (errorEntry.recovery.action === 'retry') {
+          await confirmCloseMonth(year, month)
+        }
+      }
+    })
+  }
+}
+
+// getActualAmount is now imported from useBudgetCalculations composable
+
+// Get total transactions count for the selected year
+const transactionsCount = computed(() => {
+  // This would need to be implemented based on your transaction store
+  // For now, returning a placeholder
+  return 0
+})
+
+// Watch for authentication changes
+watch(() => authStore.isAuthenticated, (isAuthenticated) => {
+  if (isAuthenticated) {
+    // budgetStore.initialize() - removed to avoid duplicate calls, handled in onMounted
+    accountsStore.fetchAccounts()
+    yearlySummariesStore.initialize() // Essential for balance calculations
+    // checkPreviousYearData() - moved to budget items watcher
+    // fetchClosedMonths() - moved to onMounted to avoid duplicate calls
+  } else {
+    // Clear data when not authenticated
+    budgetStore.budgetItems = []
+    accountsStore.accounts = []
+    yearlySummariesStore.yearlySummaries = []
+  
+    // budgetStore.budgetHistory = [] // History functionality commented out
+    budgetStore.error = null
+    accountsStore.error = null
+    yearlySummariesStore.error = null
+    previousYearHasData.value = false
+    closedMonths.value = []
+  }
+})
+
+// Watch for selected year changes
+watch(() => selectedYear.value, (newYear) => {
+  if (authStore.isAuthenticated) {
+    // Fetch budget items for the new year
+    budgetStore.fetchBudgetItems(newYear)
+    // checkPreviousYearData() - moved to budget items watcher
+    // fetchClosedMonths() - removed to avoid duplicate calls on year change
+  }
+})
+
+// Watch for auto-close completion to refresh closed months
+watch(() => budgetStore.showHeaderBadge, (showBadge) => {
+  if (!showBadge && authStore.isAuthenticated) {
+    // When badge disappears (auto-close completed), refresh closed months
+    fetchClosedMonths()
+  }
+})
+
+// Watch for budget items changes to check previous year data
+watch(() => budgetStore.budgetItems, () => {
+  if (authStore.isAuthenticated) {
+    checkPreviousYearData()
+  }
+}, { immediate: false })
+
+
+
+// Account helper functions
+const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
+const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)
+  
+const getBalanceColor = (balance) => {
+  if (balance >= 0) return 'text-green-600'
+  return 'text-red-600'
+}
+  
+const getTotalBalanceColor = (balance) => {
+  if (balance >= 0) return 'text-green-600'
+  return 'text-red-600'
+}
+
+
+
+// Lifecycle
+onMounted(async () => {
+  try {
+    // Initialize stores
+    await budgetStore.initialize()
+    await accountsStore.initialize()
+    await yearlySummariesStore.initialize()
+    await transactionStore.fetchTransactions(selectedYear.value)
+      
+    // Check previous year data
+    await checkPreviousYearData()
+      
+    // Fetch closed months
+    await fetchClosedMonths()
+      
+  } catch (error) {
+    console.error('Error initializing BudgetPlanner:', error)
+    handleError(error)
+  }
+})
+
+// Watch for selected year changes to fetch transactions
+watch(selectedYear, async (newYear) => {
+  if (newYear) {
+    await transactionStore.fetchTransactions(newYear)
+  }
+})
+</script>
+
 <template>
   <div>
     <!-- Smart Refresh Loading Indicator -->
@@ -109,27 +518,27 @@
       />
 
 
-    <!-- New DataTable Implementation (for comparison/testing) -->
-    <div class="mt-8">
-      <BudgetDataTable
-        :loading="budgetStore.loading"
-        :error="budgetStore.error"
-        :budget-items="budgetItems"
-        :selected-year="selectedYear"
-        :current-year="budgetStore.currentYear"
-        :current-month="currentMonth"
-        :format-currency="formatCurrency"
-        :calculate-monthly-income="calculateMonthlyIncome"
-        :calculate-monthly-expenses="calculateMonthlyExpenses"
-        :calculate-monthly-total="calculateMonthlyTotal"
-        :calculate-grand-total-income="calculateGrandTotalIncome"
-        :calculate-grand-total-expenses="calculateGrandTotalExpenses"
-        :calculate-grand-total="calculateGrandTotal"
-        @edit-budget="editBudgetUnified"
-        @duplicate-budget="duplicateBudget"
-        @delete-budget="deleteBudget"
-        @view-transactions="handleViewTransactions" />
-    </div>
+      <!-- New DataTable Implementation (for comparison/testing) -->
+      <div class="mt-8">
+        <BudgetDataTable
+          :loading="budgetStore.loading"
+          :error="budgetStore.error"
+          :budget-items="budgetItems"
+          :selected-year="selectedYear"
+          :current-year="budgetStore.currentYear"
+          :current-month="currentMonth"
+          :format-currency="formatCurrency"
+          :calculate-monthly-income="calculateMonthlyIncome"
+          :calculate-monthly-expenses="calculateMonthlyExpenses"
+          :calculate-monthly-total="calculateMonthlyTotal"
+          :calculate-grand-total-income="calculateGrandTotalIncome"
+          :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+          :calculate-grand-total="calculateGrandTotal"
+          @edit-budget="editBudgetUnified"
+          @duplicate-budget="duplicateBudget"
+          @delete-budget="deleteBudget"
+          @view-transactions="handleViewTransactions" />
+      </div>
 
       <!-- Budget Table -->
       <BudgetTable
@@ -237,417 +646,8 @@
       @confirm="confirmCloseMonth" />
 
     <!-- History Modal -->
-          <!-- <HistoryModal v-model="showHistoryModal" /> -->
+    <!-- <HistoryModal v-model="showHistoryModal" /> -->
   </div>
 </template>
-
-<script setup>
-  import { computed, onMounted, watch } from 'vue'
-  import { useBudgetStore } from '@/stores/budget.js'
-  import { useAuthStore } from '@/stores/auth.js'
-  import { useAccountsStore } from '@/stores/accounts.js'
-  import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
-  import { useTransactionStore } from '@/stores/transactions.js'
-  import { useToast } from 'primevue/usetoast'
-  import { useConfirm } from 'primevue/useconfirm'
-  import AddBudgetModal from '@/components/AddBudgetModal.vue'
-  import CloseMonthModal from '@/components/CloseMonthModal.vue'
-  // import HistoryModal from '@/components/HistoryModal.vue' // History functionality commented out
-  import BudgetTable from '@/components/BudgetTable.vue'
-  import BudgetControlPanel from '@/components/BudgetControlPanel.vue'
-  import BudgetDataTable from '@/components/BudgetDataTable.vue'
-  
-  // Import constants and utilities
-  import { MONTHS } from '@/constants/budgetConstants.js'
-  import { formatCurrency } from '@/utils/budgetUtils.js'
-  
-  // Import composables
-  import { useBudgetFilters } from '@/composables/useBudgetFilters.js'
-  import { useBudgetModals } from '@/composables/useBudgetModals.js'
-  import { useBudgetCalculations } from '@/composables/useBudgetCalculations.js'
-  import { useSmartRefresh } from '@/composables/useSmartRefresh.js'
-  import { useErrorHandler } from '@/composables/useErrorHandler.js'
-  import { ref } from 'vue'
-  import { useRouter } from 'vue-router'
-
-  // Stores
-  const budgetStore = useBudgetStore()
-  const authStore = useAuthStore()
-  const accountsStore = useAccountsStore()
-  const yearlySummariesStore = useYearlySummariesStore()
-  const transactionStore = useTransactionStore()
-  const router = useRouter()
-
-  // Toast
-  const toast = useToast()
-
-  // Confirm
-  const confirm = useConfirm()
-
-  // Budget items from store (now includes virtual unlinked item)
-  const budgetItems = computed(() => budgetStore.budgetItemsWithUnlinked || [])
-
-  // Selected year (from store)
-  const selectedYear = computed({
-    get: () => budgetStore.selectedYear,
-    set: (value) => {
-      budgetStore.selectedYear = value
-      budgetStore.fetchBudgetItems(value)
-    }
-  })
-
-  // Current month from store
-  const currentMonth = computed(() => budgetStore.currentMonth)
-
-  // Available years (computed from store)
-  const availableYears = computed(() => {
-    const currentYear = budgetStore.currentYear
-    return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
-  })
-
-  // Use composables
-  const {
-    selectedTypeFilter,
-    selectedCategoryFilter,
-    groupByCategory,
-    uniqueCategories,
-    filteredBudgetItems,
-    groupedBudgetItems,
-    hasIncomeData,
-    hasExpenseData,
-    hasInvestmentIncomingData,
-    hasInvestmentOutgoingData,
-    hasInvestmentData,
-    hasAnyData,
-    clearAllFilters,
-    getCategoryType
-  } = useBudgetFilters(budgetItems, budgetStore)
-
-  const {
-    showAddBudgetModal,
-    showEditBudgetModal,
-    // showHistoryModal, // History functionality commented out
-    editingBudget,
-    openAddBudgetModal,
-    // openHistoryModal, // History functionality commented out
-    handleBudgetAdded,
-    handleBudgetUpdated,
-    editBudget,
-    duplicateBudget,
-    deleteBudget,
-    addNewYear,
-    copyFromPreviousYear
-  } = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth, toast, confirm)
-
-  // Budget modal mode
-  const budgetModalMode = ref('add')
-
-  // Override openAddBudgetModal to set mode correctly
-  const openAddBudgetModalUnified = () => {
-    budgetModalMode.value = 'add'
-    editingBudget.value = null
-    openAddBudgetModal()
-  }
-
-  // Override editBudget to use unified modal
-  const editBudgetUnified = (budget) => {
-    if (budget.is_multi_year) {
-      // For multi-year items, we need to fetch all linked items first
-      const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
-      if (linkedItems.length > 0) {
-        // Use the master item (first item) for editing
-        const masterItem = linkedItems.find(item => item.is_master) || linkedItems[0]
-        editingBudget.value = masterItem
-      } else {
-        // Fallback to single item editing
-        editingBudget.value = budget
-      }
-    } else {
-      // Single year budget item
-      editingBudget.value = budget
-    }
-    
-    // Set mode to edit and show unified modal
-    budgetModalMode.value = 'edit'
-    showAddBudgetModal.value = true
-  }
-
-  // Handle view transactions for unlinked transactions
-  const handleViewTransactions = () => {
-    // Navigate to transactions page with unlinked filter
-    router.push('/transactions?filter=unlinked')
-  }
-
-  // Month closure state
-  const closedMonths = ref([])
-  const loadingClosedMonths = ref(false)
-  const showCloseMonthModal = ref(false)
-  const closingMonthYear = ref(0)
-  const closingMonthIndex = ref(0)
-
-  const {
-    isScheduledMonth,
-    getBudgetAmount,
-    getActualAmount,
-    isMonthClosed,
-    getSmartDefaultAmount,
-    hasChanges,
-    calculateYearlyTotal,
-    calculateMonthlyTotal,
-    calculateMonthlyIncome,
-    calculateMonthlyExpenses,
-    calculateMonthlyInvestmentIncoming,
-    calculateMonthlyInvestmentOutgoing,
-    calculateMonthlyInvestmentNet,
-    calculateGrandTotal,
-    calculateGrandTotalIncome,
-    calculateGrandTotalExpenses,
-    calculateGrandTotalInvestmentIncoming,
-    calculateGrandTotalInvestmentOutgoing,
-    calculateGrandTotalInvestmentNet,
-    // Actual-only calculations
-    calculateMonthlyActualIncome,
-    calculateMonthlyActualExpenses,
-    calculateMonthlyActualInvestmentIncoming,
-    calculateMonthlyActualInvestmentOutgoing,
-    calculateMonthlyActualInvestmentNet,
-    calculateMonthlyActualTotal,
-    calculateGrandTotalActualIncome,
-    calculateGrandTotalActualExpenses,
-    calculateGrandTotalActualInvestmentIncoming,
-    calculateGrandTotalActualInvestmentOutgoing,
-    calculateGrandTotalActualInvestmentNet,
-    calculateGrandTotalActual,
-    // Planned calculations for tooltips
-    calculateMonthlyPlannedIncome,
-    calculateMonthlyPlannedExpenses,
-    calculateMonthlyPlannedInvestmentIncoming,
-    calculateMonthlyPlannedInvestmentOutgoing,
-    calculateMonthlyPlannedTotal,
-    calculateGrandTotalPlannedIncome,
-    calculateGrandTotalPlannedExpenses,
-    calculateGrandTotalPlannedInvestmentIncoming,
-    calculateGrandTotalPlannedInvestmentOutgoing,
-    calculateGrandTotalPlanned,
-    calculateCategoryTotal,
-    calculateCategoryMonthlyTotal,
-            // Previous year calculations
-        calculatePreviousYearIncomeTotal,
-        calculatePreviousYearExpensesTotal,
-        calculatePreviousYearInvestmentIncomingTotal,
-        calculatePreviousYearInvestmentOutgoingTotal,
-        calculatePreviousYearNetTotal,
-        calculatePreviousYearInvestmentNetTotal,
-        // Savings calculations
-        calculateCumulativeSavings,
-        calculateGrandTotalSavings,
-        calculatePreviousYearSavings
-  } = useBudgetCalculations(
-    budgetItems, 
-    budgetStore, 
-    closedMonths, 
-    budgetStore.currentYear, 
-    budgetStore.currentMonth, 
-    selectedYear
-  )
-
-  // Year management
-  const previousYearHasData = ref(false)
-  
-  const canCopyFromPreviousYear = computed(() => {
-    const previousYear = selectedYear.value - 1
-    return previousYear >= 2020 && previousYearHasData.value
-  })
-
-  // Smart refresh
-  const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } = useSmartRefresh()
-
-  // Error handling
-  const { handleError, retryWithBackoff, clearErrors } = useErrorHandler(toast.add)
-
-  // Check if previous year has data (only when needed)
-  const checkPreviousYearData = async () => {
-    // Only check previous year if current year has no budget items
-    if (budgetStore.budgetItems.length === 0) {
-      const previousYear = selectedYear.value - 1
-      if (previousYear >= 2020) {
-        previousYearHasData.value = await budgetStore.hasBudgetItemsForYear(previousYear)
-      } else {
-        previousYearHasData.value = false
-      }
-    } else {
-      // Current year has data, no need to check previous year
-      previousYearHasData.value = false
-    }
-  }
-
-  // Month closure functions
-  const fetchClosedMonths = async () => {
-    if (!authStore.isAuthenticated || !authStore.userId) return
-    
-    try {
-      loadingClosedMonths.value = true
-      const data = await retryWithBackoff(() => budgetStore.getClosedMonths(selectedYear.value))
-      closedMonths.value = data || []
-    } catch (error) {
-      await handleError(error, 'fetching closed months', {
-        showNotification: true,
-        onRecovery: async (errorEntry) => {
-          if (errorEntry.recovery.action === 'retry') {
-            await fetchClosedMonths()
-          }
-        }
-      })
-      closedMonths.value = []
-    } finally {
-      loadingClosedMonths.value = false
-    }
-  }
-
-  const handleCloseMonth = async (year, month) => {
-    if (!authStore.isAuthenticated || !authStore.userId) return
-    
-    // Show confirmation dialog
-    closingMonthYear.value = year
-    closingMonthIndex.value = month
-    showCloseMonthModal.value = true
-  }
-
-  const confirmCloseMonth = async (year, month) => {
-    if (!authStore.isAuthenticated || !authStore.userId) return
-    
-    try {
-      const success = await retryWithBackoff(() => budgetStore.closeMonth(year, month))
-      if (success) {
-        // Refresh closed months
-        await fetchClosedMonths()
-        
-        // Show success notification
-        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                           'July', 'August', 'September', 'October', 'November', 'December']
-        const monthName = monthNames[month]
-        
-        toast.add({ 
-          severity: 'success', 
-          summary: 'Month Closed Successfully', 
-          detail: `${monthName} ${year} has been closed and actual amounts are now displayed.`, 
-          life: 5000 
-        })
-      }
-    } catch (error) {
-      await handleError(error, 'closing month', {
-        showNotification: true,
-        onRecovery: async (errorEntry) => {
-          if (errorEntry.recovery.action === 'retry') {
-            await confirmCloseMonth(year, month)
-          }
-        }
-      })
-    }
-  }
-
-  // getActualAmount is now imported from useBudgetCalculations composable
-
-  // Get total transactions count for the selected year
-  const transactionsCount = computed(() => {
-    // This would need to be implemented based on your transaction store
-    // For now, returning a placeholder
-    return 0
-  })
-
-  // Watch for authentication changes
-  watch(() => authStore.isAuthenticated, (isAuthenticated) => {
-    if (isAuthenticated) {
-      // budgetStore.initialize() - removed to avoid duplicate calls, handled in onMounted
-      accountsStore.fetchAccounts()
-      yearlySummariesStore.initialize() // Essential for balance calculations
-      // checkPreviousYearData() - moved to budget items watcher
-      // fetchClosedMonths() - moved to onMounted to avoid duplicate calls
-    } else {
-      // Clear data when not authenticated
-      budgetStore.budgetItems = []
-      accountsStore.accounts = []
-      yearlySummariesStore.yearlySummaries = []
-  
-      // budgetStore.budgetHistory = [] // History functionality commented out
-      budgetStore.error = null
-      accountsStore.error = null
-      yearlySummariesStore.error = null
-      previousYearHasData.value = false
-      closedMonths.value = []
-    }
-  })
-
-  // Watch for selected year changes
-  watch(() => selectedYear.value, (newYear) => {
-    if (authStore.isAuthenticated) {
-      // Fetch budget items for the new year
-      budgetStore.fetchBudgetItems(newYear)
-      // checkPreviousYearData() - moved to budget items watcher
-      // fetchClosedMonths() - removed to avoid duplicate calls on year change
-    }
-  })
-
-  // Watch for auto-close completion to refresh closed months
-  watch(() => budgetStore.showHeaderBadge, (showBadge) => {
-    if (!showBadge && authStore.isAuthenticated) {
-      // When badge disappears (auto-close completed), refresh closed months
-      fetchClosedMonths()
-    }
-  })
-
-  // Watch for budget items changes to check previous year data
-  watch(() => budgetStore.budgetItems, () => {
-    if (authStore.isAuthenticated) {
-      checkPreviousYearData()
-    }
-  }, { immediate: false })
-
-
-
-  // Account helper functions
-  const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
-  const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)
-  
-  const getBalanceColor = (balance) => {
-    if (balance >= 0) return 'text-green-600'
-    return 'text-red-600'
-  }
-  
-  const getTotalBalanceColor = (balance) => {
-    if (balance >= 0) return 'text-green-600'
-    return 'text-red-600'
-  }
-
-
-
-  // Lifecycle
-  onMounted(async () => {
-    try {
-      // Initialize stores
-      await budgetStore.initialize()
-      await accountsStore.initialize()
-      await yearlySummariesStore.initialize()
-      await transactionStore.fetchTransactions(selectedYear.value)
-      
-      // Check previous year data
-      await checkPreviousYearData()
-      
-      // Fetch closed months
-      await fetchClosedMonths()
-      
-    } catch (error) {
-      console.error('Error initializing BudgetPlanner:', error)
-      handleError(error)
-    }
-  })
-
-  // Watch for selected year changes to fetch transactions
-  watch(selectedYear, async (newYear) => {
-    if (newYear) {
-      await transactionStore.fetchTransactions(newYear)
-    }
-  })
-</script>
 
  

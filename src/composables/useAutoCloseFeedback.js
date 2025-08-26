@@ -19,7 +19,7 @@ export function useAutoCloseFeedback(toastFunction = null) {
 
   const startAutoCloseFeedback = (year, month, onComplete) => {
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                       'July', 'August', 'September', 'October', 'November', 'December']
+      'July', 'August', 'September', 'October', 'November', 'December']
     const monthName = monthNames[month]
     
     // Set loading state
@@ -41,7 +41,7 @@ export function useAutoCloseFeedback(toastFunction = null) {
 
   const completeAutoCloseFeedback = (year, month, onComplete) => {
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
-                       'July', 'August', 'September', 'October', 'November', 'December']
+      'July', 'August', 'September', 'October', 'November', 'December']
     const monthName = monthNames[month]
     
     // Reset loading state

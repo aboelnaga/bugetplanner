@@ -1,13 +1,3 @@
-<template>
-  <div class="relative h-80">
-    <Doughnut
-      ref="chart"
-      :data="chartData"
-      :options="chartOptions"
-    />
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import {
@@ -113,4 +103,14 @@ const chartOptions = {
   },
   cutout: '60%'
 }
-</script> 
+</script>
+
+<template>
+  <div class="relative h-80">
+    <Doughnut
+      ref="chart"
+      :data="chartData"
+      :options="chartOptions"
+    />
+  </div>
+</template> 

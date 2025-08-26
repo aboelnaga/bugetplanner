@@ -1,15 +1,15 @@
-import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.js'
+import { createRouter, createWebHistory } from 'vue-router'
 
 // Views
-import BudgetPlanner from '@/views/BudgetPlanner.vue'
-import BudgetActionCenter from '@/views/BudgetActionCenter.vue'
-import Transactions from '@/views/Transactions.vue'
+import Auth from '@/views/Auth.vue'
 import Banking from '@/views/Banking.vue'
-import Investments from '@/views/Investments.vue'
+import BudgetActionCenter from '@/views/BudgetActionCenter.vue'
+import BudgetPlanner from '@/views/BudgetPlanner.vue'
 import CreateInvestment from '@/views/CreateInvestment.vue'
 import InvestmentDetails from '@/views/InvestmentDetails.vue'
-import Auth from '@/views/Auth.vue'
+import Investments from '@/views/Investments.vue'
+import Transactions from '@/views/Transactions.vue'
 
 const routes = [
   { path: '/auth', name: 'Auth', component: Auth },

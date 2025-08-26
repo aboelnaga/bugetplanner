@@ -1,3 +1,259 @@
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useTransactionStore } from '../stores/transactions'
+import { useAccountsStore } from '../stores/accounts'
+import { useConfirm } from 'primevue/useconfirm'
+import AddTransactionModal from '../components/AddTransactionModal.vue'
+import { formatCurrency, formatDate } from '../utils/budgetUtils'
+
+// Store
+const transactionStore = useTransactionStore()
+const accountsStore = useAccountsStore()
+const route = useRoute()
+const router = useRouter()
+const confirm = useConfirm()
+
+// Reactive data
+const isLoading = ref(false)
+const showAddTransactionModal = ref(false)
+const editingTransaction = ref(null)
+const selectedAccount = ref(null)
+const globalFilter = ref('')
+
+// Filters
+const filters = ref({
+  type: '',
+  category: '',
+  dateRange: '',
+  account: ''
+})
+
+// DataTable filters
+const dtFilters = ref({
+  global: { value: null, matchMode: 'contains' }
+})
+
+// Filter options
+const typeOptions = [
+  { label: 'Income', value: 'income' },
+  { label: 'Expense', value: 'expense' },
+  { label: 'Investment', value: 'investment' }
+]
+
+const dateRangeOptions = [
+  { label: 'Today', value: 'today' },
+  { label: 'This Week', value: 'week' },
+  { label: 'This Month', value: 'month' },
+  { label: 'This Quarter', value: 'quarter' },
+  { label: 'This Year', value: 'year' }
+]
+
+// Computed properties
+const transactions = computed(() => transactionStore.transactions)
+
+const totalIncome = computed(() => {
+  return transactions.value
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0)
+})
+
+const totalExpenses = computed(() => {
+  return transactions.value
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0)
+})
+
+const netBalance = computed(() => {
+  return totalIncome.value - totalExpenses.value
+})
+
+const selectedAccountName = computed(() => {
+  if (filters.value.account) {
+    const account = accountsStore.getAccountById(filters.value.account)
+    return account ? account.name : null
+  }
+  return null
+})
+
+const availableCategories = computed(() => {
+  const categories = new Set()
+  transactions.value.forEach(t => {
+    if (t.category) {
+      categories.add(t.category)
+    }
+  })
+  return Array.from(categories).sort()
+})
+
+const categoryOptions = computed(() => {
+  return availableCategories.value.map(cat => ({ label: cat, value: cat }))
+})
+
+const accountOptions = computed(() => {
+  return [
+    { label: 'All Accounts', value: '' },
+    ...accountsStore.accounts.map(acc => ({
+      label: `${acc.name} - ${formatCurrency(acc.balance)}`,
+      value: acc.id
+    }))
+  ]
+})
+
+const filteredTransactions = computed(() => {
+  let items = transactions.value
+
+  if (filters.value.type) {
+    items = items.filter(t => t.type === filters.value.type)
+  }
+
+  if (filters.value.category) {
+    items = items.filter(t => t.category === filters.value.category)
+  }
+
+  if (filters.value.account) {
+    items = items.filter(t => t.account_id === filters.value.account)
+  }
+
+  if (filters.value.dateRange) {
+    const now = new Date()
+    const startDate = new Date()
+    
+    switch (filters.value.dateRange) {
+      case 'today':
+        startDate.setHours(0, 0, 0, 0)
+        break
+      case 'week':
+        startDate.setDate(now.getDate() - 7)
+        break
+      case 'month':
+        startDate.setMonth(now.getMonth() - 1)
+        break
+      case 'quarter':
+        startDate.setMonth(now.getMonth() - 3)
+        break
+      case 'year':
+        startDate.setFullYear(now.getFullYear() - 1)
+        break
+    }
+    
+    items = items.filter(t => new Date(t.date) >= startDate)
+  }
+
+  return items.sort((a, b) => new Date(b.date) - new Date(a.date))
+})
+
+// Watch global filter
+watch(globalFilter, (newValue) => {
+  dtFilters.value.global.value = newValue
+})
+
+// Methods
+const loadData = async () => {
+  isLoading.value = true
+  try {
+    await transactionStore.fetchTransactions()
+  } catch (error) {
+    console.error('Error loading transactions:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+const clearFilters = () => {
+  filters.value = {
+    type: '',
+    category: '',
+    dateRange: '',
+    account: ''
+  }
+  globalFilter.value = ''
+}
+
+const clearAccountFilter = () => {
+  filters.value.account = ''
+  router.push({ name: 'Transactions' })
+}
+
+const getTransactionTypeColor = (type) => {
+  const colors = {
+    income: 'bg-green-500',
+    expense: 'bg-red-500',
+    investment: 'bg-blue-500'
+  }
+  return colors[type] || 'bg-gray-500'
+}
+
+const getTypeSeverity = (type) => {
+  const severity = {
+    income: 'success',
+    expense: 'danger',
+    investment: 'info'
+  }
+  return severity[type] || 'secondary'
+}
+
+const editTransaction = (transaction) => {
+  editingTransaction.value = transaction
+  showAddTransactionModal.value = true
+}
+
+const deleteTransaction = async (transaction) => {
+  confirm.require({
+    message: `Are you sure you want to delete this transaction?`,
+    header: 'Confirm Deletion',
+    icon: 'pi pi-exclamation-triangle',
+    accept: () => {
+      try {
+        transactionStore.deleteTransaction(transaction.id)
+      } catch (error) {
+        console.error('Error deleting transaction:', error)
+      }
+    },
+    reject: () => {
+      // User cancelled
+    }
+  })
+}
+
+const onTransactionAdded = async () => {
+  selectedAccount.value = null
+  await loadData()
+}
+
+const onTransactionUpdated = async () => {
+  editingTransaction.value = null
+  selectedAccount.value = null
+  await loadData()
+}
+
+// Watch for route changes to handle query parameters
+watch(() => route.query, (query) => {
+  if (query.action === 'add' && query.account) {
+    const accountId = query.account
+    const account = accountsStore.getAccountById(accountId)
+    if (account) {
+      selectedAccount.value = account
+      filters.value.account = account.id
+      showAddTransactionModal.value = true
+    }
+  } else if (query.action === 'history' && query.account) {
+    const accountId = query.account
+    const account = accountsStore.getAccountById(accountId)
+    if (account) {
+      filters.value.account = account.id
+      document.title = `Transactions - ${account.name}`
+    }
+  }
+}, { immediate: true })
+
+// Lifecycle
+onMounted(async () => {
+  await loadData()
+  await accountsStore.fetchAccounts()
+})
+</script>
+
 <template>
   <div class="min-h-screen">
     <!-- Header -->
@@ -322,260 +578,4 @@
       @transaction-updated="onTransactionUpdated"
     />
   </div>
-</template>
-
-<script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useTransactionStore } from '../stores/transactions'
-import { useAccountsStore } from '../stores/accounts'
-import { useConfirm } from 'primevue/useconfirm'
-import AddTransactionModal from '../components/AddTransactionModal.vue'
-import { formatCurrency, formatDate } from '../utils/budgetUtils'
-
-// Store
-const transactionStore = useTransactionStore()
-const accountsStore = useAccountsStore()
-const route = useRoute()
-const router = useRouter()
-const confirm = useConfirm()
-
-// Reactive data
-const isLoading = ref(false)
-const showAddTransactionModal = ref(false)
-const editingTransaction = ref(null)
-const selectedAccount = ref(null)
-const globalFilter = ref('')
-
-// Filters
-const filters = ref({
-  type: '',
-  category: '',
-  dateRange: '',
-  account: ''
-})
-
-// DataTable filters
-const dtFilters = ref({
-  global: { value: null, matchMode: 'contains' }
-})
-
-// Filter options
-const typeOptions = [
-  { label: 'Income', value: 'income' },
-  { label: 'Expense', value: 'expense' },
-  { label: 'Investment', value: 'investment' }
-]
-
-const dateRangeOptions = [
-  { label: 'Today', value: 'today' },
-  { label: 'This Week', value: 'week' },
-  { label: 'This Month', value: 'month' },
-  { label: 'This Quarter', value: 'quarter' },
-  { label: 'This Year', value: 'year' }
-]
-
-// Computed properties
-const transactions = computed(() => transactionStore.transactions)
-
-const totalIncome = computed(() => {
-  return transactions.value
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0)
-})
-
-const totalExpenses = computed(() => {
-  return transactions.value
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0)
-})
-
-const netBalance = computed(() => {
-  return totalIncome.value - totalExpenses.value
-})
-
-const selectedAccountName = computed(() => {
-  if (filters.value.account) {
-    const account = accountsStore.getAccountById(filters.value.account)
-    return account ? account.name : null
-  }
-  return null
-})
-
-const availableCategories = computed(() => {
-  const categories = new Set()
-  transactions.value.forEach(t => {
-    if (t.category) {
-      categories.add(t.category)
-    }
-  })
-  return Array.from(categories).sort()
-})
-
-const categoryOptions = computed(() => {
-  return availableCategories.value.map(cat => ({ label: cat, value: cat }))
-})
-
-const accountOptions = computed(() => {
-  return [
-    { label: 'All Accounts', value: '' },
-    ...accountsStore.accounts.map(acc => ({
-      label: `${acc.name} - ${formatCurrency(acc.balance)}`,
-      value: acc.id
-    }))
-  ]
-})
-
-const filteredTransactions = computed(() => {
-  let items = transactions.value
-
-  if (filters.value.type) {
-    items = items.filter(t => t.type === filters.value.type)
-  }
-
-  if (filters.value.category) {
-    items = items.filter(t => t.category === filters.value.category)
-  }
-
-  if (filters.value.account) {
-    items = items.filter(t => t.account_id === filters.value.account)
-  }
-
-  if (filters.value.dateRange) {
-    const now = new Date()
-    const startDate = new Date()
-    
-    switch (filters.value.dateRange) {
-      case 'today':
-        startDate.setHours(0, 0, 0, 0)
-        break
-      case 'week':
-        startDate.setDate(now.getDate() - 7)
-        break
-      case 'month':
-        startDate.setMonth(now.getMonth() - 1)
-        break
-      case 'quarter':
-        startDate.setMonth(now.getMonth() - 3)
-        break
-      case 'year':
-        startDate.setFullYear(now.getFullYear() - 1)
-        break
-    }
-    
-    items = items.filter(t => new Date(t.date) >= startDate)
-  }
-
-  return items.sort((a, b) => new Date(b.date) - new Date(a.date))
-})
-
-// Watch global filter
-watch(globalFilter, (newValue) => {
-  dtFilters.value.global.value = newValue
-})
-
-// Methods
-const loadData = async () => {
-  isLoading.value = true
-  try {
-    await transactionStore.fetchTransactions()
-  } catch (error) {
-    console.error('Error loading transactions:', error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const clearFilters = () => {
-  filters.value = {
-    type: '',
-    category: '',
-    dateRange: '',
-    account: ''
-  }
-  globalFilter.value = ''
-}
-
-const clearAccountFilter = () => {
-  filters.value.account = ''
-  router.push({ name: 'Transactions' })
-}
-
-const getTransactionTypeColor = (type) => {
-  const colors = {
-    income: 'bg-green-500',
-    expense: 'bg-red-500',
-    investment: 'bg-blue-500'
-  }
-  return colors[type] || 'bg-gray-500'
-}
-
-const getTypeSeverity = (type) => {
-  const severity = {
-    income: 'success',
-    expense: 'danger',
-    investment: 'info'
-  }
-  return severity[type] || 'secondary'
-}
-
-const editTransaction = (transaction) => {
-  editingTransaction.value = transaction
-  showAddTransactionModal.value = true
-}
-
-const deleteTransaction = async (transaction) => {
-  confirm.require({
-    message: `Are you sure you want to delete this transaction?`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: () => {
-      try {
-        transactionStore.deleteTransaction(transaction.id)
-      } catch (error) {
-        console.error('Error deleting transaction:', error)
-      }
-    },
-    reject: () => {
-      // User cancelled
-    }
-  })
-}
-
-const onTransactionAdded = async () => {
-  selectedAccount.value = null
-  await loadData()
-}
-
-const onTransactionUpdated = async () => {
-  editingTransaction.value = null
-  selectedAccount.value = null
-  await loadData()
-}
-
-// Watch for route changes to handle query parameters
-watch(() => route.query, (query) => {
-  if (query.action === 'add' && query.account) {
-    const accountId = query.account
-    const account = accountsStore.getAccountById(accountId)
-    if (account) {
-      selectedAccount.value = account
-      filters.value.account = account.id
-      showAddTransactionModal.value = true
-    }
-  } else if (query.action === 'history' && query.account) {
-    const accountId = query.account
-    const account = accountsStore.getAccountById(accountId)
-    if (account) {
-      filters.value.account = account.id
-      document.title = `Transactions - ${account.name}`
-    }
-  }
-}, { immediate: true })
-
-// Lifecycle
-onMounted(async () => {
-  await loadData()
-  await accountsStore.fetchAccounts()
-})
-</script> 
+</template> 

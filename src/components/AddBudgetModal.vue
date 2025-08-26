@@ -1,609 +1,3 @@
-<template>
-      <BaseModal 
-      :modelValue="modelValue" 
-      @update:modelValue="$emit('update:modelValue', $event)"
-    :size="'medium'"
-    :title="props.mode === 'edit' ? 'Edit Budget Item' : 'Add Budget Item'"
-  >
-    <!-- Content -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
-      <!-- Validation Errors -->
-      <Message v-if="validationErrors.length > 0" severity="error" :closable="false">
-        <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
-        </template>
-          <div>
-          <h4 class="font-medium mb-2">Please fix the following errors:</h4>
-          <ul class="space-y-1">
-              <li v-for="error in validationErrors" :key="error" class="flex items-start">
-                <span class="mr-2">•</span>
-                <span data-testid="validation-error-item">{{ error }}</span>
-              </li>
-            </ul>
-          </div>
-      </Message>
-      
-      <!-- Basic Information Section -->
-      <div class="space-y-4">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Name -->
-          <div class="md:col-span-2">
-            <label for="name" class="block text-sm font-medium mb-2">
-                <span class="text-red-500">*</span> Name
-              </label>
-            <InputText
-              id="name"
-                v-model="formData.name" 
-                placeholder="Budget item name"
-              class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Name')) }"
-              data-testid="budget-name-input"
-            />
-          </div>
-          
-          <!-- Budget Type -->
-          <div>
-            <label for="type" class="block text-sm font-medium mb-2">
-              <span class="text-red-500">*</span> Budget Type
-            </label>
-            <Select
-              id="type"
-              v-model="formData.type" 
-              :options="typeOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select budget type"
-              class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Type')) }"
-              @change="updateCategoryOnTypeChange"
-              data-testid="budget-type-select"
-            />
-          </div>
-          
-          <!-- Category -->
-          <div>
-            <label for="category" class="block text-sm font-medium mb-2">
-              <span class="text-red-500">*</span> Category
-            </label>
-            <Select
-              id="category"
-              v-model="formData.category"
-              :options="categoryOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select category"
-              class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Category')) }"
-              data-testid="budget-category-select"
-            />
-          </div>
-        </div>
-        
-        <!-- Investment Settings (only for Investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-4">
-          <Divider>
-            <span class="text-sm font-medium">Investment Settings</span>
-          </Divider>
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Investment Direction -->
-            <div data-testid="investment-direction-section">
-              <label for="investment_direction" class="block text-sm font-medium mb-2">
-                <span class="text-red-500">*</span> Investment Direction
-              </label>
-              <Select
-                id="investment_direction"
-                v-model="formData.investment_direction"
-                :options="investmentDirectionOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select direction"
-                class="w-full"
-              />
-            </div>
-            
-            <!-- Link to Existing Investment -->
-            <div>
-              <label for="linked_investment_id" class="block text-sm font-medium mb-2">
-                Link to Investment Asset
-              </label>
-              <Select
-                id="linked_investment_id"
-                v-model="formData.linked_investment_id"
-                :options="investmentOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="No investment linked"
-                class="w-full"
-              />
-            </div>
-          </div>
-          
-          <!-- Linked Investment Info -->
-          <Message v-if="formData.linked_investment_id" severity="info" :closable="false" icon="pi pi-chart-line" class="mb-4">
-              <div class="flex items-center justify-between w-full">
-                <div class="flex items-center gap-2">
-                  <span class="font-medium">
-                    {{ getLinkedInvestmentName() }}
-                  </span>
-                  <span class="text-sm opacity-75">
-                    (Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }})
-                  </span>
-                </div>
-                <Button
-                  type="button"
-                  @click="formData.linked_investment_id = ''"
-                  icon="pi pi-times"
-                  text
-                  size="small"
-                  severity="danger"
-                  class="ml-2"
-                />
-              </div>
-          </Message>
-        </div>
-      </div>
-
-      <!-- Financial Details Section -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-medium border-b pb-2">Financial Details</h3>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Default Amount -->
-          <div>
-            <label for="defaultAmount" class="block text-sm font-medium mb-2">
-              <span class="text-red-500">*</span> Default Amount
-            </label>
-            <InputNumber
-              id="defaultAmount"
-                v-model="formData.defaultAmount"
-              mode="currency"
-              currency="EGP"
-              placeholder="0.00"
-              class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Amount')) }"
-                data-testid="default-amount-input"
-              />
-          </div>
-          
-          <!-- Payment Schedule -->
-          <div>
-            <label for="payment_schedule" class="block text-sm font-medium mb-2">
-              Payment Schedule
-            </label>
-            <Select
-              id="payment_schedule"
-              v-model="formData.payment_schedule"
-              :options="paymentScheduleOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select schedule"
-              class="w-full"
-              data-testid="payment-schedule-select"
-            />
-          </div>
-        </div>
-
-        <!-- Due Date (only for custom_dates) -->
-        <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="due-date-section">
-          <div>
-            <label for="due_date" class="block text-sm font-medium mb-2">
-              Due Date (Day of Month)
-            </label>
-            <Select
-              id="due_date"
-              v-model="formData.due_date"
-              :options="dueDateOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select day"
-              class="w-full"
-            />
-          </div>
-        </div>
-
-        <!-- Fixed Expense and Reminder Settings -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Fixed Expense Toggle -->
-          <div class="flex items-center gap-2">
-            <Checkbox
-              id="is_fixed_expense"
-              v-model="formData.is_fixed_expense"
-              :binary="true"
-            />
-            <label for="is_fixed_expense" class="text-sm font-medium">
-              Fixed Expense
-            </label>
-          </div>
-          
-          <!-- Reminder Toggle -->
-          <div class="flex items-center gap-2">
-            <Checkbox
-              id="reminder_enabled"
-              v-model="formData.reminder_enabled"
-              :binary="true"
-            />
-            <label for="reminder_enabled" class="text-sm font-medium">
-              Enable Reminders
-            </label>
-          </div>
-        </div>
-
-        <!-- Reminder Days Before (only if reminders enabled) -->
-        <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="reminder_days_before" class="block text-sm font-medium mb-2">
-              Remind Me (Days Before)
-            </label>
-            <Select
-              id="reminder_days_before"
-              v-model="formData.reminder_days_before"
-              :options="reminderDaysOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select days"
-              class="w-full"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Schedule Section -->
-      <div class="space-y-4">
-        <h3 class="text-lg font-medium border-b pb-2">Schedule</h3>
-        
-            <!-- Frequency -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-            <label for="frequency" class="block text-sm font-medium mb-2">Frequency</label>
-            <Select
-                  id="frequency"
-                  v-model="formData.frequency" 
-              :options="frequencyOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select frequency"
-              class="w-full"
-                  @change="updateSchedule"
-              data-testid="frequency-select"
-            />
-            </div>
-            
-            <!-- Recurrence Interval (only for repeats) -->
-            <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS">
-            <label for="recurrenceInterval" class="block text-sm font-medium mb-2">Recurrence Interval</label>
-            <Select
-                id="recurrenceInterval"
-                v-model="formData.recurrenceInterval"
-              :options="recurrenceIntervalOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Select interval"
-              class="w-full"
-                @change="updateSchedule"
-              data-testid="recurrence-interval-select"
-            />
-            </div>
-          </div>
-
-          <!-- Date Selection -->
-        <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="space-y-4" data-testid="start-date-section">
-            <!-- Start Date -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label for="startMonth" class="block text-sm font-medium mb-2">Starting Month</label>
-              <Select
-                    id="startMonth"
-                    v-model="formData.startMonth"
-                :options="availableStartMonthOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select month"
-                class="w-full"
-                    @change="updateLegacyRecurrence"
-                    data-testid="start-month-select"
-              />
-            </div>
-            
-            <div>
-              <label for="startYear" class="block text-sm font-medium mb-2">Starting Year</label>
-              <Select
-                    id="startYear"
-                    v-model="formData.startYear"
-                :options="availableYearOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select year"
-                class="w-full"
-                    @change="updateLegacyRecurrence"
-                    data-testid="start-year-select"
-              />
-              </div>
-          </div>
-
-          <!-- End Date Type and End Date Options -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="end-date-section">
-            <!-- End Date Type -->
-            <div>
-              <label for="endType" class="block text-sm font-medium mb-2">
-                  <span class="text-red-500">*</span> Ending
-                </label>
-              <Select
-                  id="endType"
-                  v-model="formData.endType"
-                :options="endTypeOptions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Select end type"
-                class="w-full"
-                  @change="updateLegacyRecurrence"
-                  data-testid="end-type-select"
-              />
-            </div>
-            
-            <!-- End Date (only for specific date) -->
-            <div v-if="formData.endType === END_TYPES.SPECIFIC_DATE">
-              <div class="grid grid-cols-2 gap-2">
-                <Select
-                  id="endMonth"
-                  v-model="formData.endMonth"
-                  :options="monthOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Month"
-                  class="w-full"
-                  @change="updateLegacyRecurrence"
-                  data-testid="end-month-select"
-                />
-                <Select
-                  id="endYear"
-                  v-model="formData.endYear"
-                  :options="availableEndYearOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Year"
-                  class="w-full"
-                  @change="updateLegacyRecurrence"
-                  data-testid="end-year-select"
-                />
-              </div>
-            </div>
-            
-            <!-- Occurrences (only for after occurrences) -->
-            <div v-if="formData.endType === END_TYPES.AFTER_OCCURRENCES">
-              <label for="occurrences" class="block text-sm font-medium mb-2">Number of Occurrences</label>
-              <InputNumber
-                id="occurrences"
-                v-model="formData.occurrences"
-                :min="1"
-                :max="120"
-                placeholder="Enter occurrences"
-                class="w-full"
-                @change="updateLegacyRecurrence"
-                data-testid="occurrences-input"
-              />
-            </div>
-            </div>
-          </div>
-
-          <!-- Custom Months (for custom frequency) -->
-         <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
-           <label class="block text-sm font-medium">Custom Months</label>
-            <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
-             <div
-                v-for="(month, index) in months" 
-                :key="month" 
-               class="flex items-center p-3 border rounded-lg transition-colors"
-                :class="{ 
-                 'bg-primary-50 border-primary-300': formData.customMonths.includes(index),
-                 'cursor-pointer hover:bg-surface-100': index >= currentMonth,
-                 'cursor-not-allowed bg-surface-100 opacity-50': index < currentMonth
-               }"
-             >
-               <Checkbox
-                  :value="index" 
-                  v-model="formData.customMonths"
-                 :binary="false"
-                  @change="updateSchedule"
-                  :disabled="index < currentMonth"
-                  :data-testid="`custom-month-${index}`"
-               />
-               <span class="text-sm font-medium ml-2" :class="{ 'text-surface-500': index < currentMonth }">
-                 {{ month }}
-               </span>
-             </div>
-            </div>
-          </div>
-
-          <!-- One Time Date (for once frequency) -->
-         <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-3">
-           <label class="block text-sm font-medium">One-Time Date</label>
-           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-               <label class="block text-xs text-surface-600 mb-1">Month</label>
-               <Select
-                  id="oneTimeMonth"
-                  v-model="formData.oneTimeMonth"
-                 :options="availableOnceMonthOptions"
-                 optionLabel="label"
-                 optionValue="value"
-                 placeholder="Select month"
-                 class="w-full"
-                  @change="updateLegacyRecurrence"
-                  data-testid="one-time-month-select"
-               />
-              </div>
-              <div>
-               <label class="block text-xs text-surface-600 mb-1">Year</label>
-               <Select
-                  id="oneTimeYear"
-                  v-model="formData.oneTimeYear"
-                 :options="availableYearOptions"
-                 optionLabel="label"
-                 optionValue="value"
-                 placeholder="Select year"
-                 class="w-full"
-                  @change="updateLegacyRecurrence"
-                  data-testid="one-time-year-select"
-               />
-              </div>
-            </div>
-          </div>
-
-          <!-- Multi-Year Indicator (Auto-detected) -->
-         <Message v-if="isMultiYear" icon="pi pi-info-circle">Multi-Year: {{ formData.startYear }}-{{ getCalculatedEndYear() }}</Message>
-      </div>
-
-              <!-- Preview Section -->
-        <div class="space-y-4">
-        <!-- Yearly Breakdown DataTable -->
-        <div v-if="schedulePreviewData.yearlyBreakdown.length > 0">
-            <Panel :header="`${isMultiYear ? 'Yearly Breakdown' : 'Monthly Schedule'}`" toggleable>
-              <template #header>
-                <div class="flex items-center justify-between w-full">
-                  <div class="flex items-center gap-2">
-                    <i class="pi pi-chart-bar text-primary"></i>
-                    <span class="font-medium">schedule preview</span> 
-              </div>
-              <div class="text-right">
-                    <span class="font-semibold">{{ formatCurrency(schedulePreviewData.totalAmount) }} / </span>
-                    <span class="text-surface-600">
-                      {{ isMultiYear ? ` ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? 's' : ''}` : ` ${schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0} month${(schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0) !== 1 ? 's' : ''}` }}
-                    </span>
-              </div>
-            </div>
-              </template>
-            
-            <DataTable 
-              :value="schedulePreviewData.yearlyBreakdown" 
-              :expandedRows="expandedRows"
-              @row-toggle="onRowToggle"
-              dataKey="year"
-              class="p-datatable-sm"
-              :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'"
-              expandableRows
-            >
-              <!-- Expandable Row -->
-              <template #expansion="slotProps">
-                <div class="p-4">
-                  <DataTable 
-                    :value="getMonthlyData(slotProps.data)" 
-                    class="p-datatable-sm"
-                    :showGridlines="true"
-                  >
-                    <Column field="month" header="Month" class="w-20">
-                      <template #body="{ data }">
-                        <div class="text-center">
-                          <div class="font-medium">{{ data.monthName }}</div>
-                  </div>
-                      </template>
-                    </Column>
-                    <Column field="amount" header="Amount" class="w-24">
-                      <template #body="{ data }">
-                        <div class="text-center">
-                          <div v-if="data.amount > 0" class="font-medium text-green-700">
-                            {{ formatCurrency(data.amount) }}
-                  </div>
-                          <div v-else class="text-surface-400">-</div>
-                </div>
-                      </template>
-                    </Column>
-                    <Column field="status" header="Status" class="w-20">
-                      <template #body="{ data }">
-                        <Tag 
-                          :value="data.amount > 0 ? 'Active' : 'Inactive'" 
-                          :severity="data.amount > 0 ? 'success' : 'secondary'"
-                          size="small"
-                        />
-                      </template>
-                    </Column>
-                    <Column field="period" header="Period" class="w-24">
-                      <template #body="{ data }">
-                        <div class="text-center text-xs">
-                          <div v-if="data.isCurrentMonth" class="text-primary font-medium">Current</div>
-                          <div v-else-if="data.isPastMonth" class="text-surface-500">Past</div>
-                          <div v-else class="text-green-600">Future</div>
-                    </div>
-                      </template>
-                    </Column>
-                  </DataTable>
-                  </div>
-              </template>
-              
-              <!-- Main Columns -->
-              <Column expander style="width: 3rem"/>
-              <Column field="year" header="Year" class="w-20">
-                <template #body="{ data }">
-                  <div class="flex items-center gap-2">
-                    <span class="font-semibold">{{ data.year }}</span>
-                    <div class="flex gap-1">
-                      <Tag v-if="data.isFirstYear && isMultiYear" value="First" severity="info" size="small" />
-                      <Tag v-if="data.isLastYear && isMultiYear" value="Last" severity="success" size="small" />
-                    </div>
-                  </div>
-                </template>
-              </Column>
-              
-              <Column field="amount" header="Yearly Amount" class="w-32">
-                <template #body="{ data }">
-                  <span class="font-semibold text-lg">{{ formatCurrency(data.amount) }}</span>
-                </template>
-              </Column>
-              
-              <Column field="monthlyAverage" header="Monthly Average" class="w-32">
-                <template #body="{ data }">
-                  <span class="font-medium">{{ formatCurrency(data.monthlyAverage) }}</span>
-                </template>
-              </Column>
-              
-              <Column field="activeMonths" header="Active Months" class="w-28">
-                <template #body="{ data }">
-                  <div>
-                    <ProgressBar 
-                      :value="(data.monthsCount / 12) * 100" 
-                      class="h-2 mb-1"
-                    >
-                      {{ data.monthsCount }}/12
-                    </ProgressBar>
-                </div>
-                </template>
-              </Column>
-              
-
-            </DataTable>
-          </Panel>
-        </div>
-      </div>
-    </form>
-    
-    <!-- Footer -->
-    <template #footer>
-      <div class="flex justify-end gap-3 w-full">
-        <Button
-          type="button" 
-          @click="closeModal" 
-          :disabled="isLoading" 
-          label="Cancel"
-          outlined
-          severity="secondary"
-          data-testid="cancel-btn"
-        />
-        <Button
-          type="submit" 
-          @click="handleSubmit"
-          :disabled="isLoading || hasErrors"
-          :loading="isLoading"
-          icon="pi pi-check"
-          :label="props.mode === 'edit' ? 'Update Budget Item' : (isMultiYear ? 'Add Multi-Year Budget' : 'Add Budget Item')"
-          severity="primary"
-          :data-testid="props.mode === 'edit' ? 'submit-edit-btn' : 'submit-budget-btn'"
-        />
-      </div>
-    </template>
-  </BaseModal>
-</template>
-
 <script setup>
 import { computed, watch, ref, onMounted } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
@@ -1200,4 +594,610 @@ const getMonthlyData = (yearData) => {
     isPastMonth: yearData.year < currentYear.value || (yearData.year === currentYear.value && index < currentMonth.value)
   }))
 }
-</script> 
+</script>
+
+<template>
+  <BaseModal 
+    :modelValue="modelValue" 
+    @update:modelValue="$emit('update:modelValue', $event)"
+    :size="'medium'"
+    :title="props.mode === 'edit' ? 'Edit Budget Item' : 'Add Budget Item'"
+  >
+    <!-- Content -->
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Validation Errors -->
+      <Message v-if="validationErrors.length > 0" severity="error" :closable="false">
+        <template #messageicon>
+          <i class="pi pi-exclamation-triangle"></i>
+        </template>
+        <div>
+          <h4 class="font-medium mb-2">Please fix the following errors:</h4>
+          <ul class="space-y-1">
+            <li v-for="error in validationErrors" :key="error" class="flex items-start">
+              <span class="mr-2">•</span>
+              <span data-testid="validation-error-item">{{ error }}</span>
+            </li>
+          </ul>
+        </div>
+      </Message>
+      
+      <!-- Basic Information Section -->
+      <div class="space-y-4">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Name -->
+          <div class="md:col-span-2">
+            <label for="name" class="block text-sm font-medium mb-2">
+              <span class="text-red-500">*</span> Name
+            </label>
+            <InputText
+              id="name"
+              v-model="formData.name" 
+              placeholder="Budget item name"
+              class="w-full"
+              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Name')) }"
+              data-testid="budget-name-input"
+            />
+          </div>
+          
+          <!-- Budget Type -->
+          <div>
+            <label for="type" class="block text-sm font-medium mb-2">
+              <span class="text-red-500">*</span> Budget Type
+            </label>
+            <Select
+              id="type"
+              v-model="formData.type" 
+              :options="typeOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select budget type"
+              class="w-full"
+              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Type')) }"
+              @change="updateCategoryOnTypeChange"
+              data-testid="budget-type-select"
+            />
+          </div>
+          
+          <!-- Category -->
+          <div>
+            <label for="category" class="block text-sm font-medium mb-2">
+              <span class="text-red-500">*</span> Category
+            </label>
+            <Select
+              id="category"
+              v-model="formData.category"
+              :options="categoryOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select category"
+              class="w-full"
+              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Category')) }"
+              data-testid="budget-category-select"
+            />
+          </div>
+        </div>
+        
+        <!-- Investment Settings (only for Investment type) -->
+        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-4">
+          <Divider>
+            <span class="text-sm font-medium">Investment Settings</span>
+          </Divider>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Investment Direction -->
+            <div data-testid="investment-direction-section">
+              <label for="investment_direction" class="block text-sm font-medium mb-2">
+                <span class="text-red-500">*</span> Investment Direction
+              </label>
+              <Select
+                id="investment_direction"
+                v-model="formData.investment_direction"
+                :options="investmentDirectionOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select direction"
+                class="w-full"
+              />
+            </div>
+            
+            <!-- Link to Existing Investment -->
+            <div>
+              <label for="linked_investment_id" class="block text-sm font-medium mb-2">
+                Link to Investment Asset
+              </label>
+              <Select
+                id="linked_investment_id"
+                v-model="formData.linked_investment_id"
+                :options="investmentOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="No investment linked"
+                class="w-full"
+              />
+            </div>
+          </div>
+          
+          <!-- Linked Investment Info -->
+          <Message v-if="formData.linked_investment_id" severity="info" :closable="false" icon="pi pi-chart-line" class="mb-4">
+            <div class="flex items-center justify-between w-full">
+              <div class="flex items-center gap-2">
+                <span class="font-medium">
+                  {{ getLinkedInvestmentName() }}
+                </span>
+                <span class="text-sm opacity-75">
+                  (Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }})
+                </span>
+              </div>
+              <Button
+                type="button"
+                @click="formData.linked_investment_id = ''"
+                icon="pi pi-times"
+                text
+                size="small"
+                severity="danger"
+                class="ml-2"
+              />
+            </div>
+          </Message>
+        </div>
+      </div>
+
+      <!-- Financial Details Section -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium border-b pb-2">Financial Details</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Default Amount -->
+          <div>
+            <label for="defaultAmount" class="block text-sm font-medium mb-2">
+              <span class="text-red-500">*</span> Default Amount
+            </label>
+            <InputNumber
+              id="defaultAmount"
+              v-model="formData.defaultAmount"
+              mode="currency"
+              currency="EGP"
+              placeholder="0.00"
+              class="w-full"
+              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Amount')) }"
+              data-testid="default-amount-input"
+            />
+          </div>
+          
+          <!-- Payment Schedule -->
+          <div>
+            <label for="payment_schedule" class="block text-sm font-medium mb-2">
+              Payment Schedule
+            </label>
+            <Select
+              id="payment_schedule"
+              v-model="formData.payment_schedule"
+              :options="paymentScheduleOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select schedule"
+              class="w-full"
+              data-testid="payment-schedule-select"
+            />
+          </div>
+        </div>
+
+        <!-- Due Date (only for custom_dates) -->
+        <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="due-date-section">
+          <div>
+            <label for="due_date" class="block text-sm font-medium mb-2">
+              Due Date (Day of Month)
+            </label>
+            <Select
+              id="due_date"
+              v-model="formData.due_date"
+              :options="dueDateOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select day"
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Fixed Expense and Reminder Settings -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Fixed Expense Toggle -->
+          <div class="flex items-center gap-2">
+            <Checkbox
+              id="is_fixed_expense"
+              v-model="formData.is_fixed_expense"
+              :binary="true"
+            />
+            <label for="is_fixed_expense" class="text-sm font-medium">
+              Fixed Expense
+            </label>
+          </div>
+          
+          <!-- Reminder Toggle -->
+          <div class="flex items-center gap-2">
+            <Checkbox
+              id="reminder_enabled"
+              v-model="formData.reminder_enabled"
+              :binary="true"
+            />
+            <label for="reminder_enabled" class="text-sm font-medium">
+              Enable Reminders
+            </label>
+          </div>
+        </div>
+
+        <!-- Reminder Days Before (only if reminders enabled) -->
+        <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="reminder_days_before" class="block text-sm font-medium mb-2">
+              Remind Me (Days Before)
+            </label>
+            <Select
+              id="reminder_days_before"
+              v-model="formData.reminder_days_before"
+              :options="reminderDaysOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select days"
+              class="w-full"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Section -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-medium border-b pb-2">Schedule</h3>
+        
+        <!-- Frequency -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="frequency" class="block text-sm font-medium mb-2">Frequency</label>
+            <Select
+              id="frequency"
+              v-model="formData.frequency" 
+              :options="frequencyOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select frequency"
+              class="w-full"
+              @change="updateSchedule"
+              data-testid="frequency-select"
+            />
+          </div>
+            
+          <!-- Recurrence Interval (only for repeats) -->
+          <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS">
+            <label for="recurrenceInterval" class="block text-sm font-medium mb-2">Recurrence Interval</label>
+            <Select
+              id="recurrenceInterval"
+              v-model="formData.recurrenceInterval"
+              :options="recurrenceIntervalOptions"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Select interval"
+              class="w-full"
+              @change="updateSchedule"
+              data-testid="recurrence-interval-select"
+            />
+          </div>
+        </div>
+
+        <!-- Date Selection -->
+        <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="space-y-4" data-testid="start-date-section">
+          <!-- Start Date -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="startMonth" class="block text-sm font-medium mb-2">Starting Month</label>
+              <Select
+                id="startMonth"
+                v-model="formData.startMonth"
+                :options="availableStartMonthOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select month"
+                class="w-full"
+                @change="updateLegacyRecurrence"
+                data-testid="start-month-select"
+              />
+            </div>
+            
+            <div>
+              <label for="startYear" class="block text-sm font-medium mb-2">Starting Year</label>
+              <Select
+                id="startYear"
+                v-model="formData.startYear"
+                :options="availableYearOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select year"
+                class="w-full"
+                @change="updateLegacyRecurrence"
+                data-testid="start-year-select"
+              />
+            </div>
+          </div>
+
+          <!-- End Date Type and End Date Options -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="end-date-section">
+            <!-- End Date Type -->
+            <div>
+              <label for="endType" class="block text-sm font-medium mb-2">
+                <span class="text-red-500">*</span> Ending
+              </label>
+              <Select
+                id="endType"
+                v-model="formData.endType"
+                :options="endTypeOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select end type"
+                class="w-full"
+                @change="updateLegacyRecurrence"
+                data-testid="end-type-select"
+              />
+            </div>
+            
+            <!-- End Date (only for specific date) -->
+            <div v-if="formData.endType === END_TYPES.SPECIFIC_DATE">
+              <div class="grid grid-cols-2 gap-2">
+                <Select
+                  id="endMonth"
+                  v-model="formData.endMonth"
+                  :options="monthOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Month"
+                  class="w-full"
+                  @change="updateLegacyRecurrence"
+                  data-testid="end-month-select"
+                />
+                <Select
+                  id="endYear"
+                  v-model="formData.endYear"
+                  :options="availableEndYearOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Year"
+                  class="w-full"
+                  @change="updateLegacyRecurrence"
+                  data-testid="end-year-select"
+                />
+              </div>
+            </div>
+            
+            <!-- Occurrences (only for after occurrences) -->
+            <div v-if="formData.endType === END_TYPES.AFTER_OCCURRENCES">
+              <label for="occurrences" class="block text-sm font-medium mb-2">Number of Occurrences</label>
+              <InputNumber
+                id="occurrences"
+                v-model="formData.occurrences"
+                :min="1"
+                :max="120"
+                placeholder="Enter occurrences"
+                class="w-full"
+                @change="updateLegacyRecurrence"
+                data-testid="occurrences-input"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Months (for custom frequency) -->
+        <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
+          <label class="block text-sm font-medium">Custom Months</label>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+            <div
+              v-for="(month, index) in months" 
+              :key="month" 
+              class="flex items-center p-3 border rounded-lg transition-colors"
+              :class="{ 
+                'bg-primary-50 border-primary-300': formData.customMonths.includes(index),
+                'cursor-pointer hover:bg-surface-100': index >= currentMonth,
+                'cursor-not-allowed bg-surface-100 opacity-50': index < currentMonth
+              }"
+            >
+              <Checkbox
+                :value="index" 
+                v-model="formData.customMonths"
+                :binary="false"
+                @change="updateSchedule"
+                :disabled="index < currentMonth"
+                :data-testid="`custom-month-${index}`"
+              />
+              <span class="text-sm font-medium ml-2" :class="{ 'text-surface-500': index < currentMonth }">
+                {{ month }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- One Time Date (for once frequency) -->
+        <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-3">
+          <label class="block text-sm font-medium">One-Time Date</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-surface-600 mb-1">Month</label>
+              <Select
+                id="oneTimeMonth"
+                v-model="formData.oneTimeMonth"
+                :options="availableOnceMonthOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select month"
+                class="w-full"
+                @change="updateLegacyRecurrence"
+                data-testid="one-time-month-select"
+              />
+            </div>
+            <div>
+              <label class="block text-xs text-surface-600 mb-1">Year</label>
+              <Select
+                id="oneTimeYear"
+                v-model="formData.oneTimeYear"
+                :options="availableYearOptions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Select year"
+                class="w-full"
+                @change="updateLegacyRecurrence"
+                data-testid="one-time-year-select"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Multi-Year Indicator (Auto-detected) -->
+        <Message v-if="isMultiYear" icon="pi pi-info-circle">Multi-Year: {{ formData.startYear }}-{{ getCalculatedEndYear() }}</Message>
+      </div>
+
+      <!-- Preview Section -->
+      <div class="space-y-4">
+        <!-- Yearly Breakdown DataTable -->
+        <div v-if="schedulePreviewData.yearlyBreakdown.length > 0">
+          <Panel :header="`${isMultiYear ? 'Yearly Breakdown' : 'Monthly Schedule'}`" toggleable>
+            <template #header>
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-chart-bar text-primary"></i>
+                  <span class="font-medium">schedule preview</span> 
+                </div>
+                <div class="text-right">
+                  <span class="font-semibold">{{ formatCurrency(schedulePreviewData.totalAmount) }} / </span>
+                  <span class="text-surface-600">
+                    {{ isMultiYear ? ` ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? 's' : ''}` : ` ${schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0} month${(schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0) !== 1 ? 's' : ''}` }}
+                  </span>
+                </div>
+              </div>
+            </template>
+            
+            <DataTable 
+              :value="schedulePreviewData.yearlyBreakdown" 
+              :expandedRows="expandedRows"
+              @row-toggle="onRowToggle"
+              dataKey="year"
+              class="p-datatable-sm"
+              :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'"
+              expandableRows
+            >
+              <!-- Expandable Row -->
+              <template #expansion="slotProps">
+                <div class="p-4">
+                  <DataTable 
+                    :value="getMonthlyData(slotProps.data)" 
+                    class="p-datatable-sm"
+                    :showGridlines="true"
+                  >
+                    <Column field="month" header="Month" class="w-20">
+                      <template #body="{ data }">
+                        <div class="text-center">
+                          <div class="font-medium">{{ data.monthName }}</div>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="amount" header="Amount" class="w-24">
+                      <template #body="{ data }">
+                        <div class="text-center">
+                          <div v-if="data.amount > 0" class="font-medium text-green-700">
+                            {{ formatCurrency(data.amount) }}
+                          </div>
+                          <div v-else class="text-surface-400">-</div>
+                        </div>
+                      </template>
+                    </Column>
+                    <Column field="status" header="Status" class="w-20">
+                      <template #body="{ data }">
+                        <Tag 
+                          :value="data.amount > 0 ? 'Active' : 'Inactive'" 
+                          :severity="data.amount > 0 ? 'success' : 'secondary'"
+                          size="small"
+                        />
+                      </template>
+                    </Column>
+                    <Column field="period" header="Period" class="w-24">
+                      <template #body="{ data }">
+                        <div class="text-center text-xs">
+                          <div v-if="data.isCurrentMonth" class="text-primary font-medium">Current</div>
+                          <div v-else-if="data.isPastMonth" class="text-surface-500">Past</div>
+                          <div v-else class="text-green-600">Future</div>
+                        </div>
+                      </template>
+                    </Column>
+                  </DataTable>
+                </div>
+              </template>
+              
+              <!-- Main Columns -->
+              <Column expander style="width: 3rem"/>
+              <Column field="year" header="Year" class="w-20">
+                <template #body="{ data }">
+                  <div class="flex items-center gap-2">
+                    <span class="font-semibold">{{ data.year }}</span>
+                    <div class="flex gap-1">
+                      <Tag v-if="data.isFirstYear && isMultiYear" value="First" severity="info" size="small" />
+                      <Tag v-if="data.isLastYear && isMultiYear" value="Last" severity="success" size="small" />
+                    </div>
+                  </div>
+                </template>
+              </Column>
+              
+              <Column field="amount" header="Yearly Amount" class="w-32">
+                <template #body="{ data }">
+                  <span class="font-semibold text-lg">{{ formatCurrency(data.amount) }}</span>
+                </template>
+              </Column>
+              
+              <Column field="monthlyAverage" header="Monthly Average" class="w-32">
+                <template #body="{ data }">
+                  <span class="font-medium">{{ formatCurrency(data.monthlyAverage) }}</span>
+                </template>
+              </Column>
+              
+              <Column field="activeMonths" header="Active Months" class="w-28">
+                <template #body="{ data }">
+                  <div>
+                    <ProgressBar 
+                      :value="(data.monthsCount / 12) * 100" 
+                      class="h-2 mb-1"
+                    >
+                      {{ data.monthsCount }}/12
+                    </ProgressBar>
+                  </div>
+                </template>
+              </Column>
+              
+
+            </DataTable>
+          </Panel>
+        </div>
+      </div>
+    </form>
+    
+    <!-- Footer -->
+    <template #footer>
+      <div class="flex justify-end gap-3 w-full">
+        <Button
+          type="button" 
+          @click="closeModal" 
+          :disabled="isLoading" 
+          label="Cancel"
+          outlined
+          severity="secondary"
+          data-testid="cancel-btn"
+        />
+        <Button
+          type="submit" 
+          @click="handleSubmit"
+          :disabled="isLoading || hasErrors"
+          :loading="isLoading"
+          icon="pi pi-check"
+          :label="props.mode === 'edit' ? 'Update Budget Item' : (isMultiYear ? 'Add Multi-Year Budget' : 'Add Budget Item')"
+          severity="primary"
+          :data-testid="props.mode === 'edit' ? 'submit-edit-btn' : 'submit-budget-btn'"
+        />
+      </div>
+    </template>
+  </BaseModal>
+</template> 

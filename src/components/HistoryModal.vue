@@ -1,3 +1,77 @@
+<script setup>
+import { computed } from 'vue'
+import { useBudgetStore } from '@/stores/budget.js'
+import { useBudgetHistory } from '@/composables/useBudgetHistory.js'
+import { MONTHS } from '@/constants/budgetConstants.js'
+import { formatCompactCurrency } from '@/utils/budgetUtils.js'
+
+// Props
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: false
+  }
+})
+
+// Emits
+const emit = defineEmits(['update:modelValue'])
+
+// Store
+const budgetStore = useBudgetStore()
+
+// Constants
+const months = MONTHS
+
+// History composable
+const {
+  historyItems,
+  formatHistoryValue,
+  formatTimestamp,
+  formatFullDate,
+  getChangeIndicator,
+  getBudgetItemName,
+  getHistoryStats
+} = useBudgetHistory(budgetStore)
+
+// Get history statistics
+const historyStats = computed(() => getHistoryStats())
+
+// Group history items by budget item
+const groupedHistoryItems = computed(() => {
+  const grouped = {}
+  historyItems.value.forEach(change => {
+    if (!grouped[change.budget_item_id]) {
+      grouped[change.budget_item_id] = []
+    }
+    grouped[change.budget_item_id].push(change)
+  })
+  
+  // Sort each group by timestamp (newest first)
+  Object.keys(grouped).forEach(key => {
+    grouped[key].sort((a, b) => new Date(b.changed_at) - new Date(a.changed_at))
+  })
+  
+  return grouped
+})
+
+// Get change for specific month
+const getChangeForMonth = (changes, monthIndex) => {
+  return changes.find(change => change.month_index === monthIndex)
+}
+
+// Calculate total impact of all changes
+const calculateTotalImpact = () => {
+  return historyItems.value.reduce((total, change) => {
+    return total + Math.abs(change.new_amount - change.old_amount)
+  }, 0)
+}
+
+// Close modal
+const closeModal = () => {
+  emit('update:modelValue', false)
+}
+</script>
+
 <template>
   <div v-if="modelValue" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
@@ -131,23 +205,23 @@
                     :key="monthIndex"
                     class="text-center py-2 px-1 text-xs rounded border border-gray-200 bg-white min-h-[60px] flex flex-col justify-center">
                     
-                                         <!-- Find change for this month -->
-                     <div v-if="getChangeForMonth(itemChanges, monthIndex)" class="space-y-1">
-                       <div class="font-medium text-red-600" :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount)">
-                         {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount) }}
-                       </div>
-                       <div class="flex items-center justify-center">
-                         <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-                         </svg>
-                       </div>
-                       <div class="font-medium text-green-600" :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount)">
-                         {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount) }}
-                       </div>
-                       <div class="text-xs text-gray-500">
-                         {{ formatTimestamp(getChangeForMonth(itemChanges, monthIndex).changed_at) }}
-                       </div>
-                     </div>
+                    <!-- Find change for this month -->
+                    <div v-if="getChangeForMonth(itemChanges, monthIndex)" class="space-y-1">
+                      <div class="font-medium text-red-600" :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount)">
+                        {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount) }}
+                      </div>
+                      <div class="flex items-center justify-center">
+                        <svg class="w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+                        </svg>
+                      </div>
+                      <div class="font-medium text-green-600" :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount)">
+                        {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount) }}
+                      </div>
+                      <div class="text-xs text-gray-500">
+                        {{ formatTimestamp(getChangeForMonth(itemChanges, monthIndex).changed_at) }}
+                      </div>
+                    </div>
                     
                     <!-- No change for this month -->
                     <div v-else class="text-gray-400">
@@ -202,78 +276,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { computed } from 'vue'
-import { useBudgetStore } from '@/stores/budget.js'
-import { useBudgetHistory } from '@/composables/useBudgetHistory.js'
-import { MONTHS } from '@/constants/budgetConstants.js'
-import { formatCompactCurrency } from '@/utils/budgetUtils.js'
-
-// Props
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  }
-})
-
-// Emits
-const emit = defineEmits(['update:modelValue'])
-
-// Store
-const budgetStore = useBudgetStore()
-
-// Constants
-const months = MONTHS
-
-// History composable
-const {
-  historyItems,
-  formatHistoryValue,
-  formatTimestamp,
-  formatFullDate,
-  getChangeIndicator,
-  getBudgetItemName,
-  getHistoryStats
-} = useBudgetHistory(budgetStore)
-
-// Get history statistics
-const historyStats = computed(() => getHistoryStats())
-
-// Group history items by budget item
-const groupedHistoryItems = computed(() => {
-  const grouped = {}
-  historyItems.value.forEach(change => {
-    if (!grouped[change.budget_item_id]) {
-      grouped[change.budget_item_id] = []
-    }
-    grouped[change.budget_item_id].push(change)
-  })
-  
-  // Sort each group by timestamp (newest first)
-  Object.keys(grouped).forEach(key => {
-    grouped[key].sort((a, b) => new Date(b.changed_at) - new Date(a.changed_at))
-  })
-  
-  return grouped
-})
-
-// Get change for specific month
-const getChangeForMonth = (changes, monthIndex) => {
-  return changes.find(change => change.month_index === monthIndex)
-}
-
-// Calculate total impact of all changes
-const calculateTotalImpact = () => {
-  return historyItems.value.reduce((total, change) => {
-    return total + Math.abs(change.new_amount - change.old_amount)
-  }, 0)
-}
-
-// Close modal
-const closeModal = () => {
-  emit('update:modelValue', false)
-}
-</script> 
+</template> 

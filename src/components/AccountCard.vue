@@ -1,3 +1,49 @@
+<script setup>
+import { computed } from 'vue'
+import { useAccountsStore } from '../stores/accounts'
+import { useTransactionStore } from '../stores/transactions'
+
+const props = defineProps({
+  account: {
+    type: Object,
+    required: true
+  }
+})
+
+const emit = defineEmits(['edit', 'set-default', 'delete', 'transfer', 'history'])
+
+const accountsStore = useAccountsStore()
+const transactionStore = useTransactionStore()
+
+const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
+const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)
+
+// Get recent transactions for this account
+const recentTransactions = computed(() => 
+  transactionStore.getRecentTransactionsByAccount(props.account.id, 3)
+)
+
+const formatCurrency = (amount) => {
+  if (amount === null || amount === undefined) return '$0.00'
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  }).format(amount)
+}
+
+const getBalanceColor = (balance) => {
+  if (balance >= 0) return 'text-green-600'
+  return 'text-red-600'
+}
+
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric'
+  })
+}
+</script>
+
 <template>
   <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
     <div class="flex items-center justify-between mb-4">
@@ -103,50 +149,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { computed } from 'vue'
-import { useAccountsStore } from '../stores/accounts'
-import { useTransactionStore } from '../stores/transactions'
-
-const props = defineProps({
-  account: {
-    type: Object,
-    required: true
-  }
-})
-
-const emit = defineEmits(['edit', 'set-default', 'delete', 'transfer', 'history'])
-
-const accountsStore = useAccountsStore()
-const transactionStore = useTransactionStore()
-
-const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
-const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)
-
-// Get recent transactions for this account
-const recentTransactions = computed(() => 
-  transactionStore.getRecentTransactionsByAccount(props.account.id, 3)
-)
-
-const formatCurrency = (amount) => {
-  if (amount === null || amount === undefined) return '$0.00'
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
-}
-
-const getBalanceColor = (balance) => {
-  if (balance >= 0) return 'text-green-600'
-  return 'text-red-600'
-}
-
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  })
-}
-</script> 
+</template> 

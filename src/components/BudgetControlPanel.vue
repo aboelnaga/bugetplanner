@@ -1,3 +1,100 @@
+<script setup>
+import { computed } from 'vue'
+import { Calendar, Copy, Settings } from 'lucide-vue-next'
+
+// Import constants and utilities
+import { BUDGET_TYPES, BUDGET_TYPE_LABELS, FILTER_OPTIONS } from '@/constants/budgetConstants.js'
+import { getBudgetTypeIcon } from '@/utils/budgetUtils.js'
+
+// Props
+const props = defineProps({
+  selectedYear: {
+    type: Number,
+    required: true
+  },
+  availableYears: {
+    type: Array,
+    required: true
+  },
+  selectedTypeFilter: {
+    type: String,
+    required: true
+  },
+  selectedCategoryFilter: {
+    type: String,
+    required: true
+  },
+  uniqueCategories: {
+    type: Array,
+    required: true
+  },
+  canCopyFromPreviousYear: {
+    type: Boolean,
+    default: false
+  },
+  groupByCategory: {
+    type: Boolean,
+    required: true
+  },
+  budgetItems: {
+    type: Array,
+    required: true
+  }
+})
+
+// Emits
+const emit = defineEmits([
+  'update:selectedYear',
+  'update:selectedTypeFilter',
+  'update:selectedCategoryFilter',
+  'update:groupByCategory',
+  'add-year',
+  'copy-from-previous-year',
+  'clear-filters'
+])
+
+// Computed properties for navigation
+const canGoToPreviousYear = computed(() => {
+  const currentIndex = props.availableYears.indexOf(props.selectedYear)
+  return currentIndex > 0
+})
+
+const canGoToNextYear = computed(() => {
+  const currentIndex = props.availableYears.indexOf(props.selectedYear)
+  return currentIndex < props.availableYears.length - 1
+})
+
+// Methods for navigation
+const goToPreviousYear = () => {
+  if (canGoToPreviousYear.value) {
+    const currentIndex = props.availableYears.indexOf(props.selectedYear)
+    const previousYear = props.availableYears[currentIndex - 1]
+    emit('update:selectedYear', previousYear)
+  }
+}
+
+const goToNextYear = () => {
+  if (canGoToNextYear.value) {
+    const currentIndex = props.availableYears.indexOf(props.selectedYear)
+    const nextYear = props.availableYears[currentIndex + 1]
+    emit('update:selectedYear', nextYear)
+  }
+}
+
+// Computed properties for quick stats
+const incomeCount = computed(() => {
+  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.INCOME).length
+})
+
+const expenseCount = computed(() => {
+  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.EXPENSE).length
+})
+
+const investmentCount = computed(() => {
+  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.INVESTMENT).length
+})
+</script>
+
 <template>
   <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
     <div class="flex items-center justify-between gap-2">
@@ -174,101 +271,4 @@
       </div>
     </div>
   </div>
-</template>
-
-<script setup>
-import { computed } from 'vue'
-import { Calendar, Copy, Settings } from 'lucide-vue-next'
-
-// Import constants and utilities
-import { BUDGET_TYPES, BUDGET_TYPE_LABELS, FILTER_OPTIONS } from '@/constants/budgetConstants.js'
-import { getBudgetTypeIcon } from '@/utils/budgetUtils.js'
-
-// Props
-const props = defineProps({
-  selectedYear: {
-    type: Number,
-    required: true
-  },
-  availableYears: {
-    type: Array,
-    required: true
-  },
-  selectedTypeFilter: {
-    type: String,
-    required: true
-  },
-  selectedCategoryFilter: {
-    type: String,
-    required: true
-  },
-  uniqueCategories: {
-    type: Array,
-    required: true
-  },
-  canCopyFromPreviousYear: {
-    type: Boolean,
-    default: false
-  },
-  groupByCategory: {
-    type: Boolean,
-    required: true
-  },
-  budgetItems: {
-    type: Array,
-    required: true
-  }
-})
-
-// Emits
-const emit = defineEmits([
-  'update:selectedYear',
-  'update:selectedTypeFilter',
-  'update:selectedCategoryFilter',
-  'update:groupByCategory',
-  'add-year',
-  'copy-from-previous-year',
-  'clear-filters'
-])
-
-// Computed properties for navigation
-const canGoToPreviousYear = computed(() => {
-  const currentIndex = props.availableYears.indexOf(props.selectedYear)
-  return currentIndex > 0
-})
-
-const canGoToNextYear = computed(() => {
-  const currentIndex = props.availableYears.indexOf(props.selectedYear)
-  return currentIndex < props.availableYears.length - 1
-})
-
-// Methods for navigation
-const goToPreviousYear = () => {
-  if (canGoToPreviousYear.value) {
-    const currentIndex = props.availableYears.indexOf(props.selectedYear)
-    const previousYear = props.availableYears[currentIndex - 1]
-    emit('update:selectedYear', previousYear)
-  }
-}
-
-const goToNextYear = () => {
-  if (canGoToNextYear.value) {
-    const currentIndex = props.availableYears.indexOf(props.selectedYear)
-    const nextYear = props.availableYears[currentIndex + 1]
-    emit('update:selectedYear', nextYear)
-  }
-}
-
-// Computed properties for quick stats
-const incomeCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.INCOME).length
-})
-
-const expenseCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.EXPENSE).length
-})
-
-const investmentCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === BUDGET_TYPES.INVESTMENT).length
-})
-</script> 
+</template> 

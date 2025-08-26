@@ -1,3 +1,93 @@
+<script setup>
+import { ref, reactive, watch } from 'vue'
+import CurrencyInput from './CurrencyInput.vue'
+import { currencyOptions } from '@/constants/currencyOptions.js'
+import { useAccountsStore } from '../stores/accounts'
+import BaseModal from './BaseModal.vue'
+import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
+import Checkbox from 'primevue/checkbox'
+import Message from 'primevue/message'
+import Button from 'primevue/button'
+
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    default: false
+  }
+})
+
+const emit = defineEmits(['close', 'account-added'])
+
+const accountsStore = useAccountsStore()
+const loading = ref(false)
+const error = ref('')
+
+const form = reactive({
+  name: '',
+  type: '',
+  balance: 0,
+  credit_limit: null,
+  is_default: false
+})
+
+// Computed options for form fields
+const accountTypeOptions = [
+  { label: 'Select account type', value: '' },
+  { label: 'Checking', value: 'checking' },
+  { label: 'Savings', value: 'savings' },
+  { label: 'Credit Card', value: 'credit_card' },
+  { label: 'Cash', value: 'cash' }
+]
+
+// Reset form when modal opens
+watch(() => props.isOpen, (isOpen) => {
+  if (isOpen) {
+    resetForm()
+  }
+})
+
+const resetForm = () => {
+  form.name = ''
+  form.type = ''
+  form.balance = 0
+  form.credit_limit = null
+  form.is_default = false
+  error.value = ''
+}
+
+const handleSubmit = async () => {
+  loading.value = true
+  error.value = ''
+
+  try {
+    // Prepare account data
+    const accountData = {
+      name: form.name.trim(),
+      type: form.type,
+      balance: parseFloat(form.balance) || 0,
+      is_default: form.is_default
+    }
+
+    // Add credit limit for credit cards
+    if (form.type === 'credit_card' && form.credit_limit) {
+      accountData.credit_limit = parseFloat(form.credit_limit)
+    }
+
+    // Create account
+    const newAccount = await accountsStore.createAccount(accountData)
+    
+    emit('account-added', newAccount)
+    emit('close')
+    resetForm()
+  } catch (err) {
+    error.value = err.message || 'Failed to create account'
+  } finally {
+    loading.value = false
+  }
+}
+</script>
+
 <template>
   <BaseModal
     :modelValue="isOpen"
@@ -103,94 +193,4 @@
       </div>
     </form>
   </BaseModal>
-</template>
-
-<script setup>
-import { ref, reactive, watch } from 'vue'
-import CurrencyInput from './CurrencyInput.vue'
-import { currencyOptions } from '@/constants/currencyOptions.js'
-import { useAccountsStore } from '../stores/accounts'
-import BaseModal from './BaseModal.vue'
-import InputText from 'primevue/inputtext'
-import Select from 'primevue/select'
-import Checkbox from 'primevue/checkbox'
-import Message from 'primevue/message'
-import Button from 'primevue/button'
-
-const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false
-  }
-})
-
-const emit = defineEmits(['close', 'account-added'])
-
-const accountsStore = useAccountsStore()
-const loading = ref(false)
-const error = ref('')
-
-const form = reactive({
-  name: '',
-  type: '',
-  balance: 0,
-  credit_limit: null,
-  is_default: false
-})
-
-// Computed options for form fields
-const accountTypeOptions = [
-  { label: 'Select account type', value: '' },
-  { label: 'Checking', value: 'checking' },
-  { label: 'Savings', value: 'savings' },
-  { label: 'Credit Card', value: 'credit_card' },
-  { label: 'Cash', value: 'cash' }
-]
-
-// Reset form when modal opens
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    resetForm()
-  }
-})
-
-const resetForm = () => {
-  form.name = ''
-  form.type = ''
-  form.balance = 0
-  form.credit_limit = null
-  form.is_default = false
-  error.value = ''
-}
-
-const handleSubmit = async () => {
-  loading.value = true
-  error.value = ''
-
-  try {
-    // Prepare account data
-    const accountData = {
-      name: form.name.trim(),
-      type: form.type,
-      balance: parseFloat(form.balance) || 0,
-      is_default: form.is_default
-    }
-
-    // Add credit limit for credit cards
-    if (form.type === 'credit_card' && form.credit_limit) {
-      accountData.credit_limit = parseFloat(form.credit_limit)
-    }
-
-    // Create account
-    const newAccount = await accountsStore.createAccount(accountData)
-    
-    emit('account-added', newAccount)
-    emit('close')
-    resetForm()
-  } catch (err) {
-    error.value = err.message || 'Failed to create account'
-  } finally {
-    loading.value = false
-  }
-}
-</script> 
+</template> 

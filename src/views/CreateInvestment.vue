@@ -1,3 +1,247 @@
+<script setup>
+import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { investmentAssetsAPI } from '@/lib/supabase'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+// Form data
+const form = reactive({
+  investment_type: '',
+  name: '',
+  purchase_amount: '',
+  current_value: '',
+  purchase_date: '',
+  last_valuation_date: '',
+  description: '',
+  // Real estate specific
+  delivery_date: '',
+  construction_status: '',
+  completion_date: '',
+  developer_owner: '',
+  location: '',
+  real_estate_status: 'planned',
+  // Precious metals specific
+  metal_type: '',
+  karat: '',
+  condition: '',
+  form: '',
+  purpose: '',
+  amount: '',
+  amount_unit: '',
+  // Common
+  document_links: []
+})
+
+// State
+const loading = ref(false)
+const error = ref('')
+const errors = reactive({})
+
+// Dropdown options
+const investmentTypes = ref([])
+const realEstateStatuses = ref([])
+const metalTypes = ref([])
+const karatOptions = ref([])
+const conditionOptions = ref([])
+const formOptions = ref([])
+const purposeOptions = ref([])
+const amountUnitOptions = ref([])
+
+// Static options for construction status
+const constructionStatusOptions = [
+  { label: 'Under Construction', value: 'under_construction' },
+  { label: 'Finished', value: 'finished' }
+]
+
+// Computed
+const hasErrors = computed(() => Object.keys(errors).length > 0)
+
+// Methods
+const validateField = (field) => {
+  delete errors[field]
+  
+  switch (field) {
+    case 'investment_type':
+      if (!form.investment_type) {
+        errors[field] = 'Investment type is required'
+      }
+      break
+    case 'name':
+      if (!form.name.trim()) {
+        errors[field] = 'Name is required'
+      }
+      break
+    case 'purchase_amount':
+      if (!form.purchase_amount || parseFloat(form.purchase_amount) <= 0) {
+        errors[field] = 'Valid purchase amount is required'
+      }
+      break
+    case 'delivery_date':
+      if (form.investment_type === 'real_estate' && !form.delivery_date) {
+        errors[field] = 'Delivery date is required for real estate'
+      }
+      break
+    case 'developer_owner':
+      if (form.investment_type === 'real_estate' && !form.developer_owner.trim()) {
+        errors[field] = 'Developer/owner is required for real estate'
+      }
+      break
+    case 'metal_type':
+      if (form.investment_type === 'precious_metals' && !form.metal_type) {
+        errors[field] = 'Metal type is required for precious metals'
+      }
+      break
+    case 'amount':
+      if (form.investment_type === 'precious_metals' && (!form.amount || parseFloat(form.amount) <= 0)) {
+        errors[field] = 'Valid amount is required for precious metals'
+      }
+      break
+    case 'amount_unit':
+      if (form.investment_type === 'precious_metals' && !form.amount_unit) {
+        errors[field] = 'Amount unit is required for precious metals'
+      }
+      break
+  }
+}
+
+const validateForm = () => {
+  // Clear all errors
+  Object.keys(errors).forEach(key => delete errors[key])
+  
+  // Validate required fields
+  validateField('investment_type')
+  validateField('name')
+  validateField('purchase_amount')
+  
+  // Validate type-specific fields
+  if (form.investment_type === 'real_estate') {
+    validateField('delivery_date')
+    validateField('developer_owner')
+  } else if (form.investment_type === 'precious_metals') {
+    validateField('metal_type')
+    validateField('amount')
+    validateField('amount_unit')
+  }
+  
+  return Object.keys(errors).length === 0
+}
+
+const onInvestmentTypeChange = () => {
+  // Reset type-specific fields when investment type changes
+  if (form.investment_type !== 'real_estate') {
+    form.delivery_date = ''
+    form.construction_status = ''
+    form.completion_date = ''
+    form.developer_owner = ''
+    form.location = ''
+    form.real_estate_status = 'planned'
+  }
+  
+  if (form.investment_type !== 'precious_metals') {
+    form.metal_type = ''
+    form.karat = ''
+    form.condition = ''
+    form.form = ''
+    form.purpose = ''
+    form.amount = ''
+    form.amount_unit = ''
+  }
+  
+  // Clear type-specific errors
+  Object.keys(errors).forEach(key => {
+    if (key !== 'investment_type' && key !== 'name' && key !== 'purchase_amount') {
+      delete errors[key]
+    }
+  })
+}
+
+const addDocumentLink = () => {
+  form.document_links.push('')
+}
+
+const removeDocumentLink = (index) => {
+  form.document_links.splice(index, 1)
+}
+
+const handleSubmit = async () => {
+  if (!validateForm()) {
+    error.value = 'Please fix the errors above'
+    return
+  }
+  
+  loading.value = true
+  error.value = ''
+  
+  try {
+    // Prepare the data for submission
+    const investmentData = {
+      user_id: authStore.user.id,
+      investment_type: form.investment_type,
+      name: form.name.trim(),
+      purchase_amount: parseFloat(form.purchase_amount),
+      current_value: form.current_value ? parseFloat(form.current_value) : null,
+      purchase_date: form.purchase_date || null,
+      last_valuation_date: form.last_valuation_date || null,
+      description: form.description.trim() || null,
+      document_links: form.document_links.filter(link => link.trim()),
+      // Type-specific fields
+      ...(form.investment_type === 'real_estate' && {
+        delivery_date: form.delivery_date || null,
+        construction_status: form.construction_status || null,
+        completion_date: form.completion_date || null,
+        developer_owner: form.developer_owner.trim(),
+        location: form.location.trim() || null,
+        real_estate_status: form.real_estate_status
+      }),
+      ...(form.investment_type === 'precious_metals' && {
+        metal_type: form.metal_type,
+        karat: form.karat || null,
+        condition: form.condition || null,
+        form: form.form || null,
+        purpose: form.purpose || null,
+        amount: parseFloat(form.amount),
+        amount_unit: form.amount_unit
+      })
+    }
+    
+    const createdInvestment = await investmentAssetsAPI.createInvestmentAsset(investmentData)
+    
+    // Navigate to the investment details page
+    router.push(`/investments/${createdInvestment.id}`)
+    
+  } catch (err) {
+    console.error('Error creating investment:', err)
+    error.value = err.message || 'Failed to create investment'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Load dropdown options
+const loadDropdownOptions = async () => {
+  try {
+    investmentTypes.value = await investmentAssetsAPI.getInvestmentTypes()
+    realEstateStatuses.value = await investmentAssetsAPI.getRealEstateStatuses()
+    metalTypes.value = await investmentAssetsAPI.getMetalTypes()
+    karatOptions.value = await investmentAssetsAPI.getKaratOptions()
+    conditionOptions.value = await investmentAssetsAPI.getConditionOptions()
+    formOptions.value = await investmentAssetsAPI.getFormOptions()
+    purposeOptions.value = await investmentAssetsAPI.getPurposeOptions()
+    amountUnitOptions.value = await investmentAssetsAPI.getAmountUnitOptions()
+  } catch (err) {
+    console.error('Error loading dropdown options:', err)
+    error.value = 'Failed to load form options'
+  }
+}
+
+onMounted(() => {
+  loadDropdownOptions()
+})
+</script>
+
 <template>
   <div class="min-h-screen">
     <!-- Header -->
@@ -376,248 +620,4 @@
       </template>
     </Card>
   </div>
-</template>
-
-<script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { investmentAssetsAPI } from '@/lib/supabase'
-
-const router = useRouter()
-const authStore = useAuthStore()
-
-// Form data
-const form = reactive({
-  investment_type: '',
-  name: '',
-  purchase_amount: '',
-  current_value: '',
-  purchase_date: '',
-  last_valuation_date: '',
-  description: '',
-  // Real estate specific
-  delivery_date: '',
-  construction_status: '',
-  completion_date: '',
-  developer_owner: '',
-  location: '',
-  real_estate_status: 'planned',
-  // Precious metals specific
-  metal_type: '',
-  karat: '',
-  condition: '',
-  form: '',
-  purpose: '',
-  amount: '',
-  amount_unit: '',
-  // Common
-  document_links: []
-})
-
-// State
-const loading = ref(false)
-const error = ref('')
-const errors = reactive({})
-
-// Dropdown options
-const investmentTypes = ref([])
-const realEstateStatuses = ref([])
-const metalTypes = ref([])
-const karatOptions = ref([])
-const conditionOptions = ref([])
-const formOptions = ref([])
-const purposeOptions = ref([])
-const amountUnitOptions = ref([])
-
-// Static options for construction status
-const constructionStatusOptions = [
-  { label: 'Under Construction', value: 'under_construction' },
-  { label: 'Finished', value: 'finished' }
-]
-
-// Computed
-const hasErrors = computed(() => Object.keys(errors).length > 0)
-
-// Methods
-const validateField = (field) => {
-  delete errors[field]
-  
-  switch (field) {
-    case 'investment_type':
-      if (!form.investment_type) {
-        errors[field] = 'Investment type is required'
-      }
-      break
-    case 'name':
-      if (!form.name.trim()) {
-        errors[field] = 'Name is required'
-      }
-      break
-    case 'purchase_amount':
-      if (!form.purchase_amount || parseFloat(form.purchase_amount) <= 0) {
-        errors[field] = 'Valid purchase amount is required'
-      }
-      break
-    case 'delivery_date':
-      if (form.investment_type === 'real_estate' && !form.delivery_date) {
-        errors[field] = 'Delivery date is required for real estate'
-      }
-      break
-    case 'developer_owner':
-      if (form.investment_type === 'real_estate' && !form.developer_owner.trim()) {
-        errors[field] = 'Developer/owner is required for real estate'
-      }
-      break
-    case 'metal_type':
-      if (form.investment_type === 'precious_metals' && !form.metal_type) {
-        errors[field] = 'Metal type is required for precious metals'
-      }
-      break
-    case 'amount':
-      if (form.investment_type === 'precious_metals' && (!form.amount || parseFloat(form.amount) <= 0)) {
-        errors[field] = 'Valid amount is required for precious metals'
-      }
-      break
-    case 'amount_unit':
-      if (form.investment_type === 'precious_metals' && !form.amount_unit) {
-        errors[field] = 'Amount unit is required for precious metals'
-      }
-      break
-  }
-}
-
-const validateForm = () => {
-  // Clear all errors
-  Object.keys(errors).forEach(key => delete errors[key])
-  
-  // Validate required fields
-  validateField('investment_type')
-  validateField('name')
-  validateField('purchase_amount')
-  
-  // Validate type-specific fields
-  if (form.investment_type === 'real_estate') {
-    validateField('delivery_date')
-    validateField('developer_owner')
-  } else if (form.investment_type === 'precious_metals') {
-    validateField('metal_type')
-    validateField('amount')
-    validateField('amount_unit')
-  }
-  
-  return Object.keys(errors).length === 0
-}
-
-const onInvestmentTypeChange = () => {
-  // Reset type-specific fields when investment type changes
-  if (form.investment_type !== 'real_estate') {
-    form.delivery_date = ''
-    form.construction_status = ''
-    form.completion_date = ''
-    form.developer_owner = ''
-    form.location = ''
-    form.real_estate_status = 'planned'
-  }
-  
-  if (form.investment_type !== 'precious_metals') {
-    form.metal_type = ''
-    form.karat = ''
-    form.condition = ''
-    form.form = ''
-    form.purpose = ''
-    form.amount = ''
-    form.amount_unit = ''
-  }
-  
-  // Clear type-specific errors
-  Object.keys(errors).forEach(key => {
-    if (key !== 'investment_type' && key !== 'name' && key !== 'purchase_amount') {
-      delete errors[key]
-    }
-  })
-}
-
-const addDocumentLink = () => {
-  form.document_links.push('')
-}
-
-const removeDocumentLink = (index) => {
-  form.document_links.splice(index, 1)
-}
-
-const handleSubmit = async () => {
-  if (!validateForm()) {
-    error.value = 'Please fix the errors above'
-    return
-  }
-  
-  loading.value = true
-  error.value = ''
-  
-  try {
-    // Prepare the data for submission
-    const investmentData = {
-      user_id: authStore.user.id,
-      investment_type: form.investment_type,
-      name: form.name.trim(),
-      purchase_amount: parseFloat(form.purchase_amount),
-      current_value: form.current_value ? parseFloat(form.current_value) : null,
-      purchase_date: form.purchase_date || null,
-      last_valuation_date: form.last_valuation_date || null,
-      description: form.description.trim() || null,
-      document_links: form.document_links.filter(link => link.trim()),
-      // Type-specific fields
-      ...(form.investment_type === 'real_estate' && {
-        delivery_date: form.delivery_date || null,
-        construction_status: form.construction_status || null,
-        completion_date: form.completion_date || null,
-        developer_owner: form.developer_owner.trim(),
-        location: form.location.trim() || null,
-        real_estate_status: form.real_estate_status
-      }),
-      ...(form.investment_type === 'precious_metals' && {
-        metal_type: form.metal_type,
-        karat: form.karat || null,
-        condition: form.condition || null,
-        form: form.form || null,
-        purpose: form.purpose || null,
-        amount: parseFloat(form.amount),
-        amount_unit: form.amount_unit
-      })
-    }
-    
-    const createdInvestment = await investmentAssetsAPI.createInvestmentAsset(investmentData)
-    
-    // Navigate to the investment details page
-    router.push(`/investments/${createdInvestment.id}`)
-    
-  } catch (err) {
-    console.error('Error creating investment:', err)
-    error.value = err.message || 'Failed to create investment'
-  } finally {
-    loading.value = false
-  }
-}
-
-// Load dropdown options
-const loadDropdownOptions = async () => {
-  try {
-    investmentTypes.value = await investmentAssetsAPI.getInvestmentTypes()
-    realEstateStatuses.value = await investmentAssetsAPI.getRealEstateStatuses()
-    metalTypes.value = await investmentAssetsAPI.getMetalTypes()
-    karatOptions.value = await investmentAssetsAPI.getKaratOptions()
-    conditionOptions.value = await investmentAssetsAPI.getConditionOptions()
-    formOptions.value = await investmentAssetsAPI.getFormOptions()
-    purposeOptions.value = await investmentAssetsAPI.getPurposeOptions()
-    amountUnitOptions.value = await investmentAssetsAPI.getAmountUnitOptions()
-  } catch (err) {
-    console.error('Error loading dropdown options:', err)
-    error.value = 'Failed to load form options'
-  }
-}
-
-onMounted(() => {
-  loadDropdownOptions()
-})
-</script> 
+</template> 

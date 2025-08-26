@@ -1,140 +1,3 @@
-<template>
-  <BaseModal :modelValue="modelValue" @update:modelValue="$emit('update:modelValue')" title="Transfer Funds"> 
-    <!-- Content -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
-      <!-- Transfer Type -->
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          <span class="text-red-500">*</span> Transfer Type
-        </label>
-        <Select
-          v-model="formData.transferType" 
-          :options="transferTypeOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select transfer type"
-          @change="updateFormBasedOnType"
-          class="w-full" />
-      </div>
-
-      <!-- From Account -->
-      <div v-if="formData.transferType !== 'cash_to_account'">
-        <label class="block text-sm font-medium mb-2">
-          <span class="text-red-500">*</span> From Account
-        </label>
-        <Select
-          v-model="formData.fromAccountId"
-          :options="fromAccountOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select account"
-          @change="updateAvailableBalance"
-          class="w-full" />
-        <p v-if="selectedFromAccount" class="text-sm text-surface-500 mt-1">
-          Available: {{ formatCurrency(getAvailableBalance(selectedFromAccount)) }}
-        </p>
-      </div>
-
-      <!-- To Account -->
-      <div v-if="formData.transferType !== 'account_to_cash'">
-        <label class="block text-sm font-medium mb-2">
-          <span class="text-red-500">*</span> To Account
-        </label>
-        <Select
-          v-model="formData.toAccountId"
-          :options="toAccountOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select account"
-          @change="updateAvailableBalance"
-          class="w-full" />
-      </div>
-
-      <!-- Amount -->
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          <span class="text-red-500">*</span> Amount
-        </label>
-        <div class="relative">
-          <CurrencyInput
-            v-model="formData.amount"
-            :options="currencyOptions"
-            inputmode="decimal"
-            required
-            placeholder="EGP 0"
-            class="w-full"
-          />
-        </div>
-        <p class="text-xs text-surface-500 mt-1">
-          Maximum: {{ formatCurrency(maxTransferAmount) }}
-        </p>
-      </div>
-
-      <!-- Date -->
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          <span class="text-red-500">*</span> Date
-        </label>
-        <DatePicker
-          v-model="formData.date" 
-          required 
-          dateFormat="yy-mm-dd"
-          class="w-full" />
-      </div>
-
-      <!-- Description -->
-      <div>
-        <label class="block text-sm font-medium mb-2">Description</label>
-        <InputText
-          v-model="formData.description" 
-          placeholder="e.g., Transfer to savings, ATM withdrawal"
-          class="w-full" />
-      </div>
-
-      <!-- Notes -->
-      <div>
-        <label class="block text-sm font-medium mb-2">Notes</label>
-        <Textarea
-          v-model="formData.notes" 
-          rows="3"
-          placeholder="Additional notes about this transfer..."
-          class="w-full" />
-      </div>
-
-      <!-- Error Message -->
-      <Message v-if="error" severity="error" :closable="false">
-        <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
-        </template>
-        <template #message>
-          {{ error }}
-        </template>
-      </Message>
-    </form>
-    
-    <!-- Footer -->
-    <template #footer>
-      <div class="flex justify-end gap-3 w-full">
-        <Button
-          type="button" 
-          @click="closeModal" 
-          :disabled="isLoading" 
-          label="Cancel"
-          outlined
-          severity="secondary" />
-        <Button
-          type="submit" 
-          @click="handleSubmit"
-          :disabled="isLoading || !isFormValid" 
-          :loading="isLoading"
-          icon="pi pi-check"
-          :label="isLoading ? 'Processing...' : 'Complete Transfer'"
-          severity="primary" />
-      </div>
-    </template>
-  </BaseModal>
-</template>
-
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue'
 import { useTransactionStore } from '@/stores/transactions.js'
@@ -421,4 +284,141 @@ watch(() => props.modelValue, (isOpen) => {
     }
   }
 })
-</script> 
+</script>
+
+<template>
+  <BaseModal :modelValue="modelValue" @update:modelValue="$emit('update:modelValue')" title="Transfer Funds"> 
+    <!-- Content -->
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Transfer Type -->
+      <div>
+        <label class="block text-sm font-medium mb-2">
+          <span class="text-red-500">*</span> Transfer Type
+        </label>
+        <Select
+          v-model="formData.transferType" 
+          :options="transferTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select transfer type"
+          @change="updateFormBasedOnType"
+          class="w-full" />
+      </div>
+
+      <!-- From Account -->
+      <div v-if="formData.transferType !== 'cash_to_account'">
+        <label class="block text-sm font-medium mb-2">
+          <span class="text-red-500">*</span> From Account
+        </label>
+        <Select
+          v-model="formData.fromAccountId"
+          :options="fromAccountOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select account"
+          @change="updateAvailableBalance"
+          class="w-full" />
+        <p v-if="selectedFromAccount" class="text-sm text-surface-500 mt-1">
+          Available: {{ formatCurrency(getAvailableBalance(selectedFromAccount)) }}
+        </p>
+      </div>
+
+      <!-- To Account -->
+      <div v-if="formData.transferType !== 'account_to_cash'">
+        <label class="block text-sm font-medium mb-2">
+          <span class="text-red-500">*</span> To Account
+        </label>
+        <Select
+          v-model="formData.toAccountId"
+          :options="toAccountOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select account"
+          @change="updateAvailableBalance"
+          class="w-full" />
+      </div>
+
+      <!-- Amount -->
+      <div>
+        <label class="block text-sm font-medium mb-2">
+          <span class="text-red-500">*</span> Amount
+        </label>
+        <div class="relative">
+          <CurrencyInput
+            v-model="formData.amount"
+            :options="currencyOptions"
+            inputmode="decimal"
+            required
+            placeholder="EGP 0"
+            class="w-full"
+          />
+        </div>
+        <p class="text-xs text-surface-500 mt-1">
+          Maximum: {{ formatCurrency(maxTransferAmount) }}
+        </p>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label class="block text-sm font-medium mb-2">
+          <span class="text-red-500">*</span> Date
+        </label>
+        <DatePicker
+          v-model="formData.date" 
+          required 
+          dateFormat="yy-mm-dd"
+          class="w-full" />
+      </div>
+
+      <!-- Description -->
+      <div>
+        <label class="block text-sm font-medium mb-2">Description</label>
+        <InputText
+          v-model="formData.description" 
+          placeholder="e.g., Transfer to savings, ATM withdrawal"
+          class="w-full" />
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="block text-sm font-medium mb-2">Notes</label>
+        <Textarea
+          v-model="formData.notes" 
+          rows="3"
+          placeholder="Additional notes about this transfer..."
+          class="w-full" />
+      </div>
+
+      <!-- Error Message -->
+      <Message v-if="error" severity="error" :closable="false">
+        <template #messageicon>
+          <i class="pi pi-exclamation-triangle"></i>
+        </template>
+        <template #message>
+          {{ error }}
+        </template>
+      </Message>
+    </form>
+    
+    <!-- Footer -->
+    <template #footer>
+      <div class="flex justify-end gap-3 w-full">
+        <Button
+          type="button" 
+          @click="closeModal" 
+          :disabled="isLoading" 
+          label="Cancel"
+          outlined
+          severity="secondary" />
+        <Button
+          type="submit" 
+          @click="handleSubmit"
+          :disabled="isLoading || !isFormValid" 
+          :loading="isLoading"
+          icon="pi pi-check"
+          :label="isLoading ? 'Processing...' : 'Complete Transfer'"
+          severity="primary" />
+      </div>
+    </template>
+  </BaseModal>
+</template> 

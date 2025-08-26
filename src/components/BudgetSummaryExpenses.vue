@@ -1,49 +1,3 @@
-<template>
-  <!-- Expenses Line -->
-  <BudgetSummaryRowHelper
-    row-type="TOTAL_EXPENSES"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false"
-    :has-expense-data="hasExpenseData"
-    :has-investment-data="false"
-    :has-investment-incoming-data="false"
-    :has-investment-outgoing-data="hasInvestmentOutgoingData"
-    :has-any-data="false"
-    :calculate-monthly="calculateMonthlyExpenses"
-    :calculate-grand-total="calculateGrandTotalExpenses"
-    :calculate-previous-year="calculatePreviousYearExpensesTotal"
-    :get-monthly-tooltip="getExpensesTooltip"
-    :get-grand-total-tooltip="getExpensesYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearExpensesTooltip"
-    :format-currency="formatCurrency" />
-
-  <!-- Investment Purchases Line -->
-  <BudgetSummaryRowHelper
-    row-type="INVESTMENT_PURCHASES"
-    :months="months"
-    :selected-year="selectedYear"
-    :current-year="currentYear"
-    :current-month="currentMonth"
-    :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false"
-    :has-expense-data="hasExpenseData"
-    :has-investment-data="false"
-    :has-investment-incoming-data="false"
-    :has-investment-outgoing-data="hasInvestmentOutgoingData"
-    :has-any-data="false"
-    :calculate-monthly="calculateMonthlyInvestmentOutgoing"
-    :calculate-grand-total="calculateGrandTotalInvestmentOutgoing"
-    :calculate-previous-year="calculatePreviousYearInvestmentOutgoingTotal"
-    :get-monthly-tooltip="getInvestmentOutgoingTooltip"
-    :get-grand-total-tooltip="getInvestmentOutgoingYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearInvestmentOutgoingTooltip"
-    :format-currency="formatCurrency" />
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
@@ -246,4 +200,50 @@ const getPreviousYearInvestmentOutgoingTooltip = () => {
   // Fallback to simple display
   return `PY ${previousYear} Investment Purchases (Actual): <span class="text-red-300">${props.formatCurrency(total)}</span>`
 }
-</script> 
+</script>
+
+<template>
+  <!-- Expenses Line -->
+  <BudgetSummaryRowHelper
+    row-type="TOTAL_EXPENSES"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false"
+    :has-expense-data="hasExpenseData"
+    :has-investment-data="false"
+    :has-investment-incoming-data="false"
+    :has-investment-outgoing-data="hasInvestmentOutgoingData"
+    :has-any-data="false"
+    :calculate-monthly="calculateMonthlyExpenses"
+    :calculate-grand-total="calculateGrandTotalExpenses"
+    :calculate-previous-year="calculatePreviousYearExpensesTotal"
+    :get-monthly-tooltip="getExpensesTooltip"
+    :get-grand-total-tooltip="getExpensesYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearExpensesTooltip"
+    :format-currency="formatCurrency" />
+
+  <!-- Investment Purchases Line -->
+  <BudgetSummaryRowHelper
+    row-type="INVESTMENT_PURCHASES"
+    :months="months"
+    :selected-year="selectedYear"
+    :current-year="currentYear"
+    :current-month="currentMonth"
+    :selected-type-filter="selectedTypeFilter"
+    :has-income-data="false"
+    :has-expense-data="hasExpenseData"
+    :has-investment-data="false"
+    :has-investment-incoming-data="false"
+    :has-investment-outgoing-data="hasInvestmentOutgoingData"
+    :has-any-data="false"
+    :calculate-monthly="calculateMonthlyInvestmentOutgoing"
+    :calculate-grand-total="calculateGrandTotalInvestmentOutgoing"
+    :calculate-previous-year="calculatePreviousYearInvestmentOutgoingTotal"
+    :get-monthly-tooltip="getInvestmentOutgoingTooltip"
+    :get-grand-total-tooltip="getInvestmentOutgoingYearlyTooltip"
+    :get-previous-year-tooltip="getPreviousYearInvestmentOutgoingTooltip"
+    :format-currency="formatCurrency" />
+</template> 

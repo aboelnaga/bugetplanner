@@ -1,3 +1,176 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { useInvestmentAssetsStore } from '@/stores/investmentAssets'
+import { useToast } from 'primevue/usetoast'
+import { useConfirm } from 'primevue/useconfirm'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const investmentAssetsStore = useInvestmentAssetsStore()
+const toast = useToast()
+const confirm = useConfirm()
+
+// State
+const loading = ref(false)
+const searchTerm = ref('')
+const selectedType = ref('')
+
+// Filter options
+const typeOptions = [
+  { label: 'Real Estate', value: 'real_estate' },
+  { label: 'Precious Metals', value: 'precious_metals' },
+  { label: 'Other', value: 'other' }
+]
+
+// Computed
+const investmentAssets = computed(() => investmentAssetsStore.investmentAssets)
+const portfolioValue = computed(() => ({
+  totalCurrentValue: investmentAssetsStore.totalPortfolioValue,
+  totalPurchaseValue: investmentAssetsStore.totalPurchaseValue,
+  totalROI: investmentAssetsStore.totalROI,
+  totalROIPercentage: investmentAssetsStore.totalROIPercentage
+}))
+
+const filteredInvestments = computed(() => {
+  let filtered = investmentAssets.value || []
+  
+  if (selectedType.value) {
+    filtered = filtered.filter(inv => inv.investment_type === selectedType.value)
+  }
+  
+  if (searchTerm.value) {
+    const term = searchTerm.value.toLowerCase()
+    filtered = filtered.filter(inv => 
+      inv.name.toLowerCase().includes(term) ||
+      inv.description?.toLowerCase().includes(term)
+    )
+  }
+  
+  return filtered
+})
+
+// Methods
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'EGP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Math.abs(amount))
+}
+
+const formatPercentage = (percentage) => {
+  if (percentage === null || percentage === undefined) return '0%'
+  return `${percentage.toFixed(2)}%`
+}
+
+const formatInvestmentType = (type) => {
+  if (!type) return 'Unknown'
+  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+const formatStatus = (status) => {
+  if (!status) return 'Unknown'
+  return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+}
+
+const getStatusSeverity = (status) => {
+  switch (status) {
+    case 'owned':
+    case 'finished_installments':
+      return 'success'
+    case 'paying':
+    case 'delivered':
+      return 'info'
+    case 'planned':
+      return 'warning'
+    default:
+      return 'secondary'
+  }
+}
+
+const formatROI = (investment) => {
+  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
+  const currentValue = parseFloat(investment.current_value) || 0
+  
+  if (purchaseAmount === 0) return 'N/A'
+  
+  const roi = currentValue - purchaseAmount
+  return formatCurrency(roi)
+}
+
+const formatROIPercentage = (investment) => {
+  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
+  const currentValue = parseFloat(investment.current_value) || 0
+  
+  if (purchaseAmount === 0) return 'N/A'
+  
+  const roi = currentValue - purchaseAmount
+  const roiPercentage = (roi / purchaseAmount) * 100
+  return `${roiPercentage.toFixed(2)}%`
+}
+
+const getROIColor = (investment) => {
+  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
+  const currentValue = parseFloat(investment.current_value) || 0
+  
+  if (purchaseAmount === 0) return ''
+  
+  const roi = currentValue - purchaseAmount
+  return roi >= 0 ? 'text-green-600' : 'text-red-600'
+}
+
+const viewInvestment = (investmentId) => {
+  router.push(`/investments/${investmentId}`)
+}
+
+const deleteInvestment = async (investment) => {
+  confirm.require({
+    message: `Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`,
+    header: 'Confirm Deletion',
+    icon: 'pi pi-exclamation-triangle',
+    accept: async () => {
+      try {
+        const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
+        if (success) {
+          console.log('Investment deleted successfully')
+          toast.add({ severity: 'success', summary: 'Investment Deleted', detail: `Investment "${investment.name}" deleted.` })
+        } else {
+          toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+        }
+      } catch (error) {
+        console.error('Error deleting investment:', error)
+        toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+      }
+    },
+    reject: () => {
+      // User cancelled the deletion
+    }
+  })
+}
+
+// Load data
+const loadData = async () => {
+  loading.value = true
+  try {
+    await investmentAssetsStore.fetchInvestmentAssets()
+  } catch (error) {
+    console.error('Error loading investment data:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    loadData()
+  }
+})
+</script>
+
 <template>
   <div class="min-h-screen">
     <!-- Header -->
@@ -254,177 +427,4 @@
     </Card>
     
   </div>
-</template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { useInvestmentAssetsStore } from '@/stores/investmentAssets'
-import { useToast } from 'primevue/usetoast'
-import { useConfirm } from 'primevue/useconfirm'
-
-const router = useRouter()
-const authStore = useAuthStore()
-const investmentAssetsStore = useInvestmentAssetsStore()
-const toast = useToast()
-const confirm = useConfirm()
-
-// State
-const loading = ref(false)
-const searchTerm = ref('')
-const selectedType = ref('')
-
-// Filter options
-const typeOptions = [
-  { label: 'Real Estate', value: 'real_estate' },
-  { label: 'Precious Metals', value: 'precious_metals' },
-  { label: 'Other', value: 'other' }
-]
-
-// Computed
-const investmentAssets = computed(() => investmentAssetsStore.investmentAssets)
-const portfolioValue = computed(() => ({
-  totalCurrentValue: investmentAssetsStore.totalPortfolioValue,
-  totalPurchaseValue: investmentAssetsStore.totalPurchaseValue,
-  totalROI: investmentAssetsStore.totalROI,
-  totalROIPercentage: investmentAssetsStore.totalROIPercentage
-}))
-
-const filteredInvestments = computed(() => {
-  let filtered = investmentAssets.value || []
-  
-  if (selectedType.value) {
-    filtered = filtered.filter(inv => inv.investment_type === selectedType.value)
-  }
-  
-  if (searchTerm.value) {
-    const term = searchTerm.value.toLowerCase()
-    filtered = filtered.filter(inv => 
-      inv.name.toLowerCase().includes(term) ||
-      inv.description?.toLowerCase().includes(term)
-    )
-  }
-  
-  return filtered
-})
-
-// Methods
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(amount))
-}
-
-const formatPercentage = (percentage) => {
-  if (percentage === null || percentage === undefined) return '0%'
-  return `${percentage.toFixed(2)}%`
-}
-
-const formatInvestmentType = (type) => {
-  if (!type) return 'Unknown'
-  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
-}
-
-const formatStatus = (status) => {
-  if (!status) return 'Unknown'
-  return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
-}
-
-const getStatusSeverity = (status) => {
-  switch (status) {
-    case 'owned':
-    case 'finished_installments':
-      return 'success'
-    case 'paying':
-    case 'delivered':
-      return 'info'
-    case 'planned':
-      return 'warning'
-    default:
-      return 'secondary'
-  }
-}
-
-const formatROI = (investment) => {
-  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
-  const currentValue = parseFloat(investment.current_value) || 0
-  
-  if (purchaseAmount === 0) return 'N/A'
-  
-  const roi = currentValue - purchaseAmount
-  return formatCurrency(roi)
-}
-
-const formatROIPercentage = (investment) => {
-  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
-  const currentValue = parseFloat(investment.current_value) || 0
-  
-  if (purchaseAmount === 0) return 'N/A'
-  
-  const roi = currentValue - purchaseAmount
-  const roiPercentage = (roi / purchaseAmount) * 100
-  return `${roiPercentage.toFixed(2)}%`
-}
-
-const getROIColor = (investment) => {
-  const purchaseAmount = parseFloat(investment.purchase_amount) || 0
-  const currentValue = parseFloat(investment.current_value) || 0
-  
-  if (purchaseAmount === 0) return ''
-  
-  const roi = currentValue - purchaseAmount
-  return roi >= 0 ? 'text-green-600' : 'text-red-600'
-}
-
-const viewInvestment = (investmentId) => {
-  router.push(`/investments/${investmentId}`)
-}
-
-const deleteInvestment = async (investment) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: async () => {
-      try {
-        const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
-        if (success) {
-          console.log('Investment deleted successfully')
-          toast.add({ severity: 'success', summary: 'Investment Deleted', detail: `Investment "${investment.name}" deleted.` })
-        } else {
-          toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
-        }
-      } catch (error) {
-        console.error('Error deleting investment:', error)
-        toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
-      }
-    },
-    reject: () => {
-      // User cancelled the deletion
-    }
-  })
-}
-
-// Load data
-const loadData = async () => {
-  loading.value = true
-  try {
-    await investmentAssetsStore.fetchInvestmentAssets()
-  } catch (error) {
-    console.error('Error loading investment data:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    loadData()
-  }
-})
-</script> 
+</template> 

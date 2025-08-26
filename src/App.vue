@@ -1,3 +1,15 @@
+<script setup>
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth.js'
+import AppLayout from '@/layout/AppLayout.vue'
+
+const authStore = useAuthStore()
+
+onMounted(() => {
+  authStore.initAuth()
+})
+</script>
+
 <template>
   <div v-if="authStore.loading" class="flex h-screen items-center justify-center">
     <div class="text-center">
@@ -19,15 +31,3 @@
   <!-- Delete Confirmation Dialog -->
   <ConfirmDialog :draggable="false"/>
 </template>
-
-<script setup>
-import { onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth.js'
-import AppLayout from '@/layout/AppLayout.vue'
-
-const authStore = useAuthStore()
-
-onMounted(() => {
-  authStore.initAuth()
-})
-</script>

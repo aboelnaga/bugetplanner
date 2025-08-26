@@ -1,104 +1,3 @@
-<template>
-  <BaseModal :modelValue="isOpen" @update:modelValue="$emit('close')" title="Edit Account">
-    <form @submit.prevent="handleSubmit" class="space-y-6">
-      <!-- Account Name -->
-      <div>
-        <label for="name" class="block text-sm font-medium mb-2">
-          Account Name
-        </label>
-        <InputText
-          id="name"
-          v-model="formData.name"
-          required
-          placeholder="Enter account name"
-          class="w-full" />
-      </div>
-
-      <!-- Account Type -->
-      <div>
-        <label for="type" class="block text-sm font-medium mb-2">
-          Account Type
-        </label>
-        <Select
-          id="type"
-          v-model="formData.type"
-          :options="accountTypeOptions"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select account type"
-          required
-          class="w-full" />
-      </div>
-
-      <!-- Credit Limit (only for credit cards) -->
-      <div v-if="formData.type === 'credit_card'">
-        <label for="credit_limit" class="block text-sm font-medium mb-2">
-          Credit Limit
-        </label>
-        <CurrencyInput
-          id="credit_limit"
-          v-model="formData.credit_limit"
-          :options="currencyOptions"
-          inputmode="decimal"
-          required
-          placeholder="Enter credit limit"
-          class="w-full" />
-      </div>
-
-      <!-- Current Balance (read-only for reference) -->
-      <div>
-        <label class="block text-sm font-medium mb-2">
-          Current Balance
-        </label>
-        <div class="w-full px-3 py-2 bg-surface-50 border border-surface-300 rounded-md text-surface-700">
-          {{ formatCurrency(account.balance) }}
-        </div>
-        <p class="text-sm text-surface-500 mt-1">
-          Balance is calculated from transactions and cannot be edited directly
-        </p>
-      </div>
-
-      <!-- Is Default Account -->
-      <div class="flex items-center">
-        <Checkbox
-          id="is_default"
-          v-model="formData.is_default"
-          :binary="true" />
-        <label for="is_default" class="ml-2 block text-sm">
-          Set as default account
-        </label>
-      </div>
-
-      <!-- Error Message -->
-      <Message v-if="error" severity="error" :closable="false">
-        <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
-        </template>
-        <template #message>
-          {{ error }}
-        </template>
-      </Message>
-
-      <!-- Action Buttons -->
-      <div class="flex justify-end gap-3 pt-4">
-        <Button
-          type="button"
-          @click="$emit('close')"
-          label="Cancel"
-          outlined
-          severity="secondary" />
-        <Button
-          type="submit"
-          :disabled="loading"
-          :loading="loading"
-          icon="pi pi-check"
-          :label="loading ? 'Updating...' : 'Update Account'"
-          severity="primary" />
-      </div>
-    </form>
-  </BaseModal>
-</template>
-
 <script setup>
 import { ref, watch, computed } from 'vue'
 import CurrencyInput from './CurrencyInput.vue'
@@ -216,4 +115,105 @@ const formatCurrency = (amount) => {
     currency: 'USD'
   }).format(amount)
 }
-</script> 
+</script>
+
+<template>
+  <BaseModal :modelValue="isOpen" @update:modelValue="$emit('close')" title="Edit Account">
+    <form @submit.prevent="handleSubmit" class="space-y-6">
+      <!-- Account Name -->
+      <div>
+        <label for="name" class="block text-sm font-medium mb-2">
+          Account Name
+        </label>
+        <InputText
+          id="name"
+          v-model="formData.name"
+          required
+          placeholder="Enter account name"
+          class="w-full" />
+      </div>
+
+      <!-- Account Type -->
+      <div>
+        <label for="type" class="block text-sm font-medium mb-2">
+          Account Type
+        </label>
+        <Select
+          id="type"
+          v-model="formData.type"
+          :options="accountTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select account type"
+          required
+          class="w-full" />
+      </div>
+
+      <!-- Credit Limit (only for credit cards) -->
+      <div v-if="formData.type === 'credit_card'">
+        <label for="credit_limit" class="block text-sm font-medium mb-2">
+          Credit Limit
+        </label>
+        <CurrencyInput
+          id="credit_limit"
+          v-model="formData.credit_limit"
+          :options="currencyOptions"
+          inputmode="decimal"
+          required
+          placeholder="Enter credit limit"
+          class="w-full" />
+      </div>
+
+      <!-- Current Balance (read-only for reference) -->
+      <div>
+        <label class="block text-sm font-medium mb-2">
+          Current Balance
+        </label>
+        <div class="w-full px-3 py-2 bg-surface-50 border border-surface-300 rounded-md text-surface-700">
+          {{ formatCurrency(account.balance) }}
+        </div>
+        <p class="text-sm text-surface-500 mt-1">
+          Balance is calculated from transactions and cannot be edited directly
+        </p>
+      </div>
+
+      <!-- Is Default Account -->
+      <div class="flex items-center">
+        <Checkbox
+          id="is_default"
+          v-model="formData.is_default"
+          :binary="true" />
+        <label for="is_default" class="ml-2 block text-sm">
+          Set as default account
+        </label>
+      </div>
+
+      <!-- Error Message -->
+      <Message v-if="error" severity="error" :closable="false">
+        <template #messageicon>
+          <i class="pi pi-exclamation-triangle"></i>
+        </template>
+        <template #message>
+          {{ error }}
+        </template>
+      </Message>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-end gap-3 pt-4">
+        <Button
+          type="button"
+          @click="$emit('close')"
+          label="Cancel"
+          outlined
+          severity="secondary" />
+        <Button
+          type="submit"
+          :disabled="loading"
+          :loading="loading"
+          icon="pi pi-check"
+          :label="loading ? 'Updating...' : 'Update Account'"
+          severity="primary" />
+      </div>
+    </form>
+  </BaseModal>
+</template> 
