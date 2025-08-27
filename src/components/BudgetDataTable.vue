@@ -2,6 +2,8 @@
 import { useBudgetDataTable } from '@/composables/useBudgetDataTable.js'
 import { MONTHS } from '@/constants/budgetConstants.js'
 import Button from 'primevue/button'
+import IconField from 'primevue/iconfield'
+import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
@@ -64,6 +66,46 @@ const props = defineProps({
   calculateGrandTotal: {
     type: Function,
     required: true
+  },
+
+  // Previous year calculation functions
+  calculatePreviousYearIncomeTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearExpensesTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentIncomingTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentOutgoingTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearNetTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentNetTotal: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearSavings: {
+    type: Function,
+    default: null
+  },
+
+  // Month closure functionality
+  closedMonths: {
+    type: Array,
+    default: () => []
+  },
+  getActualAmount: {
+    type: Function,
+    default: null
   }
 })
 
@@ -200,16 +242,17 @@ const getSmartDefaultTooltip = (budget, month) => {
   return `Planned: ${props.formatCurrency(plannedAmount)}<br>Actual: ${props.formatCurrency(actualAmount)}`
 }
 
-// Previous year functions (placeholder for now)
+// Previous year functions - now connected to backend
 const getPreviousYearAmount = (budget) => {
-  // This will need to be implemented with actual previous year data
-  const total = 0 // This will be replaced with actual previous year data
+  // For now, return 0 as this needs budget-specific previous year data
+  // This will be enhanced when we have individual budget item previous year data
+  const total = 0
   const summaryItem = { type: 'income', amount: total }
   return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
 const getPreviousYearTooltip = (budget) => {
-  return 'Previous year data not yet implemented'
+  return 'Previous year data available in summary totals below'
 }
 
 // Month header content with close month functionality
@@ -267,26 +310,32 @@ const getYearlyNetTotal = () => {
   return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
 
-// Previous year footer totals
+// Previous year footer totals - now connected to backend
 const getPreviousYearIncomeTotal = () => {
-  // Placeholder for now - will need to implement with actual previous year data
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'income', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearIncomeTotal) {
+    const total = props.calculatePreviousYearIncomeTotal()
+    const summaryItem = { type: 'income', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 const getPreviousYearExpensesTotal = () => {
-  // Placeholder for now - will need to implement with actual previous year data
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'expense', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearExpensesTotal) {
+    const total = props.calculatePreviousYearExpensesTotal()
+    const summaryItem = { type: 'expense', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 const getPreviousYearNetTotal = () => {
-  // Placeholder for now - will need to implement with actual previous year data
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'net', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearNetTotal) {
+    const total = props.calculatePreviousYearNetTotal()
+    const summaryItem = { type: 'net', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 // Investment Returns (Investment Incoming)
@@ -314,10 +363,12 @@ const getYearlyInvestmentIncomingTotal = () => {
 }
 
 const getPreviousYearInvestmentIncomingTotal = () => {
-  // TODO: Implement previous year investment incoming total
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'income', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearInvestmentIncomingTotal) {
+    const total = props.calculatePreviousYearInvestmentIncomingTotal()
+    const summaryItem = { type: 'income', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 // Investment Purchases (Investment Outgoing)
@@ -345,10 +396,12 @@ const getYearlyInvestmentOutgoingTotal = () => {
 }
 
 const getPreviousYearInvestmentOutgoingTotal = () => {
-  // TODO: Implement previous year investment outgoing total
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'expense', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearInvestmentOutgoingTotal) {
+    const total = props.calculatePreviousYearInvestmentOutgoingTotal()
+    const summaryItem = { type: 'expense', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 // Cumulative Savings
@@ -390,10 +443,12 @@ const getYearlySavingsTotal = () => {
 }
 
 const getPreviousYearSavingsTotal = () => {
-  // TODO: Implement previous year savings total
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'net', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearSavings) {
+    const total = props.calculatePreviousYearSavings()
+    const summaryItem = { type: 'net', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 // Net Investment
@@ -428,10 +483,12 @@ const getYearlyInvestmentNetTotal = () => {
 }
 
 const getPreviousYearInvestmentNetTotal = () => {
-  // TODO: Implement previous year investment net total
-  const total = 0 // This will be replaced with actual previous year data
-  const summaryItem = { type: 'net', amount: total }
-  return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  if (props.calculatePreviousYearInvestmentNetTotal) {
+    const total = props.calculatePreviousYearInvestmentNetTotal()
+    const summaryItem = { type: 'net', amount: total }
+    return formatAmountWithSign(total, summaryItem, props.formatCurrency)
+  }
+  return '—'
 }
 
 // Row border color function based on budget item type
