@@ -140,7 +140,7 @@ const getVirtualItemLabel = (budget) => {
 const getMonthColumnClass = (month) => {
   const monthIndex = months.indexOf(month)
   if (props.selectedYear === props.currentYear && monthIndex === props.currentMonth) {
-    return 'bg-primary-50 dark:bg-primary-900'
+    return '!bg-primary-50 dark:!bg-primary-900'
   }
   return ''
 }
@@ -483,10 +483,11 @@ const getFooterCellClasses = (amount, itemType) => {
           <Column header="Actions" :rowspan="3" frozen alignFrozen="right" />
         </Row>
         <Row>
-          <Column v-for="month in months" :key="month" :header="month" />
+          <Column v-for="month in months" :key="month" :header="month" :class="getMonthColumnClass(month)" />
         </Row>
         <Row>
-          <Column v-for="month in months" :key="month" :header="getMonthHeaderContent(month)" />
+          <Column v-for="month in months" :key="month" :header="getMonthHeaderContent(month)"
+            :class="getMonthColumnClass(month)" />
         </Row>
       </ColumnGroup>
 
@@ -614,7 +615,8 @@ const getFooterCellClasses = (amount, itemType) => {
               </template>
             </Column>
             <Column v-for="month in months" :key="month"
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
+              :class="getMonthColumnClass(month)">
               <template #footer>
                 <div :class="getFooterCellClasses(getMonthlyIncomeTotal(month), 'income')">
                   {{ getMonthlyIncomeTotal(month) }}
@@ -647,7 +649,8 @@ const getFooterCellClasses = (amount, itemType) => {
                 </div>
               </template>
             </Column>
-            <Column v-for="month in months" :key="month" :footerStyle="childRowStyle">
+            <Column v-for="month in months" :key="month" :footerStyle="childRowStyle"
+              :class="getMonthColumnClass(month)">
               <template #footer>
                 <div :class="getFooterCellClasses(getMonthlyExpensesTotal(month), 'expense')">
                   {{ getMonthlyExpensesTotal(month) }}
@@ -679,7 +682,8 @@ const getFooterCellClasses = (amount, itemType) => {
                   </div>
                 </template>
               </Column>
-              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle">
+              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle"
+                :class="getMonthColumnClass(month)">
                 <template #footer>
                   <div :class="getFooterCellClasses(getMonthlyInvestmentIncomingTotal(month), 'income')">
                     {{ getMonthlyInvestmentIncomingTotal(month) }}
@@ -710,7 +714,8 @@ const getFooterCellClasses = (amount, itemType) => {
                   </div>
                 </template>
               </Column>
-              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle">
+              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle"
+                :class="getMonthColumnClass(month)">
                 <template #footer>
                   <div :class="getFooterCellClasses(getMonthlyInvestmentOutgoingTotal(month), 'expense')">
                     {{ getMonthlyInvestmentOutgoingTotal(month) }}
@@ -749,7 +754,8 @@ const getFooterCellClasses = (amount, itemType) => {
               </template>
             </Column>
             <Column v-for="month in months" :key="month"
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
+              :class="getMonthColumnClass(month)">
               <template #footer>
                 <div :class="getFooterCellClasses(getMonthlyInvestmentNetTotal(month), 'net')">
                   {{ getMonthlyInvestmentNetTotal(month) }}
@@ -788,7 +794,8 @@ const getFooterCellClasses = (amount, itemType) => {
               </div>
             </template>
           </Column>
-          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle">
+          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle"
+            :class="getMonthColumnClass(month)">
             <template #footer>
               <div :class="getFooterCellClasses(getMonthlyNetTotal(month), 'net')">
                 {{ getMonthlyNetTotal(month) }}
@@ -814,7 +821,8 @@ const getFooterCellClasses = (amount, itemType) => {
               </div>
             </template>
           </Column>
-          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle">
+          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle"
+            :class="getMonthColumnClass(month)">
             <template #footer>
               <div :class="getFooterCellClasses(getMonthlySavingsTotal(month), 'net')">
                 {{ getMonthlySavingsTotal(month) }}
