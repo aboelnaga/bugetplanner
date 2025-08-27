@@ -211,8 +211,8 @@ const {
 // Year management
 const previousYearHasData = ref(false)
 
-// Smart defaults display mode
-const smartDefaultsMode = ref('both')
+// Dual mode display
+const dualMode = ref('both')
 
 const canCopyFromPreviousYear = computed(() => {
   const previousYear = selectedYear.value - 1
@@ -522,7 +522,7 @@ watch(selectedYear, async (newYear) => {
           :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
           :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
           :calculate-previous-year-savings="calculatePreviousYearSavings" :closed-months="closedMonths"
-          :get-actual-amount="getActualAmount" :smart-defaults-mode="smartDefaultsMode"
+          :get-actual-amount="getActualAmount" :dual-mode="dualMode"
           :calculate-monthly-actual-income="calculateMonthlyActualIncome"
           :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
           :calculate-monthly-actual-total="calculateMonthlyActualTotal"
@@ -530,8 +530,7 @@ watch(selectedYear, async (newYear) => {
           :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
           :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
           @edit-budget="editBudgetUnified" @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget"
-          @view-transactions="handleViewTransactions"
-          @update:smart-defaults-mode="(mode) => smartDefaultsMode = mode" />
+          @view-transactions="handleViewTransactions" @update:dual-mode="(mode) => dualMode = mode" />
       </div>
 
       <!-- Budget Table -->
