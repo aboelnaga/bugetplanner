@@ -1,7 +1,7 @@
 // Budget utilities
 // Formatting functions, validation helpers, date utilities
 
-import { BUDGET_TYPE_ICONS, BUDGET_TYPES, SUMMARY_VALUE_STYLES, BUDGET_TYPE_STYLES, TABLE_CELL_STYLES } from '@/constants/budgetConstants.js'
+import { BUDGET_TYPE_ICONS, BUDGET_TYPE_STYLES, SUMMARY_VALUE_STYLES, TABLE_CELL_STYLES } from '@/constants/budgetConstants.js';
 
 // Currency formatting
 export const formatCurrency = (amount) => {
@@ -11,13 +11,13 @@ export const formatCurrency = (amount) => {
     currencyDisplay: 'symbol',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(Math.abs(amount || 0)).replace("EGP", "LE");
+  }).format(Math.abs(amount || 0)).replace("EGP", "");
 }
 
 // Compact currency formatting for better display in small spaces
 export const formatCompactCurrency = (amount) => {
   const num = Math.abs(amount || 0)
-  
+
   // Use Intl.NumberFormat with compact notation to avoid rounding issues
   const formatter = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
@@ -25,7 +25,7 @@ export const formatCompactCurrency = (amount) => {
     notation: 'compact',
     compactDisplay: 'short'
   })
-  
+
   return `EGP ${formatter.format(num)}`
 }
 
@@ -72,14 +72,14 @@ export const summaryUtils = {
   getSummaryCellClasses: (value, selectedYear, currentYear, currentMonth, monthIndex, summaryRowStyling = null) => {
     const baseClasses = 'px-2 py-3 text-center'
     const isCurrentMonth = selectedYear === currentYear && monthIndex === currentMonth
-    
+
     let classes = baseClasses
-    
+
     // Apply current month styling first (highest priority)
     if (isCurrentMonth) {
       classes += ` ${SUMMARY_VALUE_STYLES.CURRENT_MONTH.bgColor}`
     }
-    
+
     // Use summary row styling if provided (for expense/investment purchase rows)
     if (summaryRowStyling) {
       classes += ` ${summaryRowStyling.textColor}`
@@ -96,22 +96,22 @@ export const summaryUtils = {
         classes += ` ${valueStyles.bgColor}`
       }
     }
-    
+
     return classes
   },
 
   // Get summary total cell classes
   getSummaryTotalClasses: (value, isGrandTotal = false) => {
-    const baseClasses = isGrandTotal 
+    const baseClasses = isGrandTotal
       ? 'px-4 py-4 text-right text-lg font-bold border-l-2 border-gray-200'
       : 'px-4 py-3 text-right text-sm font-bold'
-    
+
     const valueStyles = summaryUtils.getValueStyles(value)
-    
+
     if (isGrandTotal) {
       return `${baseClasses} ${valueStyles.textColor} ${valueStyles.bgColor}`
     }
-    
+
     return `${baseClasses} ${valueStyles.textColor}`
   },
 
@@ -138,11 +138,11 @@ export const validationHelpers = {
   allowOnlyNumbers: (event) => {
     const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
     const allowedChars = /[0-9]/
-    
+
     if (allowedKeys.includes(event.key) || allowedChars.test(event.key)) {
       return true
     }
-    
+
     event.preventDefault()
     return false
   },
@@ -193,10 +193,10 @@ export const dateUtils = {
 // Format date for display
 export const formatDate = (dateString) => {
   if (!dateString) return ''
-  
+
   const date = new Date(dateString)
   if (isNaN(date.getTime())) return ''
-  
+
   return new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
@@ -210,7 +210,7 @@ export const inputUtils = {
   handleAmountInput: (event, formData) => {
     const input = event.target.value
     const rawValue = input.replace(/,/g, '')
-    
+
     // Only allow numbers
     if (validationHelpers.validateAmountInput(rawValue)) {
       const numericValue = parseFloat(rawValue) || 0
@@ -224,26 +224,26 @@ export const emptyStateUtils = {
   // Generate empty state message based on filters
   generateFilteredResultsMessage: (selectedTypeFilter, selectedCategoryFilter, selectedYear) => {
     const parts = []
-    
+
     if (selectedTypeFilter !== 'all') {
-      const typeLabel = selectedTypeFilter === 'income' ? 'income' : 
+      const typeLabel = selectedTypeFilter === 'income' ? 'income' :
         selectedTypeFilter === 'expense' ? 'expense' : 'investment'
       parts.push(`No ${typeLabel} items`)
     }
-    
+
     if (selectedCategoryFilter !== 'all') {
       if (selectedTypeFilter !== 'all') {
         parts.push('in')
       }
       parts.push(`in the "${selectedCategoryFilter}" category`)
     }
-    
+
     if (selectedTypeFilter === 'all' && selectedCategoryFilter === 'all') {
       parts.push('No budget items')
     }
-    
+
     parts.push(`for ${selectedYear}`)
-    
+
     return parts.join(' ')
   },
 
@@ -263,11 +263,11 @@ export const tableUtils = {
   getMonthHeaderClasses: (selectedYear, currentYear, currentMonth, monthIndex) => {
     const baseClasses = 'px-4 py-3 text-center text-xs font-medium uppercase tracking-wider min-w-32 bg-gray-50'
     const isCurrentMonth = selectedYear === currentYear && monthIndex === currentMonth
-    
+
     if (isCurrentMonth) {
       return `${baseClasses} bg-blue-200 text-blue-900 font-bold`
     }
-    
+
     return `${baseClasses} text-gray-500`
   },
 
@@ -288,8 +288,8 @@ export const tableUtils = {
     } else if (budget.type === 'expense') {
       return BUDGET_TYPE_STYLES.EXPENSE
     } else if (budget.type === 'investment') {
-      return budget.investment_direction === 'incoming' 
-        ? BUDGET_TYPE_STYLES.INVESTMENT_INCOMING 
+      return budget.investment_direction === 'incoming'
+        ? BUDGET_TYPE_STYLES.INVESTMENT_INCOMING
         : BUDGET_TYPE_STYLES.INVESTMENT_OUTGOING
     }
     return BUDGET_TYPE_STYLES.EXPENSE // fallback
@@ -310,10 +310,10 @@ export const tableUtils = {
     const baseClasses = 'w-full text-center py-2 px-2 rounded text-sm min-h-[2rem] flex items-center justify-center'
     const typeStyling = tableUtils.getBudgetTypeStyling(budget)
     const amount = getBudgetAmount(budget, monthIndex)
-    
+
     let bgClasses = ''
     let textClasses = ''
-    
+
     // Background classes
     if (selectedYear === currentYear && monthIndex < currentMonth) {
       bgClasses = TABLE_CELL_STYLES.PAST_MONTH.bgColor
@@ -325,14 +325,14 @@ export const tableUtils = {
     } else {
       bgClasses = TABLE_CELL_STYLES.DEFAULT.bgColor
     }
-    
+
     // Text classes
     if (amount > 0) {
       textClasses = `font-semibold ${typeStyling.amountTextColor}`
     } else {
       textClasses = 'text-gray-400'
     }
-    
+
     return `${baseClasses} ${bgClasses} ${textClasses}`
   },
 
@@ -341,7 +341,7 @@ export const tableUtils = {
     const baseClasses = 'px-4 py-4 text-right font-semibold'
     const typeStyling = tableUtils.getBudgetTypeStyling(budget)
     const total = calculateYearlyTotal(budget)
-    
+
     if (total > 0) {
       return `${baseClasses} ${typeStyling.amountTextColor}`
     } else {
@@ -352,7 +352,7 @@ export const tableUtils = {
   // Format amount with sign based on budget type
   formatAmountWithSign: (amount, budget, formatCurrency) => {
     if (amount === 0) return '—'
-    
+
     const isExpense = budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')
     const sign = isExpense ? '-' : '+'
     return `${sign}${formatCurrency(amount)}`
@@ -364,7 +364,7 @@ export const tableUtils = {
     if (budget.type === 'investment') return 'Invest'
     return 'Expense'
   }
-} 
+}
 
 // Schedule generation utilities
 export const scheduleUtils = {
@@ -372,7 +372,7 @@ export const scheduleUtils = {
   generateSchedule: (frequency, startMonth, endMonth, startYear, endYear, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null, defaultAmount = 0) => {
     let schedule = []
     let amounts = new Array(12).fill(0)
-    
+
     switch (frequency) {
       case 'repeats':
         // Calculate based on interval from start month
@@ -411,7 +411,7 @@ export const scheduleUtils = {
   // Get schedule preview class
   getSchedulePreviewClass: (monthIndex, frequency, startMonth, endMonth, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null) => {
     const { schedule } = scheduleUtils.generateSchedule(frequency, startMonth, endMonth, null, null, recurrenceInterval, customMonths, oneTimeMonth, oneTimeYear)
-    
+
     if (schedule.includes(monthIndex)) {
       return 'bg-blue-100 text-blue-800 border border-blue-200'
     } else {
@@ -430,7 +430,7 @@ export const scheduleUtils = {
     // Map old recurrence to new frequency
     let frequency = 'repeats'
     let recurrenceInterval = 1
-    
+
     switch (recurrence) {
       case 'monthly':
         frequency = 'repeats'
@@ -455,7 +455,7 @@ export const scheduleUtils = {
         frequency = 'custom'
         break
     }
-    
+
     return scheduleUtils.generateSchedule(frequency, startMonth, 11, null, null, recurrenceInterval, customMonths, oneTimeMonth, null, defaultAmount)
   }
 }
@@ -465,12 +465,12 @@ export const historyUtils = {
   // Format timestamp for better readability
   formatTimestamp: (timestamp) => {
     if (!timestamp) return ''
-    
+
     try {
       const date = new Date(timestamp)
       const now = new Date()
       const diffInHours = Math.floor((now - date) / (1000 * 60 * 60))
-      
+
       if (diffInHours < 1) {
         return 'Just now'
       } else if (diffInHours < 24) {
@@ -494,7 +494,7 @@ export const historyUtils = {
   // Format full date for detailed view
   formatFullDate: (timestamp) => {
     if (!timestamp) return ''
-    
+
     try {
       const date = new Date(timestamp)
       return date.toLocaleDateString('en-US', {
@@ -514,4 +514,4 @@ export const historyUtils = {
   formatHistoryValue: (value) => {
     return formatCurrency(value)
   }
-} 
+}

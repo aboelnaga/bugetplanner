@@ -41,6 +41,7 @@ declare module 'vue' {
     DatePicker: typeof import('primevue/datepicker')['default']
     Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
+    Dropdown: typeof import('primevue/dropdown')['default']
     EditAccountModal: typeof import('./src/components/EditAccountModal.vue')['default']
     ExpenseBreakdownChart: typeof import('./src/components/ExpenseBreakdownChart.vue')['default']
     HistoryModal: typeof import('./src/components/HistoryModal.vue')['default']

@@ -2,6 +2,7 @@
 import { useBudgetDataTable } from '@/composables/useBudgetDataTable.js'
 import { MONTHS } from '@/constants/budgetConstants.js'
 import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
 
@@ -85,17 +86,22 @@ const { flattenedBudgetData } = useBudgetDataTable(
 // Footer expansion state
 const showDetailedBreakdown = ref(false)
 
+// PrimeVue DataTable filtering
+const filters = ref({
+  global: { value: null, matchMode: 'contains' }
+})
+
 // Footer row styling variables
 const parentRowStyle = computed(() =>
   'font-weight: bold; font-size: 1rem;'
 )
 
 const childRowStyle = computed(() =>
-  'font-weight: 500; background-color: var(--surface-ground); border-top: 1px solid var(--surface-border);'
+  'font-weight: 500; background-color: var(--surface-ground);'
 )
 
 const grandchildRowStyle = computed(() =>
-  'font-weight: 500; font-size: 0.875rem; border-top: 1px solid var(--surface-border);'
+  'font-weight: 500; font-size: 0.875rem;'
 )
 const showDetailedInvestmentBreakdown = ref(false)
 
@@ -471,8 +477,19 @@ const getFooterCellClasses = (amount, itemType) => {
     </div>
 
     <!-- DataTable with Column Groups -->
-    <DataTable :value="flattenedBudgetData" :loading="loading" tableStyle="" scrollable scrollHeight="70vh"
-      class="budget-datatable" showGridlines>
+    <DataTable :value="flattenedBudgetData" :loading="loading" :filters="filters" filterDisplay="menu"
+      :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle="" scrollable
+      scrollHeight="70vh" class="budget-datatable" showGridlines>
+      <template #header>
+        <div class="flex justify-end">
+          <IconField>
+            <InputIcon class="pi pi-search" />
+            <InputText v-model="filters['global'].value" placeholder="Search budget items..." class="w-80" />
+          </IconField>
+        </div>
+      </template>
+      <template #empty> No budget items found. </template>
+      <template #loading> Loading budget data. Please wait. </template>
       <!-- Column Groups Header -->
       <ColumnGroup type="header">
         <Row>
@@ -492,7 +509,11 @@ const getFooterCellClasses = (amount, itemType) => {
       </ColumnGroup>
 
       <!-- Budget Item Column -->
-      <Column field="name" frozen alignFrozen="left">
+      <Column field="name" frozen alignFrozen="left" :showFilterMenu="false" filter>
+        <template #filter="{ filterModel, filterCallback }">
+          <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter"
+            placeholder="Search by name..." />
+        </template>
         <template #body="slotProps">
           <div class="space-y-1">
             <!-- Budget Name -->
@@ -505,7 +526,7 @@ const getFooterCellClasses = (amount, itemType) => {
               {{ slotProps.data.category }}
             </div>
 
-            <!-- Secondary Info: Type and Special Indicators -->
+            <!-- Secondary Info: Special Indicators -->
             <div class="flex items-center space-x-4 text-xs">
               <!-- Type Badge -->
               <Tag :icon="getTypeIcon(slotProps.data)" :severity="getTypeSeverity(slotProps.data)"
@@ -601,21 +622,19 @@ const getFooterCellClasses = (amount, itemType) => {
         <template v-if="showDetailedBreakdown">
           <!-- Income Breakdown -->
           <Row>
-            <Column frozen alignFrozen="left"
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
+            <Column frozen alignFrozen="left" :footerStyle="childRowStyle">
               <template #footer>
                 <div class="ml-6 text-muted-color">Income Total:</div>
               </template>
             </Column>
-            <Column :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
+            <Column :footerStyle="childRowStyle">
               <template #footer>
                 <div :class="getFooterCellClasses(getPreviousYearIncomeTotal(), 'income')">
                   {{ getPreviousYearIncomeTotal() }}
                 </div>
               </template>
             </Column>
-            <Column v-for="month in months" :key="month"
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
+            <Column v-for="month in months" :key="month" :footerStyle="childRowStyle"
               :class="getMonthColumnClass(month)">
               <template #footer>
                 <div :class="getFooterCellClasses(getMonthlyIncomeTotal(month), 'income')">
@@ -623,16 +642,14 @@ const getFooterCellClasses = (amount, itemType) => {
                 </div>
               </template>
             </Column>
-            <Column frozen alignFrozen="right"
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
+            <Column frozen alignFrozen="right" :footerStyle="childRowStyle">
               <template #footer>
                 <div :class="getFooterCellClasses(getYearlyIncomeTotal(), 'income')">
                   {{ getYearlyIncomeTotal() }}
                 </div>
               </template>
             </Column>
-            <Column footer="" frozen alignFrozen="right"
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'" />
+            <Column footer="" frozen alignFrozen="right" :footerStyle="childRowStyle" />
           </Row>
 
           <!-- Expenses Breakdown -->
@@ -735,7 +752,7 @@ const getFooterCellClasses = (amount, itemType) => {
           <!-- Net Investment -->
           <Row>
             <Column footer="" frozen alignFrozen="left"
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
+              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
                 <div class="ml-6 flex items-center space-x-2">
                   <Button @click="showDetailedInvestmentBreakdown = !showDetailedInvestmentBreakdown"
@@ -746,7 +763,7 @@ const getFooterCellClasses = (amount, itemType) => {
                 </div>
               </template>
             </Column>
-            <Column :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
+            <Column :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
                 <div :class="getFooterCellClasses(getPreviousYearInvestmentNetTotal(), 'net')">
                   {{ getPreviousYearInvestmentNetTotal() }}
@@ -754,7 +771,7 @@ const getFooterCellClasses = (amount, itemType) => {
               </template>
             </Column>
             <Column v-for="month in months" :key="month"
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
+              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
               :class="getMonthColumnClass(month)">
               <template #footer>
                 <div :class="getFooterCellClasses(getMonthlyInvestmentNetTotal(month), 'net')">
@@ -763,7 +780,7 @@ const getFooterCellClasses = (amount, itemType) => {
               </template>
             </Column>
             <Column frozen alignFrozen="right"
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
+              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
                 <div :class="getFooterCellClasses(getYearlyInvestmentNetTotal(), 'net')">
                   {{ getYearlyInvestmentNetTotal() }}
@@ -771,7 +788,7 @@ const getFooterCellClasses = (amount, itemType) => {
               </template>
             </Column>
             <Column footer="" frozen alignFrozen="right"
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'" />
+              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'" />
           </Row>
         </template>
         <!-- Core Summary Rows (Always Visible) -->
@@ -851,6 +868,7 @@ const getFooterCellClasses = (amount, itemType) => {
 
 :deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(1)) {
   inset-inline-end: -1px !important;
+  min-width: 122px;
 }
 
 :deep(.p-datatable-scrollable .p-datatable-frozen-column) {
@@ -863,5 +881,9 @@ const getFooterCellClasses = (amount, itemType) => {
 
 :deep(.p-datatable-scrollable-table > .p-datatable-thead) {
   z-index: 2;
+}
+
+:deep(.p-datatable-gridlines .p-datatable-tfoot > tr:first-child > td) {
+  border-top-color: var(--p-green-500);
 }
 </style>
