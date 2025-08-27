@@ -493,19 +493,23 @@ const getFooterCellClasses = (amount, itemType) => {
       <!-- Column Groups Header -->
       <ColumnGroup type="header">
         <Row>
-          <Column header="Budget Item" :rowspan="3" frozen alignFrozen="left" />
-          <Column :header="`PY ${selectedYear - 1}`" :rowspan="3" />
-          <Column header="Monthly Budget" :colspan="12" />
-          <Column header="Total" :rowspan="3" frozen alignFrozen="right" />
-          <Column header="Actions" :rowspan="3" frozen alignFrozen="right" />
+          <Column header="Budget Item" :rowspan="1" frozen alignFrozen="left" />
+          <Column :header="`PY ${selectedYear - 1}`" :rowspan="1" />
+          <Column v-for="month in months" :key="month" :class="getMonthColumnClass(month)">
+            <template #header>
+              <div class="text-center">
+                <div class="font-medium">{{ month }}</div>
+                <div v-if="getMonthHeaderContent(month)"
+                  class="text-xs text-primary-600 dark:text-primary-400 font-medium">
+                  {{ getMonthHeaderContent(month) }}
+                </div>
+              </div>
+            </template>
+          </Column>
+          <Column header="Total" :rowspan="1" frozen alignFrozen="right" />
+          <Column header="Actions" :rowspan="1" frozen alignFrozen="right" />
         </Row>
-        <Row>
-          <Column v-for="month in months" :key="month" :header="month" :class="getMonthColumnClass(month)" />
-        </Row>
-        <Row>
-          <Column v-for="month in months" :key="month" :header="getMonthHeaderContent(month)"
-            :class="getMonthColumnClass(month)" />
-        </Row>
+
       </ColumnGroup>
 
       <!-- Budget Item Column -->
@@ -885,5 +889,9 @@ const getFooterCellClasses = (amount, itemType) => {
 
 :deep(.p-datatable-gridlines .p-datatable-tfoot > tr:first-child > td) {
   border-top-color: var(--p-green-500);
+}
+
+:deep(.p-datatable-column-header-content) {
+  display: block;
 }
 </style>
