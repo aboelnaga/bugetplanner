@@ -1,9 +1,9 @@
 <script setup>
-import { computed, ref } from 'vue'
 import { useBudgetDataTable } from '@/composables/useBudgetDataTable.js'
 import { MONTHS } from '@/constants/budgetConstants.js'
-import Tag from 'primevue/tag'
 import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import { computed, ref } from 'vue'
 
 // Props
 const props = defineProps({
@@ -32,13 +32,13 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  
+
   // Functions
   formatCurrency: {
     type: Function,
     required: true
   },
-  
+
   // Calculation functions for footer totals
   calculateMonthlyIncome: {
     type: Function,
@@ -86,15 +86,15 @@ const { flattenedBudgetData } = useBudgetDataTable(
 const showDetailedBreakdown = ref(false)
 
 // Footer row styling variables
-const parentRowStyle = computed(() => 
+const parentRowStyle = computed(() =>
   'font-weight: bold; font-size: 1rem;'
 )
 
-const childRowStyle = computed(() => 
+const childRowStyle = computed(() =>
   'font-weight: 500; background-color: var(--surface-ground); border-top: 1px solid var(--surface-border);'
 )
 
-const grandchildRowStyle = computed(() => 
+const grandchildRowStyle = computed(() =>
   'font-weight: 500; font-size: 0.875rem; border-top: 1px solid var(--surface-border);'
 )
 const showDetailedInvestmentBreakdown = ref(false)
@@ -152,7 +152,7 @@ const getMonthlyAmount = (budget, month) => {
 
 const formatAmountWithSign = (amount, item, formatCurrency) => {
   if (amount === 0) return '—'
-  
+
   // For income and investment incoming, always show positive
   // For expenses and investment outgoing, always show negative
   if (item.type === 'income') {
@@ -170,7 +170,7 @@ const formatAmountWithSign = (amount, item, formatCurrency) => {
     const sign = amount > 0 ? '+' : (amount < 0 ? '-' : '')
     return amount !== 0 ? `${sign}${formatCurrency(Math.abs(amount))}` : formatCurrency(0)
   }
-  
+
   // Fallback: show with sign based on amount value
   const sign = amount > 0 ? '+' : ''
   return `${sign}${formatCurrency(amount)}`
@@ -181,7 +181,7 @@ const getSmartDefaultAmount = (budget, month) => {
   const monthIndex = months.indexOf(month)
   const plannedAmount = getMonthlyAmount(budget, month)
   const actualAmount = budget[month.toLowerCase() + '_actual'] || 0
-  
+
   // For now, just return planned amount (we'll enhance this later)
   return plannedAmount
 }
@@ -190,7 +190,7 @@ const getSmartDefaultTooltip = (budget, month) => {
   const monthIndex = months.indexOf(month)
   const plannedAmount = getMonthlyAmount(budget, month)
   const actualAmount = budget[month.toLowerCase() + '_actual'] || 0
-  
+
   return `Planned: ${props.formatCurrency(plannedAmount)}<br>Actual: ${props.formatCurrency(actualAmount)}`
 }
 
@@ -209,12 +209,12 @@ const getPreviousYearTooltip = (budget) => {
 // Month header content with close month functionality
 const getMonthHeaderContent = (month) => {
   const monthIndex = months.indexOf(month)
-  
+
   // Current month indicator
   if (props.selectedYear === props.currentYear && monthIndex === props.currentMonth) {
     return 'Current'
   }
-  
+
   // Month closure status (placeholder for now)
   // This will need to be enhanced with actual closed months data
   return ''
@@ -349,12 +349,12 @@ const getPreviousYearInvestmentOutgoingTotal = () => {
 const getMonthlySavingsTotal = (month) => {
   const monthIndex = months.indexOf(month)
   let cumulativeSavings = 0
-  
+
   // Calculate cumulative savings from start of year up to this month
   for (let i = 0; i <= monthIndex; i++) {
     const monthField = months[i].toLowerCase()
     let monthlyNet = 0
-    
+
     flattenedBudgetData.value.forEach(item => {
       if (item.type === 'income') {
         monthlyNet += item[monthField] || 0
@@ -370,10 +370,10 @@ const getMonthlySavingsTotal = (month) => {
         }
       }
     })
-    
+
     cumulativeSavings += monthlyNet
   }
-  
+
   const summaryItem = { type: 'net', amount: cumulativeSavings }
   return formatAmountWithSign(cumulativeSavings, summaryItem, props.formatCurrency)
 }
@@ -427,6 +427,22 @@ const getPreviousYearInvestmentNetTotal = () => {
   const summaryItem = { type: 'net', amount: total }
   return formatAmountWithSign(total, summaryItem, props.formatCurrency)
 }
+
+// Row border color function based on budget item type
+const getCellTextColorClass = (item) => {
+  if (item.type === 'income' || (item.type === 'investment' && item.investment_direction === 'incoming')) {
+    return 'text-green-700 dark:text-green-400'
+  } else if (item.type === 'expense' || (item.type === 'investment' && item.investment_direction === 'outgoing')) {
+    return 'text-red-700 dark:text-red-400'
+  } else if (item.type === 'net') {
+    if (item.amount.includes('+')) {
+      return 'text-green-700 dark:text-green-400'
+    } else if (item.amount.includes('-')) {
+      return 'text-red-700 dark:text-red-400'
+    }
+  }
+  return 'text-surface'
+}
 </script>
 
 <template>
@@ -434,17 +450,10 @@ const getPreviousYearInvestmentNetTotal = () => {
     <div class="mb-4">
       <h3 class="text-lg font-semibold text-blue-600">New DataTable Implementation (Testing)</h3>
     </div>
-    
+
     <!-- DataTable with Column Groups -->
-    <DataTable 
-      :value="flattenedBudgetData" 
-      :loading="loading"
-      tableStyle=""
-      scrollable
-      scrollHeight="70vh"
-      class="budget-datatable"
-      showGridlines
-    >
+    <DataTable :value="flattenedBudgetData" :loading="loading" tableStyle="" scrollable scrollHeight="70vh"
+      class="budget-datatable" showGridlines>
       <!-- Column Groups Header -->
       <ColumnGroup type="header">
         <Row>
@@ -470,34 +479,30 @@ const getPreviousYearInvestmentNetTotal = () => {
             <div class="font-semibold text-sm leading-tight truncate">
               {{ slotProps.data.name }}
             </div>
-              
+
             <!-- Category -->
             <div class="text-xs truncate text-muted-color">
               {{ slotProps.data.category }}
             </div>
-              
+
             <!-- Secondary Info: Type and Special Indicators -->
             <div class="flex items-center space-x-4 text-xs">
               <!-- Type Badge -->
-              <Tag 
-                :icon="getTypeIcon(slotProps.data)"
-                :severity="getTypeSeverity(slotProps.data)"
-                :value="getTypeLabel(slotProps.data.type)"
-                class="text-xs"
-              />
-                
+              <Tag :icon="getTypeIcon(slotProps.data)" :severity="getTypeSeverity(slotProps.data)"
+                :value="getTypeLabel(slotProps.data.type)" class="text-xs" />
+
               <!-- Virtual Item Indicator -->
               <div v-if="slotProps.data.is_virtual" class="flex items-center text-muted-color">
                 <i class="pi pi-plus-circle text-xs mr-1"></i>
                 <span class="text-xs">{{ getVirtualItemLabel(slotProps.data) }}</span>
               </div>
-                
+
               <!-- Multi-Year Indicator -->
               <div v-if="slotProps.data.is_multi_year" class="flex items-center text-primary-600">
                 <i class="pi pi-calendar text-xs mr-1"></i>
                 <span class="text-xs">{{ slotProps.data.start_year }}-{{ slotProps.data.end_year }}</span>
               </div>
-                
+
               <!-- Linked Investment Indicator -->
               <div v-if="slotProps.data.linked_investment_id" class="flex items-center text-primary-500">
                 <i class="pi pi-link text-xs mr-1"></i>
@@ -521,16 +526,11 @@ const getPreviousYearInvestmentNetTotal = () => {
       </Column>
 
       <!-- Monthly Columns -->
-      <Column 
-        v-for="month in months" 
-        :key="month"
-        :field="month.toLowerCase()"
-        :class="getMonthColumnClass(month)"
-      >
+      <Column v-for="month in months" :key="month" :field="month.toLowerCase()" :class="getMonthColumnClass(month)">
         <template #body="slotProps">
-          <div class="text-center relative">
-            <div v-if="getSmartDefaultAmount(slotProps.data, month) > 0" class="font-medium cursor-help" 
-                 :title="getSmartDefaultTooltip(slotProps.data, month)">
+          <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
+            <div v-if="getSmartDefaultAmount(slotProps.data, month) > 0" class="font-medium cursor-help"
+              :title="getSmartDefaultTooltip(slotProps.data, month)">
               {{ formatAmountWithSign(getSmartDefaultAmount(slotProps.data, month), slotProps.data, formatCurrency) }}
             </div>
             <div v-else class="font-normal text-muted-color">—</div>
@@ -541,7 +541,7 @@ const getPreviousYearInvestmentNetTotal = () => {
       <!-- Total Column -->
       <Column field="total" frozen alignFrozen="right">
         <template #body="slotProps">
-          <div class="text-center">
+          <div class="text-center" :class="getCellTextColorClass(slotProps.data)">
             <div v-if="slotProps.data.total > 0" class="font-medium">
               {{ formatAmountWithSign(slotProps.data.total, slotProps.data, formatCurrency) }}
             </div>
@@ -556,49 +556,20 @@ const getPreviousYearInvestmentNetTotal = () => {
           <div class="flex justify-center space-x-1">
             <!-- Virtual item actions -->
             <template v-if="slotProps.data.is_virtual">
-              <Button 
-                @click="$emit('view-transactions')" 
-                icon="pi pi-eye"
-                severity="secondary"
-                size="small"
-                text
-                rounded
-                title="View unlinked transactions"
-                aria-label="View unlinked transactions"
+              <Button @click="$emit('view-transactions')" icon="pi pi-eye" severity="secondary" size="small" text
+                rounded title="View unlinked transactions" aria-label="View unlinked transactions"
                 data-testid="view-unlinked-transactions-btn" />
             </template>
-            
+
             <!-- Regular budget item actions -->
             <template v-else>
-              <Button 
-                @click="$emit('edit-budget', slotProps.data)" 
-                icon="pi pi-pencil"
-                severity="info"
-                size="small"
-                text
-                rounded
-                title="Edit budget item"
-                aria-label="Edit budget item"
-                data-testid="edit-budget-btn" />
-              <Button 
-                @click="$emit('duplicate-budget', slotProps.data)" 
-                icon="pi pi-copy"
-                severity="success"
-                size="small"
-                text
-                rounded
-                title="Duplicate budget item"
-                aria-label="Duplicate budget item"
+              <Button @click="$emit('edit-budget', slotProps.data)" icon="pi pi-pencil" severity="info" size="small"
+                text rounded title="Edit budget item" aria-label="Edit budget item" data-testid="edit-budget-btn" />
+              <Button @click="$emit('duplicate-budget', slotProps.data)" icon="pi pi-copy" severity="success"
+                size="small" text rounded title="Duplicate budget item" aria-label="Duplicate budget item"
                 data-testid="duplicate-budget-btn" />
-              <Button 
-                @click="$emit('delete-budget', slotProps.data.id)" 
-                icon="pi pi-trash"
-                severity="danger"
-                size="small"
-                text
-                rounded
-                title="Delete budget item"
-                aria-label="Delete budget item"
+              <Button @click="$emit('delete-budget', slotProps.data.id)" icon="pi pi-trash" severity="danger"
+                size="small" text rounded title="Delete budget item" aria-label="Delete budget item"
                 data-testid="delete-budget-btn" />
             </template>
           </div>
@@ -610,371 +581,256 @@ const getPreviousYearInvestmentNetTotal = () => {
         <template v-if="showDetailedBreakdown">
           <!-- Income Breakdown -->
           <Row>
-            <Column 
-              frozen 
-              alignFrozen="left" 
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
-            >
+            <Column frozen alignFrozen="left"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
               <template #footer>
                 <div class="ml-6 text-muted-color">Income Total:</div>
               </template>
             </Column>
-            <Column 
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
-            >
+            <Column :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
               <template #footer>
-                <div :class="getPreviousYearIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getPreviousYearIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
                   {{ getPreviousYearIncomeTotal() }}
                 </div>
               </template>
             </Column>
-            <Column 
-              v-for="month in months" 
-              :key="month" 
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
-            >
+            <Column v-for="month in months" :key="month"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
               <template #footer>
-                <div :class="getMonthlyIncomeTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getMonthlyIncomeTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'income', amount: getMonthlyIncomeTotal(month) })">
                   {{ getMonthlyIncomeTotal(month) }}
                 </div>
               </template>
             </Column>
-            <Column 
-              frozen 
-              alignFrozen="right" 
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
-            >
+            <Column frozen alignFrozen="right"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'">
               <template #footer>
-                <div :class="getYearlyIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getYearlyIncomeTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'income', amount: getYearlyIncomeTotal() })">
                   {{ getYearlyIncomeTotal() }}
                 </div>
               </template>
             </Column>
-            <Column 
-              footer="" 
-              frozen 
-              alignFrozen="right" 
-              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'"
-            />
+            <Column footer="" frozen alignFrozen="right"
+              :footerStyle="childRowStyle + 'border-top: 2px solid var(--surface-border);'" />
           </Row>
-          
+
           <!-- Expenses Breakdown -->
           <Row>
-            <Column 
-              frozen 
-              alignFrozen="left" 
-              :footerStyle="childRowStyle"
-            >
+            <Column frozen alignFrozen="left" :footerStyle="childRowStyle">
               <template #footer>
                 <div class="ml-6 text-muted-color">Expenses Total:</div>
               </template>
             </Column>
-            <Column 
-              :footerStyle="childRowStyle"
-            >
+            <Column :footerStyle="childRowStyle">
               <template #footer>
-                <div :class="getPreviousYearExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getPreviousYearExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'expense', amount: getPreviousYearExpensesTotal() })">
                   {{ getPreviousYearExpensesTotal() }}
                 </div>
               </template>
             </Column>
-            <Column 
-              v-for="month in months" 
-              :key="month" 
-              :footerStyle="childRowStyle"
-            >
+            <Column v-for="month in months" :key="month" :footerStyle="childRowStyle">
               <template #footer>
-                <div :class="getMonthlyExpensesTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getMonthlyExpensesTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'expense', amount: getMonthlyExpensesTotal(month) })">
                   {{ getMonthlyExpensesTotal(month) }}
                 </div>
               </template>
             </Column>
-            <Column 
-              frozen 
-              alignFrozen="right" 
-              :footerStyle="childRowStyle"
-            >
+            <Column frozen alignFrozen="right" :footerStyle="childRowStyle">
               <template #footer>
-                <div :class="getYearlyExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getYearlyExpensesTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'expense', amount: getYearlyExpensesTotal() })">
                   {{ getYearlyExpensesTotal() }}
                 </div>
               </template>
             </Column>
-            <Column 
-              footer="" 
-              frozen 
-              alignFrozen="right" 
-              :footerStyle="childRowStyle"
-            />
+            <Column footer="" frozen alignFrozen="right" :footerStyle="childRowStyle" />
           </Row>
-          
+
           <template v-if="showDetailedInvestmentBreakdown">
             <!-- Investment Returns -->
             <Row>
-              <Column 
-                frozen 
-                alignFrozen="left" 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column frozen alignFrozen="left" :footerStyle="grandchildRowStyle">
                 <template #footer>
                   <div class="ml-12 text-muted-color">Investment in:</div>
                 </template>
               </Column>
-              <Column 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div :class="getPreviousYearInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  <div
+                    :class="getPreviousYearInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'income', amount: getPreviousYearInvestmentIncomingTotal() })">
                     {{ getPreviousYearInvestmentIncomingTotal() }}
                   </div>
                 </template>
               </Column>
-              <Column 
-                v-for="month in months" 
-                :key="month" 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div :class="getMonthlyInvestmentIncomingTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  <div
+                    :class="getMonthlyInvestmentIncomingTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'income', amount: getMonthlyInvestmentIncomingTotal(month) })">
                     {{ getMonthlyInvestmentIncomingTotal(month) }}
                   </div>
                 </template>
               </Column>
-              <Column 
-                frozen 
-                alignFrozen="right" 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column frozen alignFrozen="right" :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div :class="getYearlyInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  <div
+                    :class="getYearlyInvestmentIncomingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'income', amount: getYearlyInvestmentIncomingTotal() })">
                     {{ getYearlyInvestmentIncomingTotal() }}
                   </div>
                 </template>
               </Column>
-              <Column 
-                footer="" 
-                frozen 
-                alignFrozen="right" 
-                :footerStyle="grandchildRowStyle"
-              />
+              <Column footer="" frozen alignFrozen="right" :footerStyle="grandchildRowStyle" />
             </Row>
-            
+
             <!-- Investment Purchases -->
             <Row>
-              <Column 
-                frozen 
-                alignFrozen="left" 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column frozen alignFrozen="left" :footerStyle="grandchildRowStyle">
                 <template #footer>
                   <div class="ml-12 text-muted-color">Investment out:</div>
                 </template>
               </Column>
-              <Column 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div :class="getPreviousYearInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  <div
+                    :class="getPreviousYearInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'expense', amount: getPreviousYearInvestmentOutgoingTotal() })">
                     {{ getPreviousYearInvestmentOutgoingTotal() }}
                   </div>
                 </template>
               </Column>
-              <Column 
-                v-for="month in months" 
-                :key="month" 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div :class="getMonthlyInvestmentOutgoingTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  <div
+                    :class="getMonthlyInvestmentOutgoingTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'expense', amount: getMonthlyInvestmentOutgoingTotal(month) })">
                     {{ getMonthlyInvestmentOutgoingTotal(month) }}
                   </div>
                 </template>
               </Column>
-              <Column 
-                frozen 
-                alignFrozen="right" 
-                :footerStyle="grandchildRowStyle"
-              >
+              <Column frozen alignFrozen="right" :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div :class="getYearlyInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                  <div
+                    :class="getYearlyInvestmentOutgoingTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'expense', amount: getYearlyInvestmentOutgoingTotal() })">
                     {{ getYearlyInvestmentOutgoingTotal() }}
                   </div>
                 </template>
               </Column>
-              <Column 
-                footer="" 
-                frozen 
-                alignFrozen="right" 
-                :footerStyle="grandchildRowStyle"
-              />
+              <Column footer="" frozen alignFrozen="right" :footerStyle="grandchildRowStyle" />
             </Row>
           </template>
           <!-- Net Investment -->
           <Row>
-            <Column 
-              footer="" 
-              frozen 
-              alignFrozen="left" 
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
-            >
+            <Column footer="" frozen alignFrozen="left"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
               <template #footer>
                 <div class="ml-6 flex items-center space-x-2">
-                  <Button 
-                    @click="showDetailedInvestmentBreakdown = !showDetailedInvestmentBreakdown"
-                    :icon="showDetailedInvestmentBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'"
-                    text
-                    rounded
-                    size="small"
-                    severity="secondary"
-                    :title="showDetailedInvestmentBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'"
-                  />
+                  <Button @click="showDetailedInvestmentBreakdown = !showDetailedInvestmentBreakdown"
+                    :icon="showDetailedInvestmentBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'" text rounded
+                    size="small" severity="secondary"
+                    :title="showDetailedInvestmentBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'" />
                   <span class="text-muted-color">Net Investment</span>
                 </div>
               </template>
             </Column>
-            <Column 
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
-            >
+            <Column :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
               <template #footer>
-                <div :class="getPreviousYearInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getPreviousYearInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getPreviousYearInvestmentNetTotal() })">
                   {{ getPreviousYearInvestmentNetTotal() }}
                 </div>
               </template>
             </Column>
-            <Column 
-              v-for="month in months" 
-              :key="month" 
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
-            >
+            <Column v-for="month in months" :key="month"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
               <template #footer>
-                <div :class="getMonthlyInvestmentNetTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getMonthlyInvestmentNetTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getMonthlyInvestmentNetTotal(month) })">
                   {{ getMonthlyInvestmentNetTotal(month) }}
                 </div>
               </template>
             </Column>
-            <Column 
-              frozen 
-              alignFrozen="right" 
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
-            >
+            <Column frozen alignFrozen="right"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'">
               <template #footer>
-                <div :class="getYearlyInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+                <div
+                  :class="getYearlyInvestmentNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getYearlyInvestmentNetTotal() })">
                   {{ getYearlyInvestmentNetTotal() }}
                 </div>
               </template>
             </Column>
-            <Column 
-              footer="" 
-              frozen 
-              alignFrozen="right" 
-              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'"
-            />
+            <Column footer="" frozen alignFrozen="right"
+              :footerStyle="childRowStyle + 'border-bottom: 2px solid var(--surface-border);'" />
           </Row>
         </template>
         <!-- Core Summary Rows (Always Visible) -->
         <Row>
-          <Column 
-            frozen 
-            alignFrozen="left" 
-            :footerStyle="parentRowStyle"
-          >
+          <Column frozen alignFrozen="left" :footerStyle="parentRowStyle">
             <template #footer>
               <div class="flex items-center space-x-2">
-                <Button
-                  @click="showDetailedBreakdown = !showDetailedBreakdown"
-                  :icon="showDetailedBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'"
-                  text
-                  rounded
+                <Button @click="showDetailedBreakdown = !showDetailedBreakdown"
+                  :icon="showDetailedBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'" text rounded
                   severity="secondary"
-                  :title="showDetailedBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'"
-                />
+                  :title="showDetailedBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'" />
                 <span>Net Balance</span>
               </div>
             </template>
           </Column>
-          <Column 
-            :footerStyle="parentRowStyle"
-          >
+          <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getPreviousYearNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+              <div
+                :class="getPreviousYearNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getPreviousYearNetTotal() })">
                 {{ getPreviousYearNetTotal() }}
               </div>
             </template>
           </Column>
-          <Column 
-            v-for="month in months" 
-            :key="month" 
-            :footerStyle="parentRowStyle"
-          >
+          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getMonthlyNetTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+              <div
+                :class="getMonthlyNetTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getMonthlyNetTotal(month) })">
                 {{ getMonthlyNetTotal(month) }}
               </div>
             </template>
           </Column>
-          <Column 
-            frozen 
-            alignFrozen="right" 
-            :footerStyle="parentRowStyle"
-          >
+          <Column frozen alignFrozen="right" :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getYearlyNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+              <div
+                :class="getYearlyNetTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getYearlyNetTotal() })">
                 {{ getYearlyNetTotal() }}
               </div>
             </template>
           </Column>
-          <Column 
-            footer="" 
-            frozen 
-            alignFrozen="right" 
-            :footerStyle="parentRowStyle"
-          />
+          <Column footer="" frozen alignFrozen="right" :footerStyle="parentRowStyle" />
         </Row>
-        
+
         <Row>
-          <Column 
-            footer="Cumulative Savings:" 
-            frozen 
-            alignFrozen="left" 
-            :footerStyle="parentRowStyle"
-          />
-          <Column 
-            :footerStyle="parentRowStyle"
-          >
+          <Column footer="Cumulative Savings:" frozen alignFrozen="left" :footerStyle="parentRowStyle" />
+          <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getPreviousYearSavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+              <div
+                :class="getPreviousYearSavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getPreviousYearSavingsTotal() })">
                 {{ getPreviousYearSavingsTotal() }}
               </div>
             </template>
           </Column>
-          <Column 
-            v-for="month in months" 
-            :key="month" 
-            :footerStyle="parentRowStyle"
-          >
+          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getMonthlySavingsTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+              <div
+                :class="getMonthlySavingsTotal(month) === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getMonthlySavingsTotal(month) })">
                 {{ getMonthlySavingsTotal(month) }}
               </div>
             </template>
           </Column>
-          <Column 
-            frozen 
-            alignFrozen="right" 
-            :footerStyle="parentRowStyle"
-          >
+          <Column frozen alignFrozen="right" :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getYearlySavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center'">
+              <div
+                :class="getYearlySavingsTotal() === '—' ? 'text-center font-normal text-muted-color' : 'text-center' + ' ' + getCellTextColorClass({ type: 'net', amount: getYearlySavingsTotal() })">
                 {{ getYearlySavingsTotal() }}
               </div>
             </template>
           </Column>
-          <Column 
-            footer="" 
-            frozen 
-            alignFrozen="right" 
-            :footerStyle="parentRowStyle"
-          />
+          <Column footer="" frozen alignFrozen="right" :footerStyle="parentRowStyle" />
         </Row>
       </ColumnGroup>
     </DataTable>
@@ -982,22 +838,24 @@ const getPreviousYearInvestmentNetTotal = () => {
 </template>
 
 <style scoped>
-    /* This is a hack to make the footer not sticky */
-    :deep(.p-datatable-tfoot) {
-    position: relative !important;
-    }
-    :deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(1)) {
-        inset-inline-end: -1px !important;
-    }
+/* This is a hack to make the footer not sticky */
+:deep(.p-datatable-tfoot) {
+  position: relative !important;
+}
 
-    :deep(.p-datatable-scrollable .p-datatable-frozen-column) {
-        z-index: 1;
-    }
+:deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(1)) {
+  inset-inline-end: -1px !important;
+}
 
-    :deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(2)) {
-        inset-inline-end: 120px !important;
-    }
-    :deep(.p-datatable-scrollable-table > .p-datatable-thead) {
-        z-index: 2;
-    }
+:deep(.p-datatable-scrollable .p-datatable-frozen-column) {
+  z-index: 1;
+}
+
+:deep(.p-datatable-scrollable .p-datatable-frozen-column:nth-last-child(2)) {
+  inset-inline-end: 120px !important;
+}
+
+:deep(.p-datatable-scrollable-table > .p-datatable-thead) {
+  z-index: 2;
+}
 </style>
