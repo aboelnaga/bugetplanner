@@ -2,8 +2,8 @@
 // All calculation functions: monthly totals, yearly totals, investment calculations, grand totals
 
 import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
-import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import { useTransactionStore } from '@/stores/transactions.js'
+import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 
 export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
   const yearlySummariesStore = useYearlySummariesStore()
@@ -38,28 +38,28 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
   const getSmartDefaultAmount = (budget, monthIndex) => {
     const plannedAmount = getBudgetAmount(budget, monthIndex)
     const actualAmount = getActualAmount(budget, monthIndex)
-    
+
     // Previous year: Show actual amounts (for comparison)
     if (selectedYear.value < currentYear) {
       return actualAmount
     }
-    
+
     // Closed months: Show actual amounts
     if (isMonthClosed(monthIndex)) {
       return actualAmount
     }
-    
+
     // Current month: Show max(actual, planned)
     if (selectedYear.value === currentYear && monthIndex === currentMonth) {
       return Math.max(actualAmount, plannedAmount)
     }
-    
+
     // Future months: Show planned amounts (not max)
-    if (selectedYear.value > currentYear || 
+    if (selectedYear.value > currentYear ||
         (selectedYear.value === currentYear && monthIndex > currentMonth)) {
       return plannedAmount
     }
-    
+
     // Past months (not closed): Show max(actual, planned) - in case there are actuals entered
     return Math.max(actualAmount, plannedAmount)
   }
@@ -69,8 +69,8 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return false
     // if (!budgetId) return false
     // // Check if this month/budget combination has been modified
-    // return budgetStore.budgetHistory?.some(change => 
-    //   change.budgetId === budgetId && 
+    // return budgetStore.budgetHistory?.some(change =>
+    //   change.budgetId === budgetId &&
     //   change.monthIndex === monthIndex
     // ) || false
   }
@@ -93,7 +93,7 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
       }
       return sum
     }, 0)
-    
+
     const expenses = budgetItems.value.reduce((sum, budget) => {
       if (budget.type === BUDGET_TYPES.EXPENSE) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
@@ -103,7 +103,7 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
       }
       return sum
     }, 0)
-    
+
     return income - expenses
   }
 
@@ -194,6 +194,8 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return income - expenses
   }
 
+
+
   // Grand total calculations - these now work with the reactive budgetItems and use smart defaults
   const calculateGrandTotal = () => {
     return calculateGrandTotalIncome() + calculateGrandTotalInvestmentIncoming() - calculateGrandTotalExpenses() - calculateGrandTotalInvestmentOutgoing()
@@ -283,12 +285,12 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
   // Savings calculations
   const calculateCumulativeSavings = (monthIndex) => {
     let cumulativeSavings = 0
-    
+
     // Calculate cumulative savings from start of year to the specified month
     for (let month = 0; month <= monthIndex; month++) {
       cumulativeSavings += calculateMonthlyTotal(month)
     }
-    
+
     return cumulativeSavings
   }
 
@@ -345,7 +347,7 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     const plannedInvestmentIncoming = calculateMonthlyPlannedInvestmentIncoming(monthIndex)
     const plannedExpenses = calculateMonthlyPlannedExpenses(monthIndex)
     const plannedInvestmentOutgoing = calculateMonthlyPlannedInvestmentOutgoing(monthIndex)
-    
+
     return (plannedIncome + plannedInvestmentIncoming) - (plannedExpenses + plannedInvestmentOutgoing)
   }
 
@@ -440,11 +442,11 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
   const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
     const budget = budgetItems.value.find(b => b.id === budgetId)
     if (!budget) return
-    
+
     const oldValue = budget.amounts[monthIndex]
     const numericOldValue = parseFloat(oldValue) || 0
     const numericNewValue = parseFloat(newValue) || 0
-    
+
     // Only proceed if the values are actually different
     if (numericOldValue !== numericNewValue) {
       // Update via store
@@ -461,7 +463,7 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     getSmartDefaultAmount,
     hasChanges,
     calculateYearlyTotal,
-    
+
     // Monthly calculations
     calculateMonthlyTotal,
     calculateMonthlyIncome,
@@ -475,7 +477,8 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateMonthlyActualInvestmentOutgoing,
     calculateMonthlyActualInvestmentNet,
     calculateMonthlyActualTotal,
-    
+
+
     // Grand total calculations
     calculateGrandTotal,
     calculateGrandTotalIncome,
@@ -489,12 +492,12 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateGrandTotalActualInvestmentOutgoing,
     calculateGrandTotalActualInvestmentNet,
     calculateGrandTotalActual,
-    
+
     // Savings calculations
     calculateCumulativeSavings,
     calculateGrandTotalSavings,
     calculatePreviousYearSavings,
-    
+
     // Planned calculations for tooltips
     calculateMonthlyPlannedIncome,
     calculateMonthlyPlannedExpenses,
@@ -506,11 +509,11 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateGrandTotalPlannedInvestmentIncoming,
     calculateGrandTotalPlannedInvestmentOutgoing,
     calculateGrandTotalPlanned,
-    
+
     // Category calculations
     calculateCategoryTotal,
     calculateCategoryMonthlyTotal,
-    
+
     // Previous year calculations
     calculatePreviousYearIncomeTotal,
     calculatePreviousYearExpensesTotal,
@@ -518,8 +521,8 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculatePreviousYearInvestmentOutgoingTotal,
     calculatePreviousYearNetTotal,
     calculatePreviousYearInvestmentNetTotal,
-    
+
     // Budget updates
     updateBudgetAmount
   }
-} 
+}
