@@ -269,9 +269,9 @@ const getDualDisplay = (budget, month) => {
   // Return based on display mode
   switch (props.dualMode) {
     case 'actual':
-      return actualAmount
+      return { type: 'single', value: actualAmount, closed: monthClosed }
     case 'expected':
-      return expectedAmount
+      return { type: 'single', value: expectedAmount, closed: monthClosed }
     case 'both':
     default:
       // For 'both' mode, return both values
@@ -298,8 +298,15 @@ const getDualTooltip = (budget, month) => {
   const monthIndex = months.indexOf(month)
   const expectedAmount = getMonthlyAmount(budget, month)
   const actualAmount = props.getActualAmount ? props.getActualAmount(budget, monthIndex) : 0
+  const monthClosed = isMonthClosed(monthIndex)
 
-  return `Expected: ${props.formatCurrency(expectedAmount)}<br>Actual: ${props.formatCurrency(actualAmount)}`
+  let tooltip = `Expected: ${props.formatCurrency(expectedAmount)}<br>Actual: ${props.formatCurrency(actualAmount)}`
+
+  if (monthClosed && (props.dualMode === 'actual' || props.dualMode === 'expected')) {
+    tooltip += '<br><br>Month is closed - actual amount is displayed'
+  }
+
+  return tooltip
 }
 
 
@@ -1089,8 +1096,15 @@ const getFooterDualData = (dualData, itemType) => {
                 </div>
               </template>
               <template v-else>
-                {{ getDualDisplay(slotProps.data, month) === 0 ? '—' :
-                  formatAmountWithSign(getDualDisplay(slotProps.data, month), slotProps.data, formatCurrency) }}
+                <div class="single-mode-display"
+                  :class="{ 'text-green-600 dark:text-green-400': getDualDisplay(slotProps.data, month).closed }">
+                  {{ getDualDisplay(slotProps.data, month).value === 0 ? '—' :
+                    formatAmountWithSign(getDualDisplay(slotProps.data, month).value, slotProps.data,
+                      formatCurrency) }}
+                  <span v-if="getDualDisplay(slotProps.data, month).closed"
+                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
+                    :title="`Month is closed - actual amount is displayed`">●</span>
+                </div>
               </template>
             </div>
             <div v-else class="font-normal text-muted-color">—</div>
@@ -1120,12 +1134,25 @@ const getFooterDualData = (dualData, itemType) => {
                 </div>
               </template>
               <template v-else-if="props.dualMode === 'actual'">
-                {{ getTotalAmountWithDual(slotProps.data).actual === 0 ? '—' :
-                  formatAmountWithSign(getTotalAmountWithDual(slotProps.data).actual, slotProps.data, formatCurrency) }}
+                <div class="single-mode-display"
+                  :class="{ 'text-green-600 dark:text-green-400': getTotalAmountWithDual(slotProps.data).closed }">
+                  {{ getTotalAmountWithDual(slotProps.data).actual === 0 ? '—' :
+                    formatAmountWithSign(getTotalAmountWithDual(slotProps.data).actual, slotProps.data, formatCurrency) }}
+                  <span v-if="getTotalAmountWithDual(slotProps.data).closed"
+                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
+                    :title="`Month is closed - actual amount is displayed`">●</span>
+                </div>
               </template>
               <template v-else>
-                {{ getTotalAmountWithDual(slotProps.data).expected === 0 ? '—' :
-                  formatAmountWithSign(getTotalAmountWithDual(slotProps.data).expected, slotProps.data, formatCurrency) }}
+                <div class="single-mode-display"
+                  :class="{ 'text-green-600 dark:text-green-400': getTotalAmountWithDual(slotProps.data).closed }">
+                  {{ getTotalAmountWithDual(slotProps.data).expected === 0 ? '—' :
+                    formatAmountWithSign(getTotalAmountWithDual(slotProps.data).expected, slotProps.data, formatCurrency)
+                  }}
+                  <span v-if="getTotalAmountWithDual(slotProps.data).closed"
+                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
+                    :title="`Month is closed - actual amount is displayed`">●</span>
+                </div>
               </template>
             </div>
             <div v-else class="font-normal text-muted-color">—</div>
@@ -1448,6 +1475,11 @@ const getFooterDualData = (dualData, itemType) => {
 .actual-expected-display .expected {
   color: var(--gray-500);
   font-size: 0.875em;
+}
+
+/* single mode display styling */
+.single-mode-display {
+  line-height: 1.2;
 }
 
 /* Dark theme overrides */
