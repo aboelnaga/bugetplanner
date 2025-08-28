@@ -341,33 +341,33 @@ const getPreviousYearSavingsTooltip = () => {
 <template>
   <!-- Net Balance Line -->
   <BudgetSummaryRowHelper row-type="NET_BALANCE" :months="months" :selected-year="selectedYear"
-    :current-year="currentYear" :current-month="currentMonth" :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false" :has-expense-data="false" :has-investment-data="hasInvestmentData"
-    :has-investment-incoming-data="false" :has-investment-outgoing-data="false" :has-any-data="hasAnyData"
-    :calculate-monthly="calculateMonthlyTotal" :calculate-grand-total="calculateGrandTotal"
-    :calculate-previous-year="calculatePreviousYearNetTotal" :get-monthly-tooltip="getNetBalanceTooltip"
-    :get-grand-total-tooltip="getNetBalanceYearlyTooltip" :get-previous-year-tooltip="getPreviousYearNetTooltip"
-    :format-currency="formatCurrency" border-top-class="border-t-2 border-gray-200 font-bold"
-    :use-value-based-styling="true" />
+                          :current-year="currentYear" :current-month="currentMonth" :selected-type-filter="selectedTypeFilter"
+                          :has-income-data="false" :has-expense-data="false" :has-investment-data="hasInvestmentData"
+                          :has-investment-incoming-data="false" :has-investment-outgoing-data="false" :has-any-data="hasAnyData"
+                          :calculate-monthly="calculateMonthlyTotal" :calculate-grand-total="calculateGrandTotal"
+                          :calculate-previous-year="calculatePreviousYearNetTotal" :get-monthly-tooltip="getNetBalanceTooltip"
+                          :get-grand-total-tooltip="getNetBalanceYearlyTooltip" :get-previous-year-tooltip="getPreviousYearNetTooltip"
+                          :format-currency="formatCurrency" border-top-class="border-t-2 border-gray-200 font-bold"
+                          :use-value-based-styling="true" />
 
   <!-- Savings Row -->
   <BudgetSummaryRowHelper row-type="SAVINGS" :months="months" :selected-year="selectedYear" :current-year="currentYear"
-    :current-month="currentMonth" :selected-type-filter="selectedTypeFilter" :has-income-data="false"
-    :has-expense-data="false" :has-investment-data="hasInvestmentData" :has-investment-incoming-data="false"
-    :has-investment-outgoing-data="false" :has-any-data="hasAnyData" :calculate-monthly="calculateCumulativeSavings"
-    :calculate-grand-total="calculateGrandTotalSavings" :calculate-previous-year="calculatePreviousYearSavings"
-    :get-monthly-tooltip="getSavingsTooltip" :get-grand-total-tooltip="getGrandTotalSavingsTooltip"
-    :get-previous-year-tooltip="getPreviousYearSavingsTooltip" :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200 font-bold" :use-value-based-styling="true" />
+                          :current-month="currentMonth" :selected-type-filter="selectedTypeFilter" :has-income-data="false"
+                          :has-expense-data="false" :has-investment-data="hasInvestmentData" :has-investment-incoming-data="false"
+                          :has-investment-outgoing-data="false" :has-any-data="hasAnyData" :calculate-monthly="calculateCumulativeSavings"
+                          :calculate-grand-total="calculateGrandTotalSavings" :calculate-previous-year="calculatePreviousYearSavings"
+                          :get-monthly-tooltip="getSavingsTooltip" :get-grand-total-tooltip="getGrandTotalSavingsTooltip"
+                          :get-previous-year-tooltip="getPreviousYearSavingsTooltip" :format-currency="formatCurrency"
+                          border-top-class="border-t-2 border-gray-200 font-bold" :use-value-based-styling="true" />
 
   <!-- Net Investment Row -->
   <BudgetSummaryRowHelper row-type="NET_INVESTMENT" :months="months" :selected-year="selectedYear"
-    :current-year="currentYear" :current-month="currentMonth" :selected-type-filter="selectedTypeFilter"
-    :has-income-data="false" :has-expense-data="false" :has-investment-data="hasInvestmentData"
-    :has-investment-incoming-data="false" :has-investment-outgoing-data="false" :has-any-data="hasAnyData"
-    :calculate-monthly="calculateMonthlyInvestmentNet" :calculate-grand-total="calculateGrandTotalInvestmentNet"
-    :calculate-previous-year="calculatePreviousYearInvestmentNetTotal" :get-monthly-tooltip="getNetInvestmentTooltip"
-    :get-grand-total-tooltip="getNetInvestmentYearlyTooltip"
-    :get-previous-year-tooltip="getPreviousYearInvestmentNetTooltip" :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200" :use-value-based-styling="true" />
+                          :current-year="currentYear" :current-month="currentMonth" :selected-type-filter="selectedTypeFilter"
+                          :has-income-data="false" :has-expense-data="false" :has-investment-data="hasInvestmentData"
+                          :has-investment-incoming-data="false" :has-investment-outgoing-data="false" :has-any-data="hasAnyData"
+                          :calculate-monthly="calculateMonthlyInvestmentNet" :calculate-grand-total="calculateGrandTotalInvestmentNet"
+                          :calculate-previous-year="calculatePreviousYearInvestmentNetTotal" :get-monthly-tooltip="getNetInvestmentTooltip"
+                          :get-grand-total-tooltip="getNetInvestmentYearlyTooltip"
+                          :get-previous-year-tooltip="getPreviousYearInvestmentNetTooltip" :format-currency="formatCurrency"
+                          border-top-class="border-t-2 border-gray-200" :use-value-based-styling="true" />
 </template>
