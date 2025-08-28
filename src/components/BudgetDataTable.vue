@@ -1459,43 +1459,37 @@ const getFooterDualData = (dualData, itemType) => {
               :class="getMonthColumnClass(month)">
               <template #footer>
                 <div :class="getFooterCellClasses(getRawValueForCSS(getMonthlyIncomeTotalWithDual(month)), 'income')">
-                  <template v-if="props.dualMode === 'both'">
-                    <div v-if="getMonthlyIncomeTotalWithDual(month)?.closed" class="footer-dual-mode">
+                  <template v-if="getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.type === 'both'">
+                    <div v-if="getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.closed"
+                      class="footer-dual-mode">
                       <div class="actual">
-                        {{ getMonthlyIncomeTotalWithDual(month).actual === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyIncomeTotalWithDual(month).actual, { type: 'income' },
-                            formatCurrency) }}
+                        {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.actual }}
                       </div>
                       <div class="expected">
-                        / {{ getMonthlyIncomeTotalWithDual(month).expected === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyIncomeTotalWithDual(month).expected, { type: 'income' },
-                            formatCurrency) }}
+                        / {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.expected }}
                       </div>
                       <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                         :title="`Month is closed - actual amount is displayed`">●</span>
                     </div>
                     <div v-else class="footer-dual-mode">
                       <div class="actual">
-                        {{ getMonthlyIncomeTotalWithDual(month).actual === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyIncomeTotalWithDual(month).actual, { type: 'income' },
-                            formatCurrency) }}
+                        {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.actual }}
                       </div>
                       <div class="expected">
-                        / {{ getMonthlyIncomeTotalWithDual(month).expected === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyIncomeTotalWithDual(month).expected, { type: 'income' },
-                            formatCurrency) }}
+                        / {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.expected }}
                       </div>
                     </div>
                   </template>
-                  <template v-else-if="props.dualMode === 'actual'">
-                    {{ getMonthlyIncomeTotalWithDual(month).actual === 0 ? '—' :
-                      formatAmountWithSign(getMonthlyIncomeTotalWithDual(month).actual, { type: 'income' },
-                        formatCurrency) }}
-                  </template>
                   <template v-else>
-                    {{ getMonthlyIncomeTotalWithDual(month).expected === 0 ? '—' :
-                      formatAmountWithSign(getMonthlyIncomeTotalWithDual(month).expected, { type: 'income' },
-                        formatCurrency) }}
+                    <div v-if="getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.closed"
+                      class="text-green-600 dark:text-green-400 cursor-help"
+                      :title="`Month is closed - actual amount is displayed`">
+                      {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.value }}
+                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                    </div>
+                    <div v-else>
+                      {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.value }}
+                    </div>
                   </template>
                 </div>
               </template>
@@ -1571,43 +1565,38 @@ const getFooterDualData = (dualData, itemType) => {
               <template #footer>
                 <div
                   :class="getFooterCellClasses(getRawValueForCSS(getMonthlyExpensesTotalWithDual(month)), 'expense')">
-                  <template v-if="props.dualMode === 'both'">
-                    <div v-if="getMonthlyExpensesTotalWithDual(month)?.closed" class="footer-dual-mode">
+                  <template
+                    v-if="getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.type === 'both'">
+                    <div v-if="getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.closed"
+                      class="footer-dual-mode">
                       <div class="actual">
-                        {{ getMonthlyExpensesTotalWithDual(month).actual === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyExpensesTotalWithDual(month).actual, { type: 'expense' },
-                            formatCurrency) }}
+                        {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.actual }}
                       </div>
                       <div class="expected">
-                        / {{ getMonthlyExpensesTotalWithDual(month).expected === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyExpensesTotalWithDual(month).expected, { type: 'expense' },
-                            formatCurrency) }}
+                        / {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.expected }}
                       </div>
                       <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                         :title="`Month is closed - actual amount is displayed`">●</span>
                     </div>
                     <div v-else class="footer-dual-mode">
                       <div class="actual">
-                        {{ getMonthlyExpensesTotalWithDual(month).actual === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyExpensesTotalWithDual(month).actual, { type: 'expense' },
-                            formatCurrency) }}
+                        {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.actual }}
                       </div>
                       <div class="expected">
-                        / {{ getMonthlyExpensesTotalWithDual(month).expected === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyExpensesTotalWithDual(month).expected, { type: 'expense' },
-                            formatCurrency) }}
+                        / {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.expected }}
                       </div>
                     </div>
                   </template>
-                  <template v-else-if="props.dualMode === 'actual'">
-                    {{ getMonthlyExpensesTotalWithDual(month).actual === 0 ? '—' :
-                      formatAmountWithSign(getMonthlyExpensesTotalWithDual(month).actual, { type: 'expense' },
-                        formatCurrency) }}
-                  </template>
                   <template v-else>
-                    {{ getMonthlyExpensesTotalWithDual(month).expected === 0 ? '—' :
-                      formatAmountWithSign(getMonthlyExpensesTotalWithDual(month).expected, { type: 'expense' },
-                        formatCurrency) }}
+                    <div v-if="getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.closed"
+                      class="text-green-600 dark:text-green-400 cursor-help"
+                      :title="`Month is closed - actual amount is displayed`">
+                      {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.value }}
+                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                    </div>
+                    <div v-else>
+                      {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.value }}
+                    </div>
                   </template>
                 </div>
               </template>
@@ -1685,50 +1674,40 @@ const getFooterDualData = (dualData, itemType) => {
                 <template #footer>
                   <div
                     :class="getFooterCellClasses(getRawValueForCSS(getMonthlyInvestmentIncomingTotalWithDual(month)), 'income')">
-                    <template v-if="props.dualMode === 'both'">
-                      <div v-if="getMonthlyInvestmentIncomingTotalWithDual(month)?.closed" class="footer-dual-mode">
+                    <template
+                      v-if="getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.type === 'both'">
+                      <div v-if="getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.closed"
+                        class="footer-dual-mode">
                         <div class="actual">
-                          {{ getMonthlyInvestmentIncomingTotalWithDual(month).actual === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentIncomingTotalWithDual(month).actual, {
-                              type: 'income'
-                            }, formatCurrency) }}
+                          {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.actual }}
                         </div>
                         <div class="expected">
-                          / {{ getMonthlyInvestmentIncomingTotalWithDual(month).expected === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentIncomingTotalWithDual(month).expected, {
-                              type:
-                                'income'
-                            }, formatCurrency) }}
+                          / {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.expected
+                          }}
                         </div>
                         <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                           :title="`Month is closed - actual amount is displayed`">●</span>
                       </div>
                       <div v-else class="footer-dual-mode">
                         <div class="actual">
-                          {{ getMonthlyInvestmentIncomingTotalWithDual(month).actual === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentIncomingTotalWithDual(month).actual, {
-                              type: 'income'
-                            }, formatCurrency) }}
+                          {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.actual }}
                         </div>
                         <div class="expected">
-                          / {{ getMonthlyInvestmentIncomingTotalWithDual(month).expected === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentIncomingTotalWithDual(month).expected, {
-                              type:
-                                'income'
-                            }, formatCurrency) }}
+                          / {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.expected
+                          }}
                         </div>
                       </div>
                     </template>
-                    <template v-else-if="props.dualMode === 'actual'">
-                      {{ getMonthlyInvestmentIncomingTotalWithDual(month).actual === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyInvestmentIncomingTotalWithDual(month).actual, { type: 'income' },
-                          formatCurrency) }}
-                    </template>
                     <template v-else>
-                      {{ getMonthlyInvestmentIncomingTotalWithDual(month).expected === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyInvestmentIncomingTotalWithDual(month).expected, {
-                          type: 'income'
-                        }, formatCurrency) }}
+                      <div v-if="getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.closed"
+                        class="text-green-600 dark:text-green-400 cursor-help"
+                        :title="`Month is closed - actual amount is displayed`">
+                        {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.value }}
+                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                      </div>
+                      <div v-else>
+                        {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.value }}
+                      </div>
                     </template>
                   </div>
                 </template>
@@ -1807,52 +1786,40 @@ const getFooterDualData = (dualData, itemType) => {
                 <template #footer>
                   <div
                     :class="getFooterCellClasses(getRawValueForCSS(getMonthlyInvestmentOutgoingTotalWithDual(month)), 'expense')">
-                    <template v-if="props.dualMode === 'both'">
-                      <div v-if="getMonthlyInvestmentOutgoingTotalWithDual(month)?.closed" class="footer-dual-mode">
+                    <template
+                      v-if="getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.type === 'both'">
+                      <div v-if="getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.closed"
+                        class="footer-dual-mode">
                         <div class="actual">
-                          {{ getMonthlyInvestmentOutgoingTotalWithDual(month).actual === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentOutgoingTotalWithDual(month).actual, {
-                              type:
-                                'expense'
-                            }, formatCurrency) }}
+                          {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.actual }}
                         </div>
                         <div class="expected">
-                          / {{ getMonthlyInvestmentOutgoingTotalWithDual(month).expected === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentOutgoingTotalWithDual(month).expected, {
-                              type:
-                                'expense'
-                            }, formatCurrency) }}
+                          / {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.expected
+                          }}
                         </div>
                         <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                           :title="`Month is closed - actual amount is displayed`">●</span>
                       </div>
                       <div v-else class="footer-dual-mode">
                         <div class="actual">
-                          {{ getMonthlyInvestmentOutgoingTotalWithDual(month).actual === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentOutgoingTotalWithDual(month).actual, {
-                              type:
-                                'expense'
-                            }, formatCurrency) }}
+                          {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.actual }}
                         </div>
                         <div class="expected">
-                          / {{ getMonthlyInvestmentOutgoingTotalWithDual(month).expected === 0 ? '—' :
-                            formatAmountWithSign(getMonthlyInvestmentOutgoingTotalWithDual(month).expected, {
-                              type:
-                                'expense'
-                            }, formatCurrency) }}
+                          / {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.expected
+                          }}
                         </div>
                       </div>
                     </template>
-                    <template v-else-if="props.dualMode === 'actual'">
-                      {{ getMonthlyInvestmentOutgoingTotalWithDual(month).actual === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyInvestmentOutgoingTotalWithDual(month).actual, { type: 'expense' },
-                          formatCurrency) }}
-                    </template>
                     <template v-else>
-                      {{ getMonthlyInvestmentOutgoingTotalWithDual(month).expected === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyInvestmentOutgoingTotalWithDual(month).expected, {
-                          type: 'expense'
-                        }, formatCurrency) }}
+                      <div v-if="getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.closed"
+                        class="text-green-600 dark:text-green-400 cursor-help"
+                        :title="`Month is closed - actual amount is displayed`">
+                        {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.value }}
+                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                      </div>
+                      <div v-else>
+                        {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.value }}
+                      </div>
                     </template>
                   </div>
                 </template>
@@ -1938,43 +1905,38 @@ const getFooterDualData = (dualData, itemType) => {
               <template #footer>
                 <div
                   :class="getFooterCellClasses(getRawValueForCSS(getMonthlyInvestmentNetTotalWithDual(month)), 'net')">
-                  <template v-if="props.dualMode === 'both'">
-                    <div v-if="getMonthlyInvestmentNetTotalWithDual(month)?.closed" class="footer-dual-mode">
+                  <template
+                    v-if="getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.type === 'both'">
+                    <div v-if="getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.closed"
+                      class="footer-dual-mode">
                       <div class="actual">
-                        {{ getMonthlyInvestmentNetTotalWithDual(month).actual === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyInvestmentNetTotalWithDual(month).actual, { type: 'net' },
-                            formatCurrency) }}
+                        {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.actual }}
                       </div>
                       <div class="expected">
-                        / {{ getMonthlyInvestmentNetTotalWithDual(month).expected === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyInvestmentNetTotalWithDual(month).expected, { type: 'net' },
-                            formatCurrency) }}
+                        / {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.expected }}
                       </div>
                       <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                         :title="`Month is closed - actual amount is displayed`">●</span>
                     </div>
                     <div v-else class="footer-dual-mode">
                       <div class="actual">
-                        {{ getMonthlyInvestmentNetTotalWithDual(month).actual === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyInvestmentNetTotalWithDual(month).actual, { type: 'net' },
-                            formatCurrency) }}
+                        {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.actual }}
                       </div>
                       <div class="expected">
-                        / {{ getMonthlyInvestmentNetTotalWithDual(month).expected === 0 ? '—' :
-                          formatAmountWithSign(getMonthlyInvestmentNetTotalWithDual(month).expected, { type: 'net' },
-                            formatCurrency) }}
+                        / {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.expected }}
                       </div>
                     </div>
                   </template>
-                  <template v-else-if="props.dualMode === 'actual'">
-                    {{ getMonthlyInvestmentNetTotalWithDual(month).actual === 0 ? '—' :
-                      formatAmountWithSign(getMonthlyInvestmentNetTotalWithDual(month).actual, { type: 'net' },
-                        formatCurrency) }}
-                  </template>
                   <template v-else>
-                    {{ getMonthlyInvestmentNetTotalWithDual(month).expected === 0 ? '—' :
-                      formatAmountWithSign(getMonthlyInvestmentNetTotalWithDual(month).expected, { type: 'net' },
-                        formatCurrency) }}
+                    <div v-if="getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.closed"
+                      class="text-green-600 dark:text-green-400 cursor-help"
+                      :title="`Month is closed - actual amount is displayed`">
+                      {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.value }}
+                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                    </div>
+                    <div v-else>
+                      {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.value }}
+                    </div>
                   </template>
                 </div>
               </template>
@@ -2055,39 +2017,37 @@ const getFooterDualData = (dualData, itemType) => {
             :class="getMonthColumnClass(month)">
             <template #footer>
               <div :class="getFooterCellClasses(getRawValueForCSS(getMonthlyNetTotalWithDual(month)), 'net')">
-                <template v-if="props.dualMode === 'both'">
-                  <div v-if="getMonthlyNetTotalWithDual(month)?.closed" class="footer-dual-mode">
+                <template v-if="getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.type === 'both'">
+                  <div v-if="getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.closed"
+                    class="footer-dual-mode">
                     <div class="actual">
-                      {{ getMonthlyNetTotalWithDual(month).actual === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyNetTotalWithDual(month).actual, { type: 'net' }, formatCurrency) }}
+                      {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.actual }}
                     </div>
                     <div class="expected">
-                      / {{ getMonthlyNetTotalWithDual(month).expected === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyNetTotalWithDual(month).expected, { type: 'net' }, formatCurrency)
-                      }}
+                      / {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.expected }}
                     </div>
                     <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                       :title="`Month is closed - actual amount is displayed`">●</span>
                   </div>
                   <div v-else class="footer-dual-mode">
                     <div class="actual">
-                      {{ getMonthlyNetTotalWithDual(month).actual === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyNetTotalWithDual(month).actual, { type: 'net' }, formatCurrency) }}
+                      {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.actual }}
                     </div>
                     <div class="expected">
-                      / {{ getMonthlyNetTotalWithDual(month).expected === 0 ? '—' :
-                        formatAmountWithSign(getMonthlyNetTotalWithDual(month).expected, { type: 'net' }, formatCurrency)
-                      }}
+                      / {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.expected }}
                     </div>
                   </div>
                 </template>
-                <template v-else-if="props.dualMode === 'actual'">
-                  {{ getMonthlyNetTotalWithDual(month).actual === 0 ? '—' :
-                    formatAmountWithSign(getMonthlyNetTotalWithDual(month).actual, { type: 'net' }, formatCurrency) }}
-                </template>
                 <template v-else>
-                  {{ getMonthlyNetTotalWithDual(month).expected === 0 ? '—' :
-                    formatAmountWithSign(getMonthlyNetTotalWithDual(month).expected, { type: 'net' }, formatCurrency) }}
+                  <div v-if="getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.closed"
+                    class="text-green-600 dark:text-green-400 cursor-help"
+                    :title="`Month is closed - actual amount is displayed`">
+                    {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.value }}
+                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                  </div>
+                  <div v-else>
+                    {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.value }}
+                  </div>
                 </template>
               </div>
             </template>
@@ -2155,42 +2115,37 @@ const getFooterDualData = (dualData, itemType) => {
             :class="getMonthColumnClass(month)">
             <template #footer>
               <div :class="getFooterCellClasses(getRawValueForCSS(getMonthlySavingsTotalWithDual(month)), 'net')">
-                <template v-if="props.dualMode === 'both'">
-                  <div v-if="getMonthlySavingsTotalWithDual(month)?.closed" class="footer-dual-mode">
+                <template v-if="getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.type === 'both'">
+                  <div v-if="getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.closed"
+                    class="footer-dual-mode">
                     <div class="actual">
-                      {{ getMonthlySavingsTotalWithDual(month).actual === 0 ? '—' :
-                        formatAmountWithSign(getMonthlySavingsTotalWithDual(month).actual, { type: 'net' },
-                          formatCurrency) }}
+                      {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.actual }}
                     </div>
                     <div class="expected">
-                      / {{ getMonthlySavingsTotalWithDual(month).expected === 0 ? '—' :
-                        formatAmountWithSign(getMonthlySavingsTotalWithDual(month).expected, { type: 'net' },
-                          formatCurrency) }}
+                      / {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.expected }}
                     </div>
                     <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                       :title="`Month is closed - actual amount is displayed`">●</span>
                   </div>
                   <div v-else class="footer-dual-mode">
                     <div class="actual">
-                      {{ getMonthlySavingsTotalWithDual(month).actual === 0 ? '—' :
-                        formatAmountWithSign(getMonthlySavingsTotalWithDual(month).actual, { type: 'net' },
-                          formatCurrency) }}
+                      {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.actual }}
                     </div>
                     <div class="expected">
-                      / {{ getMonthlySavingsTotalWithDual(month).expected === 0 ? '—' :
-                        formatAmountWithSign(getMonthlySavingsTotalWithDual(month).expected, { type: 'net' },
-                          formatCurrency) }}
+                      / {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.expected }}
                     </div>
                   </div>
                 </template>
-                <template v-else-if="props.dualMode === 'actual'">
-                  {{ getMonthlySavingsTotalWithDual(month).actual === 0 ? '—' :
-                    formatAmountWithSign(getMonthlySavingsTotalWithDual(month).actual, { type: 'net' }, formatCurrency) }}
-                </template>
                 <template v-else>
-                  {{ getMonthlySavingsTotalWithDual(month).expected === 0 ? '—' :
-                    formatAmountWithSign(getMonthlySavingsTotalWithDual(month).expected, { type: 'net' }, formatCurrency)
-                  }}
+                  <div v-if="getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.closed"
+                    class="text-green-600 dark:text-green-400 cursor-help"
+                    :title="`Month is closed - actual amount is displayed`">
+                    {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.value }}
+                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
+                  </div>
+                  <div v-else>
+                    {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.value }}
+                  </div>
                 </template>
               </div>
             </template>
