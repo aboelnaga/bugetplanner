@@ -44,6 +44,7 @@ declare module 'vue' {
     Dropdown: typeof import('primevue/dropdown')['default']
     EditAccountModal: typeof import('./src/components/EditAccountModal.vue')['default']
     ExpenseBreakdownChart: typeof import('./src/components/ExpenseBreakdownChart.vue')['default']
+    FooterDualModeCell: typeof import('./src/components/FooterDualModeCell.vue')['default']
     HistoryModal: typeof import('./src/components/HistoryModal.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
     InputIcon: typeof import('primevue/inputicon')['default']

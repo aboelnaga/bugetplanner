@@ -7,6 +7,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
+import FooterDualModeCell from './FooterDualModeCell.vue'
 
 // Props
 const props = defineProps({
@@ -1170,95 +1171,24 @@ const getFooterDualData = (dualData, itemType) => {
             </Column>
             <Column :footerStyle="childRowStyle">
               <template #footer>
-                <div :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearIncomeTotalWithDual()), 'income')">
-                  <template v-if="getFooterDualData(getPreviousYearIncomeTotalWithDual(), 'income')?.type === 'both'">
-                    <div class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getPreviousYearIncomeTotalWithDual(), 'income')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getPreviousYearIncomeTotalWithDual(), 'income')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getPreviousYearIncomeTotalWithDual(), 'income')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Previous year data - actual amount is displayed`">
-                      {{ getFooterDualData(getPreviousYearIncomeTotalWithDual(), 'income')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getPreviousYearIncomeTotalWithDual(), 'income')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getPreviousYearIncomeTotalWithDual()" itemType="income"
+                  :closedTooltip="`Previous year data - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column v-for="month in months" :key="month" :footerStyle="childRowStyle"
               :class="getMonthColumnClass(month)">
               <template #footer>
-                <div :class="getFooterCellClasses(getRawValueForCSS(getMonthlyIncomeTotalWithDual(month)), 'income')">
-                  <template v-if="getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.type === 'both'">
-                    <div v-if="getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.closed"
-                      class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.expected }}
-                      </div>
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Month is closed - actual amount is displayed`">●</span>
-                    </div>
-                    <div v-else class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Month is closed - actual amount is displayed`">
-                      {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getMonthlyIncomeTotalWithDual(month), 'income')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getMonthlyIncomeTotalWithDual(month)" itemType="income"
+                  :closedTooltip="`Month is closed - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column frozen alignFrozen="right" :footerStyle="childRowStyle">
               <template #footer>
-                <div :class="getFooterCellClasses(getRawValueForCSS(getYearlyIncomeTotalWithDual()), 'income')">
-                  <template v-if="getFooterDualData(getYearlyIncomeTotalWithDual(), 'income')?.type === 'both'">
-                    <div class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getYearlyIncomeTotalWithDual(), 'income')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getYearlyIncomeTotalWithDual(), 'income')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getYearlyIncomeTotalWithDual(), 'income')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Yearly total - actual amount is displayed`">
-                      {{ getFooterDualData(getYearlyIncomeTotalWithDual(), 'income')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getYearlyIncomeTotalWithDual(), 'income')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getYearlyIncomeTotalWithDual()" itemType="income"
+                  :closedTooltip="`Yearly total - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column footer="" frozen alignFrozen="right" :footerStyle="childRowStyle" />
@@ -1273,99 +1203,24 @@ const getFooterDualData = (dualData, itemType) => {
             </Column>
             <Column :footerStyle="childRowStyle">
               <template #footer>
-                <div
-                  :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearExpensesTotalWithDual()), 'expense')">
-                  <template
-                    v-if="getFooterDualData(getPreviousYearExpensesTotalWithDual(), 'expense')?.type === 'both'">
-                    <div class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getPreviousYearExpensesTotalWithDual(), 'expense')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getPreviousYearExpensesTotalWithDual(), 'expense')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getPreviousYearExpensesTotalWithDual(), 'expense')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Previous year data - actual amount is displayed`">
-                      {{ getFooterDualData(getPreviousYearExpensesTotalWithDual(), 'expense')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getPreviousYearExpensesTotalWithDual(), 'expense')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getPreviousYearExpensesTotalWithDual()" itemType="expense"
+                  :closedTooltip="`Previous year data - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column v-for="month in months" :key="month" :footerStyle="childRowStyle"
               :class="getMonthColumnClass(month)">
               <template #footer>
-                <div
-                  :class="getFooterCellClasses(getRawValueForCSS(getMonthlyExpensesTotalWithDual(month)), 'expense')">
-                  <template
-                    v-if="getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.type === 'both'">
-                    <div v-if="getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.closed"
-                      class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.expected }}
-                      </div>
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Month is closed - actual amount is displayed`">●</span>
-                    </div>
-                    <div v-else class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Month is closed - actual amount is displayed`">
-                      {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getMonthlyExpensesTotalWithDual(month), 'expense')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getMonthlyExpensesTotalWithDual(month)" itemType="expense"
+                  :closedTooltip="`Month is closed - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column frozen alignFrozen="right" :footerStyle="childRowStyle">
               <template #footer>
-                <div :class="getFooterCellClasses(getRawValueForCSS(getYearlyExpensesTotalWithDual()), 'expense')">
-                  <template v-if="getFooterDualData(getYearlyExpensesTotalWithDual(), 'expense')?.type === 'both'">
-                    <div class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getYearlyExpensesTotalWithDual(), 'expense')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getYearlyExpensesTotalWithDual(), 'expense')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getYearlyExpensesTotalWithDual(), 'expense')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Yearly total - actual amount is displayed`">
-                      {{ getFooterDualData(getYearlyExpensesTotalWithDual(), 'expense')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getYearlyExpensesTotalWithDual(), 'expense')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getYearlyExpensesTotalWithDual()" itemType="expense"
+                  :closedTooltip="`Yearly total - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column footer="" frozen alignFrozen="right" :footerStyle="childRowStyle" />
@@ -1381,104 +1236,27 @@ const getFooterDualData = (dualData, itemType) => {
               </Column>
               <Column :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div
-                    :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearInvestmentIncomingTotalWithDual()), 'income')">
-                    <template
-                      v-if="getFooterDualData(getPreviousYearInvestmentIncomingTotalWithDual(), 'income')?.type === 'both'">
-                      <div class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getPreviousYearInvestmentIncomingTotalWithDual(), 'income')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getPreviousYearInvestmentIncomingTotalWithDual(), 'income')?.expected
-                          }}
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-if="getFooterDualData(getPreviousYearInvestmentIncomingTotalWithDual(), 'income')?.closed"
-                        class="text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Previous year data - actual amount is displayed`">
-                        {{ getFooterDualData(getPreviousYearInvestmentIncomingTotalWithDual(), 'income')?.value }}
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                      </div>
-                      <div v-else>
-                        {{ getFooterDualData(getPreviousYearInvestmentIncomingTotalWithDual(), 'income')?.value }}
-                      </div>
-                    </template>
-                  </div>
+                  <FooterDualModeCell :data="getPreviousYearInvestmentIncomingTotalWithDual()" itemType="income"
+                    :closedTooltip="`Previous year data - actual amount is displayed`"
+                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
+                    :dualMode="dualMode" />
                 </template>
               </Column>
               <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle"
                 :class="getMonthColumnClass(month)">
                 <template #footer>
-                  <div
-                    :class="getFooterCellClasses(getRawValueForCSS(getMonthlyInvestmentIncomingTotalWithDual(month)), 'income')">
-                    <template
-                      v-if="getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.type === 'both'">
-                      <div v-if="getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.closed"
-                        class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.expected
-                          }}
-                        </div>
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                          :title="`Month is closed - actual amount is displayed`">●</span>
-                      </div>
-                      <div v-else class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.expected
-                          }}
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-if="getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.closed"
-                        class="text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Month is closed - actual amount is displayed`">
-                        {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.value }}
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                      </div>
-                      <div v-else>
-                        {{ getFooterDualData(getMonthlyInvestmentIncomingTotalWithDual(month), 'income')?.value }}
-                      </div>
-                    </template>
-                  </div>
+                  <FooterDualModeCell :data="getMonthlyInvestmentIncomingTotalWithDual(month)" itemType="income"
+                    :closedTooltip="`Month is closed - actual amount is displayed`"
+                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
+                    :dualMode="dualMode" />
                 </template>
               </Column>
               <Column frozen alignFrozen="right" :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div
-                    :class="getFooterCellClasses(getRawValueForCSS(getYearlyInvestmentIncomingTotalWithDual()), 'income')">
-                    <template
-                      v-if="getFooterDualData(getYearlyInvestmentIncomingTotalWithDual(), 'income')?.type === 'both'">
-                      <div class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getYearlyInvestmentIncomingTotalWithDual(), 'income')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getYearlyInvestmentIncomingTotalWithDual(), 'income')?.expected }}
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-if="getFooterDualData(getYearlyInvestmentIncomingTotalWithDual(), 'income')?.closed"
-                        class="text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Yearly total - actual amount is displayed`">
-                        {{ getFooterDualData(getYearlyInvestmentIncomingTotalWithDual(), 'income')?.value }}
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                      </div>
-                      <div v-else>
-                        {{ getFooterDualData(getYearlyInvestmentIncomingTotalWithDual(), 'income')?.value }}
-                      </div>
-                    </template>
-                  </div>
+                  <FooterDualModeCell :data="getYearlyInvestmentIncomingTotalWithDual()" itemType="income"
+                    :closedTooltip="`Yearly total - actual amount is displayed`"
+                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
+                    :dualMode="dualMode" />
                 </template>
               </Column>
               <Column footer="" frozen alignFrozen="right" :footerStyle="grandchildRowStyle" />
@@ -1493,104 +1271,27 @@ const getFooterDualData = (dualData, itemType) => {
               </Column>
               <Column :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div
-                    :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearInvestmentOutgoingTotalWithDual()), 'expense')">
-                    <template
-                      v-if="getFooterDualData(getPreviousYearInvestmentOutgoingTotalWithDual(), 'expense')?.type === 'both'">
-                      <div class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getPreviousYearInvestmentOutgoingTotalWithDual(), 'expense')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getPreviousYearInvestmentOutgoingTotalWithDual(), 'expense')?.expected
-                          }}
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-if="getFooterDualData(getPreviousYearInvestmentOutgoingTotalWithDual(), 'expense')?.closed"
-                        class="text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Previous year data - actual amount is displayed`">
-                        {{ getFooterDualData(getPreviousYearInvestmentOutgoingTotalWithDual(), 'expense')?.value }}
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                      </div>
-                      <div v-else>
-                        {{ getFooterDualData(getPreviousYearInvestmentOutgoingTotalWithDual(), 'expense')?.value }}
-                      </div>
-                    </template>
-                  </div>
+                  <FooterDualModeCell :data="getPreviousYearInvestmentOutgoingTotalWithDual()" itemType="expense"
+                    :closedTooltip="`Previous year data - actual amount is displayed`"
+                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
+                    :dualMode="dualMode" />
                 </template>
               </Column>
               <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle"
                 :class="getMonthColumnClass(month)">
                 <template #footer>
-                  <div
-                    :class="getFooterCellClasses(getRawValueForCSS(getMonthlyInvestmentOutgoingTotalWithDual(month)), 'expense')">
-                    <template
-                      v-if="getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.type === 'both'">
-                      <div v-if="getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.closed"
-                        class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.expected
-                          }}
-                        </div>
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                          :title="`Month is closed - actual amount is displayed`">●</span>
-                      </div>
-                      <div v-else class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.expected
-                          }}
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-if="getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.closed"
-                        class="text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Month is closed - actual amount is displayed`">
-                        {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.value }}
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                      </div>
-                      <div v-else>
-                        {{ getFooterDualData(getMonthlyInvestmentOutgoingTotalWithDual(month), 'expense')?.value }}
-                      </div>
-                    </template>
-                  </div>
+                  <FooterDualModeCell :data="getMonthlyInvestmentOutgoingTotalWithDual(month)" itemType="expense"
+                    :closedTooltip="`Month is closed - actual amount is displayed`"
+                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
+                    :dualMode="dualMode" />
                 </template>
               </Column>
               <Column frozen alignFrozen="right" :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <div
-                    :class="getFooterCellClasses(getRawValueForCSS(getYearlyInvestmentOutgoingTotalWithDual()), 'expense')">
-                    <template
-                      v-if="getFooterDualData(getYearlyInvestmentOutgoingTotalWithDual(), 'expense')?.type === 'both'">
-                      <div class="footer-dual-mode">
-                        <div class="actual">
-                          {{ getFooterDualData(getYearlyInvestmentOutgoingTotalWithDual(), 'expense')?.actual }}
-                        </div>
-                        <div class="expected">
-                          / {{ getFooterDualData(getYearlyInvestmentOutgoingTotalWithDual(), 'expense')?.expected }}
-                        </div>
-                      </div>
-                    </template>
-                    <template v-else>
-                      <div v-if="getFooterDualData(getYearlyInvestmentOutgoingTotalWithDual(), 'expense')?.closed"
-                        class="text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Yearly total - actual amount is displayed`">
-                        {{ getFooterDualData(getYearlyInvestmentOutgoingTotalWithDual(), 'expense')?.value }}
-                        <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                      </div>
-                      <div v-else>
-                        {{ getFooterDualData(getYearlyInvestmentOutgoingTotalWithDual(), 'expense')?.value }}
-                      </div>
-                    </template>
-                  </div>
+                  <FooterDualModeCell :data="getYearlyInvestmentOutgoingTotalWithDual()" itemType="expense"
+                    :closedTooltip="`Yearly total - actual amount is displayed`"
+                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
+                    :dualMode="dualMode" />
                 </template>
               </Column>
               <Column footer="" frozen alignFrozen="right" :footerStyle="grandchildRowStyle" />
@@ -1612,101 +1313,26 @@ const getFooterDualData = (dualData, itemType) => {
             </Column>
             <Column :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
-                <div
-                  :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearInvestmentNetTotalWithDual()), 'net')">
-                  <template
-                    v-if="getFooterDualData(getPreviousYearInvestmentNetTotalWithDual(), 'net')?.type === 'both'">
-                    <div class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getPreviousYearInvestmentNetTotalWithDual(), 'net')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getPreviousYearInvestmentNetTotalWithDual(), 'net')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getPreviousYearInvestmentNetTotalWithDual(), 'net')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Previous year data - actual amount is displayed`">
-                      {{ getFooterDualData(getPreviousYearInvestmentNetTotalWithDual(), 'net')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getPreviousYearInvestmentNetTotalWithDual(), 'net')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getPreviousYearInvestmentNetTotalWithDual()" itemType="net"
+                  :closedTooltip="`Previous year data - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column v-for="month in months" :key="month"
               :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
               :class="getMonthColumnClass(month)">
               <template #footer>
-                <div
-                  :class="getFooterCellClasses(getRawValueForCSS(getMonthlyInvestmentNetTotalWithDual(month)), 'net')">
-                  <template
-                    v-if="getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.type === 'both'">
-                    <div v-if="getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.closed"
-                      class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.expected }}
-                      </div>
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                        :title="`Month is closed - actual amount is displayed`">●</span>
-                    </div>
-                    <div v-else class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Month is closed - actual amount is displayed`">
-                      {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getMonthlyInvestmentNetTotalWithDual(month), 'net')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getMonthlyInvestmentNetTotalWithDual(month)" itemType="net"
+                  :closedTooltip="`Month is closed - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column frozen alignFrozen="right"
               :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
-                <div :class="getFooterCellClasses(getRawValueForCSS(getYearlyInvestmentNetTotalWithDual()), 'net')">
-                  <template v-if="getFooterDualData(getYearlyInvestmentNetTotalWithDual(), 'net')?.type === 'both'">
-                    <div class="footer-dual-mode">
-                      <div class="actual">
-                        {{ getFooterDualData(getYearlyInvestmentNetTotalWithDual(), 'net')?.actual }}
-                      </div>
-                      <div class="expected">
-                        / {{ getFooterDualData(getYearlyInvestmentNetTotalWithDual(), 'net')?.expected }}
-                      </div>
-                    </div>
-                  </template>
-                  <template v-else>
-                    <div v-if="getFooterDualData(getYearlyInvestmentNetTotalWithDual(), 'net')?.closed"
-                      class="text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Yearly total - actual amount is displayed`">
-                      {{ getFooterDualData(getYearlyInvestmentNetTotalWithDual(), 'net')?.value }}
-                      <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                    </div>
-                    <div v-else>
-                      {{ getFooterDualData(getYearlyInvestmentNetTotalWithDual(), 'net')?.value }}
-                    </div>
-                  </template>
-                </div>
+                <FooterDualModeCell :data="getYearlyInvestmentNetTotalWithDual()" itemType="net"
+                  :closedTooltip="`Yearly total - actual amount is displayed`"
+                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
             <Column footer="" frozen alignFrozen="right"
@@ -1728,95 +1354,24 @@ const getFooterDualData = (dualData, itemType) => {
           </Column>
           <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearNetTotalWithDual()), 'net')">
-                <template v-if="getFooterDualData(getPreviousYearNetTotalWithDual(), 'net')?.type === 'both'">
-                  <div class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getPreviousYearNetTotalWithDual(), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getPreviousYearNetTotalWithDual(), 'net')?.expected }}
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div v-if="getFooterDualData(getPreviousYearNetTotalWithDual(), 'net')?.closed"
-                    class="text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Previous year data - actual amount is displayed`">
-                    {{ getFooterDualData(getPreviousYearNetTotalWithDual(), 'net')?.value }}
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                  </div>
-                  <div v-else>
-                    {{ getFooterDualData(getPreviousYearNetTotalWithDual(), 'net')?.value }}
-                  </div>
-                </template>
-              </div>
+              <FooterDualModeCell :data="getPreviousYearNetTotalWithDual()" itemType="net"
+                :closedTooltip="`Previous year data - actual amount is displayed`"
+                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
           <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle"
             :class="getMonthColumnClass(month)">
             <template #footer>
-              <div :class="getFooterCellClasses(getRawValueForCSS(getMonthlyNetTotalWithDual(month)), 'net')">
-                <template v-if="getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.type === 'both'">
-                  <div v-if="getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.closed"
-                    class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.expected }}
-                    </div>
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Month is closed - actual amount is displayed`">●</span>
-                  </div>
-                  <div v-else class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.expected }}
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div v-if="getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.closed"
-                    class="text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Month is closed - actual amount is displayed`">
-                    {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.value }}
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                  </div>
-                  <div v-else>
-                    {{ getFooterDualData(getMonthlyNetTotalWithDual(month), 'net')?.value }}
-                  </div>
-                </template>
-              </div>
+              <FooterDualModeCell :data="getMonthlyNetTotalWithDual(month)" itemType="net"
+                :closedTooltip="`Month is closed - actual amount is displayed`"
+                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
           <Column frozen alignFrozen="right" :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getFooterCellClasses(getRawValueForCSS(getYearlyNetTotalWithDual()), 'net')">
-                <template v-if="getFooterDualData(getYearlyNetTotalWithDual(), 'net')?.type === 'both'">
-                  <div class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getYearlyNetTotalWithDual(), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getYearlyNetTotalWithDual(), 'net')?.expected }}
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div v-if="getFooterDualData(getYearlyNetTotalWithDual(), 'net')?.closed"
-                    class="text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Yearly total - actual amount is displayed`">
-                    {{ getFooterDualData(getYearlyNetTotalWithDual(), 'net')?.value }}
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                  </div>
-                  <div v-else>
-                    {{ getFooterDualData(getYearlyNetTotalWithDual(), 'net')?.value }}
-                  </div>
-                </template>
-              </div>
+              <FooterDualModeCell :data="getYearlyNetTotalWithDual()" itemType="net"
+                :closedTooltip="`Yearly total - actual amount is displayed`"
+                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
           <Column footer="" frozen alignFrozen="right" :footerStyle="parentRowStyle" />
@@ -1826,95 +1381,24 @@ const getFooterDualData = (dualData, itemType) => {
           <Column footer="Cumulative Savings:" frozen alignFrozen="left" :footerStyle="parentRowStyle" />
           <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getFooterCellClasses(getRawValueForCSS(getPreviousYearSavingsTotalWithDual()), 'net')">
-                <template v-if="getFooterDualData(getPreviousYearSavingsTotalWithDual(), 'net')?.type === 'both'">
-                  <div class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getPreviousYearSavingsTotalWithDual(), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getPreviousYearSavingsTotalWithDual(), 'net')?.expected }}
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div v-if="getFooterDualData(getPreviousYearSavingsTotalWithDual(), 'net')?.closed"
-                    class="text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Previous year data - actual amount is displayed`">
-                    {{ getFooterDualData(getPreviousYearSavingsTotalWithDual(), 'net')?.value }}
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                  </div>
-                  <div v-else>
-                    {{ getFooterDualData(getPreviousYearSavingsTotalWithDual(), 'net')?.value }}
-                  </div>
-                </template>
-              </div>
+              <FooterDualModeCell :data="getPreviousYearSavingsTotalWithDual()" itemType="net"
+                :closedTooltip="`Previous year data - actual amount is displayed`"
+                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
           <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle"
             :class="getMonthColumnClass(month)">
             <template #footer>
-              <div :class="getFooterCellClasses(getRawValueForCSS(getMonthlySavingsTotalWithDual(month)), 'net')">
-                <template v-if="getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.type === 'both'">
-                  <div v-if="getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.closed"
-                    class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.expected }}
-                    </div>
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Month is closed - actual amount is displayed`">●</span>
-                  </div>
-                  <div v-else class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.expected }}
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div v-if="getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.closed"
-                    class="text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Month is closed - actual amount is displayed`">
-                    {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.value }}
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                  </div>
-                  <div v-else>
-                    {{ getFooterDualData(getMonthlySavingsTotalWithDual(month), 'net')?.value }}
-                  </div>
-                </template>
-              </div>
+              <FooterDualModeCell :data="getMonthlySavingsTotalWithDual(month)" itemType="net"
+                :closedTooltip="`Month is closed - actual amount is displayed`"
+                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
           <Column frozen alignFrozen="right" :footerStyle="parentRowStyle">
             <template #footer>
-              <div :class="getFooterCellClasses(getRawValueForCSS(getYearlySavingsTotalWithDual()), 'net')">
-                <template v-if="getFooterDualData(getYearlySavingsTotalWithDual(), 'net')?.type === 'both'">
-                  <div class="footer-dual-mode">
-                    <div class="actual">
-                      {{ getFooterDualData(getYearlySavingsTotalWithDual(), 'net')?.actual }}
-                    </div>
-                    <div class="expected">
-                      / {{ getFooterDualData(getYearlySavingsTotalWithDual(), 'net')?.expected }}
-                    </div>
-                  </div>
-                </template>
-                <template v-else>
-                  <div v-if="getFooterDualData(getYearlySavingsTotalWithDual(), 'net')?.closed"
-                    class="text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Yearly total - actual amount is displayed`">
-                    {{ getFooterDualData(getYearlySavingsTotalWithDual(), 'net')?.value }}
-                    <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
-                  </div>
-                  <div v-else>
-                    {{ getFooterDualData(getYearlySavingsTotalWithDual(), 'net')?.value }}
-                  </div>
-                </template>
-              </div>
+              <FooterDualModeCell :data="getYearlySavingsTotalWithDual()" itemType="net"
+                :closedTooltip="`Yearly total - actual amount is displayed`"
+                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
           <Column footer="" frozen alignFrozen="right" :footerStyle="parentRowStyle" />
