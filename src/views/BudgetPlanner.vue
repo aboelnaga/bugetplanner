@@ -429,18 +429,18 @@ watch(selectedYear, async (newYear) => {
         <div class="flex items-center space-x-3">
           <!-- Auto-close Header Badge -->
           <div v-if="budgetStore.showHeaderBadge"
-               class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
+            class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd" />
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd" />
             </svg>
             <span>{{ budgetStore.headerBadgeText }}</span>
           </div>
         </div>
         <div class="flex gap-2">
           <Button data-testid="add-budget-btn" label="Add Budget Item" icon="pi pi-plus"
-                  @click="openAddBudgetModalUnified" />
+            @click="openAddBudgetModalUnified" />
           <!-- <Button label="View History" icon="pi pi-history" severity="secondary" @click="openHistoryModal" /> -->
         </div>
       </div>
@@ -457,7 +457,7 @@ watch(selectedYear, async (newYear) => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div v-for="account in accountsStore.accounts" :key="account.id"
-                 class="surface-50 border surface-border rounded-lg p-4">
+              class="surface-50 border surface-border rounded-lg p-4">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-lg">{{ getAccountIcon(account.type) }}</span>
@@ -497,109 +497,111 @@ watch(selectedYear, async (newYear) => {
 
       <!-- Budget Control Panel -->
       <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
-                          :selected-type-filter="selectedTypeFilter" :selected-category-filter="selectedCategoryFilter"
-                          :unique-categories="uniqueCategories" :can-copy-from-previous-year="canCopyFromPreviousYear"
-                          :group-by-category="groupByCategory" :budget-items="budgetItems"
-                          @update:selected-year="(year) => selectedYear = year"
-                          @update:selected-type-filter="(filter) => selectedTypeFilter = filter"
-                          @update:selected-category-filter="(filter) => selectedCategoryFilter = filter"
-                          @update:group-by-category="(grouped) => groupByCategory = grouped" @add-year="addNewYear"
-                          @copy-from-previous-year="copyFromPreviousYear" @clear-filters="clearAllFilters" />
+        :selected-type-filter="selectedTypeFilter" :selected-category-filter="selectedCategoryFilter"
+        :unique-categories="uniqueCategories" :can-copy-from-previous-year="canCopyFromPreviousYear"
+        :group-by-category="groupByCategory" :budget-items="budgetItems"
+        @update:selected-year="(year) => selectedYear = year"
+        @update:selected-type-filter="(filter) => selectedTypeFilter = filter"
+        @update:selected-category-filter="(filter) => selectedCategoryFilter = filter"
+        @update:group-by-category="(grouped) => groupByCategory = grouped" @add-year="addNewYear"
+        @copy-from-previous-year="copyFromPreviousYear" @clear-filters="clearAllFilters" />
 
 
       <!-- New DataTable Implementation (for comparison/testing) -->
       <div class="mt-8">
         <BudgetDataTable :loading="budgetStore.loading" :error="budgetStore.error" :budget-items="budgetItems"
-                         :selected-year="selectedYear" :current-year="budgetStore.currentYear" :current-month="currentMonth"
-                         :format-currency="formatCurrency" :calculate-monthly-income="calculateMonthlyIncome"
-                         :calculate-monthly-expenses="calculateMonthlyExpenses" :calculate-monthly-total="calculateMonthlyTotal"
-                         :calculate-grand-total-income="calculateGrandTotalIncome"
-                         :calculate-grand-total-expenses="calculateGrandTotalExpenses" :calculate-grand-total="calculateGrandTotal"
-                         :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
-                         :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
-                         :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
-                         :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
-                         :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
-                         :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
-                         :calculate-previous-year-savings="calculatePreviousYearSavings" :closed-months="closedMonths"
-                         :get-actual-amount="getActualAmount" :dual-mode="dualMode"
-                         :calculate-monthly-actual-income="calculateMonthlyActualIncome"
-                         :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
-                         :calculate-monthly-actual-total="calculateMonthlyActualTotal"
-                         :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
-                         :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
-                         :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
-                         @edit-budget="editBudgetUnified" @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget"
-                         @view-transactions="handleViewTransactions" @update:dual-mode="(mode) => dualMode = mode" />
+          :selected-year="selectedYear" :current-year="budgetStore.currentYear" :current-month="currentMonth"
+          :format-currency="formatCurrency" :calculate-monthly-income="calculateMonthlyIncome"
+          :calculate-monthly-expenses="calculateMonthlyExpenses" :calculate-monthly-total="calculateMonthlyTotal"
+          :calculate-grand-total-income="calculateGrandTotalIncome"
+          :calculate-grand-total-expenses="calculateGrandTotalExpenses" :calculate-grand-total="calculateGrandTotal"
+          :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
+          :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
+          :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
+          :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
+          :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
+          :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+          :calculate-previous-year-savings="calculatePreviousYearSavings" :closed-months="closedMonths"
+          :get-actual-amount="getActualAmount" :dual-mode="dualMode"
+          :calculate-monthly-actual-income="calculateMonthlyActualIncome"
+          :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
+          :calculate-monthly-actual-total="calculateMonthlyActualTotal"
+          :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
+          :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
+          :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
+          :can-copy-from-previous-year="canCopyFromPreviousYear" @edit-budget="editBudgetUnified"
+          @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @view-transactions="handleViewTransactions"
+          @update:dual-mode="(mode) => dualMode = mode" @add-budget="openAddBudgetModalUnified"
+          @copy-from-previous-year="copyFromPreviousYear" />
       </div>
 
       <!-- Budget Table -->
       <BudgetTable data-testid="budget-table" :loading="budgetStore.loading" :error="budgetStore.error"
-                   :budget-items="budgetItems" :selected-category-filter="selectedCategoryFilter"
-                   :can-copy-from-previous-year="canCopyFromPreviousYear" :filtered-budget-items="filteredBudgetItems"
-                   :grouped-budget-items="groupedBudgetItems" :months="MONTHS" :selected-year="selectedYear"
-                   :current-year="budgetStore.currentYear" :current-month="currentMonth" :group-by-category="groupByCategory"
-                   :selected-type-filter="selectedTypeFilter" :has-income-data="hasIncomeData" :has-expense-data="hasExpenseData"
-                   :has-investment-data="hasInvestmentData" :has-investment-incoming-data="hasInvestmentIncomingData"
-                   :has-investment-outgoing-data="hasInvestmentOutgoingData" :has-any-data="hasAnyData"
-                   :calculate-yearly-total="calculateYearlyTotal" :calculate-monthly-total="calculateMonthlyTotal"
-                   :calculate-monthly-income="calculateMonthlyIncome" :calculate-monthly-expenses="calculateMonthlyExpenses"
-                   :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
-                   :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
-                   :calculate-monthly-investment-net="calculateMonthlyInvestmentNet" :calculate-grand-total="calculateGrandTotal"
-                   :calculate-grand-total-income="calculateGrandTotalIncome"
-                   :calculate-grand-total-expenses="calculateGrandTotalExpenses"
-                   :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
-                   :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
-                   :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
-                   :calculate-monthly-actual-income="calculateMonthlyActualIncome"
-                   :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
-                   :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
-                   :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
-                   :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
-                   :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
-                   :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
-                   :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
-                   :calculate-monthly-actual-total="calculateMonthlyActualTotal"
-                   :calculate-grand-total-actual="calculateGrandTotalActual"
-                   :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
-                   :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
-                   :get-category-type="getCategoryType" :calculate-category-total="calculateCategoryTotal"
-                   :calculate-category-monthly-total="calculateCategoryMonthlyTotal" :is-scheduled-month="isScheduledMonth"
-                   :get-budget-amount="getBudgetAmount" :has-changes="hasChanges" :format-currency="formatCurrency"
-                   :closed-months="closedMonths" :get-actual-amount="getActualAmount"
-                   :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
-                   :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
-                   :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
-                   :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
-                   :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
-                   :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
-                   :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
-                   :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
-                   :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
-                   :calculate-grand-total-planned="calculateGrandTotalPlanned"
-                   :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
-                   :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
-                   :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
-                   :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
-                   :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
-                   :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
-                   :calculate-cumulative-savings="calculateCumulativeSavings"
-                   :calculate-grand-total-savings="calculateGrandTotalSavings"
-                   :calculate-previous-year-savings="calculatePreviousYearSavings" @retry="budgetStore.fetchBudgetItems()"
-                   @add-first-budget="openAddBudgetModalUnified" @copy-from-previous-year="copyFromPreviousYear"
-                   @clear-filters="clearAllFilters" @add-budget="openAddBudgetModalUnified" @edit-budget="editBudgetUnified"
-                   @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @close-month="handleCloseMonth"
-                   @view-transactions="handleViewTransactions" />
+        :budget-items="budgetItems" :selected-category-filter="selectedCategoryFilter"
+        :can-copy-from-previous-year="canCopyFromPreviousYear" :filtered-budget-items="filteredBudgetItems"
+        :grouped-budget-items="groupedBudgetItems" :months="MONTHS" :selected-year="selectedYear"
+        :current-year="budgetStore.currentYear" :current-month="currentMonth" :group-by-category="groupByCategory"
+        :selected-type-filter="selectedTypeFilter" :has-income-data="hasIncomeData" :has-expense-data="hasExpenseData"
+        :has-investment-data="hasInvestmentData" :has-investment-incoming-data="hasInvestmentIncomingData"
+        :has-investment-outgoing-data="hasInvestmentOutgoingData" :has-any-data="hasAnyData"
+        :calculate-yearly-total="calculateYearlyTotal" :calculate-monthly-total="calculateMonthlyTotal"
+        :calculate-monthly-income="calculateMonthlyIncome" :calculate-monthly-expenses="calculateMonthlyExpenses"
+        :calculate-monthly-investment-incoming="calculateMonthlyInvestmentIncoming"
+        :calculate-monthly-investment-outgoing="calculateMonthlyInvestmentOutgoing"
+        :calculate-monthly-investment-net="calculateMonthlyInvestmentNet" :calculate-grand-total="calculateGrandTotal"
+        :calculate-grand-total-income="calculateGrandTotalIncome"
+        :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+        :calculate-grand-total-investment-incoming="calculateGrandTotalInvestmentIncoming"
+        :calculate-grand-total-investment-outgoing="calculateGrandTotalInvestmentOutgoing"
+        :calculate-grand-total-investment-net="calculateGrandTotalInvestmentNet"
+        :calculate-monthly-actual-income="calculateMonthlyActualIncome"
+        :calculate-grand-total-actual-income="calculateGrandTotalActualIncome"
+        :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
+        :calculate-grand-total-actual-expenses="calculateGrandTotalActualExpenses"
+        :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
+        :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
+        :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
+        :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
+        :calculate-monthly-actual-total="calculateMonthlyActualTotal"
+        :calculate-grand-total-actual="calculateGrandTotalActual"
+        :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
+        :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
+        :get-category-type="getCategoryType" :calculate-category-total="calculateCategoryTotal"
+        :calculate-category-monthly-total="calculateCategoryMonthlyTotal" :is-scheduled-month="isScheduledMonth"
+        :get-budget-amount="getBudgetAmount" :has-changes="hasChanges" :format-currency="formatCurrency"
+        :closed-months="closedMonths" :get-actual-amount="getActualAmount"
+        :calculate-monthly-planned-income="calculateMonthlyPlannedIncome"
+        :calculate-monthly-planned-expenses="calculateMonthlyPlannedExpenses"
+        :calculate-monthly-planned-investment-incoming="calculateMonthlyPlannedInvestmentIncoming"
+        :calculate-monthly-planned-investment-outgoing="calculateMonthlyPlannedInvestmentOutgoing"
+        :calculate-monthly-planned-total="calculateMonthlyPlannedTotal"
+        :calculate-grand-total-planned-income="calculateGrandTotalPlannedIncome"
+        :calculate-grand-total-planned-expenses="calculateGrandTotalPlannedExpenses"
+        :calculate-grand-total-planned-investment-incoming="calculateGrandTotalPlannedInvestmentIncoming"
+        :calculate-grand-total-planned-investment-outgoing="calculateGrandTotalPlannedInvestmentOutgoing"
+        :calculate-grand-total-planned="calculateGrandTotalPlanned"
+        :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
+        :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
+        :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
+        :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
+        :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
+        :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+        :calculate-cumulative-savings="calculateCumulativeSavings"
+        :calculate-grand-total-savings="calculateGrandTotalSavings"
+        :calculate-previous-year-savings="calculatePreviousYearSavings" @retry="budgetStore.fetchBudgetItems()"
+        @add-first-budget="openAddBudgetModalUnified" @copy-from-previous-year="copyFromPreviousYear"
+        @clear-filters="clearAllFilters" @add-budget="openAddBudgetModalUnified" @edit-budget="editBudgetUnified"
+        @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @close-month="handleCloseMonth"
+        @view-transactions="handleViewTransactions" />
     </div>
 
     <!-- Unified Budget Modal -->
     <AddBudgetModal v-model="showAddBudgetModal" :mode="budgetModalMode" :budget="editingBudget"
-                    :selected-year="selectedYear" @budget-added="handleBudgetAdded" @budget-updated="handleBudgetUpdated" />
+      :selected-year="selectedYear" @budget-added="handleBudgetAdded" @budget-updated="handleBudgetUpdated" />
 
     <!-- Close Month Modal -->
     <CloseMonthModal v-model="showCloseMonthModal" :year="closingMonthYear" :month="closingMonthIndex"
-                     :budget-items-count="budgetItems.length" :transactions-count="transactionsCount" @confirm="confirmCloseMonth" />
+      :budget-items-count="budgetItems.length" :transactions-count="transactionsCount" @confirm="confirmCloseMonth" />
 
     <!-- History Modal -->
     <!-- <HistoryModal v-model="showHistoryModal" /> -->

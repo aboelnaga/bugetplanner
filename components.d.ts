@@ -50,6 +50,7 @@ declare module 'vue' {
     FooterDualModeCell: typeof import('./src/components/FooterDualModeCell.vue')['default']
     HistoryModal: typeof import('./src/components/HistoryModal.vue')['default']
     IconField: typeof import('primevue/iconfield')['default']
+    InlineMessage: typeof import('primevue/inlinemessage')['default']
     InputIcon: typeof import('primevue/inputicon')['default']
     InputNumber: typeof import('primevue/inputnumber')['default']
     InputText: typeof import('primevue/inputtext')['default']

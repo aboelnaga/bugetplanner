@@ -5,6 +5,7 @@ import Button from 'primevue/button'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
+import ProgressSpinner from 'primevue/progressspinner'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
 import BudgetCell from './BudgetCell.vue'
@@ -141,6 +142,12 @@ const props = defineProps({
     type: String,
     default: 'both', // 'both', 'actual', 'expected'
     validator: (value) => ['both', 'actual', 'expected'].includes(value)
+  },
+
+  // Copy from previous year functionality
+  canCopyFromPreviousYear: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -150,7 +157,10 @@ const emit = defineEmits([
   'duplicate-budget',
   'delete-budget',
   'view-transactions',
-  'update:dualMode'
+  'update:dualMode',
+  'add-budget',
+  'retry-load',
+  'copy-from-previous-year'
 ])
 
 // Use the composable
@@ -185,6 +195,20 @@ const showDetailedInvestmentBreakdown = ref(false)
 
 // Constants
 const months = MONTHS
+
+// Computed properties for empty state logic
+const hasActiveFilter = computed(() => {
+  return filters.value.global.value && filters.value.global.value.trim() !== ''
+})
+
+const hasNoDataForYear = computed(() => {
+  return !props.loading && props.budgetItems && props.budgetItems.length === 0
+})
+
+// Methods for empty state actions
+const clearFilters = () => {
+  filters.value.global.value = null
+}
 
 // Helper functions
 const getTypeLabel = (type) => {
@@ -964,54 +988,101 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
       <h3 class="text-lg font-semibold text-blue-600">New DataTable Implementation (Testing)</h3>
     </div>
 
-    <!-- DataTable with Column Groups -->
-    <DataTable :value="flattenedBudgetData" :loading="loading" :filters="filters" filterDisplay="menu"
-      :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle="" scrollable
-      scrollHeight="70vh" class="budget-datatable" showGridlines>
-      <template #header>
-        <div class="flex justify-between items-center">
-          <!-- Dual Mode Filter -->
-          <div class="flex items-center space-x-3">
-            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Display Mode:</span>
-            <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-              <button @click="$emit('update:dualMode', 'both')" :class="[
-                'px-3 py-1 text-sm font-medium rounded-md transition-colors',
-                props.dualMode === 'both'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              ]">
-                Both
-              </button>
-              <button @click="$emit('update:dualMode', 'actual')" :class="[
-                'px-3 py-1 text-sm font-medium rounded-md transition-colors',
-                props.dualMode === 'actual'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              ]">
-                Actual
-              </button>
-              <button @click="$emit('update:dualMode', 'expected')" :class="[
-                'px-3 py-1 text-sm font-medium rounded-md transition-colors',
-                props.dualMode === 'expected'
-                  ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-              ]">
-                Expected
-              </button>
-            </div>
+    <!-- Header Controls - Only show when there's data or loading -->
+    <div v-if="!hasNoDataForYear || loading" class="flex justify-between items-center mb-4">
+      <!-- Dual Mode Filter -->
+      <div class="flex items-center space-x-3">
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Display Mode:</span>
+        <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+          <Button @click="$emit('update:dualMode', 'both')" :label="'Both'" :text="props.dualMode !== 'both'"
+            :outlined="props.dualMode !== 'both'" size="small" class="mr-1" />
+          <Button @click="$emit('update:dualMode', 'actual')" :label="'Actual'" :text="props.dualMode !== 'actual'"
+            :outlined="props.dualMode !== 'actual'" size="small" class="mr-1" />
+          <Button @click="$emit('update:dualMode', 'expected')" :label="'Expected'"
+            :text="props.dualMode !== 'expected'" :outlined="props.dualMode !== 'expected'" size="small" />
+        </div>
+      </div>
+
+      <!-- Search Input -->
+      <div class="flex items-center justify-end gap-3">
+        <IconField>
+          <InputIcon class="pi pi-search" />
+          <InputText v-model="filters['global'].value" placeholder="Search budget items..." class="w-80" />
+          <InputIcon v-if="hasActiveFilter" class="pi pi-times cursor-pointer hover:text-red-500"
+            @click="clearFilters" />
+        </IconField>
+
+        <!-- Filter Active Indicator -->
+        <Tag v-if="hasActiveFilter" value="Filtered" severity="info" class="text-xs" />
+      </div>
+    </div>
+
+    <!-- DataTable with Column Groups - Only show when there's data or loading -->
+    <DataTable v-if="!hasNoDataForYear || loading" :value="flattenedBudgetData" :loading="loading" :filters="filters"
+      filterDisplay="menu" :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle=""
+      scrollable scrollHeight="70vh" class="budget-datatable" showGridlines>
+      <template #empty>
+        <div class="flex flex-col items-center justify-center py-16">
+          <!-- Simple icon -->
+          <div class="mb-6">
+            <i class="pi pi-inbox text-4xl text-gray-400 dark:text-gray-500"></i>
           </div>
 
-          <!-- Search Input -->
-          <div class="flex justify-end">
-            <IconField>
-              <InputIcon class="pi pi-search" />
-              <InputText v-model="filters['global'].value" placeholder="Search budget items..." class="w-80" />
-            </IconField>
+          <!-- Content -->
+          <div class="text-center max-w-md">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              {{ hasActiveFilter ? 'No Matching Budget Items' : 'No Budget Data for ' + selectedYear }}
+            </h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+              {{ hasActiveFilter
+                ? 'Try adjusting your search criteria or clearing the filter to see all budget items.'
+                : 'Start by adding your first budget item to begin tracking your finances for this year.'
+              }}
+            </p>
+
+            <!-- Action buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button v-if="hasActiveFilter" @click="clearFilters" icon="pi pi-filter-slash" label="Clear Filter"
+                severity="secondary" size="small" />
+              <Button v-if="!hasActiveFilter" @click="$emit('add-budget')" icon="pi pi-plus" label="Add Budget Item"
+                severity="primary" size="small" />
+              <Button v-if="!hasActiveFilter && canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')"
+                icon="pi pi-copy" :label="`Copy from ${selectedYear - 1}`" severity="secondary" size="small" />
+            </div>
           </div>
         </div>
       </template>
-      <template #empty> No budget items found. </template>
-      <template #loading> Loading budget data. Please wait. </template>
+      <template #loading>
+        <div class="flex flex-col items-center justify-center py-12">
+          <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" fill="transparent" animationDuration="1s"
+            class="mb-4" />
+          <div class="text-center">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Loading Budget Data</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Please wait while we fetch your budget information...
+            </p>
+          </div>
+        </div>
+      </template>
+
+      <!-- Error State -->
+      <template v-if="error">
+        <div class="flex flex-col items-center justify-center py-16">
+          <!-- Simple error icon -->
+          <div class="mb-6">
+            <i class="pi pi-exclamation-triangle text-4xl text-red-500 dark:text-red-400"></i>
+          </div>
+
+          <!-- Error content -->
+          <div class="text-center max-w-md">
+            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Error Loading Budget Data</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ error }}</p>
+
+            <!-- Retry button -->
+            <Button @click="$emit('retry-load')" icon="pi pi-refresh" label="Try Again" severity="secondary"
+              size="small" />
+          </div>
+        </div>
+      </template>
       <!-- Column Groups Header -->
       <ColumnGroup type="header">
         <Row>
@@ -1376,6 +1447,32 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         </Row>
       </ColumnGroup>
     </DataTable>
+
+    <!-- Standalone Empty State for No Data for Year -->
+    <div v-if="hasNoDataForYear && !loading" class="flex flex-col items-center justify-center py-16">
+      <!-- Simple icon -->
+      <div class="mb-6">
+        <i class="pi pi-inbox text-4xl text-gray-400 dark:text-gray-500"></i>
+      </div>
+
+      <!-- Content -->
+      <div class="text-center max-w-md">
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          No Budget Data for {{ selectedYear }}
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+          Start by adding your first budget item to begin tracking your finances for this year.
+        </p>
+
+        <!-- Action buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button @click="$emit('add-budget')" icon="pi pi-plus" label="Add Budget Item" severity="primary"
+            size="small" />
+          <Button v-if="canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')" icon="pi pi-copy"
+            :label="`Copy from ${selectedYear - 1}`" severity="secondary" size="small" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
