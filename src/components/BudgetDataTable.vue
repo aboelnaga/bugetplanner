@@ -5,7 +5,7 @@ import Button from 'primevue/button'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
-import ProgressSpinner from 'primevue/progressspinner'
+import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
 import BudgetCell from './BudgetCell.vue'
@@ -989,7 +989,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
     </div>
 
     <!-- Header Controls - Only show when there's data or loading -->
-    <div v-if="!hasNoDataForYear || loading" class="flex justify-between items-center mb-4">
+    <div v-if="!hasNoDataForYear" class="flex justify-between items-center mb-4">
       <!-- Dual Mode Filter -->
       <div class="flex items-center space-x-3">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Display Mode:</span>
@@ -1018,7 +1018,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
     </div>
 
     <!-- DataTable with Column Groups - Only show when there's data or loading -->
-    <DataTable v-if="!hasNoDataForYear || loading" :value="flattenedBudgetData" :loading="loading" :filters="filters"
+    <DataTable v-if="!hasNoDataForYear" :value="flattenedBudgetData" :loading="loading" :filters="filters"
       filterDisplay="menu" :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle=""
       scrollable scrollHeight="70vh" class="budget-datatable" showGridlines>
       <template #empty>
@@ -1053,13 +1053,46 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         </div>
       </template>
       <template #loading>
-        <div class="flex flex-col items-center justify-center py-12">
-          <ProgressSpinner style="width: 50px; height: 50px" strokeWidth="4" fill="transparent" animationDuration="1s"
-            class="mb-4" />
-          <div class="text-center">
-            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Loading Budget Data</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400">Please wait while we fetch your budget information...
-            </p>
+        <div class="p-datatable-loading-content w-full overflow-x-auto">
+          <div class="skeleton-table-container">
+            <!-- Skeleton rows for budget items -->
+            <div v-for="i in 4" :key="i" class="p-datatable-loading-row w-full">
+              <div class="flex items-stretch w-full skeleton-row">
+                <!-- Budget Item Name Column -->
+                <div class="w-64 p-4 flex-shrink-0 skeleton-cell flex flex-col justify-center">
+                  <Skeleton width="100%" height="1.5rem" class="mb-2" />
+                  <Skeleton width="60%" height="1rem" />
+                </div>
+
+                <!-- Previous Year Column -->
+                <div class="w-32 p-3 flex-shrink-0 skeleton-cell flex items-center justify-center">
+                  <Skeleton width="80%" height="1.5rem" />
+                </div>
+
+                <!-- Monthly Columns -->
+                <div v-for="j in 4" :key="j"
+                  class="w-24 p-2 flex-shrink-0 skeleton-cell flex items-center justify-center">
+                  <Skeleton width="90%" height="1.5rem" />
+                </div>
+
+                <!-- Total Column -->
+                <div class="w-32 p-3 flex-shrink-0 skeleton-cell flex items-center justify-center">
+                  <Skeleton width="85%" height="1.5rem" />
+                </div>
+
+                <!-- Spacer to push Actions to the right -->
+                <div class="flex-1"></div>
+
+                <!-- Actions Column - Fixed to the right -->
+                <div class="p-3 flex-shrink-0 flex items-center justify-center">
+                  <div class="flex gap-1">
+                    <Skeleton shape="circle" size="2rem" class="mr-2" />
+                    <Skeleton shape="circle" size="2rem" class="mr-2" />
+                    <Skeleton shape="circle" size="2rem" class="mr-2" />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </template>
@@ -1449,7 +1482,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
     </DataTable>
 
     <!-- Standalone Empty State for No Data for Year -->
-    <div v-if="hasNoDataForYear && !loading" class="flex flex-col items-center justify-center py-16">
+    <div v-if="hasNoDataForYear" class="flex flex-col items-center justify-center py-16">
       <!-- Simple icon -->
       <div class="mb-6">
         <i class="pi pi-inbox text-4xl text-gray-400 dark:text-gray-500"></i>
@@ -1509,7 +1542,58 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
   display: block;
 }
 
+:deep(.p-datatable-mask) {
+  background-color: var(--surface-card);
+  align-items: start;
+  justify-content: start;
+}
+
 :deep(.p-datatable-mask.p-overlay-mask) {
   z-index: 3;
+}
+
+/* Skeleton loading styles */
+.p-datatable-loading-content {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--surface-card);
+  border: 1px solid var(--p-datatable-header-cell-border-color);
+  border-radius: 6px;
+}
+
+.skeleton-table-container {
+  width: 100%;
+}
+
+.p-datatable-loading-row {
+  width: 100%;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid var(--p-datatable-header-cell-border-color);
+}
+
+/* Ensure skeleton content fills the available space */
+:deep(.p-datatable-loading-content) {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Vertical border styling for skeleton cells */
+.skeleton-row {
+  position: relative;
+}
+
+.skeleton-cell {
+  position: relative;
+}
+
+.skeleton-cell:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: var(--p-datatable-header-cell-border-color);
 }
 </style>
