@@ -16,6 +16,7 @@ declare module 'vue' {
     Avatar: typeof import('primevue/avatar')['default']
     BaseModal: typeof import('./src/components/BaseModal.vue')['default']
     BaseTooltip: typeof import('./src/components/BaseTooltip.vue')['default']
+    BudgetCell: typeof import('./src/components/BudgetCell.vue')['default']
     BudgetControlPanel: typeof import('./src/components/BudgetControlPanel.vue')['default']
     BudgetDataTable: typeof import('./src/components/BudgetDataTable.vue')['default']
     BudgetSummaryExpenses: typeof import('./src/components/BudgetSummaryExpenses.vue')['default']

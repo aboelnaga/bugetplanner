@@ -7,6 +7,7 @@ import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
+import BudgetCell from './BudgetCell.vue'
 import FooterDualModeCell from './FooterDualModeCell.vue'
 
 // Props
@@ -1174,90 +1175,24 @@ const getCachedCellTemplate = (data, month = null, isTotal = false) => {
       <!-- Previous Year Column -->
       <Column field="previousYear">
         <template #body="slotProps">
-          <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
-            <div v-if="renderCellTemplate(slotProps.data)" class="font-medium cursor-help"
-              :title="renderCellTemplate(slotProps.data)?.tooltip || ''">
-
-              <!-- Both Mode Display -->
-              <template v-if="renderCellTemplate(slotProps.data)?.template === 'both'">
-                <div class="actual-expected-display">
-                  <div class="actual">{{ renderCellTemplate(slotProps.data)?.actual || '—' }}</div>
-                  <div class="expected">{{ renderCellTemplate(slotProps.data)?.expected || '—' }}</div>
-                </div>
-              </template>
-
-              <!-- Single Mode Display -->
-              <template v-else>
-                <div class="single-mode-display" :class="renderCellTemplate(slotProps.data)?.classes || ''">
-                  {{ renderCellTemplate(slotProps.data)?.value || '—' }}
-                  <span v-if="renderCellTemplate(slotProps.data)?.closed"
-                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Month is closed - actual amount is displayed`">●</span>
-                </div>
-              </template>
-            </div>
-            <div v-else class="font-normal text-muted-color">—</div>
-          </div>
+          <BudgetCell :data="slotProps.data" :renderCellTemplate="renderCellTemplate"
+            :getCellTextColorClass="getCellTextColorClass" />
         </template>
       </Column>
 
       <!-- Monthly Columns -->
       <Column v-for="month in months" :key="month" :field="month.toLowerCase()" :class="getMonthColumnClass(month)">
         <template #body="slotProps">
-          <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
-            <div v-if="renderCellTemplate(slotProps.data, month)" class="font-medium cursor-help"
-              :title="renderCellTemplate(slotProps.data, month).tooltip">
-
-              <!-- Both Mode Display -->
-              <template v-if="renderCellTemplate(slotProps.data, month).template === 'both'">
-                <div class="actual-expected-display">
-                  <div class="actual">{{ renderCellTemplate(slotProps.data, month).actual }}</div>
-                  <div class="expected">{{ renderCellTemplate(slotProps.data, month).expected }}</div>
-                </div>
-              </template>
-
-              <!-- Single Mode Display -->
-              <template v-else>
-                <div class="single-mode-display" :class="renderCellTemplate(slotProps.data, month).classes">
-                  {{ renderCellTemplate(slotProps.data, month).value }}
-                  <span v-if="renderCellTemplate(slotProps.data, month).closed"
-                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Month is closed - actual amount is displayed`">●</span>
-                </div>
-              </template>
-            </div>
-            <div v-else class="font-normal text-muted-color">—</div>
-          </div>
+          <BudgetCell :data="slotProps.data" :month="month" :renderCellTemplate="renderCellTemplate"
+            :getCellTextColorClass="getCellTextColorClass" />
         </template>
       </Column>
 
       <!-- Total Column -->
       <Column field="total" frozen alignFrozen="right">
         <template #body="slotProps">
-          <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
-            <div v-if="renderCellTemplate(slotProps.data, null, true)" class="font-medium cursor-help"
-              :title="renderCellTemplate(slotProps.data, null, true)?.tooltip || ''">
-
-              <!-- Both Mode Display -->
-              <template v-if="renderCellTemplate(slotProps.data, null, true)?.template === 'both'">
-                <div class="actual-expected-display">
-                  <div class="actual">{{ renderCellTemplate(slotProps.data, null, true)?.actual || '—' }}</div>
-                  <div class="expected">{{ renderCellTemplate(slotProps.data, null, true)?.expected || '—' }}</div>
-                </div>
-              </template>
-
-              <!-- Single Mode Display -->
-              <template v-else>
-                <div class="single-mode-display" :class="renderCellTemplate(slotProps.data, null, true)?.classes || ''">
-                  {{ renderCellTemplate(slotProps.data, null, true)?.value || '—' }}
-                  <span v-if="renderCellTemplate(slotProps.data, null, true)?.closed"
-                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Month is closed - actual amount is displayed`">●</span>
-                </div>
-              </template>
-            </div>
-            <div v-else class="font-normal text-muted-color">—</div>
-          </div>
+          <BudgetCell :data="slotProps.data" :isTotal="true" :renderCellTemplate="renderCellTemplate"
+            :getCellTextColorClass="getCellTextColorClass" />
         </template>
       </Column>
 
@@ -1563,23 +1498,7 @@ const getCachedCellTemplate = (data, month = null, isTotal = false) => {
   border-top-color: var(--p-green-500);
 }
 
-/* dual data display styling */
-.actual-expected-display {
-  line-height: 1.2;
-  font-size: 0.875em;
-}
-
-.actual-expected-display .actual {
-  border-bottom: 1px solid;
-  margin-bottom: 2px;
-  padding-bottom: 2px;
-  font-weight: 500;
-}
-
-/* single mode display styling */
-.single-mode-display {
-  line-height: 1.2;
-}
+/* Cell styling is now handled by BudgetCell component */
 
 :deep(.p-datatable-column-header-content) {
   display: block;
