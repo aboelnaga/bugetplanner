@@ -48,7 +48,7 @@ const props = defineProps({
     getCellTextColorClass: {
         type: Function,
         required: true
-    }
+    },
 })
 
 // Computed

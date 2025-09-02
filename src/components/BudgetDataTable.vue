@@ -312,18 +312,6 @@ const getDualTooltip = (budget, month) => {
   return tooltip
 }
 
-
-const getPreviousYearTooltip = (budget) => {
-  return 'Previous year data available in summary totals below'
-}
-
-// Dual mode version for previous year amounts
-const getPreviousYearAmountWithDual = (budget) => {
-  // For now, return null as this needs budget-specific previous year data
-  // This will be enhanced when we have individual budget item previous year data
-  return null
-}
-
 // Dual mode version for total amounts
 const getTotalAmountWithDual = (budget) => {
   const expectedTotal = budget.total || 0
@@ -718,10 +706,6 @@ const getMonthlyInvestmentNetTotalWithDual = (month) => {
   }
 }
 
-
-
-
-
 // Dual mode versions for previous year totals
 const getPreviousYearIncomeTotalWithDual = () => {
   if (props.calculatePreviousYearIncomeTotal) {
@@ -855,73 +839,6 @@ const getCellTextColorClass = (item) => {
   return 'text-surface'
 }
 
-// Helper function to generate complete footer cell classes
-const getFooterCellClasses = (amount, itemType) => {
-  const baseClasses = 'text-center'
-
-  if (amount === '—') {
-    return `${baseClasses} font-normal text-muted-color`
-  }
-
-  // For net type items, we need to check the actual amount value
-  if (itemType === 'net') {
-    const colorClass = getCellTextColorClass({ type: 'net', amount: amount })
-    return `${baseClasses} ${colorClass}`
-  }
-
-  // For income/expense types, use the type directly
-  const colorClass = getCellTextColorClass({ type: itemType })
-  return `${baseClasses} ${colorClass}`
-}
-
-// Helper function to get raw value for CSS classes
-const getRawValueForCSS = (dualData) => {
-  if (!dualData) return 0
-  return dualData.expected || 0
-}
-
-
-// Helper function to get footer display data for template rendering
-const getFooterDualData = (dualData, itemType) => {
-  if (!dualData) return null
-
-  // Helper function to convert 0 to "—"
-  const formatValue = (value) => {
-    if (value === 0) return '—'
-    return formatAmountWithSign(value, { type: itemType }, props.formatCurrency)
-  }
-
-  switch (props.dualMode) {
-    case 'actual':
-      return { type: 'single', value: formatValue(dualData.actual), closed: dualData.closed }
-    case 'expected':
-      return { type: 'single', value: formatValue(dualData.expected), closed: false }
-    case 'both':
-    default:
-      // For closed months, show only actual (since actual = expected)
-      if (dualData.closed) {
-        return { type: 'single', value: formatValue(dualData.actual), closed: true }
-      }
-
-      // If both are 0, show single "—"
-      if (dualData.actual === 0 && dualData.expected === 0) {
-        return { type: 'single', value: '—', closed: false }
-      }
-
-      const actualFormatted = formatValue(dualData.actual)
-      const expectedFormatted = formatValue(dualData.expected)
-
-      return {
-        type: 'both',
-        actual: actualFormatted,
-        expected: expectedFormatted,
-        closed: false
-      }
-  }
-}
-
-// This function is no longer needed - functionality moved to renderCellContent
-
 // Helper function to render cell content
 const renderCellContent = (data, month = null, isTotal = false) => {
   try {
@@ -1039,13 +956,6 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
     return null
   }
 }
-
-// Optimize template rendering by caching computed results
-const getCachedCellTemplate = (data, month = null, isTotal = false) => {
-  // This could be further optimized with Vue's computed properties
-  // For now, we'll use the direct function call
-  return renderCellTemplate(data, month, isTotal)
-}
 </script>
 
 <template>
@@ -1053,8 +963,6 @@ const getCachedCellTemplate = (data, month = null, isTotal = false) => {
     <div class="mb-4">
       <h3 class="text-lg font-semibold text-blue-600">New DataTable Implementation (Testing)</h3>
     </div>
-
-
 
     <!-- DataTable with Column Groups -->
     <DataTable :value="flattenedBudgetData" :loading="loading" :filters="filters" filterDisplay="menu"
