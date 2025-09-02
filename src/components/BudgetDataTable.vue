@@ -101,6 +101,36 @@ const props = defineProps({
     default: null
   },
 
+  // Previous year dual calculation functions (return both expected and actual)
+  calculatePreviousYearIncomeTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearExpensesTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentIncomingTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentOutgoingTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearNetTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearInvestmentNetTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculatePreviousYearSavingsTotalWithDual: {
+    type: Function,
+    default: null
+  },
+
   // Month closure functionality
   closedMonths: {
     type: Array,
@@ -133,6 +163,20 @@ const props = defineProps({
     default: null
   },
   calculateMonthlyActualInvestmentNet: {
+    type: Function,
+    default: null
+  },
+
+  // Grand total actual calculation functions
+  calculateGrandTotalActualInvestmentIncoming: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalActualInvestmentOutgoing: {
+    type: Function,
+    default: null
+  },
+  calculateGrandTotalActualInvestmentNet: {
     type: Function,
     default: null
   },
@@ -629,7 +673,7 @@ const getYearlyNetTotalWithDual = () => {
 }
 
 const getYearlyInvestmentIncomingTotalWithDual = () => {
-  // Calculate raw numbers directly instead of using formatted functions
+  // Calculate expected total from budget items
   let expectedTotal = 0
   flattenedBudgetData.value.forEach(item => {
     if (item.type === 'investment' && item.investment_direction === 'incoming') {
@@ -637,8 +681,11 @@ const getYearlyInvestmentIncomingTotalWithDual = () => {
     }
   })
 
-  // For now, use expected as actual (could be enhanced later)
-  const actualTotal = expectedTotal
+  // Calculate actual total using the provided calculation function
+  let actualTotal = expectedTotal
+  if (props.calculateGrandTotalActualInvestmentIncoming) {
+    actualTotal = props.calculateGrandTotalActualInvestmentIncoming()
+  }
 
   return {
     expected: expectedTotal,
@@ -649,7 +696,7 @@ const getYearlyInvestmentIncomingTotalWithDual = () => {
 }
 
 const getYearlyInvestmentOutgoingTotalWithDual = () => {
-  // Calculate raw numbers directly instead of using formatted functions
+  // Calculate expected total from budget items
   let expectedTotal = 0
   flattenedBudgetData.value.forEach(item => {
     if (item.type === 'investment' && item.investment_direction === 'outgoing') {
@@ -657,8 +704,11 @@ const getYearlyInvestmentOutgoingTotalWithDual = () => {
     }
   })
 
-  // For now, use expected as actual (could be enhanced later)
-  const actualTotal = expectedTotal
+  // Calculate actual total using the provided calculation function
+  let actualTotal = expectedTotal
+  if (props.calculateGrandTotalActualInvestmentOutgoing) {
+    actualTotal = props.calculateGrandTotalActualInvestmentOutgoing()
+  }
 
   return {
     expected: expectedTotal,
@@ -669,7 +719,7 @@ const getYearlyInvestmentOutgoingTotalWithDual = () => {
 }
 
 const getYearlyInvestmentNetTotalWithDual = () => {
-  // Calculate raw numbers directly instead of using formatted functions
+  // Calculate expected total from budget items
   let expectedTotal = 0
   flattenedBudgetData.value.forEach(item => {
     if (item.type === 'investment' && item.investment_direction === 'incoming') {
@@ -680,8 +730,11 @@ const getYearlyInvestmentNetTotalWithDual = () => {
     }
   })
 
-  // For now, use expected as actual (could be enhanced later)
-  const actualTotal = expectedTotal
+  // Calculate actual total using the provided calculation function
+  let actualTotal = expectedTotal
+  if (props.calculateGrandTotalActualInvestmentNet) {
+    actualTotal = props.calculateGrandTotalActualInvestmentNet()
+  }
 
   return {
     expected: expectedTotal,
@@ -732,16 +785,12 @@ const getMonthlyInvestmentNetTotalWithDual = (month) => {
 
 // Dual mode versions for previous year totals
 const getPreviousYearIncomeTotalWithDual = () => {
-  if (props.calculatePreviousYearIncomeTotal) {
-    const expectedTotal = props.calculatePreviousYearIncomeTotal()
-    // For previous year, we typically only have expected values
-    // Actual values would come from closed months or historical data
-    const actualTotal = expectedTotal // This could be enhanced later with actual historical data
-
+  if (props.calculatePreviousYearIncomeTotalWithDual) {
+    const dualData = props.calculatePreviousYearIncomeTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false, // Previous year is always "closed" in a sense
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -749,14 +798,12 @@ const getPreviousYearIncomeTotalWithDual = () => {
 }
 
 const getPreviousYearExpensesTotalWithDual = () => {
-  if (props.calculatePreviousYearExpensesTotal) {
-    const expectedTotal = props.calculatePreviousYearExpensesTotal()
-    const actualTotal = expectedTotal
-
+  if (props.calculatePreviousYearExpensesTotalWithDual) {
+    const dualData = props.calculatePreviousYearExpensesTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false,
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -764,14 +811,12 @@ const getPreviousYearExpensesTotalWithDual = () => {
 }
 
 const getPreviousYearNetTotalWithDual = () => {
-  if (props.calculatePreviousYearNetTotal) {
-    const expectedTotal = props.calculatePreviousYearNetTotal()
-    const actualTotal = expectedTotal
-
+  if (props.calculatePreviousYearNetTotalWithDual) {
+    const dualData = props.calculatePreviousYearNetTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false,
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -779,14 +824,12 @@ const getPreviousYearNetTotalWithDual = () => {
 }
 
 const getPreviousYearInvestmentIncomingTotalWithDual = () => {
-  if (props.calculatePreviousYearInvestmentIncomingTotal) {
-    const expectedTotal = props.calculatePreviousYearInvestmentIncomingTotal()
-    const actualTotal = expectedTotal
-
+  if (props.calculatePreviousYearInvestmentIncomingTotalWithDual) {
+    const dualData = props.calculatePreviousYearInvestmentIncomingTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false,
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -794,14 +837,12 @@ const getPreviousYearInvestmentIncomingTotalWithDual = () => {
 }
 
 const getPreviousYearInvestmentOutgoingTotalWithDual = () => {
-  if (props.calculatePreviousYearInvestmentOutgoingTotal) {
-    const expectedTotal = props.calculatePreviousYearInvestmentOutgoingTotal()
-    const actualTotal = expectedTotal
-
+  if (props.calculatePreviousYearInvestmentOutgoingTotalWithDual) {
+    const dualData = props.calculatePreviousYearInvestmentOutgoingTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false,
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -809,14 +850,12 @@ const getPreviousYearInvestmentOutgoingTotalWithDual = () => {
 }
 
 const getPreviousYearSavingsTotalWithDual = () => {
-  if (props.calculatePreviousYearSavings) {
-    const expectedTotal = props.calculatePreviousYearSavings()
-    const actualTotal = expectedTotal
-
+  if (props.calculatePreviousYearSavingsTotalWithDual) {
+    const dualData = props.calculatePreviousYearSavingsTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false,
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -824,14 +863,12 @@ const getPreviousYearSavingsTotalWithDual = () => {
 }
 
 const getPreviousYearInvestmentNetTotalWithDual = () => {
-  if (props.calculatePreviousYearInvestmentNetTotal) {
-    const expectedTotal = props.calculatePreviousYearInvestmentNetTotal()
-    const actualTotal = expectedTotal
-
+  if (props.calculatePreviousYearInvestmentNetTotalWithDual) {
+    const dualData = props.calculatePreviousYearInvestmentNetTotalWithDual()
     return {
-      expected: expectedTotal,
-      actual: actualTotal,
-      closed: false,
+      expected: dualData.expected,
+      actual: dualData.actual,
+      closed: false, // Previous year data is not "closed" - it's historical data
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }

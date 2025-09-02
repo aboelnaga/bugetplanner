@@ -195,6 +195,14 @@ const {
   calculatePreviousYearInvestmentOutgoingTotal,
   calculatePreviousYearNetTotal,
   calculatePreviousYearInvestmentNetTotal,
+  // Previous year dual calculations (both expected and actual)
+  calculatePreviousYearIncomeTotalWithDual,
+  calculatePreviousYearExpensesTotalWithDual,
+  calculatePreviousYearInvestmentIncomingTotalWithDual,
+  calculatePreviousYearInvestmentOutgoingTotalWithDual,
+  calculatePreviousYearNetTotalWithDual,
+  calculatePreviousYearInvestmentNetTotalWithDual,
+  calculatePreviousYearSavingsTotalWithDual,
   // Savings calculations
   calculateCumulativeSavings,
   calculateGrandTotalSavings,
@@ -529,6 +537,16 @@ watch(selectedYear, async (newYear) => {
           :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
           :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
           :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
+          :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
+          :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
+          :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
+          :calculate-previous-year-income-total-with-dual="calculatePreviousYearIncomeTotalWithDual"
+          :calculate-previous-year-expenses-total-with-dual="calculatePreviousYearExpensesTotalWithDual"
+          :calculate-previous-year-investment-incoming-total-with-dual="calculatePreviousYearInvestmentIncomingTotalWithDual"
+          :calculate-previous-year-investment-outgoing-total-with-dual="calculatePreviousYearInvestmentOutgoingTotalWithDual"
+          :calculate-previous-year-net-total-with-dual="calculatePreviousYearNetTotalWithDual"
+          :calculate-previous-year-investment-net-total-with-dual="calculatePreviousYearInvestmentNetTotalWithDual"
+          :calculate-previous-year-savings-total-with-dual="calculatePreviousYearSavingsTotalWithDual"
           :can-copy-from-previous-year="canCopyFromPreviousYear" @edit-budget="editBudgetUnified"
           @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @view-transactions="handleViewTransactions"
           @update:dual-mode="(mode) => dualMode = mode" @add-budget="openAddBudgetModalUnified"

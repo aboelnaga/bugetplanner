@@ -438,6 +438,94 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return smartValues ? smartValues.investmentIncoming - smartValues.investmentOutgoing : 0
   }
 
+  // Previous year dual calculations - return both expected and actual values
+  const calculatePreviousYearIncomeTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    return {
+      expected: parseFloat(summary.total_income_planned) || 0,
+      actual: parseFloat(summary.total_income_actual) || 0
+    }
+  }
+
+  const calculatePreviousYearExpensesTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    return {
+      expected: parseFloat(summary.total_expenses_planned) || 0,
+      actual: parseFloat(summary.total_expenses_actual) || 0
+    }
+  }
+
+  const calculatePreviousYearInvestmentIncomingTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    return {
+      expected: parseFloat(summary.total_investment_incoming_planned) || 0,
+      actual: parseFloat(summary.total_investment_incoming_actual) || 0
+    }
+  }
+
+  const calculatePreviousYearInvestmentOutgoingTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    return {
+      expected: parseFloat(summary.total_investment_outgoing_planned) || 0,
+      actual: parseFloat(summary.total_investment_outgoing_actual) || 0
+    }
+  }
+
+  const calculatePreviousYearNetTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    const expectedNet = (parseFloat(summary.total_income_planned) || 0) +
+                       (parseFloat(summary.total_investment_incoming_planned) || 0) -
+                       (parseFloat(summary.total_expenses_planned) || 0) -
+                       (parseFloat(summary.total_investment_outgoing_planned) || 0)
+
+    const actualNet = (parseFloat(summary.total_income_actual) || 0) +
+                     (parseFloat(summary.total_investment_incoming_actual) || 0) -
+                     (parseFloat(summary.total_expenses_actual) || 0) -
+                     (parseFloat(summary.total_investment_outgoing_actual) || 0)
+
+    return { expected: expectedNet, actual: actualNet }
+  }
+
+  const calculatePreviousYearInvestmentNetTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    const expectedNet = (parseFloat(summary.total_investment_incoming_planned) || 0) -
+                       (parseFloat(summary.total_investment_outgoing_planned) || 0)
+
+    const actualNet = (parseFloat(summary.total_investment_incoming_actual) || 0) -
+                     (parseFloat(summary.total_investment_outgoing_actual) || 0)
+
+    return { expected: expectedNet, actual: actualNet }
+  }
+
+  const calculatePreviousYearSavingsTotalWithDual = () => {
+    const previousYear = selectedYear.value ? selectedYear.value - 1 : null
+    const summary = yearlySummariesStore.getYearlySummary(previousYear)
+    if (!summary) return { expected: 0, actual: 0 }
+
+    return {
+      expected: parseFloat(summary.total_savings_planned) || 0,
+      actual: parseFloat(summary.total_savings_actual) || 0
+    }
+  }
+
   // Budget amount updates
   const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
     const budget = budgetItems.value.find(b => b.id === budgetId)
@@ -521,6 +609,15 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculatePreviousYearInvestmentOutgoingTotal,
     calculatePreviousYearNetTotal,
     calculatePreviousYearInvestmentNetTotal,
+
+    // Previous year dual calculations (both expected and actual)
+    calculatePreviousYearIncomeTotalWithDual,
+    calculatePreviousYearExpensesTotalWithDual,
+    calculatePreviousYearInvestmentIncomingTotalWithDual,
+    calculatePreviousYearInvestmentOutgoingTotalWithDual,
+    calculatePreviousYearNetTotalWithDual,
+    calculatePreviousYearInvestmentNetTotalWithDual,
+    calculatePreviousYearSavingsTotalWithDual,
 
     // Budget updates
     updateBudgetAmount
