@@ -274,22 +274,13 @@ const getDualDisplay = (budget, month) => {
       return { type: 'single', value: expectedAmount, closed: monthClosed }
     case 'both':
     default:
-      // For 'both' mode, return both values
-      // If month is closed, show only actual (since actual = expected)
-      if (monthClosed) {
-        return { type: 'single', value: actualAmount, closed: true }
-      }
-
-      // For open months, show both
-      if (actualAmount === 0 && expectedAmount === 0) {
-        return { type: 'single', value: 0, closed: false }
-      }
-
+      // For 'both' mode, always return both values
+      // The template will handle closed month display logic
       return {
         type: 'both',
         actual: actualAmount,
         expected: expectedAmount,
-        closed: false
+        closed: monthClosed
       }
   }
 }
@@ -302,8 +293,19 @@ const getDualTooltip = (budget, month) => {
 
   let tooltip = `Expected: ${props.formatCurrency(expectedAmount)}<br>Actual: ${props.formatCurrency(actualAmount)}`
 
-  if (monthClosed && (props.dualMode === 'actual' || props.dualMode === 'expected')) {
-    tooltip += '<br><br>Month is closed - actual amount is displayed'
+  // Add special messages for different scenarios
+  if (monthClosed) {
+    if (props.dualMode === 'both') {
+      tooltip += '<br><br>Month is closed - actual amount is displayed (actual = expected)'
+    } else {
+      tooltip += '<br><br>Month is closed - actual amount is displayed'
+    }
+  } else if (expectedAmount === 0 && actualAmount === 0) {
+    tooltip += '<br><br>No budget or actual amounts for this month'
+  } else if (expectedAmount === 0) {
+    tooltip += '<br><br>No budget amount set for this month'
+  } else if (actualAmount === 0) {
+    tooltip += '<br><br>No actual amount recorded for this month'
   }
 
   return tooltip
@@ -333,12 +335,29 @@ const getTotalAmountWithDual = (budget) => {
     }
   }
 
-  // Always return data, even if both are 0
-  return {
-    expected: expectedTotal,
-    actual: actualTotal,
-    closed: false, // Total amounts are never "closed"
-    type: 'both' // Use 'both' to indicate dual mode display
+  // Return data structure based on current dual mode
+  switch (props.dualMode) {
+    case 'actual':
+      return {
+        type: 'single',
+        value: actualTotal,
+        closed: false
+      }
+    case 'expected':
+      return {
+        type: 'single',
+        value: expectedTotal,
+        closed: false
+      }
+    case 'both':
+    default:
+      // For totals, if both are 0, we'll handle this in renderCellContent
+      return {
+        expected: expectedTotal,
+        actual: actualTotal,
+        closed: false,
+        type: 'both'
+      }
   }
 }
 
@@ -899,6 +918,133 @@ const getFooterDualData = (dualData, itemType) => {
       }
   }
 }
+
+// This function is no longer needed - functionality moved to renderCellContent
+
+// Helper function to render cell content
+const renderCellContent = (data, month = null, isTotal = false) => {
+  try {
+    const dualData = month ? getDualDisplay(data, month) :
+      (isTotal ? getTotalAmountWithDual(data) : data)
+
+    if (!dualData) return null
+
+    // For single mode, we already have the data we need
+    if (dualData.type === 'single') {
+      return {
+        display: {
+          type: 'single',
+          value: dualData.value === 0 ? '—' :
+            formatAmountWithSign(dualData.value, data, props.formatCurrency),
+          closed: dualData.closed,
+          classes: dualData.closed ? '' : ''
+        },
+        tooltip: month ? getDualTooltip(data, month) :
+          (isTotal ? `Total: ${props.formatCurrency(data.total || 0)}` : `Expected: ${props.formatCurrency(data.total || 0)}`)
+      }
+    }
+
+    // For both mode, format the values
+    if (dualData.type === 'both') {
+      // For closed months, show only actual value since actual = expected
+      if (dualData.closed) {
+        const actualValue = dualData.actual === 0 ? '—' :
+          formatAmountWithSign(dualData.actual, data, props.formatCurrency)
+
+        return {
+          display: {
+            type: 'single',
+            value: actualValue,
+            closed: true,
+            classes: ''
+          },
+          tooltip: month ? getDualTooltip(data, month) :
+            (isTotal ? `Total: ${props.formatCurrency(data.total || 0)}` : `Expected: ${props.formatCurrency(data.total || 0)}`)
+        }
+      }
+
+      // For open months, check if both are 0 or "—"
+      const actualValue = dualData.actual === 0 ? '—' :
+        formatAmountWithSign(dualData.actual, data, props.formatCurrency)
+      const expectedValue = dualData.expected === 0 ? '—' :
+        formatAmountWithSign(dualData.expected, data, props.formatCurrency)
+
+      // If both are "—", show single "—"
+      if (actualValue === '—' && expectedValue === '—') {
+        return {
+          display: {
+            type: 'single',
+            value: '—',
+            closed: false,
+            classes: ''
+          },
+          tooltip: month ? getDualTooltip(data, month) :
+            (isTotal ? `Total: ${props.formatCurrency(data.total || 0)}` : `Expected: ${props.formatCurrency(data.total || 0)}`)
+        }
+      }
+
+      // Otherwise show both values
+      return {
+        display: {
+          type: 'both',
+          actual: actualValue,
+          expected: expectedValue,
+          closed: false
+        },
+        tooltip: month ? getDualTooltip(data, month) :
+          (isTotal ? `Total: ${props.formatCurrency(data.total || 0)}` : `Expected: ${props.formatCurrency(data.total || 0)}`)
+      }
+    }
+
+    return null
+  } catch (error) {
+    console.error('Error in renderCellContent:', error, { data, month, isTotal })
+    return null
+  }
+}
+
+// Helper function to render dual mode cell content
+const renderDualModeCell = (data, month = null, isTotal = false) => {
+  try {
+    const cellContent = renderCellContent(data, month, isTotal)
+    if (!cellContent) return null
+
+    const { display, tooltip } = cellContent
+
+    // Return the display data directly since it's already formatted
+    return {
+      ...display,
+      tooltip
+    }
+  } catch (error) {
+    console.error('Error in renderDualModeCell:', error, { data, month, isTotal })
+    return null
+  }
+}
+
+// Helper function to render cell template
+const renderCellTemplate = (data, month = null, isTotal = false) => {
+  try {
+    const cellData = renderDualModeCell(data, month, isTotal)
+    if (!cellData) return null
+
+    // Add template property to distinguish between 'both' and 'single' modes
+    return {
+      template: cellData.type,
+      ...cellData
+    }
+  } catch (error) {
+    console.error('Error in renderCellTemplate:', error, { data, month, isTotal })
+    return null
+  }
+}
+
+// Optimize template rendering by caching computed results
+const getCachedCellTemplate = (data, month = null, isTotal = false) => {
+  // This could be further optimized with Vue's computed properties
+  // For now, we'll use the direct function call
+  return renderCellTemplate(data, month, isTotal)
+}
 </script>
 
 <template>
@@ -906,6 +1052,8 @@ const getFooterDualData = (dualData, itemType) => {
     <div class="mb-4">
       <h3 class="text-lg font-semibold text-blue-600">New DataTable Implementation (Testing)</h3>
     </div>
+
+
 
     <!-- DataTable with Column Groups -->
     <DataTable :value="flattenedBudgetData" :loading="loading" :filters="filters" filterDisplay="menu"
@@ -1027,35 +1175,25 @@ const getFooterDualData = (dualData, itemType) => {
       <Column field="previousYear">
         <template #body="slotProps">
           <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
-            <div v-if="getPreviousYearAmountWithDual(slotProps.data)" class="font-medium cursor-help"
-              :title="getPreviousYearTooltip(slotProps.data)">
-              <!-- Display based on mode -->
-              <template v-if="props.dualMode === 'both'">
-                <div v-if="getPreviousYearAmountWithDual(slotProps.data)?.type === 'single'"
-                  class="actual-expected-display">
-                  <div class="actual">
-                    {{ getPreviousYearAmountWithDual(slotProps.data).value === 0 ? '—' :
-                      formatAmountWithSign(getPreviousYearAmountWithDual(slotProps.data).value, slotProps.data,
-                        formatCurrency) }}
-                  </div>
-                </div>
-                <div v-else-if="getPreviousYearAmountWithDual(slotProps.data)?.type === 'both'"
-                  class="actual-expected-display">
-                  <div class="actual">
-                    {{ getPreviousYearAmountWithDual(slotProps.data).actual === 0 ? '—' :
-                      formatAmountWithSign(getPreviousYearAmountWithDual(slotProps.data).actual, slotProps.data,
-                        formatCurrency) }}
-                  </div>
-                  <div class="expected">
-                    / {{ getPreviousYearAmountWithDual(slotProps.data).expected === 0 ? '—' :
-                      formatAmountWithSign(getPreviousYearAmountWithDual(slotProps.data).expected, slotProps.data,
-                        formatCurrency) }}
-                  </div>
+            <div v-if="renderCellTemplate(slotProps.data)" class="font-medium cursor-help"
+              :title="renderCellTemplate(slotProps.data)?.tooltip || ''">
+
+              <!-- Both Mode Display -->
+              <template v-if="renderCellTemplate(slotProps.data)?.template === 'both'">
+                <div class="actual-expected-display">
+                  <div class="actual">{{ renderCellTemplate(slotProps.data)?.actual || '—' }}</div>
+                  <div class="expected">{{ renderCellTemplate(slotProps.data)?.expected || '—' }}</div>
                 </div>
               </template>
+
+              <!-- Single Mode Display -->
               <template v-else>
-                {{ getPreviousYearAmountWithDual(slotProps.data) === 0 ? '—' :
-                  formatAmountWithSign(getPreviousYearAmountWithDual(slotProps.data), slotProps.data, formatCurrency) }}
+                <div class="single-mode-display" :class="renderCellTemplate(slotProps.data)?.classes || ''">
+                  {{ renderCellTemplate(slotProps.data)?.value || '—' }}
+                  <span v-if="renderCellTemplate(slotProps.data)?.closed"
+                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
+                    :title="`Month is closed - actual amount is displayed`">●</span>
+                </div>
               </template>
             </div>
             <div v-else class="font-normal text-muted-color">—</div>
@@ -1067,41 +1205,22 @@ const getFooterDualData = (dualData, itemType) => {
       <Column v-for="month in months" :key="month" :field="month.toLowerCase()" :class="getMonthColumnClass(month)">
         <template #body="slotProps">
           <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
-            <div v-if="getDualDisplay(slotProps.data, month)" class="font-medium cursor-help"
-              :title="getDualTooltip(slotProps.data, month)">
-              <!-- Display based on mode -->
-              <template v-if="props.dualMode === 'both'">
-                <div v-if="getDualDisplay(slotProps.data, month)?.type === 'single'" class="actual-expected-display">
-                  <div class="actual"
-                    :class="{ 'text-green-600 dark:text-green-400': getDualDisplay(slotProps.data, month).closed }">
-                    {{ getDualDisplay(slotProps.data, month).value === 0 ? '—' :
-                      formatAmountWithSign(getDualDisplay(slotProps.data, month).value, slotProps.data,
-                        formatCurrency) }}
-                    <span v-if="getDualDisplay(slotProps.data, month).closed"
-                      class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                      :title="`Month is closed - actual amount is displayed`">●</span>
-                  </div>
-                </div>
-                <div v-else-if="getDualDisplay(slotProps.data, month)?.type === 'both'" class="actual-expected-display">
-                  <div class="actual">
-                    {{ getDualDisplay(slotProps.data, month).actual === 0 ? '—' :
-                      formatAmountWithSign(getDualDisplay(slotProps.data, month).actual, slotProps.data,
-                        formatCurrency) }}
-                  </div>
-                  <div class="expected">
-                    / {{ getDualDisplay(slotProps.data, month).expected === 0 ? '—' :
-                      formatAmountWithSign(getDualDisplay(slotProps.data, month).expected, slotProps.data,
-                        formatCurrency) }}
-                  </div>
+            <div v-if="renderCellTemplate(slotProps.data, month)" class="font-medium cursor-help"
+              :title="renderCellTemplate(slotProps.data, month).tooltip">
+
+              <!-- Both Mode Display -->
+              <template v-if="renderCellTemplate(slotProps.data, month).template === 'both'">
+                <div class="actual-expected-display">
+                  <div class="actual">{{ renderCellTemplate(slotProps.data, month).actual }}</div>
+                  <div class="expected">{{ renderCellTemplate(slotProps.data, month).expected }}</div>
                 </div>
               </template>
+
+              <!-- Single Mode Display -->
               <template v-else>
-                <div class="single-mode-display"
-                  :class="{ 'text-green-600 dark:text-green-400': getDualDisplay(slotProps.data, month).closed }">
-                  {{ getDualDisplay(slotProps.data, month).value === 0 ? '—' :
-                    formatAmountWithSign(getDualDisplay(slotProps.data, month).value, slotProps.data,
-                      formatCurrency) }}
-                  <span v-if="getDualDisplay(slotProps.data, month).closed"
+                <div class="single-mode-display" :class="renderCellTemplate(slotProps.data, month).classes">
+                  {{ renderCellTemplate(slotProps.data, month).value }}
+                  <span v-if="renderCellTemplate(slotProps.data, month).closed"
                     class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                     :title="`Month is closed - actual amount is displayed`">●</span>
                 </div>
@@ -1116,40 +1235,22 @@ const getFooterDualData = (dualData, itemType) => {
       <Column field="total" frozen alignFrozen="right">
         <template #body="slotProps">
           <div class="text-center relative" :class="getCellTextColorClass(slotProps.data)">
-            <div v-if="getTotalAmountWithDual(slotProps.data)" class="font-medium cursor-help"
-              :title="`Expected: ${formatCurrency(slotProps.data.total || 0)}`">
-              <!-- Display based on mode -->
-              <template v-if="props.dualMode === 'both'">
+            <div v-if="renderCellTemplate(slotProps.data, null, true)" class="font-medium cursor-help"
+              :title="renderCellTemplate(slotProps.data, null, true)?.tooltip || ''">
+
+              <!-- Both Mode Display -->
+              <template v-if="renderCellTemplate(slotProps.data, null, true)?.template === 'both'">
                 <div class="actual-expected-display">
-                  <div class="actual">
-                    {{ getTotalAmountWithDual(slotProps.data).actual === 0 ? '—' :
-                      formatAmountWithSign(getTotalAmountWithDual(slotProps.data).actual, slotProps.data,
-                        formatCurrency) }}
-                  </div>
-                  <div class="expected">
-                    / {{ getTotalAmountWithDual(slotProps.data).expected === 0 ? '—' :
-                      formatAmountWithSign(getTotalAmountWithDual(slotProps.data).expected, slotProps.data,
-                        formatCurrency) }}
-                  </div>
+                  <div class="actual">{{ renderCellTemplate(slotProps.data, null, true)?.actual || '—' }}</div>
+                  <div class="expected">{{ renderCellTemplate(slotProps.data, null, true)?.expected || '—' }}</div>
                 </div>
               </template>
-              <template v-else-if="props.dualMode === 'actual'">
-                <div class="single-mode-display"
-                  :class="{ 'text-green-600 dark:text-green-400': getTotalAmountWithDual(slotProps.data).closed }">
-                  {{ getTotalAmountWithDual(slotProps.data).actual === 0 ? '—' :
-                    formatAmountWithSign(getTotalAmountWithDual(slotProps.data).actual, slotProps.data, formatCurrency) }}
-                  <span v-if="getTotalAmountWithDual(slotProps.data).closed"
-                    class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
-                    :title="`Month is closed - actual amount is displayed`">●</span>
-                </div>
-              </template>
+
+              <!-- Single Mode Display -->
               <template v-else>
-                <div class="single-mode-display"
-                  :class="{ 'text-green-600 dark:text-green-400': getTotalAmountWithDual(slotProps.data).closed }">
-                  {{ getTotalAmountWithDual(slotProps.data).expected === 0 ? '—' :
-                    formatAmountWithSign(getTotalAmountWithDual(slotProps.data).expected, slotProps.data, formatCurrency)
-                  }}
-                  <span v-if="getTotalAmountWithDual(slotProps.data).closed"
+                <div class="single-mode-display" :class="renderCellTemplate(slotProps.data, null, true)?.classes || ''">
+                  {{ renderCellTemplate(slotProps.data, null, true)?.value || '—' }}
+                  <span v-if="renderCellTemplate(slotProps.data, null, true)?.closed"
                     class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
                     :title="`Month is closed - actual amount is displayed`">●</span>
                 </div>
@@ -1465,55 +1566,19 @@ const getFooterDualData = (dualData, itemType) => {
 /* dual data display styling */
 .actual-expected-display {
   line-height: 1.2;
+  font-size: 0.875em;
 }
 
 .actual-expected-display .actual {
-  font-weight: 600;
-  color: var(--primary-700);
-}
-
-.actual-expected-display .expected {
-  color: var(--gray-500);
-  font-size: 0.875em;
+  border-bottom: 1px solid;
+  margin-bottom: 2px;
+  padding-bottom: 2px;
+  font-weight: 500;
 }
 
 /* single mode display styling */
 .single-mode-display {
   line-height: 1.2;
-}
-
-/* Dark theme overrides */
-.dark .actual-expected-display .actual {
-  color: var(--primary-300);
-}
-
-.dark .actual-expected-display .expected {
-  color: var(--gray-400);
-}
-
-/* Footer dual mode styling */
-.footer-dual-mode {
-  line-height: 1.1;
-  font-size: 0.9em;
-}
-
-.footer-dual-mode .actual {
-  font-weight: 600;
-  color: var(--primary-700);
-}
-
-.footer-dual-mode .expected {
-  color: var(--gray-500);
-  font-size: 0.85em;
-}
-
-/* Dark theme overrides for footer */
-.dark .footer-dual-mode .actual {
-  color: var(--primary-300);
-}
-
-.dark .footer-dual-mode .expected {
-  color: var(--gray-400);
 }
 
 :deep(.p-datatable-column-header-content) {
