@@ -204,7 +204,8 @@ const emit = defineEmits([
   'update:dualMode',
   'add-budget',
   'retry-load',
-  'copy-from-previous-year'
+  'copy-from-previous-year',
+  'close-month'
 ])
 
 // Use the composable
@@ -424,11 +425,13 @@ const getMonthHeaderContent = (month) => {
 
   // Current month indicator
   if (props.selectedYear === props.currentYear && monthIndex === props.currentMonth) {
-    return 'Current'
+    return '(Current)'
   }
 
-  // Month closure status
-  if (props.closedMonths && props.closedMonths.some(closedMonth => closedMonth.month === monthIndex)) {
+  // Month closure status - check for the selected year only
+  if (props.closedMonths && props.closedMonths.some(closedMonth =>
+    closedMonth.month === monthIndex && closedMonth.year === props.selectedYear
+  )) {
     return 'Closed'
   }
 
@@ -437,7 +440,45 @@ const getMonthHeaderContent = (month) => {
 
 // Helper function to check if a month is closed
 const isMonthClosed = (monthIndex) => {
-  return props.closedMonths && props.closedMonths.some(closedMonth => closedMonth.month === monthIndex)
+  return props.closedMonths && props.closedMonths.some(closedMonth =>
+    closedMonth.month === monthIndex && closedMonth.year === props.selectedYear
+  )
+}
+
+// Close month functionality
+const canCloseMonth = (monthIndex) => {
+  // Can only close months that are not current or future
+  if (props.selectedYear === props.currentYear && monthIndex >= props.currentMonth) {
+    return false
+  }
+
+  // Can only close months that are not already closed
+  if (isMonthClosed(monthIndex)) {
+    return false
+  }
+
+  // Can only close months that are at least 7 days old
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  const currentMonth = currentDate.getMonth()
+  const currentDay = currentDate.getDate()
+
+  // If we're in the same year and month, check if it's been 7+ days
+  if (props.selectedYear === currentYear && monthIndex === currentMonth) {
+    return currentDay >= 7
+  }
+
+  // If it's a previous month, it can be closed
+  if (props.selectedYear < currentYear ||
+    (props.selectedYear === currentYear && monthIndex < currentMonth)) {
+    return true
+  }
+
+  return false
+}
+
+const handleCloseMonth = (monthIndex) => {
+  emit('close-month', props.selectedYear, monthIndex)
 }
 
 // Footer total calculations with dual mode support
@@ -1158,13 +1199,17 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         <Row>
           <Column header="Budget Item" :rowspan="1" frozen alignFrozen="left" />
           <Column :header="`PY ${selectedYear - 1}`" :rowspan="1" />
-          <Column v-for="month in months" :key="month" :class="getMonthColumnClass(month)">
+          <Column v-for="(month, index) in months" :key="month" :class="getMonthColumnClass(month)">
             <template #header>
               <div class="text-center">
                 <div class="font-medium">{{ month }}</div>
-                <div v-if="getMonthHeaderContent(month)"
-                  class="text-xs text-primary-600 dark:text-primary-400 font-medium">
+                <!-- Month status using getMonthHeaderContent -->
+                <div v-if="getMonthHeaderContent(month)" class="text-xs font-medium">
                   {{ getMonthHeaderContent(month) }}
+                </div>
+                <!-- Close month button -->
+                <div v-else-if="canCloseMonth(index)" class="text-xs">
+                  <Button @click="handleCloseMonth(index)" variant="link" label="Close" size="small" severity="info" />
                 </div>
               </div>
             </template>
