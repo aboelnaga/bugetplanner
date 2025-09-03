@@ -5,6 +5,7 @@ import Button from 'primevue/button'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import InputText from 'primevue/inputtext'
+import Select from 'primevue/select'
 import Skeleton from 'primevue/skeleton'
 import Tag from 'primevue/tag'
 import { computed, ref } from 'vue'
@@ -222,7 +223,9 @@ const showDetailedBreakdown = ref(false)
 
 // PrimeVue DataTable filtering
 const filters = ref({
-  global: { value: null, matchMode: 'contains' }
+  global: { value: null, matchMode: 'contains' },
+  type: { value: null, matchMode: 'equals' },
+  category: { value: null, matchMode: 'equals' }
 })
 
 // Footer row styling variables
@@ -244,7 +247,28 @@ const months = MONTHS
 
 // Computed properties for empty state logic
 const hasActiveFilter = computed(() => {
-  return filters.value.global.value && filters.value.global.value.trim() !== ''
+  return (filters.value.global.value && filters.value.global.value.trim() !== '') ||
+    filters.value.type.value ||
+    filters.value.category.value
+})
+
+// Filter options
+const typeOptions = computed(() => {
+  const types = new Set()
+  flattenedBudgetData.value.forEach(item => {
+    types.add(item.type)
+  })
+  return Array.from(types).sort()
+})
+
+const categoryOptions = computed(() => {
+  const categories = new Set()
+  flattenedBudgetData.value.forEach(item => {
+    if (item.category) {
+      categories.add(item.category)
+    }
+  })
+  return Array.from(categories).sort()
 })
 
 const hasNoDataForYear = computed(() => {
@@ -258,6 +282,8 @@ const shouldShowErrorState = computed(() => {
 // Methods for empty state actions
 const clearFilters = () => {
   filters.value.global.value = null
+  filters.value.type.value = null
+  filters.value.category.value = null
 }
 
 // Helper functions
@@ -1082,8 +1108,23 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         </div>
       </div>
 
-      <!-- Search Input -->
+      <!-- Search and Filters -->
       <div class="flex items-center justify-end gap-3">
+        <!-- Type Filter -->
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Type:</label>
+          <Select v-model="filters.type.value" :options="typeOptions" placeholder="All Types" class="w-40" size="small"
+            showClear />
+        </div>
+
+        <!-- Category Filter -->
+        <div class="flex items-center gap-2">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Category:</label>
+          <Select v-model="filters.category.value" :options="categoryOptions" placeholder="All Categories" class="w-40"
+            size="small" showClear />
+        </div>
+
+        <!-- Search Input -->
         <IconField>
           <InputIcon class="pi pi-search" />
           <InputText v-model="filters['global'].value" placeholder="Search budget items..." class="w-80" />
