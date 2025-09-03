@@ -24,7 +24,7 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return parseFloat(budget.actual_amounts[monthIndex]) || 0
   }
 
-  // Smart defaults logic - same as BudgetTableRow
+  // Smart defaults logic for budget calculations
   const isMonthClosed = (monthIndex) => {
     // Handle both ref and direct array
     const monthsArray = closedMonths?.value || closedMonths || []
