@@ -1,7 +1,9 @@
 <script setup>
 import { Calendar } from 'lucide-vue-next'
 import Button from 'primevue/button'
+import Card from 'primevue/card'
 import Select from 'primevue/select'
+import Tag from 'primevue/tag'
 import { computed } from 'vue'
 
 // Props
@@ -74,51 +76,49 @@ const investmentCount = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
-    <div class="flex items-center justify-between gap-2">
+  <Card>
+    <template #content>
+      <div class="flex items-center justify-between gap-2">
 
-      <!-- Left: Year & Actions -->
-      <div class="flex items-center space-x-2">
-        <div class="flex items-center space-x-1">
-          <Calendar class="w-4 h-4 text-blue-600" />
-          <span class="text-sm font-medium text-gray-700">Year:</span>
-
-          <!-- Previous Year Button -->
-          <Button @click="goToPreviousYear" :disabled="!canGoToPreviousYear" icon="pi pi-chevron-left" size="small"
-            severity="secondary" text rounded title="Previous year" />
-
-          <!-- Year Select -->
-          <Select :modelValue="selectedYear" @update:modelValue="$emit('update:selectedYear', $event)"
-            :options="availableYears" size="small" />
-
-          <!-- Next Year Button -->
-          <Button @click="goToNextYear" :disabled="!canGoToNextYear" icon="pi pi-chevron-right" size="small"
-            severity="secondary" text rounded title="Next year" />
-        </div>
-
-        <div class="flex items-center space-x-1">
-          <Button @click="$emit('add-year')" icon="pi pi-plus" label="Add Year" size="small" severity="secondary" text
-            title="Add a new year to plan" />
-
-          <Button v-if="budgetItems.length === 0 && canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')"
-            icon="pi pi-copy" :label="`Copy ${selectedYear - 1}`" size="small" severity="success" text
-            title="Copy budget items from previous year" />
-        </div>
-      </div>
-
-      <!-- Right: Stats -->
-      <div class="flex items-center space-x-2">
-        <!-- Quick Stats -->
+        <!-- Left: Year & Actions -->
         <div class="flex items-center space-x-2">
-          <span class="text-sm text-gray-600">
-            <span class="text-green-600 font-semibold">{{ incomeCount }} income</span>
-            <span class="mx-1">•</span>
-            <span class="text-red-600 font-semibold">{{ expenseCount }} expenses</span>
-            <span class="mx-1">•</span>
-            <span class="text-purple-600 font-semibold">{{ investmentCount }} investment</span>
-          </span>
+          <div class="flex items-center space-x-1">
+            <Calendar class="w-4 h-4 text-primary" />
+            <span class="text-sm font-medium text-color">Year:</span>
+
+            <!-- Previous Year Button -->
+            <Button @click="goToPreviousYear" :disabled="!canGoToPreviousYear" icon="pi pi-chevron-left" size="small"
+              severity="secondary" text rounded title="Previous year" />
+
+            <!-- Year Select -->
+            <Select :modelValue="selectedYear" @update:modelValue="$emit('update:selectedYear', $event)"
+              :options="availableYears" size="small" />
+
+            <!-- Next Year Button -->
+            <Button @click="goToNextYear" :disabled="!canGoToNextYear" icon="pi pi-chevron-right" size="small"
+              severity="secondary" text rounded title="Next year" />
+          </div>
+
+          <div class="flex items-center space-x-1">
+            <Button @click="$emit('add-year')" icon="pi pi-plus" label="Add Year" size="small" severity="secondary" text
+              title="Add a new year to plan" />
+
+            <Button v-if="budgetItems.length === 0 && canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')"
+              icon="pi pi-copy" :label="`Copy ${selectedYear - 1}`" size="small" severity="success" text
+              title="Copy budget items from previous year" />
+          </div>
+        </div>
+
+        <!-- Right: Stats -->
+        <div class="flex items-center space-x-2">
+          <!-- Quick Stats -->
+          <div class="flex items-center space-x-2">
+            <Tag :value="`${incomeCount} income`" severity="success" size="small" />
+            <Tag :value="`${expenseCount} expenses`" severity="danger" size="small" />
+            <Tag :value="`${investmentCount} investment`" severity="info" size="small" />
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </template>
+  </Card>
 </template>
