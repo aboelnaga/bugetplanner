@@ -550,7 +550,8 @@ watch(selectedYear, async (newYear) => {
           :can-copy-from-previous-year="canCopyFromPreviousYear" @edit-budget="editBudgetUnified"
           @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @view-transactions="handleViewTransactions"
           @update:dual-mode="(mode) => dualMode = mode" @add-budget="openAddBudgetModalUnified"
-          @copy-from-previous-year="copyFromPreviousYear" @close-month="handleCloseMonth" />
+          @copy-from-previous-year="copyFromPreviousYear" @close-month="handleCloseMonth"
+          @retry="budgetStore.fetchBudgetItems()" />
       </div>
 
       <!-- Budget Table -->

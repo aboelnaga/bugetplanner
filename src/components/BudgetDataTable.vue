@@ -205,7 +205,8 @@ const emit = defineEmits([
   'add-budget',
   'retry-load',
   'copy-from-previous-year',
-  'close-month'
+  'close-month',
+  'retry'
 ])
 
 // Use the composable
@@ -247,7 +248,11 @@ const hasActiveFilter = computed(() => {
 })
 
 const hasNoDataForYear = computed(() => {
-  return !props.loading && props.budgetItems && props.budgetItems.length === 0
+  return !props.loading && !props.error && props.budgetItems && props.budgetItems.length === 0
+})
+
+const shouldShowErrorState = computed(() => {
+  return !props.loading && props.error
 })
 
 // Methods for empty state actions
@@ -1062,10 +1067,6 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
 
 <template>
   <div class="card">
-    <div class="mb-4">
-      <h3 class="text-lg font-semibold text-blue-600">New DataTable Implementation (Testing)</h3>
-    </div>
-
     <!-- Header Controls - Only show when there's data or loading -->
     <div v-if="!hasNoDataForYear" class="flex justify-between items-center mb-4">
       <!-- Dual Mode Filter -->
@@ -1095,8 +1096,25 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
       </div>
     </div>
 
+    <!-- Error State -->
+    <div v-if="shouldShowErrorState" class="flex flex-col items-center justify-center py-16">
+      <!-- Error icon -->
+      <div class="mb-6">
+        <i class="pi pi-exclamation-triangle !text-4xl text-red-500 dark:text-red-400"></i>
+      </div>
+
+      <!-- Error content -->
+      <div class="text-center max-w-md">
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Error loading budget data</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ error }}</p>
+
+        <!-- Retry button -->
+        <Button @click="$emit('retry')" icon="pi pi-refresh" label="Retry" severity="secondary" size="small" />
+      </div>
+    </div>
+
     <!-- DataTable with Column Groups - Only show when there's data or loading -->
-    <DataTable v-if="!hasNoDataForYear" :value="flattenedBudgetData" :loading="loading" :filters="filters"
+    <DataTable v-else-if="!hasNoDataForYear" :value="flattenedBudgetData" :loading="loading" :filters="filters"
       filterDisplay="menu" :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle=""
       scrollable scrollHeight="70vh" class="budget-datatable" showGridlines>
       <template #empty>
@@ -1175,25 +1193,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         </div>
       </template>
 
-      <!-- Error State -->
-      <template v-if="error">
-        <div class="flex flex-col items-center justify-center py-16">
-          <!-- Simple error icon -->
-          <div class="mb-6">
-            <i class="pi pi-exclamation-triangle text-4xl text-red-500 dark:text-red-400"></i>
-          </div>
 
-          <!-- Error content -->
-          <div class="text-center max-w-md">
-            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Error Loading Budget Data</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ error }}</p>
-
-            <!-- Retry button -->
-            <Button @click="$emit('retry-load')" icon="pi pi-refresh" label="Try Again" severity="secondary"
-              size="small" />
-          </div>
-        </div>
-      </template>
       <!-- Column Groups Header -->
       <ColumnGroup type="header">
         <Row>
