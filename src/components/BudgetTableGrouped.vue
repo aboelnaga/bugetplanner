@@ -1,72 +1,3 @@
-<template>
-  <template v-for="(group, categoryName) in groupedBudgetItems" :key="categoryName">
-    <!-- Category Header -->
-    <tr class="bg-gray-200">
-      <td class="px-6 py-3 text-sm font-bold text-gray-800 sticky left-0 bg-gray-200 z-10">
-        <div>
-          <div>{{ categoryName }} ({{ group.length }} items)</div>
-          <div :class="`text-xs font-normal ${getCategoryTypeStyling(group).textColor}`">
-            <span v-if="calculateCategoryTotal(group) > 0">
-              {{ formatCategoryAmountWithSign(calculateCategoryTotal(group)) }} total
-            </span>
-            <span v-else class="text-gray-400">— total</span>
-          </div>
-        </div>
-      </td>
-      <!-- Previous Year Column (Empty for category headers) -->
-      <td class="px-3 py-3 text-center border-r border-gray-200 bg-gray-50">
-        <div class="text-gray-400 font-normal">—</div>
-      </td>
-      <td v-for="(month, index) in months" :key="`header-${categoryName}-${month}`" 
-          :class="[
-            'px-4 py-3 bg-gray-200 text-center font-semibold',
-            selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : '',
-            calculateCategoryMonthlyTotal(group, index) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
-          ]">
-        <div v-if="calculateCategoryMonthlyTotal(group, index) > 0">
-          <BaseTooltip :content="getCategoryTooltip(group, index)" position="top">
-            <div class="cursor-help">
-              {{ formatCategoryAmountWithSign(calculateCategoryMonthlyTotal(group, index)) }}
-            </div>
-          </BaseTooltip>
-        </div>
-        <span v-else class="text-gray-400">—</span>
-      </td>
-      <td :class="[
-        'px-4 py-3 bg-gray-200 text-center font-bold sticky right-32 z-20',
-        calculateCategoryTotal(group) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
-      ]">
-        <span v-if="calculateCategoryTotal(group) > 0">
-          {{ formatCategoryAmountWithSign(calculateCategoryTotal(group)) }}
-        </span>
-        <span v-else class="text-gray-400">—</span>
-      </td>
-      <td class="px-4 py-3 bg-gray-200 sticky right-0 z-30"></td>
-    </tr>
-    
-    <!-- Category Items -->
-    <BudgetTableRow
-      v-for="budget in group"
-      :key="budget.id"
-      :budget="budget"
-      :months="months"
-      :selected-year="selectedYear"
-      :current-year="currentYear"
-      :current-month="currentMonth"
-      :is-scheduled-month="isScheduledMonth"
-      :get-budget-amount="getBudgetAmount"
-      :has-changes="hasChanges"
-      :calculate-yearly-total="calculateYearlyTotal"
-      :format-currency="formatCurrency"
-      :closed-months="closedMonths"
-      :get-actual-amount="getActualAmount"
-      @edit-budget="$emit('edit-budget', $event)"
-      @duplicate-budget="$emit('duplicate-budget', $event)"
-      @delete-budget="$emit('delete-budget', $event)"
-      @view-transactions="$emit('view-transactions')" />
-  </template>
-</template>
-
 <script setup>
 import BudgetTableRow from './BudgetTableRow.vue'
 import { tableUtils } from '@/utils/budgetUtils.js'
@@ -170,4 +101,73 @@ const emit = defineEmits([
   'delete-budget',
   'view-transactions'
 ])
-</script> 
+</script>
+
+<template>
+  <template v-for="(group, categoryName) in groupedBudgetItems" :key="categoryName">
+    <!-- Category Header -->
+    <tr class="bg-gray-200">
+      <td class="px-6 py-3 text-sm font-bold text-gray-800 sticky left-0 bg-gray-200 z-10">
+        <div>
+          <div>{{ categoryName }} ({{ group.length }} items)</div>
+          <div :class="`text-xs font-normal ${getCategoryTypeStyling(group).textColor}`">
+            <span v-if="calculateCategoryTotal(group) > 0">
+              {{ formatCategoryAmountWithSign(calculateCategoryTotal(group)) }} total
+            </span>
+            <span v-else class="text-gray-400">— total</span>
+          </div>
+        </div>
+      </td>
+      <!-- Previous Year Column (Empty for category headers) -->
+      <td class="px-3 py-3 text-center border-r border-gray-200 bg-gray-50">
+        <div class="text-gray-400 font-normal">—</div>
+      </td>
+      <td v-for="(month, index) in months" :key="`header-${categoryName}-${month}`" 
+          :class="[
+            'px-4 py-3 bg-gray-200 text-center font-semibold',
+            selectedYear === currentYear && index === currentMonth ? 'bg-blue-100' : '',
+            calculateCategoryMonthlyTotal(group, index) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
+          ]">
+        <div v-if="calculateCategoryMonthlyTotal(group, index) > 0">
+          <BaseTooltip :content="getCategoryTooltip(group, index)" position="top">
+            <div class="cursor-help">
+              {{ formatCategoryAmountWithSign(calculateCategoryMonthlyTotal(group, index)) }}
+            </div>
+          </BaseTooltip>
+        </div>
+        <span v-else class="text-gray-400">—</span>
+      </td>
+      <td :class="[
+        'px-4 py-3 bg-gray-200 text-center font-bold sticky right-32 z-20',
+        calculateCategoryTotal(group) > 0 ? getCategoryTypeStyling(group).textColor : 'text-gray-400'
+      ]">
+        <span v-if="calculateCategoryTotal(group) > 0">
+          {{ formatCategoryAmountWithSign(calculateCategoryTotal(group)) }}
+        </span>
+        <span v-else class="text-gray-400">—</span>
+      </td>
+      <td class="px-4 py-3 bg-gray-200 sticky right-0 z-30"></td>
+    </tr>
+    
+    <!-- Category Items -->
+    <BudgetTableRow
+      v-for="budget in group"
+      :key="budget.id"
+      :budget="budget"
+      :months="months"
+      :selected-year="selectedYear"
+      :current-year="currentYear"
+      :current-month="currentMonth"
+      :is-scheduled-month="isScheduledMonth"
+      :get-budget-amount="getBudgetAmount"
+      :has-changes="hasChanges"
+      :calculate-yearly-total="calculateYearlyTotal"
+      :format-currency="formatCurrency"
+      :closed-months="closedMonths"
+      :get-actual-amount="getActualAmount"
+      @edit-budget="$emit('edit-budget', $event)"
+      @duplicate-budget="$emit('duplicate-budget', $event)"
+      @delete-budget="$emit('delete-budget', $event)"
+      @view-transactions="$emit('view-transactions')" />
+  </template>
+</template> 

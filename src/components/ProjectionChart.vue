@@ -1,13 +1,3 @@
-<template>
-  <div class="relative h-80">
-    <Bar
-      ref="chart"
-      :data="chartData"
-      :options="chartOptions"
-    />
-  </div>
-</template>
-
 <script setup>
 import { computed } from 'vue'
 import {
@@ -112,4 +102,14 @@ const chartOptions = {
     mode: 'index'
   }
 }
-</script> 
+</script>
+
+<template>
+  <div class="relative h-80">
+    <Bar
+      ref="chart"
+      :data="chartData"
+      :options="chartOptions"
+    />
+  </div>
+</template> 
