@@ -8,6 +8,7 @@ import { useTransactionStore } from '@/stores/transactions.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import Button from 'primevue/button'
 import Card from 'primevue/card'
+import Message from 'primevue/message'
 import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
@@ -409,29 +410,24 @@ watch(selectedYear, async (newYear) => {
       <div class="bg-blue-600 h-1 transition-all duration-300" :style="{ width: refreshProgress + '%' }"></div>
     </div>
 
-    <!-- Auto-Close Loading Indicator -->
-    <div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
-      <div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }">
-      </div>
-    </div>
 
     <div class="space-y-6">
-      <!-- Actions Header (without page title) -->
-      <div class="flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-          <!-- Auto-close Header Badge -->
-          <div v-if="budgetStore.showHeaderBadge"
-            class="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd"
-                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                clip-rule="evenodd" />
-            </svg>
-            <span>{{ budgetStore.headerBadgeText }}</span>
-          </div>
-        </div>
-        <!-- <Button label="View History" icon="pi pi-history" severity="secondary" @click="openHistoryModal" /> -->
-      </div>
+      <!-- Auto-Close Progress Message -->
+      <Message v-if="budgetStore.isAutoClosing" severity="info" :closable="false"
+        class="fixed top-4 left-4 right-4 z-50">
+        <template #icon>
+          <i class="pi pi-spin pi-spinner"></i>
+        </template>
+        Auto-closing months... {{ budgetStore.autoCloseProgress }}%
+      </Message>
+
+      <!-- Auto-close Notification -->
+      <Message v-if="budgetStore.showHeaderBadge" :severity="'success'" :closable="true">
+        <template #icon>
+          <i class="pi pi-check-circle"></i>
+        </template>
+        {{ budgetStore.headerBadgeText }}
+      </Message>
 
       <!-- Account Balances Summary -->
       <Card v-if="accountsStore.accounts.length > 0" class="mb-4">
