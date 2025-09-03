@@ -505,14 +505,9 @@ watch(selectedYear, async (newYear) => {
 
       <!-- Budget Control Panel -->
       <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
-        :selected-type-filter="selectedTypeFilter" :selected-category-filter="selectedCategoryFilter"
-        :unique-categories="uniqueCategories" :can-copy-from-previous-year="canCopyFromPreviousYear"
-        :group-by-category="groupByCategory" :budget-items="budgetItems"
-        @update:selected-year="(year) => selectedYear = year"
-        @update:selected-type-filter="(filter) => selectedTypeFilter = filter"
-        @update:selected-category-filter="(filter) => selectedCategoryFilter = filter"
-        @update:group-by-category="(grouped) => groupByCategory = grouped" @add-year="addNewYear"
-        @copy-from-previous-year="copyFromPreviousYear" @clear-filters="clearAllFilters" />
+        :can-copy-from-previous-year="canCopyFromPreviousYear" :budget-items="budgetItems"
+        @update:selected-year="(year) => selectedYear = year" @add-year="addNewYear"
+        @copy-from-previous-year="copyFromPreviousYear" />
 
 
       <!-- New DataTable Implementation (for comparison/testing) -->
