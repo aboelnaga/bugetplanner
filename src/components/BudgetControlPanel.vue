@@ -30,7 +30,8 @@ const props = defineProps({
 const emit = defineEmits([
   'update:selectedYear',
   'add-year',
-  'copy-from-previous-year'
+  'copy-from-previous-year',
+  'add-budget'
 ])
 
 // Computed properties for navigation
@@ -100,8 +101,8 @@ const investmentCount = computed(() => {
           </div>
 
           <div class="flex items-center space-x-1">
-            <Button @click="$emit('add-year')" icon="pi pi-plus" label="Add Year" size="small" severity="secondary" text
-              title="Add a new year to plan" />
+            <Button @click="$emit('add-year')" icon="pi pi-calendar-plus" label="Add Year" size="small"
+              severity="secondary" text title="Add a new year to plan" />
 
             <Button v-if="budgetItems.length === 0 && canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')"
               icon="pi pi-copy" :label="`Copy ${selectedYear - 1}`" size="small" severity="success" text
@@ -117,6 +118,9 @@ const investmentCount = computed(() => {
             <Tag :value="`${expenseCount} expenses`" severity="danger" size="small" />
             <Tag :value="`${investmentCount} investment`" severity="info" size="small" />
           </div>
+
+          <Button @click="$emit('add-budget')" icon="pi pi-plus" label="Add Budget Item" size="large" severity="primary"
+            title="Add a new budget item" />
         </div>
       </div>
     </template>

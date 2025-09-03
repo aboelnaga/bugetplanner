@@ -446,13 +446,14 @@ watch(selectedYear, async (newYear) => {
             <span>{{ budgetStore.headerBadgeText }}</span>
           </div>
         </div>
-        <div class="flex gap-2">
-          <Button data-testid="add-budget-btn" label="Add Budget Item" icon="pi pi-plus"
-            @click="openAddBudgetModalUnified" />
-          <!-- <Button label="View History" icon="pi pi-history" severity="secondary" @click="openHistoryModal" /> -->
-        </div>
+        <!-- <Button label="View History" icon="pi pi-history" severity="secondary" @click="openHistoryModal" /> -->
       </div>
 
+      <!-- Budget Control Panel -->
+      <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
+        :can-copy-from-previous-year="canCopyFromPreviousYear" :budget-items="budgetItems"
+        @update:selected-year="(year) => selectedYear = year" @add-year="addNewYear"
+        @copy-from-previous-year="copyFromPreviousYear" @add-budget="openAddBudgetModalUnified" />
       <!-- Account Balances Summary -->
       <Card v-if="accountsStore.accounts.length > 0" class="mb-4">
         <template #content>
@@ -502,12 +503,6 @@ watch(selectedYear, async (newYear) => {
           </div>
         </template>
       </Card>
-
-      <!-- Budget Control Panel -->
-      <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
-        :can-copy-from-previous-year="canCopyFromPreviousYear" :budget-items="budgetItems"
-        @update:selected-year="(year) => selectedYear = year" @add-year="addNewYear"
-        @copy-from-previous-year="copyFromPreviousYear" />
 
 
       <!-- New DataTable Implementation (for comparison/testing) -->
