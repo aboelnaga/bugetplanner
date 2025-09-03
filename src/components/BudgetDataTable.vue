@@ -1157,7 +1157,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
     <!-- DataTable with Column Groups - Only show when there's data or loading -->
     <DataTable v-else-if="!hasNoDataForYear" :value="flattenedBudgetData" :loading="loading" :filters="filters"
       filterDisplay="menu" :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle=""
-      scrollable scrollHeight="70vh" class="budget-datatable" showGridlines>
+      scrollable scrollHeight="60vh" class="budget-datatable" showGridlines>
       <template #empty>
         <div class="flex flex-col items-center justify-center py-16">
           <!-- Simple icon -->

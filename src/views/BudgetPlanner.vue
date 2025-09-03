@@ -6,6 +6,9 @@ import { useAuthStore } from '@/stores/auth.js'
 import { useBudgetStore } from '@/stores/budget.js'
 import { useTransactionStore } from '@/stores/transactions.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
+import Button from 'primevue/button'
+import Card from 'primevue/card'
+import Tag from 'primevue/tag'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, watch } from 'vue'
@@ -449,41 +452,40 @@ watch(selectedYear, async (newYear) => {
         <!-- <Button label="View History" icon="pi pi-history" severity="secondary" @click="openHistoryModal" /> -->
       </div>
 
-      <!-- Budget Control Panel -->
-      <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
-        :can-copy-from-previous-year="canCopyFromPreviousYear" :budget-items="budgetItems"
-        @update:selected-year="(year) => selectedYear = year" @add-year="addNewYear"
-        @copy-from-previous-year="copyFromPreviousYear" @add-budget="openAddBudgetModalUnified" />
       <!-- Account Balances Summary -->
       <Card v-if="accountsStore.accounts.length > 0" class="mb-4">
-        <template #content>
-          <div class="flex items-center justify-between mb-2">
-            <h2 class="text-xl font-semibold text-gray-900 m-0">Account Balances</h2>
-            <RouterLink to="/banking" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
-              Manage Accounts →
-            </RouterLink>
+        <template #header>
+          <div class="flex items-center justify-between p-6 pb-0">
+            <div class="flex items-center gap-3">
+              <h3 class="text-lg font-semibold text-color m-0">Account Balances</h3>
+              <Tag :value="formatCurrency(accountsStore.totalBalance)"
+                :severity="accountsStore.totalBalance >= 0 ? 'success' : 'danger'" size="small" />
+            </div>
+            <Button label="Manage" icon="pi pi-cog" size="small" severity="secondary" text
+              @click="$router.push('/banking')" />
           </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        </template>
+        <template #content>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div v-for="account in accountsStore.accounts" :key="account.id"
-              class="surface-50 border surface-border rounded-lg p-4">
+              class="surface-50 border surface-border rounded p-3">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="text-lg">{{ getAccountIcon(account.type) }}</span>
+                  <span class="text-base">{{ getAccountIcon(account.type) }}</span>
                   <div>
-                    <h3 class="font-medium text-color">{{ account.name }}</h3>
-                    <p class="text-sm text-color-secondary capitalize">{{ account.type.replace('_', ' ') }}</p>
+                    <span class="font-bold text-color mr-2">{{ account.name }}</span>
+                    <Tag :value="account.type.replace('_', ' ')" severity="secondary" size="small" />
                   </div>
                 </div>
                 <div class="text-right">
-                  <div v-if="account.type === 'credit_card'" class="space-y-1">
-                    <p class="text-sm text-color-secondary">Available</p>
-                    <p class="text-lg font-semibold text-green-600">
+                  <div v-if="account.type === 'credit_card'">
+                    <p class="text-xs text-color-secondary">Available</p>
+                    <p class="text-sm font-semibold text-green-500">
                       {{ formatCurrency(getAvailableCredit(account.id)) }}
                     </p>
                   </div>
                   <div v-else>
-                    <p class="text-lg font-semibold" :class="getBalanceColor(account.balance)">
+                    <p class="text-sm font-semibold" :class="getBalanceColor(account.balance)">
                       {{ formatCurrency(account.balance) }}
                     </p>
                   </div>
@@ -491,19 +493,14 @@ watch(selectedYear, async (newYear) => {
               </div>
             </div>
           </div>
-
-          <!-- Total Balance -->
-          <div class="mt-4 pt-4 border-top-1 surface-border">
-            <div class="flex items-center justify-between">
-              <span class="text-lg font-medium text-color">Total Balance</span>
-              <span class="text-xl font-bold" :class="getTotalBalanceColor(accountsStore.totalBalance)">
-                {{ formatCurrency(accountsStore.totalBalance) }}
-              </span>
-            </div>
-          </div>
         </template>
       </Card>
 
+      <!-- Budget Control Panel -->
+      <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
+        :can-copy-from-previous-year="canCopyFromPreviousYear" :budget-items="budgetItems"
+        @update:selected-year="(year) => selectedYear = year" @add-year="addNewYear"
+        @copy-from-previous-year="copyFromPreviousYear" @add-budget="openAddBudgetModalUnified" />
 
       <!-- New DataTable Implementation (for comparison/testing) -->
       <div class="mt-8">
