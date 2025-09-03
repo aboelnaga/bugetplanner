@@ -1121,7 +1121,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         <div class="flex flex-col items-center justify-center py-16">
           <!-- Simple icon -->
           <div class="mb-6">
-            <i class="pi pi-inbox text-4xl text-gray-400 dark:text-gray-500"></i>
+            <i class="pi pi-inbox !text-4xl text-gray-400 dark:text-gray-500"></i>
           </div>
 
           <!-- Content -->
@@ -1567,7 +1567,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
     <div v-if="hasNoDataForYear" class="flex flex-col items-center justify-center py-16">
       <!-- Simple icon -->
       <div class="mb-6">
-        <i class="pi pi-inbox text-4xl text-gray-400 dark:text-gray-500"></i>
+        <i class="pi pi-inbox !text-4xl text-gray-400 dark:text-gray-500"></i>
       </div>
 
       <!-- Content -->
