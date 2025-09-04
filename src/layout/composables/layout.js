@@ -1,4 +1,4 @@
-import { computed, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue';
 
 const layoutConfig = reactive({
   preset: 'Aura',
@@ -20,6 +20,14 @@ const layoutState = reactive({
 });
 
 export function useLayout() {
+  // Load sidebar collapsed state from localStorage on mount
+  onMounted(() => {
+    const savedCollapsedState = localStorage.getItem('sidebar-collapsed');
+    if (savedCollapsedState !== null) {
+      layoutState.sidebarCollapsed = JSON.parse(savedCollapsedState);
+    }
+  });
+
   const setActiveMenuItem = (item) => {
     layoutState.activeMenuItem = item.value || item;
   };
@@ -48,6 +56,9 @@ export function useLayout() {
       // For desktop, toggle between expanded and collapsed (not hidden)
       layoutState.sidebarCollapsed = !layoutState.sidebarCollapsed;
       layoutState.staticMenuDesktopInactive = false; // Keep sidebar visible
+
+      // Save the collapsed state to localStorage
+      localStorage.setItem('sidebar-collapsed', JSON.stringify(layoutState.sidebarCollapsed));
     } else {
       layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
     }
