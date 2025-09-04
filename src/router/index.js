@@ -10,6 +10,7 @@ import CreateInvestment from '@/views/CreateInvestment.vue'
 import InvestmentDetails from '@/views/InvestmentDetails.vue'
 import Investments from '@/views/Investments.vue'
 import Transactions from '@/views/Transactions.vue'
+import Zakat from '@/views/Zakat.vue'
 
 const routes = [
   { path: '/auth', name: 'Auth', component: Auth },
@@ -20,6 +21,7 @@ const routes = [
   { path: '/investments', name: 'Investments', component: Investments, meta: { requiresAuth: true } },
   { path: '/investments/create', name: 'CreateInvestment', component: CreateInvestment, meta: { requiresAuth: true } },
   { path: '/investments/:id', name: 'InvestmentDetails', component: InvestmentDetails, meta: { requiresAuth: true } },
+  { path: '/zakat', name: 'Zakat', component: Zakat, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
