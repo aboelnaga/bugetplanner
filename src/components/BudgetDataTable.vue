@@ -132,6 +132,36 @@ const props = defineProps({
     default: null
   },
 
+  // All previous years calculation functions (sum of all years before selected year)
+  calculateAllPreviousYearsIncomeTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculateAllPreviousYearsExpensesTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculateAllPreviousYearsInvestmentIncomingTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculateAllPreviousYearsInvestmentOutgoingTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculateAllPreviousYearsNetTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculateAllPreviousYearsInvestmentNetTotalWithDual: {
+    type: Function,
+    default: null
+  },
+  calculateAllPreviousYearsSavingsTotalWithDual: {
+    type: Function,
+    default: null
+  },
+
   // Month closure functionality
   closedMonths: {
     type: Array,
@@ -855,92 +885,92 @@ const getMonthlyInvestmentNetTotalWithDual = (month) => {
   }
 }
 
-// Dual mode versions for previous year totals
-const getPreviousYearIncomeTotalWithDual = () => {
-  if (props.calculatePreviousYearIncomeTotalWithDual) {
-    const dualData = props.calculatePreviousYearIncomeTotalWithDual()
+// Dual mode versions for all previous years totals
+const getAllPreviousYearsIncomeTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsIncomeTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsIncomeTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
   return null
 }
 
-const getPreviousYearExpensesTotalWithDual = () => {
-  if (props.calculatePreviousYearExpensesTotalWithDual) {
-    const dualData = props.calculatePreviousYearExpensesTotalWithDual()
+const getAllPreviousYearsExpensesTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsExpensesTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsExpensesTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
   return null
 }
 
-const getPreviousYearNetTotalWithDual = () => {
-  if (props.calculatePreviousYearNetTotalWithDual) {
-    const dualData = props.calculatePreviousYearNetTotalWithDual()
+const getAllPreviousYearsNetTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsNetTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsNetTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
   return null
 }
 
-const getPreviousYearInvestmentIncomingTotalWithDual = () => {
-  if (props.calculatePreviousYearInvestmentIncomingTotalWithDual) {
-    const dualData = props.calculatePreviousYearInvestmentIncomingTotalWithDual()
+const getAllPreviousYearsInvestmentIncomingTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsInvestmentIncomingTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsInvestmentIncomingTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
   return null
 }
 
-const getPreviousYearInvestmentOutgoingTotalWithDual = () => {
-  if (props.calculatePreviousYearInvestmentOutgoingTotalWithDual) {
-    const dualData = props.calculatePreviousYearInvestmentOutgoingTotalWithDual()
+const getAllPreviousYearsInvestmentOutgoingTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsInvestmentOutgoingTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsInvestmentOutgoingTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
   return null
 }
 
-const getPreviousYearSavingsTotalWithDual = () => {
-  if (props.calculatePreviousYearSavingsTotalWithDual) {
-    const dualData = props.calculatePreviousYearSavingsTotalWithDual()
+const getAllPreviousYearsSavingsTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsSavingsTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsSavingsTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
   return null
 }
 
-const getPreviousYearInvestmentNetTotalWithDual = () => {
-  if (props.calculatePreviousYearInvestmentNetTotalWithDual) {
-    const dualData = props.calculatePreviousYearInvestmentNetTotalWithDual()
+const getAllPreviousYearsInvestmentNetTotalWithDual = () => {
+  if (props.calculateAllPreviousYearsInvestmentNetTotalWithDual) {
+    const dualData = props.calculateAllPreviousYearsInvestmentNetTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
-      closed: false, // Previous year data is not "closed" - it's historical data
+      closed: false, // Historical data is not "closed"
       type: 'both' // Use 'both' to indicate dual mode display
     }
   }
@@ -1239,7 +1269,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
       <ColumnGroup type="header">
         <Row>
           <Column header="Budget Item" :rowspan="1" frozen alignFrozen="left" />
-          <Column :header="`PY ${selectedYear - 1}`" :rowspan="1" />
+          <Column header="Prev. Years" :rowspan="1" />
           <Column v-for="(month, index) in months" :key="month" :class="getMonthColumnClass(month)">
             <template #header>
               <div class="text-center">
@@ -1369,8 +1399,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
             </Column>
             <Column :footerStyle="childRowStyle">
               <template #footer>
-                <FooterDualModeCell :data="getPreviousYearIncomeTotalWithDual()" itemType="income"
-                  :closedTooltip="`Previous year data - actual amount is displayed`"
+                <FooterDualModeCell :data="getAllPreviousYearsIncomeTotalWithDual()" itemType="income"
+                  :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                   :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
@@ -1401,8 +1431,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
             </Column>
             <Column :footerStyle="childRowStyle">
               <template #footer>
-                <FooterDualModeCell :data="getPreviousYearExpensesTotalWithDual()" itemType="expense"
-                  :closedTooltip="`Previous year data - actual amount is displayed`"
+                <FooterDualModeCell :data="getAllPreviousYearsExpensesTotalWithDual()" itemType="expense"
+                  :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                   :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
@@ -1434,8 +1464,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
               </Column>
               <Column :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <FooterDualModeCell :data="getPreviousYearInvestmentIncomingTotalWithDual()" itemType="income"
-                    :closedTooltip="`Previous year data - actual amount is displayed`"
+                  <FooterDualModeCell :data="getAllPreviousYearsInvestmentIncomingTotalWithDual()" itemType="income"
+                    :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                     :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
                     :dualMode="dualMode" />
                 </template>
@@ -1469,8 +1499,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
               </Column>
               <Column :footerStyle="grandchildRowStyle">
                 <template #footer>
-                  <FooterDualModeCell :data="getPreviousYearInvestmentOutgoingTotalWithDual()" itemType="expense"
-                    :closedTooltip="`Previous year data - actual amount is displayed`"
+                  <FooterDualModeCell :data="getAllPreviousYearsInvestmentOutgoingTotalWithDual()" itemType="expense"
+                    :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                     :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
                     :dualMode="dualMode" />
                 </template>
@@ -1511,8 +1541,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
             </Column>
             <Column :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
-                <FooterDualModeCell :data="getPreviousYearInvestmentNetTotalWithDual()" itemType="net"
-                  :closedTooltip="`Previous year data - actual amount is displayed`"
+                <FooterDualModeCell :data="getAllPreviousYearsInvestmentNetTotalWithDual()" itemType="net"
+                  :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                   :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
               </template>
             </Column>
@@ -1552,8 +1582,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
           </Column>
           <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <FooterDualModeCell :data="getPreviousYearNetTotalWithDual()" itemType="net"
-                :closedTooltip="`Previous year data - actual amount is displayed`"
+              <FooterDualModeCell :data="getAllPreviousYearsNetTotalWithDual()" itemType="net"
+                :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                 :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>
@@ -1579,8 +1609,8 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
           <Column footer="Cumulative Savings:" frozen alignFrozen="left" :footerStyle="parentRowStyle" />
           <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <FooterDualModeCell :data="getPreviousYearSavingsTotalWithDual()" itemType="net"
-                :closedTooltip="`Previous year data - actual amount is displayed`"
+              <FooterDualModeCell :data="getAllPreviousYearsSavingsTotalWithDual()" itemType="net"
+                :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                 :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>
           </Column>

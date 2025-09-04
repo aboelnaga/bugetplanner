@@ -450,6 +450,29 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     }
   }
 
+  // All previous years calculations - sum of all years before selected year
+  const calculateAllPreviousYearsIncomeTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        totalExpected += parseFloat(summary.total_income_planned) || 0
+        totalActual += parseFloat(summary.total_income_actual) || 0
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
+    }
+  }
+
   const calculatePreviousYearExpensesTotalWithDual = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const summary = yearlySummariesStore.getYearlySummary(previousYear)
@@ -458,6 +481,28 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return {
       expected: parseFloat(summary.total_expenses_planned) || 0,
       actual: parseFloat(summary.total_expenses_actual) || 0
+    }
+  }
+
+  const calculateAllPreviousYearsExpensesTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        totalExpected += parseFloat(summary.total_expenses_planned) || 0
+        totalActual += parseFloat(summary.total_expenses_actual) || 0
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
     }
   }
 
@@ -472,6 +517,28 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     }
   }
 
+  const calculateAllPreviousYearsInvestmentIncomingTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        totalExpected += parseFloat(summary.total_investment_incoming_planned) || 0
+        totalActual += parseFloat(summary.total_investment_incoming_actual) || 0
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
+    }
+  }
+
   const calculatePreviousYearInvestmentOutgoingTotalWithDual = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const summary = yearlySummariesStore.getYearlySummary(previousYear)
@@ -480,6 +547,28 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return {
       expected: parseFloat(summary.total_investment_outgoing_planned) || 0,
       actual: parseFloat(summary.total_investment_outgoing_actual) || 0
+    }
+  }
+
+  const calculateAllPreviousYearsInvestmentOutgoingTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        totalExpected += parseFloat(summary.total_investment_outgoing_planned) || 0
+        totalActual += parseFloat(summary.total_investment_outgoing_actual) || 0
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
     }
   }
 
@@ -501,6 +590,38 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return { expected: expectedNet, actual: actualNet }
   }
 
+  const calculateAllPreviousYearsNetTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        const expectedNet = (parseFloat(summary.total_income_planned) || 0) +
+                           (parseFloat(summary.total_investment_incoming_planned) || 0) -
+                           (parseFloat(summary.total_expenses_planned) || 0) -
+                           (parseFloat(summary.total_investment_outgoing_planned) || 0)
+
+        const actualNet = (parseFloat(summary.total_income_actual) || 0) +
+                         (parseFloat(summary.total_investment_incoming_actual) || 0) -
+                         (parseFloat(summary.total_expenses_actual) || 0) -
+                         (parseFloat(summary.total_investment_outgoing_actual) || 0)
+
+        totalExpected += expectedNet
+        totalActual += actualNet
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
+    }
+  }
+
   const calculatePreviousYearInvestmentNetTotalWithDual = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const summary = yearlySummariesStore.getYearlySummary(previousYear)
@@ -515,6 +636,34 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return { expected: expectedNet, actual: actualNet }
   }
 
+  const calculateAllPreviousYearsInvestmentNetTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        const expectedNet = (parseFloat(summary.total_investment_incoming_planned) || 0) -
+                           (parseFloat(summary.total_investment_outgoing_planned) || 0)
+
+        const actualNet = (parseFloat(summary.total_investment_incoming_actual) || 0) -
+                         (parseFloat(summary.total_investment_outgoing_actual) || 0)
+
+        totalExpected += expectedNet
+        totalActual += actualNet
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
+    }
+  }
+
   const calculatePreviousYearSavingsTotalWithDual = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
     const summary = yearlySummariesStore.getYearlySummary(previousYear)
@@ -523,6 +672,28 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     return {
       expected: parseFloat(summary.total_savings_planned) || 0,
       actual: parseFloat(summary.total_savings_actual) || 0
+    }
+  }
+
+  const calculateAllPreviousYearsSavingsTotalWithDual = () => {
+    const currentYear = selectedYear.value
+    if (!currentYear) return { expected: 0, actual: 0 }
+
+    let totalExpected = 0
+    let totalActual = 0
+
+    // Sum all years from 2020 to currentYear - 1
+    for (let year = 2020; year < currentYear; year++) {
+      const summary = yearlySummariesStore.getYearlySummary(year)
+      if (summary) {
+        totalExpected += parseFloat(summary.total_savings_planned) || 0
+        totalActual += parseFloat(summary.total_savings_actual) || 0
+      }
+    }
+
+    return {
+      expected: totalExpected,
+      actual: totalActual
     }
   }
 
@@ -618,6 +789,15 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculatePreviousYearNetTotalWithDual,
     calculatePreviousYearInvestmentNetTotalWithDual,
     calculatePreviousYearSavingsTotalWithDual,
+
+    // All previous years calculations (sum of all years before selected year)
+    calculateAllPreviousYearsIncomeTotalWithDual,
+    calculateAllPreviousYearsExpensesTotalWithDual,
+    calculateAllPreviousYearsInvestmentIncomingTotalWithDual,
+    calculateAllPreviousYearsInvestmentOutgoingTotalWithDual,
+    calculateAllPreviousYearsNetTotalWithDual,
+    calculateAllPreviousYearsInvestmentNetTotalWithDual,
+    calculateAllPreviousYearsSavingsTotalWithDual,
 
     // Budget updates
     updateBudgetAmount
