@@ -195,7 +195,6 @@ const {
   calculateAllPreviousYearsInvestmentOutgoingTotalWithDual,
   calculateAllPreviousYearsNetTotalWithDual,
   calculateAllPreviousYearsInvestmentNetTotalWithDual,
-  calculateAllPreviousYearsSavingsTotalWithDual,
   // Savings calculations
   calculateCumulativeSavings,
   calculateGrandTotalSavings,
@@ -525,7 +524,6 @@ watch(selectedYear, async (newYear) => {
           :calculate-all-previous-years-investment-outgoing-total-with-dual="calculateAllPreviousYearsInvestmentOutgoingTotalWithDual"
           :calculate-all-previous-years-net-total-with-dual="calculateAllPreviousYearsNetTotalWithDual"
           :calculate-all-previous-years-investment-net-total-with-dual="calculateAllPreviousYearsInvestmentNetTotalWithDual"
-          :calculate-all-previous-years-savings-total-with-dual="calculateAllPreviousYearsSavingsTotalWithDual"
           :can-copy-from-previous-year="canCopyFromPreviousYear" @edit-budget="editBudgetUnified"
           @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @view-transactions="handleViewTransactions"
           @update:dual-mode="(mode) => dualMode = mode" @add-budget="openAddBudgetModalUnified"

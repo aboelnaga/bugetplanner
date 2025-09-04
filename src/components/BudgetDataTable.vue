@@ -157,10 +157,6 @@ const props = defineProps({
     type: Function,
     default: null
   },
-  calculateAllPreviousYearsSavingsTotalWithDual: {
-    type: Function,
-    default: null
-  },
 
   // Month closure functionality
   closedMonths: {
@@ -669,9 +665,15 @@ const getMonthlyInvestmentOutgoingTotalWithDual = (month) => {
 const getMonthlySavingsTotalWithDual = (month) => {
   const monthIndex = months.indexOf(month)
 
+  // Get previous years' savings as starting point
+  const previousYearsSavings = getAllPreviousYearsNetTotalWithDual()
+  const previousYearsExpected = previousYearsSavings ? previousYearsSavings.expected : 0
+  const previousYearsActual = previousYearsSavings ? previousYearsSavings.actual : 0
+
   // Calculate cumulative savings from start of year up to this month
-  let expectedCumulativeSavings = 0
-  let actualCumulativeSavings = 0
+  // Start with previous years' savings as the base
+  let expectedCumulativeSavings = previousYearsExpected
+  let actualCumulativeSavings = previousYearsActual
 
   for (let i = 0; i <= monthIndex; i++) {
     const monthField = months[i].toLowerCase()
@@ -941,19 +943,6 @@ const getAllPreviousYearsInvestmentIncomingTotalWithDual = () => {
 const getAllPreviousYearsInvestmentOutgoingTotalWithDual = () => {
   if (props.calculateAllPreviousYearsInvestmentOutgoingTotalWithDual) {
     const dualData = props.calculateAllPreviousYearsInvestmentOutgoingTotalWithDual()
-    return {
-      expected: dualData.expected,
-      actual: dualData.actual,
-      closed: false, // Historical data is not "closed"
-      type: 'both' // Use 'both' to indicate dual mode display
-    }
-  }
-  return null
-}
-
-const getAllPreviousYearsSavingsTotalWithDual = () => {
-  if (props.calculateAllPreviousYearsSavingsTotalWithDual) {
-    const dualData = props.calculateAllPreviousYearsSavingsTotalWithDual()
     return {
       expected: dualData.expected,
       actual: dualData.actual,
@@ -1609,7 +1598,7 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
           <Column footer="Cumulative Savings:" frozen alignFrozen="left" :footerStyle="parentRowStyle" />
           <Column :footerStyle="parentRowStyle">
             <template #footer>
-              <FooterDualModeCell :data="getAllPreviousYearsSavingsTotalWithDual()" itemType="net"
+              <FooterDualModeCell :data="getAllPreviousYearsNetTotalWithDual()" itemType="net"
                 :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
                 :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
             </template>

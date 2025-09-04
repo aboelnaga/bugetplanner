@@ -675,27 +675,6 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     }
   }
 
-  const calculateAllPreviousYearsSavingsTotalWithDual = () => {
-    const currentYear = selectedYear.value
-    if (!currentYear) return { expected: 0, actual: 0 }
-
-    let totalExpected = 0
-    let totalActual = 0
-
-    // Sum all years from 2020 to currentYear - 1
-    for (let year = 2020; year < currentYear; year++) {
-      const summary = yearlySummariesStore.getYearlySummary(year)
-      if (summary) {
-        totalExpected += parseFloat(summary.total_savings_planned) || 0
-        totalActual += parseFloat(summary.total_savings_actual) || 0
-      }
-    }
-
-    return {
-      expected: totalExpected,
-      actual: totalActual
-    }
-  }
 
   // Budget amount updates
   const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
@@ -797,7 +776,6 @@ export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [
     calculateAllPreviousYearsInvestmentOutgoingTotalWithDual,
     calculateAllPreviousYearsNetTotalWithDual,
     calculateAllPreviousYearsInvestmentNetTotalWithDual,
-    calculateAllPreviousYearsSavingsTotalWithDual,
 
     // Budget updates
     updateBudgetAmount
