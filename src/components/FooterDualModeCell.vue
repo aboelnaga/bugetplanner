@@ -13,8 +13,7 @@
             </div>
         </template>
         <template v-else>
-            <div v-if="getFooterDualData(data, itemType)?.closed" class="text-green-600 dark:text-green-400 cursor-help"
-                :title="closedTooltip">
+            <div v-if="getFooterDualData(data, itemType)?.closed" :title="closedTooltip">
                 {{ getFooterDualData(data, itemType)?.value }}
                 <span class="text-xs ml-1 text-green-600 dark:text-green-400">●</span>
             </div>
