@@ -15,7 +15,8 @@ const layoutState = reactive({
   configSidebarVisible: false,
   staticMenuMobileActive: false,
   menuHoverActive: false,
-  activeMenuItem: null
+  activeMenuItem: null,
+  sidebarCollapsed: false
 });
 
 export function useLayout() {
@@ -44,13 +45,17 @@ export function useLayout() {
     }
 
     if (window.innerWidth > 991) {
-      layoutState.staticMenuDesktopInactive = !layoutState.staticMenuDesktopInactive;
+      // For desktop, toggle between expanded and collapsed (not hidden)
+      layoutState.sidebarCollapsed = !layoutState.sidebarCollapsed;
+      layoutState.staticMenuDesktopInactive = false; // Keep sidebar visible
     } else {
       layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
     }
   };
 
   const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive);
+
+  const isSidebarCollapsed = computed(() => layoutState.sidebarCollapsed);
 
   const isDarkTheme = computed(() => layoutConfig.darkTheme);
 
@@ -63,6 +68,7 @@ export function useLayout() {
     layoutState,
     toggleMenu,
     isSidebarActive,
+    isSidebarCollapsed,
     isDarkTheme,
     getPrimary,
     getSurface,

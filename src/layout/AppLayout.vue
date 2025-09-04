@@ -4,7 +4,7 @@ import { computed, ref, watch } from 'vue';
 import AppSidebar from './AppSidebar.vue';
 import AppTopbar from './AppTopbar.vue';
 
-const { layoutConfig, layoutState, isSidebarActive } = useLayout();
+const { layoutConfig, layoutState, isSidebarActive, isSidebarCollapsed } = useLayout();
 
 const outsideClickListener = ref(null);
 
@@ -21,6 +21,7 @@ const containerClass = computed(() => {
     'layout-overlay': layoutConfig.menuMode === 'overlay',
     'layout-static': layoutConfig.menuMode === 'static',
     'layout-static-inactive': layoutState.staticMenuDesktopInactive && layoutConfig.menuMode === 'static',
+    'layout-static-collapsed': isSidebarCollapsed.value && layoutConfig.menuMode === 'static',
     'layout-overlay-active': layoutState.overlayMenuActive,
     'layout-mobile-active': layoutState.staticMenuMobileActive
   };

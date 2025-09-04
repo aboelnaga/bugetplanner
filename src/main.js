@@ -1,16 +1,17 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
 import router from '@/router/index.js'
+import { createPinia } from 'pinia'
+import { createApp } from 'vue'
 import App from './App.vue'
 
 // PrimeVue Theme Setup
-import PrimeVue from 'primevue/config'
+import { definePreset } from '@primeuix/themes'
 import Aura from '@primevue/themes/aura'
-import { definePreset } from '@primeuix/themes';
-import ConfirmationService from 'primevue/confirmationservice';
-import ToastService from 'primevue/toastservice';
+import PrimeVue from 'primevue/config'
+import ConfirmationService from 'primevue/confirmationservice'
+import ToastService from 'primevue/toastservice'
+import Tooltip from 'primevue/tooltip'
 
-import '@/assets/styles.scss';
+import '@/assets/styles.scss'
 
 
 const pinia = createPinia()
@@ -66,4 +67,5 @@ app.use(PrimeVue, {
 });
 app.use(ConfirmationService);
 app.use(ToastService);
-app.mount('#app') 
+app.directive('tooltip', Tooltip);
+app.mount('#app')
