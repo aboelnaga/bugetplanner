@@ -104,6 +104,14 @@
                         Based on current gold/silver prices
                       </p>
                     </div>
+
+                    <div class="islamic-date-card">
+                      <h4>Current Islamic Date</h4>
+                      <div class="hijri-date">{{ getCurrentHijriDate().formatted }}</div>
+                      <p class="hijri-description">
+                        Today's date in Hijri calendar
+                      </p>
+                    </div>
                   </div>
 
                   <div class="button-group">
@@ -168,11 +176,19 @@
                 <div class="hawl-dates">
                   <div class="date-item">
                     <label>Start Date:</label>
-                    <span>{{ formatDate(hawlData.startDate) }}</span>
+                    <span>{{ formatDateDisplay(hawlData.startDate) }}</span>
                   </div>
                   <div class="date-item">
                     <label>End Date:</label>
-                    <span>{{ formatDate(hawlData.endDate) }}</span>
+                    <span>{{ formatDateDisplay(hawlData.endDate) }}</span>
+                  </div>
+                  <div v-if="hawlData.hijriStartDate" class="date-item">
+                    <label>Hijri Start:</label>
+                    <span>{{ hawlData.hijriStartDate.formatted }}</span>
+                  </div>
+                  <div v-if="hawlData.hijriEndDate" class="date-item">
+                    <label>Hijri End:</label>
+                    <span>{{ hawlData.hijriEndDate.formatted }}</span>
                   </div>
                 </div>
 
@@ -256,6 +272,7 @@
 </template>
 
 <script setup>
+import { useIslamicCalendar } from '@/composables/useIslamicCalendar'
 import Button from 'primevue/button'
 import Calendar from 'primevue/calendar'
 import Card from 'primevue/card'
@@ -266,6 +283,22 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
+// Islamic calendar composable
+const {
+  toHijri,
+  toGregorian,
+  getCurrentHijriDate,
+  calculateHawlEndDate,
+  getDaysRemainingInHawl,
+  getHawlProgress,
+  isHawlCompleted,
+  getHawlStatus,
+  formatDate,
+  formatHijriDate,
+  getHijriMonthNames,
+  getHijriMonthNamesArabic
+} = useIslamicCalendar()
 
 // Onboarding state
 const currentStep = ref(1)
@@ -318,24 +351,12 @@ const zakatCalculation = computed(() => {
 
 const hawlProgress = computed(() => {
   if (!hawlData.value) return 0
-
-  const startDate = new Date(hawlData.value.startDate)
-  const endDate = new Date(hawlData.value.endDate)
-  const now = new Date()
-
-  const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24))
-  const elapsedDays = Math.floor((now - startDate) / (1000 * 60 * 60 * 24))
-
-  return Math.min(Math.max((elapsedDays / totalDays) * 100, 0), 100)
+  return getHawlProgress(hawlData.value.startDate)
 })
 
 const daysRemaining = computed(() => {
   if (!hawlData.value) return 0
-
-  const endDate = new Date(hawlData.value.endDate)
-  const now = new Date()
-
-  return Math.max(Math.floor((endDate - now) / (1000 * 60 * 60 * 24)), 0)
+  return getDaysRemainingInHawl(hawlData.value.startDate)
 })
 
 const hawlStatus = computed(() => {
@@ -382,8 +403,7 @@ const proceedToStep = (step) => {
 const completeSetup = () => {
   // Create Hawl data based on user responses
   const now = new Date()
-  const endDate = new Date(now)
-  endDate.setDate(endDate.getDate() + 354) // Add 354 days (lunar year)
+  const endDate = calculateHawlEndDate(now) // Use Islamic calendar calculation
 
   hawlData.value = {
     id: `hawl-${now.getFullYear()}`,
@@ -395,7 +415,10 @@ const completeSetup = () => {
     nisabThreshold: currentNisab.value,
     hasBeenInterrupted: false,
     continuousAboveNisab: true,
-    previousPaymentData: hasPaidZakatBefore.value ? previousPaymentData.value : null
+    previousPaymentData: hasPaidZakatBefore.value ? previousPaymentData.value : null,
+    // Add Islamic calendar information
+    hijriStartDate: toHijri(now),
+    hijriEndDate: toHijri(endDate)
   }
 
   // Save to localStorage or database
@@ -412,7 +435,7 @@ const getHawlStatusSeverity = (status) => {
   }
 }
 
-const formatDate = (dateString) => {
+const formatDateDisplay = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
@@ -581,6 +604,33 @@ onMounted(() => {
 }
 
 .nisab-description {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.islamic-date-card {
+  background-color: var(--surface-100);
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid var(--green-200);
+  margin-top: 1rem;
+}
+
+.islamic-date-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+}
+
+.hijri-date {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--green-600);
+  margin-bottom: 0.5rem;
+}
+
+.hijri-description {
   margin: 0;
   color: var(--text-color-secondary);
   font-size: 0.9rem;
