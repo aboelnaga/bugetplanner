@@ -14,7 +14,7 @@
     <!-- Main Content -->
     <div class="zakat-content">
       <!-- Onboarding Flow -->
-      <div v-if="!hawlData" class="onboarding-section">
+      <div v-if="!hawlStore.currentHawl" class="onboarding-section">
         <Card class="onboarding-card">
           <template #header>
             <div class="card-header">
@@ -99,7 +99,7 @@
                   <div class="nisab-info">
                     <div class="nisab-card">
                       <h4>Current Nisab Threshold</h4>
-                      <div class="nisab-value">{{ currentNisab.toLocaleString() }} EGP</div>
+                      <div class="nisab-value">{{ hawlStore.nisabThreshold.toLocaleString() }} EGP</div>
                       <p class="nisab-description">
                         Based on current gold/silver prices
                       </p>
@@ -167,7 +167,8 @@
             <template #header>
               <div class="card-header">
                 <h3>Hawl Status</h3>
-                <Tag :value="hawlData.status" :severity="getHawlStatusSeverity(hawlData.status)" />
+                <Tag :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
+                  :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)" />
               </div>
             </template>
 
@@ -176,19 +177,19 @@
                 <div class="hawl-dates">
                   <div class="date-item">
                     <label>Start Date:</label>
-                    <span>{{ formatDateDisplay(hawlData.startDate) }}</span>
+                    <span>{{ formatDateDisplay(hawlStore.currentHawl?.startDate) }}</span>
                   </div>
                   <div class="date-item">
                     <label>End Date:</label>
-                    <span>{{ formatDateDisplay(hawlData.endDate) }}</span>
+                    <span>{{ formatDateDisplay(hawlStore.currentHawl?.endDate) }}</span>
                   </div>
-                  <div v-if="hawlData.hijriStartDate" class="date-item">
+                  <div v-if="hawlStore.currentHawl?.hijriStartDate" class="date-item">
                     <label>Hijri Start:</label>
-                    <span>{{ hawlData.hijriStartDate.formatted }}</span>
+                    <span>{{ hawlStore.currentHawl.hijriStartDate.formatted }}</span>
                   </div>
-                  <div v-if="hawlData.hijriEndDate" class="date-item">
+                  <div v-if="hawlStore.currentHawl?.hijriEndDate" class="date-item">
                     <label>Hijri End:</label>
-                    <span>{{ hawlData.hijriEndDate.formatted }}</span>
+                    <span>{{ hawlStore.currentHawl.hijriEndDate.formatted }}</span>
                   </div>
                 </div>
 
@@ -217,7 +218,7 @@
               <div class="nisab-info">
                 <div class="nisab-threshold">
                   <label>Current Nisab:</label>
-                  <span class="nisab-value">{{ currentNisab.toLocaleString() }} EGP</span>
+                  <span class="nisab-value">{{ hawlStore.nisabThreshold.toLocaleString() }} EGP</span>
                 </div>
                 <div class="user-assets">
                   <label>Your Assets:</label>
@@ -226,7 +227,7 @@
                 <div class="nisab-difference">
                   <label>Difference:</label>
                   <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'">
-                    {{ (nisabStatus.totalAssets - currentNisab).toLocaleString() }} EGP
+                    {{ (nisabStatus.totalAssets - hawlStore.nisabThreshold).toLocaleString() }} EGP
                   </span>
                 </div>
               </div>
@@ -273,6 +274,7 @@
 
 <script setup>
 import { useIslamicCalendar } from '@/composables/useIslamicCalendar'
+import { useHawlStore } from '@/stores/hawlStore'
 import Button from 'primevue/button'
 import Calendar from 'primevue/calendar'
 import Card from 'primevue/card'
@@ -283,6 +285,9 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
+// Hawl store
+const hawlStore = useHawlStore()
 
 // Islamic calendar composable
 const {
@@ -312,11 +317,7 @@ const previousPaymentData = ref({
   assetValue: null
 })
 
-// Hawl data
-const hawlData = ref(null)
-
 // Nisab and calculation data
-const currentNisab = ref(150000) // Placeholder - will be calculated from gold/silver prices (approximately 85g gold in EGP)
 const zakatRate = 2.5
 
 // Computed properties
@@ -331,7 +332,7 @@ const nisabStatus = computed(() => {
   const totalAssets = 500000 // This should come from budget items (500k EGP)
   return {
     totalAssets,
-    isEligible: totalAssets >= currentNisab.value
+    isEligible: totalAssets >= hawlStore.nisabThreshold
   }
 })
 
@@ -350,17 +351,15 @@ const zakatCalculation = computed(() => {
 })
 
 const hawlProgress = computed(() => {
-  if (!hawlData.value) return 0
-  return getHawlProgress(hawlData.value.startDate)
+  return hawlStore.hawlProgress
 })
 
 const daysRemaining = computed(() => {
-  if (!hawlData.value) return 0
-  return getDaysRemainingInHawl(hawlData.value.startDate)
+  return hawlStore.daysRemaining
 })
 
 const hawlStatus = computed(() => {
-  if (!hawlData.value) {
+  if (!hawlStore.currentHawl) {
     return {
       class: 'status-new',
       icon: 'pi pi-plus-circle',
@@ -370,13 +369,50 @@ const hawlStatus = computed(() => {
     }
   }
 
-  // This will be calculated based on Hawl logic
-  return {
-    class: 'status-active',
-    icon: 'pi pi-clock',
-    title: 'Hawl in Progress',
-    description: 'Your Zakat year is ongoing.',
-    details: `${daysRemaining.value} days remaining`
+  const currentStatus = hawlStore.currentHawlStatus
+  if (!currentStatus) return null
+
+  switch (currentStatus.status) {
+    case hawlStore.HAWL_STATES.ACTIVE:
+      return {
+        class: 'status-active',
+        icon: 'pi pi-clock',
+        title: 'Hawl in Progress',
+        description: 'Your Zakat year is ongoing.',
+        details: `${currentStatus.daysRemaining} days remaining`
+      }
+    case hawlStore.HAWL_STATES.DUE:
+      return {
+        class: 'status-due',
+        icon: 'pi pi-exclamation-triangle',
+        title: 'Zakat Due',
+        description: 'Your Hawl is complete. Zakat is now due.',
+        details: 'Please pay your Zakat obligation'
+      }
+    case hawlStore.HAWL_STATES.INTERRUPTED:
+      return {
+        class: 'status-interrupted',
+        icon: 'pi pi-times-circle',
+        title: 'Hawl Interrupted',
+        description: 'Your Hawl was interrupted. Assets fell below Nisab.',
+        details: 'Start a new Hawl when assets are above Nisab again'
+      }
+    case hawlStore.HAWL_STATES.PAID:
+      return {
+        class: 'status-paid',
+        icon: 'pi pi-check-circle',
+        title: 'Zakat Paid',
+        description: 'Your Zakat has been paid for this Hawl.',
+        details: 'Start a new Hawl for the next year'
+      }
+    default:
+      return {
+        class: 'status-unknown',
+        icon: 'pi pi-question-circle',
+        title: 'Unknown Status',
+        description: 'Hawl status is unclear.',
+        details: null
+      }
   }
 })
 
@@ -401,50 +437,27 @@ const proceedToStep = (step) => {
 }
 
 const completeSetup = () => {
-  // Create Hawl data based on user responses
-  const now = new Date()
-  const endDate = calculateHawlEndDate(now) // Use Islamic calendar calculation
+  // Create new Hawl using the store
+  const newHawl = hawlStore.createNewHawl(
+    nisabStatus.value.totalAssets,
+    hasPaidZakatBefore.value ? previousPaymentData.value : null
+  )
 
-  hawlData.value = {
-    id: `hawl-${now.getFullYear()}`,
-    startDate: now.toISOString().split('T')[0],
-    endDate: endDate.toISOString().split('T')[0],
-    status: 'active',
-    initialAssets: nisabStatus.value.totalAssets,
-    currentAssets: nisabStatus.value.totalAssets,
-    nisabThreshold: currentNisab.value,
-    hasBeenInterrupted: false,
-    continuousAboveNisab: true,
-    previousPaymentData: hasPaidZakatBefore.value ? previousPaymentData.value : null,
-    // Add Islamic calendar information
-    hijriStartDate: toHijri(now),
-    hijriEndDate: toHijri(endDate)
-  }
-
-  // Save to localStorage or database
-  localStorage.setItem('zakat-hawl-data', JSON.stringify(hawlData.value))
+  console.log('New Hawl created:', newHawl)
 }
 
 const getHawlStatusSeverity = (status) => {
-  switch (status) {
-    case 'active': return 'info'
-    case 'due': return 'warning'
-    case 'paid': return 'success'
-    case 'interrupted': return 'danger'
-    default: return 'secondary'
-  }
+  return hawlStore.getStatusSeverity(status)
 }
 
 const formatDateDisplay = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-// Load existing Hawl data on mount
+// Initialize Hawl store on mount
 onMounted(() => {
-  const savedHawlData = localStorage.getItem('zakat-hawl-data')
-  if (savedHawlData) {
-    hawlData.value = JSON.parse(savedHawlData)
-  }
+  hawlStore.initializeHawlStore()
+  hawlStore.ensureHawlStatusUpdated()
 })
 </script>
 
