@@ -99,7 +99,7 @@
                   <div class="nisab-info">
                     <div class="nisab-card">
                       <h4>Current Nisab Threshold</h4>
-                      <div class="nisab-value">{{ hawlStore.nisabThreshold.toLocaleString() }} EGP</div>
+                      <div class="nisab-value">{{ hawlStore.currentNisab.toLocaleString() }} EGP</div>
                       <p class="nisab-description">
                         Based on current gold/silver prices
                       </p>
@@ -218,7 +218,7 @@
               <div class="nisab-info">
                 <div class="nisab-threshold">
                   <label>Current Nisab:</label>
-                  <span class="nisab-value">{{ hawlStore.nisabThreshold.toLocaleString() }} EGP</span>
+                  <span class="nisab-value">{{ hawlStore.currentNisab.toLocaleString() }} EGP</span>
                 </div>
                 <div class="user-assets">
                   <label>Your Assets:</label>
@@ -227,8 +227,34 @@
                 <div class="nisab-difference">
                   <label>Difference:</label>
                   <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'">
-                    {{ (nisabStatus.totalAssets - hawlStore.nisabThreshold).toLocaleString() }} EGP
+                    {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
                   </span>
+                </div>
+              </div>
+            </template>
+          </Card>
+
+          <!-- Asset Breakdown Card -->
+          <Card class="asset-breakdown-card">
+            <template #header>
+              <div class="card-header">
+                <h3>Asset Breakdown</h3>
+                <Tag :value="`${nisabStatus.breakdown.length} categories`" severity="info" />
+              </div>
+            </template>
+
+            <template #content>
+              <div class="asset-breakdown">
+                <div v-for="category in nisabStatus.breakdown" :key="category.name" class="asset-category">
+                  <div class="category-info">
+                    <span class="category-name">{{ category.name }}</span>
+                    <span class="category-percentage">{{ category.percentage.toFixed(1) }}%</span>
+                  </div>
+                  <div class="category-value">{{ category.value.toLocaleString() }} EGP</div>
+                </div>
+                <div class="asset-total">
+                  <div class="total-label">Total Zakatable Assets:</div>
+                  <div class="total-value">{{ nisabStatus.totalAssets.toLocaleString() }} EGP</div>
                 </div>
               </div>
             </template>
@@ -245,7 +271,17 @@
 
             <template #content>
               <div class="zakat-calculation">
-                <div class="calculation-breakdown">
+                <div v-if="!zakatCalculation.isEligible" class="not-eligible-message">
+                  <div class="message-icon">ℹ️</div>
+                  <div class="message-content">
+                    <h4>Not Eligible for Zakat</h4>
+                    <p>Your total assets ({{ nisabStatus.totalAssets.toLocaleString() }} EGP) are below the Nisab
+                      threshold ({{ hawlStore.currentNisab.toLocaleString() }} EGP).</p>
+                    <p>Zakat is not required when assets are below Nisab.</p>
+                  </div>
+                </div>
+
+                <div v-else class="calculation-breakdown">
                   <div class="calculation-item">
                     <label>Total Assets:</label>
                     <span>{{ nisabStatus.totalAssets.toLocaleString() }} EGP</span>
@@ -266,6 +302,61 @@
               </div>
             </template>
           </Card>
+
+          <!-- Budget Integration Card -->
+          <Card class="budget-integration-card">
+            <template #header>
+              <div class="card-header">
+                <h3>Budget Integration</h3>
+                <Tag :value="`${currentYearZakatItems.length} items`" severity="info" />
+              </div>
+            </template>
+
+            <template #content>
+              <div class="budget-integration">
+                <div v-if="!zakatCalculation.isEligible" class="not-eligible-budget">
+                  <div class="message-icon">ℹ️</div>
+                  <div class="message-content">
+                    <h4>No Zakat Budget Required</h4>
+                    <p>Since your assets are below Nisab, no Zakat budget items are needed.</p>
+                  </div>
+                </div>
+
+                <div v-else>
+                  <div class="budget-summary">
+                    <div class="budget-item">
+                      <label>Total Budgeted:</label>
+                      <span>{{ totalZakatBudgeted.toLocaleString() }} EGP</span>
+                    </div>
+                    <div class="budget-item">
+                      <label>Total Paid:</label>
+                      <span>{{ totalPayments.toLocaleString() }} EGP</span>
+                    </div>
+                    <div class="budget-item">
+                      <label>Remaining:</label>
+                      <span :class="zakatBudgetStatus.remaining >= 0 ? 'text-green-600' : 'text-red-600'">
+                        {{ zakatBudgetStatus.remaining.toLocaleString() }} EGP
+                      </span>
+                    </div>
+                    <div class="budget-item">
+                      <label>Progress:</label>
+                      <span>{{ zakatBudgetStatus.percentage.toFixed(1) }}%</span>
+                    </div>
+                  </div>
+
+                  <div class="budget-progress">
+                    <ProgressBar :value="zakatBudgetStatus.percentage" class="budget-progress-bar" />
+                  </div>
+
+                  <div class="budget-actions">
+                    <Button label="Create Budget Items" @click="createZakatBudgetForUpcomingYears(3)"
+                      severity="secondary" size="small" />
+                    <Button label="View in Budget" @click="router.push('/budget')" severity="primary" size="small" />
+                  </div>
+                </div>
+              </div>
+            </template>
+          </Card>
         </div>
       </div>
     </div>
@@ -274,6 +365,9 @@
 
 <script setup>
 import { useIslamicCalendar } from '@/composables/useIslamicCalendar'
+import { useZakatAssets } from '@/composables/useZakatAssets'
+import { useZakatBudgetIntegration } from '@/composables/useZakatBudgetIntegration'
+import { useZakatPayments } from '@/composables/useZakatPayments'
 import { useHawlStore } from '@/stores/hawlStore'
 import Button from 'primevue/button'
 import Calendar from 'primevue/calendar'
@@ -288,6 +382,41 @@ const router = useRouter()
 
 // Hawl store
 const hawlStore = useHawlStore()
+
+// Zakat assets composable
+const {
+  totalZakatableAssets,
+  assetSummary,
+  cashAssets,
+  investmentAssets,
+  businessInventory,
+  goldSilverAssets,
+  realEstateAssets,
+  otherAssets,
+  initializeAssets,
+  refreshAssets
+} = useZakatAssets()
+
+// Zakat payments composable
+const {
+  payments: zakatPayments,
+  totalPayments,
+  createPayment,
+  markPaymentAsCompleted,
+  getPaymentStats
+} = useZakatPayments()
+
+// Zakat budget integration composable
+const {
+  zakatBudgetItems,
+  currentYearZakatItems,
+  totalZakatBudgeted,
+  zakatBudgetStatus,
+  createZakatBudgetForCurrentHawl,
+  createZakatBudgetForUpcomingYears,
+  markZakatAsPaid,
+  initialize: initializeBudgetIntegration
+} = useZakatBudgetIntegration()
 
 // Islamic calendar composable
 const {
@@ -328,16 +457,29 @@ const isPreviousPaymentDataValid = computed(() => {
 })
 
 const nisabStatus = computed(() => {
-  // Placeholder calculation - will be replaced with real asset calculation
-  const totalAssets = 500000 // This should come from budget items (500k EGP)
+  const totalAssets = totalZakatableAssets.value.total
   return {
     totalAssets,
-    isEligible: totalAssets >= hawlStore.nisabThreshold
+    isEligible: totalAssets >= hawlStore.currentNisab,
+    breakdown: assetSummary.value.categories
   }
 })
 
 const zakatCalculation = computed(() => {
   const totalAssets = nisabStatus.value.totalAssets
+  const isEligible = nisabStatus.value.isEligible
+
+  // If not eligible (assets below Nisab), return zero amounts
+  if (!isEligible) {
+    return {
+      totalAssets,
+      deductions: 0,
+      netAssets: 0,
+      amount: 0,
+      isEligible: false
+    }
+  }
+
   const deductions = 0 // Placeholder - will calculate real deductions
   const netAssets = totalAssets - deductions
   const amount = netAssets * (zakatRate / 100)
@@ -346,7 +488,8 @@ const zakatCalculation = computed(() => {
     totalAssets,
     deductions,
     netAssets,
-    amount
+    amount,
+    isEligible: true
   }
 })
 
@@ -436,14 +579,38 @@ const proceedToStep = (step) => {
   currentStep.value = step
 }
 
-const completeSetup = () => {
-  // Create new Hawl using the store
+const completeSetup = async () => {
+  // Refresh asset data before creating Hawl
+  await refreshAssets()
+
+  // Create new Hawl using the store with real asset data
   const newHawl = hawlStore.createNewHawl(
     nisabStatus.value.totalAssets,
     hasPaidZakatBefore.value ? previousPaymentData.value : null
   )
 
-  console.log('New Hawl created:', newHawl)
+  // Only create budget items if eligible for Zakat
+  if (nisabStatus.value.isEligible) {
+    // Create Zakat budget item for current Hawl
+    try {
+      await createZakatBudgetForCurrentHawl()
+      console.log('Zakat budget item created for current Hawl')
+    } catch (error) {
+      console.warn('Could not create Zakat budget item:', error.message)
+    }
+
+    // Create Zakat budget items for upcoming years
+    try {
+      await createZakatBudgetForUpcomingYears(3)
+      console.log('Zakat budget items created for upcoming years')
+    } catch (error) {
+      console.warn('Could not create Zakat budget items for upcoming years:', error.message)
+    }
+  } else {
+    console.log('Assets below Nisab - no Zakat budget items created')
+  }
+
+  console.log('New Hawl created with real assets and budget integration:', newHawl)
 }
 
 const getHawlStatusSeverity = (status) => {
@@ -454,10 +621,12 @@ const formatDateDisplay = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-// Initialize Hawl store on mount
-onMounted(() => {
-  hawlStore.initializeHawlStore()
+// Initialize stores and assets on mount
+onMounted(async () => {
+  await hawlStore.initializeHawlStore()
   hawlStore.ensureHawlStatusUpdated()
+  await initializeAssets()
+  await initializeBudgetIntegration()
 })
 </script>
 
@@ -786,6 +955,177 @@ onMounted(() => {
 .zakat-total {
   font-size: 1.2rem;
   color: var(--primary-color);
+}
+
+/* Not Eligible Message Styles */
+.not-eligible-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 8px;
+  margin: 1rem 0;
+}
+
+.message-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.message-content h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--blue-700);
+  font-weight: 600;
+}
+
+.message-content p {
+  margin: 0 0 0.5rem 0;
+  color: var(--blue-600);
+  line-height: 1.5;
+}
+
+.message-content p:last-child {
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* Asset Breakdown Styles */
+.asset-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.asset-category {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: var(--surface-50);
+  border-radius: 6px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.category-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.category-name {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.category-percentage {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.category-value {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.asset-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--primary-50);
+  border-radius: 6px;
+  border: 1px solid var(--primary-200);
+  margin-top: 0.5rem;
+}
+
+.total-label {
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.total-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--primary-color);
+}
+
+/* Budget Integration Styles */
+.budget-integration {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.budget-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.budget-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--surface-50);
+  border-radius: 4px;
+}
+
+.budget-item label {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+}
+
+.budget-item span {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.budget-progress {
+  margin: 0.5rem 0;
+}
+
+.budget-progress-bar {
+  height: 8px;
+}
+
+.budget-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* Not Eligible Budget Message */
+.not-eligible-budget {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--surface-50);
+  border: 1px solid var(--surface-200);
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+
+.not-eligible-budget .message-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.not-eligible-budget .message-content h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.not-eligible-budget .message-content p {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
 /* Responsive Design */

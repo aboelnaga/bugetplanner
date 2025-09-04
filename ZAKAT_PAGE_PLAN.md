@@ -45,6 +45,8 @@ A comprehensive Zakat calculation and tracking system integrated with the budget
   - [x] Total asset calculation
   - [x] Nisab threshold comparison
   - [x] Eligibility status determination
+  - [x] Conditional Zakat calculation (only when eligible)
+  - [x] Not eligible message display
 - [x] **Create Nisab display components**
   - [x] Current Nisab value display
   - [x] User asset total display

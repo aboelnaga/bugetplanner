@@ -1,4 +1,5 @@
 import { useIslamicCalendar } from '@/composables/useIslamicCalendar'
+import { useNisabCalculation } from '@/composables/useNisabCalculation'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -14,11 +15,20 @@ export const useHawlStore = defineStore('hawl', () => {
     formatHijriDate
   } = useIslamicCalendar()
 
+  // Nisab calculation composable
+  const {
+    currentNisab,
+    nisabDetails,
+    loading: nisabLoading,
+    error: nisabError,
+    initialize: initializeNisab,
+    refreshPrices: refreshNisabPrices
+  } = useNisabCalculation()
+
   // State
   const currentHawl = ref(null)
   const hawlHistory = ref([])
   const assetSnapshots = ref([]) // Monthly asset snapshots for continuity tracking
-  const nisabThreshold = ref(150000) // EGP - will be updated with real-time data
 
   // Hawl States
   const HAWL_STATES = {
@@ -69,7 +79,8 @@ export const useHawlStore = defineStore('hawl', () => {
   })
 
   // Actions
-  const initializeHawlStore = () => {
+  const initializeHawlStore = async () => {
+    await initializeNisab()
     loadHawlData()
     loadAssetSnapshots()
   }
@@ -117,7 +128,7 @@ export const useHawlStore = defineStore('hawl', () => {
       status: HAWL_STATES.ACTIVE,
       initialAssets,
       currentAssets: initialAssets,
-      nisabThreshold: nisabThreshold.value,
+      nisabThreshold: currentNisab.value,
       hasBeenInterrupted: false,
       continuousAboveNisab: true,
       previousPaymentData,
@@ -163,7 +174,7 @@ export const useHawlStore = defineStore('hawl', () => {
     if (!currentHawl.value) return false
 
     // Check if current assets are below Nisab
-    if (currentHawl.value.currentAssets < nisabThreshold.value) {
+    if (currentHawl.value.currentAssets < currentNisab.value) {
       return true
     }
 
@@ -174,7 +185,7 @@ export const useHawlStore = defineStore('hawl', () => {
 
     // If any snapshot shows assets below Nisab, Hawl is interrupted
     return relevantSnapshots.some(snapshot =>
-      snapshot.totalAssets < nisabThreshold.value
+      snapshot.totalAssets < currentNisab.value
     )
   }
 
@@ -198,8 +209,8 @@ export const useHawlStore = defineStore('hawl', () => {
       id: `snapshot-${Date.now()}`,
       date: new Date().toISOString(),
       totalAssets: assetValue,
-      nisabThreshold: nisabThreshold.value,
-      isAboveNisab: assetValue >= nisabThreshold.value,
+      nisabThreshold: currentNisab.value,
+      isAboveNisab: assetValue >= currentNisab.value,
       reason,
       hawlId: currentHawl.value?.id
     }
@@ -278,7 +289,7 @@ export const useHawlStore = defineStore('hawl', () => {
     )
 
     const breakSnapshot = relevantSnapshots.find(snapshot =>
-      snapshot.totalAssets < nisabThreshold.value
+      snapshot.totalAssets < currentNisab.value
     )
 
     return {
@@ -288,12 +299,14 @@ export const useHawlStore = defineStore('hawl', () => {
     }
   }
 
-  const updateNisabThreshold = (newThreshold) => {
-    nisabThreshold.value = newThreshold
+  const updateNisabThreshold = async (newThreshold) => {
+    // This function is now handled by the Nisab calculation composable
+    // Refresh prices to get updated Nisab
+    await refreshNisabPrices()
 
     // Update current Hawl if exists
     if (currentHawl.value) {
-      currentHawl.value.nisabThreshold = newThreshold
+      currentHawl.value.nisabThreshold = currentNisab.value
       updateHawlStatus()
       saveHawlData()
     }
@@ -343,8 +356,13 @@ export const useHawlStore = defineStore('hawl', () => {
     currentHawl,
     hawlHistory,
     assetSnapshots,
-    nisabThreshold,
     HAWL_STATES,
+
+    // Nisab-related
+    currentNisab,
+    nisabDetails,
+    nisabLoading,
+    nisabError,
 
     // Getters
     hasActiveHawl,
@@ -365,6 +383,7 @@ export const useHawlStore = defineStore('hawl', () => {
     getHawlHistory,
     getAssetContinuity,
     updateNisabThreshold,
+    refreshNisabPrices,
     getStatusSeverity,
     getStatusLabel,
     clearAllData,
