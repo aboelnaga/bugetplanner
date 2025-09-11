@@ -204,31 +204,63 @@
             </template>
           </Card>
 
-          <!-- Nisab Status Card -->
-          <Card class="nisab-status-card">
+          <!-- Nisab Card -->
+          <Card>
             <template #header>
               <div class="card-header">
-                <h3>Nisab Status</h3>
-                <Tag :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
-                  :severity="nisabStatus.isEligible ? 'success' : 'danger'" />
+                <h3>Nisab</h3>
+                <div class="header-actions">
+                  <Tag :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
+                    :severity="nisabStatus.isEligible ? 'success' : 'danger'" />
+                  <Tag
+                    :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
+                    :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
+                </div>
               </div>
             </template>
 
             <template #content>
-              <div class="nisab-info">
-                <div class="nisab-threshold">
-                  <label>Current Nisab:</label>
-                  <span class="nisab-value">{{ hawlStore.currentNisab.toLocaleString() }} EGP</span>
+              <div class="flex flex-col gap-4">
+                <!-- Nisab Status Summary -->
+                <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+                  <div class="grid grid-cols-3 gap-4 md:grid-cols-3 sm:grid-cols-1">
+                    <div class="flex flex-col gap-1 text-center">
+                      <label class="text-sm font-medium text-surface-600">Current Nisab:</label>
+                      <span class="text-lg font-semibold text-surface-900">{{ hawlStore.currentNisab.toLocaleString() }}
+                        EGP</span>
+                    </div>
+                    <div class="flex flex-col gap-1 text-center">
+                      <label class="text-sm font-medium text-surface-600">Your Assets:</label>
+                      <span class="text-lg font-semibold text-surface-900">{{ nisabStatus.totalAssets.toLocaleString()
+                        }} EGP</span>
+                    </div>
+                    <div class="flex flex-col gap-1 text-center">
+                      <label class="text-sm font-medium text-surface-600">Difference:</label>
+                      <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'"
+                        class="text-lg font-semibold">
+                        {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div class="user-assets">
-                  <label>Your Assets:</label>
-                  <span class="asset-value">{{ nisabStatus.totalAssets.toLocaleString() }} EGP</span>
+
+                <!-- Current Nisab Threshold (Prominent) -->
+                <div class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center">
+                  <div class="flex justify-center items-center gap-2 mb-2">
+                    <h4 class="text-lg font-semibold text-primary-700 m-0">Nisab Threshold</h4>
+                    <Tag
+                      :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
+                      :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
+                  </div>
+                  <div class="text-2xl font-bold text-primary-700">
+                    {{ hawlStore.nisabDetails.current.toLocaleString() }} EGP
+                  </div>
                 </div>
-                <div class="nisab-difference">
-                  <label>Difference:</label>
-                  <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'">
-                    {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
-                  </span>
+
+                <!-- Settings Button -->
+                <div class="flex justify-center">
+                  <Button label="Price Settings" icon="pi pi-cog" @click="showPriceSettingsModal = true"
+                    severity="secondary" size="small" outlined />
                 </div>
               </div>
             </template>
@@ -361,6 +393,111 @@
       </div>
     </div>
   </div>
+
+  <!-- Price Settings Modal -->
+  <Dialog v-model:visible="showPriceSettingsModal" modal header="Gold & Silver Price Settings"
+    :style="{ width: '600px' }" :closable="true" :dismissableMask="true">
+    <div class="flex flex-col gap-6">
+      <!-- Current Prices Display -->
+      <div class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center">
+        <h4 class="text-lg font-semibold text-primary-700 mb-2">Current Nisab Threshold</h4>
+        <div class="text-2xl font-bold text-primary-700">
+          {{ hawlStore.nisabDetails.current.toLocaleString() }} EGP
+        </div>
+        <div class="mt-2">
+          <Tag
+            :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
+            :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
+        </div>
+      </div>
+
+      <!-- Price Inputs -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Gold Section -->
+        <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xl">🥇</span>
+            <span class="font-semibold text-surface-900">Gold</span>
+          </div>
+          <div class="flex gap-2 mb-3">
+            <InputNumber id="gold-price-modal" v-model="goldPriceInput" :min="0" :max="999999" :step="0.01"
+              :useGrouping="true" suffix=" EGP/gram" placeholder="Enter price" @update:modelValue="updateGoldPrice"
+              class="flex-1" />
+            <Button icon="pi pi-save" @click="saveGoldPrice" :disabled="!goldPriceInput || goldPriceInput <= 0"
+              size="small" text />
+          </div>
+          <div class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm">
+            <span class="font-medium text-surface-600">Nisab (85g):</span>
+            <span class="font-semibold text-surface-900">
+              {{ hawlStore.nisabDetails.gold.nisabValue.toLocaleString() }} EGP
+            </span>
+          </div>
+        </div>
+
+        <!-- Silver Section -->
+        <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+          <div class="flex items-center gap-2 mb-3">
+            <span class="text-xl">🥈</span>
+            <span class="font-semibold text-surface-900">Silver</span>
+          </div>
+          <div class="flex gap-2 mb-3">
+            <InputNumber id="silver-price-modal" v-model="silverPriceInput" :min="0" :max="999999" :step="0.01"
+              :useGrouping="true" suffix=" EGP/gram" placeholder="Enter price" @update:modelValue="updateSilverPrice"
+              class="flex-1" />
+            <Button icon="pi pi-save" @click="saveSilverPrice" :disabled="!silverPriceInput || silverPriceInput <= 0"
+              size="small" text />
+          </div>
+          <div class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm">
+            <span class="font-medium text-surface-600">Nisab (595g):</span>
+            <span class="font-semibold text-surface-900">
+              {{ hawlStore.nisabDetails.silver.nisabValue.toLocaleString() }} EGP
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price Sources Links -->
+      <div class="p-4 bg-surface-100 rounded-lg">
+        <h5 class="font-semibold text-surface-900 mb-3">Get Current Prices From:</h5>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a href="https://www.goldprice.org/spot-gold" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
+            <i class="pi pi-external-link text-primary-600"></i>
+            <span class="text-sm font-medium text-surface-900">Gold Price (International)</span>
+          </a>
+          <a href="https://www.silverprice.org/spot-silver" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
+            <i class="pi pi-external-link text-primary-600"></i>
+            <span class="text-sm font-medium text-surface-900">Silver Price (International)</span>
+          </a>
+          <a href="https://www.cbe.org.eg/en/EconomicResearch/Statistics/Pages/ExchangeRates.aspx" target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
+            <i class="pi pi-external-link text-primary-600"></i>
+            <span class="text-sm font-medium text-surface-900">CBE Exchange Rates</span>
+          </a>
+          <a href="https://www.goldprice.org/spot-gold" target="_blank" rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
+            <i class="pi pi-external-link text-primary-600"></i>
+            <span class="text-sm font-medium text-surface-900">Local Gold Markets</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Last Updated -->
+      <div v-if="hawlStore.nisabDetails.lastUpdated" class="text-center p-3 bg-surface-100 rounded">
+        <small class="text-surface-600 text-sm">
+          Last updated: {{ new Date(hawlStore.nisabDetails.lastUpdated).toLocaleString() }}
+        </small>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <Button label="Close" @click="showPriceSettingsModal = false" severity="secondary" text />
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup>
@@ -372,6 +509,7 @@ import { useHawlStore } from '@/stores/hawlStore'
 import Button from 'primevue/button'
 import Calendar from 'primevue/calendar'
 import Card from 'primevue/card'
+import Dialog from 'primevue/dialog'
 import InputNumber from 'primevue/inputnumber'
 import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
@@ -438,6 +576,13 @@ const {
 const currentStep = ref(1)
 const hasPaidZakatBefore = ref(null)
 const assetsAboveNisab = ref(null)
+
+// Price input variables
+const goldPriceInput = ref(0)
+const silverPriceInput = ref(0)
+
+// Modal refs
+const showPriceSettingsModal = ref(false)
 
 // Previous payment data
 const previousPaymentData = ref({
@@ -579,6 +724,31 @@ const proceedToStep = (step) => {
   currentStep.value = step
 }
 
+// Price update methods
+const updateGoldPrice = (price) => {
+  if (price && price > 0) {
+    hawlStore.updateGoldPrice(price)
+  }
+}
+
+const updateSilverPrice = (price) => {
+  if (price && price > 0) {
+    hawlStore.updateSilverPrice(price)
+  }
+}
+
+const saveGoldPrice = () => {
+  if (goldPriceInput.value && goldPriceInput.value > 0) {
+    hawlStore.updateGoldPrice(goldPriceInput.value)
+  }
+}
+
+const saveSilverPrice = () => {
+  if (silverPriceInput.value && silverPriceInput.value > 0) {
+    hawlStore.updateSilverPrice(silverPriceInput.value)
+  }
+}
+
 const completeSetup = async () => {
   // Refresh asset data before creating Hawl
   await refreshAssets()
@@ -623,10 +793,35 @@ const formatDateDisplay = (dateString) => {
 
 // Initialize stores and assets on mount
 onMounted(async () => {
-  await hawlStore.initializeHawlStore()
-  hawlStore.ensureHawlStatusUpdated()
-  await initializeAssets()
-  await initializeBudgetIntegration()
+  try {
+    console.log('Initializing Zakat page...')
+
+    // Initialize the hawl store first
+    if (hawlStore && typeof hawlStore.initializeHawlStore === 'function') {
+      await hawlStore.initializeHawlStore()
+      console.log('Hawl store initialized')
+    } else {
+      console.error('Hawl store not properly initialized')
+      return
+    }
+
+    // Update hawl status
+    if (hawlStore.ensureHawlStatusUpdated) {
+      hawlStore.ensureHawlStatusUpdated()
+    }
+
+    // Initialize other components
+    await initializeAssets()
+    await initializeBudgetIntegration()
+
+    // Initialize price inputs with current values
+    goldPriceInput.value = hawlStore.nisabDetails.gold.pricePerGram
+    silverPriceInput.value = hawlStore.nisabDetails.silver.pricePerGram
+
+    console.log('Zakat page initialization complete')
+  } catch (error) {
+    console.error('Error initializing Zakat page:', error)
+  }
 })
 </script>
 
@@ -989,6 +1184,122 @@ onMounted(async () => {
 .message-content p:last-child {
   margin-bottom: 0;
   font-weight: 500;
+}
+
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metal-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--surface-50);
+  border-radius: 8px;
+  border: 1px solid var(--surface-200);
+}
+
+.metal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metal-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.metal-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-color);
+  font-weight: 600;
+}
+
+.metal-price {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+}
+
+.nisab-calculation {
+  text-align: right;
+}
+
+.calculation-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.calculation-row span:first-child {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary);
+}
+
+.nisab-value {
+  font-weight: 600;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.current-nisab {
+  padding: 1.5rem;
+  background-color: var(--primary-50);
+  border: 1px solid var(--primary-200);
+  border-radius: 8px;
+  text-align: center;
+}
+
+.nisab-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.nisab-header h4 {
+  margin: 0;
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.nisab-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.nisab-explanation {
+  margin: 0;
+  color: var(--primary-600);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.last-updated {
+  text-align: center;
+  padding: 0.5rem;
+  background-color: var(--surface-100);
+  border-radius: 4px;
+}
+
+.last-updated small {
+  color: var(--text-color-secondary);
+}
+
+.error-message {
+  text-align: center;
+  padding: 0.5rem;
+  background-color: var(--orange-50);
+  border: 1px solid var(--orange-200);
+  border-radius: 4px;
 }
 
 /* Asset Breakdown Styles */

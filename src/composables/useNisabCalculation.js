@@ -82,73 +82,46 @@ export function useNisabCalculation() {
     }
   })
 
-  // Mock API functions (replace with real API calls)
-  const fetchGoldPrice = async () => {
-    try {
-      // Mock API call - replace with real API
-      // Example: const response = await fetch('https://api.goldapi.io/api/XAU/EGP')
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API delay
-
-      // Mock data - replace with real API response
-      const mockGoldPrice = 2800 // EGP per gram (example)
-      goldPricePerGram.value = mockGoldPrice
-
-      return mockGoldPrice
-    } catch (err) {
-      console.error('Error fetching gold price:', err)
-      error.value = 'Failed to fetch gold price'
-      throw err
-    }
-  }
-
-  const fetchSilverPrice = async () => {
-    try {
-      // Mock API call - replace with real API
-      // Example: const response = await fetch('https://api.goldapi.io/api/XAG/EGP')
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API delay
-
-      // Mock data - replace with real API response
-      const mockSilverPrice = 35 // EGP per gram (example)
-      silverPricePerGram.value = mockSilverPrice
-
-      return mockSilverPrice
-    } catch (err) {
-      console.error('Error fetching silver price:', err)
-      error.value = 'Failed to fetch silver price'
-      throw err
-    }
-  }
-
-  // Fetch both prices
-  const fetchPreciousMetalPrices = async () => {
-    loading.value = true
+  // Update gold price manually
+  const updateGoldPrice = (price) => {
+    goldPricePerGram.value = parseFloat(price) || 0
+    lastUpdated.value = new Date().toISOString()
     error.value = null
+    savePricesToStorage()
+  }
 
+  // Update silver price manually
+  const updateSilverPrice = (price) => {
+    silverPricePerGram.value = parseFloat(price) || 0
+    lastUpdated.value = new Date().toISOString()
+    error.value = null
+    savePricesToStorage()
+  }
+
+  // Update both prices
+  const updatePrices = (goldPrice, silverPrice) => {
+    goldPricePerGram.value = parseFloat(goldPrice) || 0
+    silverPricePerGram.value = parseFloat(silverPrice) || 0
+    lastUpdated.value = new Date().toISOString()
+    error.value = null
+    savePricesToStorage()
+  }
+
+  // Save prices to localStorage
+  const savePricesToStorage = () => {
     try {
-      await Promise.all([
-        fetchGoldPrice(),
-        fetchSilverPrice()
-      ])
-
-      lastUpdated.value = new Date().toISOString()
-
-      // Save to localStorage for offline use
       localStorage.setItem('nisab-data', JSON.stringify({
         goldPrice: goldPricePerGram.value,
         silverPrice: silverPricePerGram.value,
         lastUpdated: lastUpdated.value
       }))
-
     } catch (err) {
-      console.error('Error fetching precious metal prices:', err)
-      error.value = 'Failed to fetch precious metal prices'
-    } finally {
-      loading.value = false
+      console.error('Error saving prices to storage:', err)
     }
   }
 
-  // Load cached data
-  const loadCachedData = () => {
+  // Load cached data (no longer fetches from API)
+  const loadCachedPrices = () => {
     try {
       const cached = localStorage.getItem('nisab-data')
       if (cached) {
@@ -156,37 +129,17 @@ export function useNisabCalculation() {
         goldPricePerGram.value = data.goldPrice || 0
         silverPricePerGram.value = data.silverPrice || 0
         lastUpdated.value = data.lastUpdated || null
-
-        // Check if data is older than 24 hours
-        if (lastUpdated.value) {
-          const lastUpdate = new Date(lastUpdated.value)
-          const now = new Date()
-          const hoursDiff = (now - lastUpdate) / (1000 * 60 * 60)
-
-          if (hoursDiff > 24) {
-            // Data is stale, fetch new data
-            fetchPreciousMetalPrices()
-          }
-        }
       }
     } catch (err) {
-      console.error('Error loading cached Nisab data:', err)
+      console.error('Error loading cached prices:', err)
     }
   }
 
-  // Manual refresh
-  const refreshPrices = async () => {
-    await fetchPreciousMetalPrices()
-  }
+
 
   // Initialize
   const initialize = async () => {
-    loadCachedData()
-
-    // If no cached data, fetch fresh data
-    if (!lastUpdated.value) {
-      await fetchPreciousMetalPrices()
-    }
+    loadCachedPrices()
   }
 
   // Format price for display
@@ -224,11 +177,10 @@ export function useNisabCalculation() {
     nisabDetails,
 
     // Actions
-    fetchGoldPrice,
-    fetchSilverPrice,
-    fetchPreciousMetalPrices,
-    loadCachedData,
-    refreshPrices,
+    updateGoldPrice,
+    updateSilverPrice,
+    updatePrices,
+    loadCachedPrices,
     initialize,
     formatPrice,
     formatGrams

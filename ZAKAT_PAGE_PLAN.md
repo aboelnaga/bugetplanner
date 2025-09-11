@@ -37,10 +37,12 @@ A comprehensive Zakat calculation and tracking system integrated with the budget
 
 ### **1.2 Nisab Calculation System**
 - [x] **Create Nisab calculation service**
-  - [ ] Current gold price API integration
-  - [ ] Current silver price API integration
+  - [x] Manual gold price input system
+  - [x] Manual silver price input system
   - [x] Nisab threshold calculation (gold/silver value)
-  - [ ] Currency conversion support
+  - [x] Price persistence with localStorage
+  - [x] Price input display on Zakat page
+  - [x] Helpful price source links for users
 - [x] **Implement asset eligibility checking**
   - [x] Total asset calculation
   - [x] Nisab threshold comparison

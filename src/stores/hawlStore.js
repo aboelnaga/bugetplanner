@@ -22,7 +22,9 @@ export const useHawlStore = defineStore('hawl', () => {
     loading: nisabLoading,
     error: nisabError,
     initialize: initializeNisab,
-    refreshPrices: refreshNisabPrices
+    updateGoldPrice: updateNisabGoldPrice,
+    updateSilverPrice: updateNisabSilverPrice,
+    updatePrices: updateNisabPrices
   } = useNisabCalculation()
 
   // State
@@ -301,8 +303,7 @@ export const useHawlStore = defineStore('hawl', () => {
 
   const updateNisabThreshold = async (newThreshold) => {
     // This function is now handled by the Nisab calculation composable
-    // Refresh prices to get updated Nisab
-    await refreshNisabPrices()
+    // No need to refresh prices since they're updated manually
 
     // Update current Hawl if exists
     if (currentHawl.value) {
@@ -310,6 +311,19 @@ export const useHawlStore = defineStore('hawl', () => {
       updateHawlStatus()
       saveHawlData()
     }
+  }
+
+  // Price update methods
+  const updateGoldPrice = (price) => {
+    updateNisabGoldPrice(price)
+  }
+
+  const updateSilverPrice = (price) => {
+    updateNisabSilverPrice(price)
+  }
+
+  const updatePrices = (goldPrice, silverPrice) => {
+    updateNisabPrices(goldPrice, silverPrice)
   }
 
   const getStatusSeverity = (status) => {
@@ -383,7 +397,9 @@ export const useHawlStore = defineStore('hawl', () => {
     getHawlHistory,
     getAssetContinuity,
     updateNisabThreshold,
-    refreshNisabPrices,
+    updateGoldPrice,
+    updateSilverPrice,
+    updatePrices,
     getStatusSeverity,
     getStatusLabel,
     clearAllData,
