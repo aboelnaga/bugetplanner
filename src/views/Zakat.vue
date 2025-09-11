@@ -161,49 +161,50 @@
 
       <!-- Main Zakat Dashboard (after onboarding) -->
       <div v-else class="zakat-dashboard">
-        <div class="dashboard-grid">
-          <!-- Hawl Status Card -->
-          <Card class="hawl-status-card">
-            <template #header>
-              <div class="card-header">
-                <h3>Hawl Status</h3>
-                <Tag :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
-                  :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)" />
-              </div>
-            </template>
+        <!-- Hawl Status Card - Full Width -->
+        <Card class="hawl-status-card mb-6">
+          <template #header>
+            <div class="card-header">
+              <h3>Hawl Status</h3>
+              <Tag :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
+                :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)" />
+            </div>
+          </template>
 
-            <template #content>
-              <div class="hawl-info">
-                <div class="hawl-dates">
-                  <div class="date-item">
-                    <label>Start Date:</label>
-                    <span>{{ formatDateDisplay(hawlStore.currentHawl?.startDate) }}</span>
-                  </div>
-                  <div class="date-item">
-                    <label>End Date:</label>
-                    <span>{{ formatDateDisplay(hawlStore.currentHawl?.endDate) }}</span>
-                  </div>
-                  <div v-if="hawlStore.currentHawl?.hijriStartDate" class="date-item">
-                    <label>Hijri Start:</label>
-                    <span>{{ hawlStore.currentHawl.hijriStartDate.formatted }}</span>
-                  </div>
-                  <div v-if="hawlStore.currentHawl?.hijriEndDate" class="date-item">
-                    <label>Hijri End:</label>
-                    <span>{{ hawlStore.currentHawl.hijriEndDate.formatted }}</span>
-                  </div>
+          <template #content>
+            <div class="hawl-info">
+              <div class="hawl-dates">
+                <div class="date-item">
+                  <label>Start Date:</label>
+                  <span>{{ formatDateDisplay(hawlStore.currentHawl?.startDate) }}</span>
                 </div>
-
-                <div class="hawl-progress">
-                  <div class="progress-info">
-                    <span>Progress: {{ hawlProgress }}%</span>
-                    <span>{{ daysRemaining }} days remaining</span>
-                  </div>
-                  <ProgressBar :value="hawlProgress" class="hawl-progress-bar" />
+                <div class="date-item">
+                  <label>End Date:</label>
+                  <span>{{ formatDateDisplay(hawlStore.currentHawl?.endDate) }}</span>
+                </div>
+                <div v-if="hawlStore.currentHawl?.hijriStartDate" class="date-item">
+                  <label>Hijri Start:</label>
+                  <span>{{ hawlStore.currentHawl.hijriStartDate.formatted }}</span>
+                </div>
+                <div v-if="hawlStore.currentHawl?.hijriEndDate" class="date-item">
+                  <label>Hijri End:</label>
+                  <span>{{ hawlStore.currentHawl.hijriEndDate.formatted }}</span>
                 </div>
               </div>
-            </template>
-          </Card>
 
+              <div class="hawl-progress">
+                <div class="progress-info">
+                  <span>Progress: {{ hawlProgress }}%</span>
+                  <span>{{ daysRemaining }} days remaining</span>
+                </div>
+                <ProgressBar :value="hawlProgress" class="hawl-progress-bar" />
+              </div>
+            </div>
+          </template>
+        </Card>
+
+        <!-- Other Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <!-- Nisab Card -->
           <Card>
             <template #header>
