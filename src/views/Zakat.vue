@@ -233,7 +233,7 @@
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Your Assets:</label>
                       <span class="text-lg font-semibold text-surface-900">{{ nisabStatus.totalAssets.toLocaleString()
-                      }} EGP</span>
+                        }} EGP</span>
                     </div>
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Difference:</label>
