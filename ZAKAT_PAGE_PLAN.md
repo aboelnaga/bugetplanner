@@ -69,10 +69,10 @@ A comprehensive Zakat calculation and tracking system integrated with the budget
 - [x] **Implement asset categories**
   - [x] Cash and bank accounts
   - [x] Gold and silver
-  - [x] Basic investments
-  - [x] Manual asset entry
-- [x] **Create calculation display**
+  - [x] Basic investmentslay**
   - [x] Step-by-step breakdown
+  - [x] Manual asset entry
+- [x] **Create calculation disp
   - [x] Final Zakat amount
   - [x] Calculation transparency
 

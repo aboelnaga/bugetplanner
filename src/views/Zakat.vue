@@ -68,9 +68,11 @@
                     </div>
 
                     <div class="form-field">
-                      <label for="lastAssetValue">What was your total asset value at that time?</label>
-                      <InputNumber v-model="previousPaymentData.assetValue" id="lastAssetValue" mode="currency"
-                        currency="EGP" locale="en-US" placeholder="Enter asset value" class="w-full" />
+                      <label>Calculated Asset Value</label>
+                      <div class="calculated-value">
+                        {{ calculateAssetValueFromZakat(previousPaymentData.amount) }} EGP
+                        <small class="text-surface-500">(Calculated from Zakat amount: 2.5% of assets)</small>
+                      </div>
                     </div>
                   </div>
 
@@ -96,7 +98,61 @@
                     }}
                   </p>
 
-                  <div class="nisab-info">
+                  <!-- Additional question for users without payment data -->
+                  <div v-if="hasPaidZakatBefore && !previousPaymentData.date" class="continuity-explanation">
+                    <p class="text-sm text-surface-600 mb-3">
+                      Since you don't have a specific payment date, we need to know if your assets have been above Nisab
+                      continuously.
+                      This helps us determine when your Hawl (Zakat year) should start according to Islamic law.
+                    </p>
+                  </div>
+
+                  <!-- Price Input for Nisab Calculation -->
+                  <div class="price-input-section">
+                    <h4>Set Gold & Silver Prices for Nisab Calculation</h4>
+                    <p class="text-sm text-surface-600 mb-4">
+                      We need current gold and silver prices to calculate the Nisab threshold (minimum wealth required
+                      for Zakat).
+                    </p>
+
+                    <div class="price-inputs">
+                      <div class="price-field">
+                        <label for="goldPriceStep3">Gold Price (per gram)</label>
+                        <InputNumber v-model="goldPriceInput" id="goldPriceStep3" mode="currency" currency="EGP"
+                          locale="en-US" placeholder="Enter gold price" class="w-full"
+                          @update:modelValue="updateGoldPrice" />
+                      </div>
+
+                      <div class="price-field">
+                        <label for="silverPriceStep3">Silver Price (per gram)</label>
+                        <InputNumber v-model="silverPriceInput" id="silverPriceStep3" mode="currency" currency="EGP"
+                          locale="en-US" placeholder="Enter silver price" class="w-full"
+                          @update:modelValue="updateSilverPrice" />
+                      </div>
+                    </div>
+
+                    <!-- Price Sources -->
+                    <div class="price-sources">
+                      <h5>Get Current Prices From:</h5>
+                      <div class="source-links">
+                        <a href="https://www.goldprice.org/" target="_blank" class="source-link">
+                          <i class="pi pi-external-link mr-1"></i>
+                          Gold Price.org
+                        </a>
+                        <a href="https://www.silverprice.org/" target="_blank" class="source-link">
+                          <i class="pi pi-external-link mr-1"></i>
+                          Silver Price.org
+                        </a>
+                        <a href="https://www.metals.live/" target="_blank" class="source-link">
+                          <i class="pi pi-external-link mr-1"></i>
+                          Metals.live
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Nisab Display -->
+                  <div class="nisab-info" v-if="hawlStore.currentNisab > 0">
                     <div class="nisab-card">
                       <h4>Current Nisab Threshold</h4>
                       <div class="nisab-value">{{ hawlStore.currentNisab.toLocaleString() }} EGP</div>
@@ -124,6 +180,7 @@
                   </div>
                 </div>
               </div>
+
 
               <!-- Step 4: Current Status & Confirmation -->
               <div class="step" :class="{ active: currentStep === 4 }">
@@ -166,8 +223,12 @@
           <template #header>
             <div class="card-header">
               <h3>Hawl Status</h3>
-              <Tag :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
-                :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)" />
+              <div class="header-actions">
+                <Tag :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
+                  :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)" />
+                <Button label="Edit Settings" icon="pi pi-cog" @click="showEditSettingsModal = true"
+                  severity="secondary" size="small" outlined class="ml-2" />
+              </div>
             </div>
           </template>
 
@@ -499,6 +560,90 @@
       </div>
     </template>
   </Dialog>
+
+  <!-- Edit Settings Modal -->
+  <Dialog v-model:visible="showEditSettingsModal" modal header="Edit Zakat Settings" :style="{ width: '700px' }"
+    :closable="true" :dismissableMask="true">
+    <div class="flex flex-col gap-6">
+      <!-- Warning Message -->
+      <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div class="flex items-start gap-3">
+          <i class="pi pi-exclamation-triangle text-amber-600 mt-1"></i>
+          <div>
+            <h4 class="font-semibold text-amber-800 mb-1">Important Notice</h4>
+            <p class="text-sm text-amber-700">
+              Editing these settings will reset your current Hawl and require you to go through the setup process again.
+              This is only recommended if you need to correct previous payment information.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Previous Payment Data -->
+      <div v-if="hawlStore.currentHawl?.previousPaymentData"
+        class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+        <h4 class="font-semibold text-surface-900 mb-3">Previous Payment Information</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-surface-700 mb-1">Last Payment Date</label>
+            <Calendar v-model="editPaymentData.date" dateFormat="mm/dd/yy" placeholder="Select date" class="w-full" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-surface-700 mb-1">Payment Amount</label>
+            <InputNumber v-model="editPaymentData.amount" mode="currency" currency="EGP" locale="en-US"
+              placeholder="Enter amount" class="w-full" />
+          </div>
+        </div>
+        <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded">
+          <div class="text-sm">
+            <span class="font-medium text-green-800">Calculated Asset Value:</span>
+            <span class="ml-2 font-semibold text-green-700">
+              {{ calculateAssetValueFromZakat(editPaymentData.amount) }} EGP
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Asset Continuity -->
+      <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+        <h4 class="font-semibold text-surface-900 mb-3">Asset Continuity</h4>
+        <p class="text-sm text-surface-600 mb-3">
+          Have your assets been above the Nisab threshold continuously since your last payment?
+        </p>
+        <div class="flex gap-3">
+          <Button label="Yes, assets maintained above Nisab"
+            :class="{ 'p-button-success': editAssetsAboveNisab === true }" @click="editAssetsAboveNisab = true" />
+          <Button label="No, assets fell below Nisab" :class="{ 'p-button-success': editAssetsAboveNisab === false }"
+            @click="editAssetsAboveNisab = false" outlined />
+        </div>
+      </div>
+
+      <!-- Price Settings -->
+      <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+        <h4 class="font-semibold text-surface-900 mb-3">Gold & Silver Prices</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-surface-700 mb-1">Gold Price (per gram)</label>
+            <InputNumber v-model="editGoldPrice" mode="currency" currency="EGP" locale="en-US"
+              placeholder="Enter gold price" class="w-full" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-surface-700 mb-1">Silver Price (per gram)</label>
+            <InputNumber v-model="editSilverPrice" mode="currency" currency="EGP" locale="en-US"
+              placeholder="Enter silver price" class="w-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <template #footer>
+      <div class="flex justify-end gap-2">
+        <Button label="Cancel" @click="showEditSettingsModal = false" severity="secondary" text />
+        <Button label="Reset & Restart Setup" @click="resetAndRestartSetup" severity="danger"
+          :disabled="!isEditDataValid" />
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <script setup>
@@ -514,7 +659,7 @@ import Dialog from 'primevue/dialog'
 import InputNumber from 'primevue/inputnumber'
 import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -584,6 +729,16 @@ const silverPriceInput = ref(0)
 
 // Modal refs
 const showPriceSettingsModal = ref(false)
+const showEditSettingsModal = ref(false)
+
+// Edit settings data
+const editPaymentData = ref({
+  date: null,
+  amount: 0
+})
+const editAssetsAboveNisab = ref(null)
+const editGoldPrice = ref(0)
+const editSilverPrice = ref(0)
 
 // Previous payment data
 const previousPaymentData = ref({
@@ -598,8 +753,7 @@ const zakatRate = 2.5
 // Computed properties
 const isPreviousPaymentDataValid = computed(() => {
   return previousPaymentData.value.date &&
-    previousPaymentData.value.amount &&
-    previousPaymentData.value.assetValue
+    previousPaymentData.value.amount
 })
 
 const nisabStatus = computed(() => {
@@ -750,14 +904,98 @@ const saveSilverPrice = () => {
   }
 }
 
+
+// Calculate asset value from Zakat amount (reverse calculation)
+const calculateAssetValueFromZakat = (zakatAmount) => {
+  if (!zakatAmount || zakatAmount <= 0) return 0
+  // Zakat is 2.5% (1/40) of assets, so assets = Zakat amount * 40
+  return Math.round(zakatAmount * 40)
+}
+
+// Edit settings validation
+const isEditDataValid = computed(() => {
+  if (hawlStore.currentHawl?.previousPaymentData) {
+    return editPaymentData.value.date && editPaymentData.value.amount && editAssetsAboveNisab.value !== null
+  }
+  return editAssetsAboveNisab.value !== null
+})
+
+// Initialize edit data when modal opens
+const initializeEditData = () => {
+  if (hawlStore.currentHawl?.previousPaymentData) {
+    editPaymentData.value = { ...hawlStore.currentHawl.previousPaymentData }
+  }
+  editAssetsAboveNisab.value = hawlStore.currentHawl?.continuousAboveNisab ?? null
+
+  // Get prices from the correct nested structure with fallbacks
+  const goldPrice = hawlStore.nisabDetails?.gold?.pricePerGram || 0
+  const silverPrice = hawlStore.nisabDetails?.silver?.pricePerGram || 0
+
+  // Debug logging
+  console.log('Initializing edit data:', {
+    nisabDetails: hawlStore.nisabDetails,
+    goldPrice,
+    silverPrice,
+    goldPriceType: typeof goldPrice,
+    silverPriceType: typeof silverPrice
+  })
+
+  // Ensure we have valid numbers (not NaN or undefined)
+  editGoldPrice.value = (isNaN(goldPrice) || goldPrice === undefined) ? 0 : goldPrice
+  editSilverPrice.value = (isNaN(silverPrice) || silverPrice === undefined) ? 0 : silverPrice
+
+  console.log('Final edit prices:', {
+    editGoldPrice: editGoldPrice.value,
+    editSilverPrice: editSilverPrice.value
+  })
+}
+
+// Reset and restart setup
+const resetAndRestartSetup = async () => {
+  // Clear current Hawl
+  hawlStore.clearAllData()
+
+  // Update prices if provided
+  if (editGoldPrice.value > 0) {
+    hawlStore.updateGoldPrice(editGoldPrice.value)
+  }
+  if (editSilverPrice.value > 0) {
+    hawlStore.updateSilverPrice(editSilverPrice.value)
+  }
+
+  // Close modal and reset onboarding
+  showEditSettingsModal.value = false
+  currentStep.value = 1
+  hasPaidZakatBefore.value = null
+  assetsAboveNisab.value = null
+
+  // Pre-populate with edit data if available
+  if (editPaymentData.value.date && editPaymentData.value.amount) {
+    hasPaidZakatBefore.value = true
+    previousPaymentData.value = { ...editPaymentData.value }
+    assetsAboveNisab.value = editAssetsAboveNisab.value
+  }
+}
+
 const completeSetup = async () => {
   // Refresh asset data before creating Hawl
   await refreshAssets()
 
+  // Prepare previous payment data with calculated asset value
+  let paymentDataWithCalculatedAssets = null
+  if (hasPaidZakatBefore.value && previousPaymentData.value) {
+    paymentDataWithCalculatedAssets = {
+      ...previousPaymentData.value,
+      assetValue: calculateAssetValueFromZakat(previousPaymentData.value.amount)
+    }
+  }
+
   // Create new Hawl using the store with real asset data
+  // Pass the assetsAboveNisab value to determine Hawl start date
   const newHawl = hawlStore.createNewHawl(
     nisabStatus.value.totalAssets,
-    hasPaidZakatBefore.value ? previousPaymentData.value : null
+    paymentDataWithCalculatedAssets,
+    assetsAboveNisab.value
   )
 
   // Only create budget items if eligible for Zakat
@@ -791,6 +1029,13 @@ const getHawlStatusSeverity = (status) => {
 const formatDateDisplay = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
+
+// Watch for edit modal opening to initialize data
+watch(showEditSettingsModal, (isOpen) => {
+  if (isOpen) {
+    initializeEditData()
+  }
+})
 
 // Initialize stores and assets on mount
 onMounted(async () => {
@@ -1361,6 +1606,104 @@ onMounted(async () => {
   font-weight: 700;
   font-size: 1.1rem;
   color: var(--primary-color);
+}
+
+/* Price Settings Styles */
+.price-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.price-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.price-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.price-field label {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.price-sources {
+  background-color: var(--surface-50);
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--surface-200);
+}
+
+.price-sources h4 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--primary-50);
+  color: var(--primary-color);
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.source-link:hover {
+  background-color: var(--primary-100);
+  color: var(--primary-700);
+}
+
+.continuity-explanation {
+  background-color: var(--blue-50);
+  padding: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--blue-200);
+  margin-bottom: 1rem;
+}
+
+.calculated-value {
+  padding: 0.75rem;
+  background-color: var(--green-50);
+  border: 1px solid var(--green-200);
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--green-700);
+  text-align: center;
+}
+
+.price-input-section {
+  background-color: var(--surface-50);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--surface-200);
+  margin-bottom: 1.5rem;
+}
+
+.price-input-section h4 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+}
+
+.price-input-section h5 {
+  margin: 0 0 0.75rem 0;
+  color: var(--text-color);
+  font-size: 0.9rem;
 }
 
 /* Budget Integration Styles */

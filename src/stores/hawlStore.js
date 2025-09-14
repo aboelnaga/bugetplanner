@@ -117,22 +117,53 @@ export const useHawlStore = defineStore('hawl', () => {
     }
   }
 
-  const createNewHawl = (initialAssets, previousPaymentData = null) => {
+  const createNewHawl = (initialAssets, previousPaymentData = null, assetsMaintainedAboveNisab = true) => {
     const now = new Date()
-    const endDate = calculateHawlEndDate(now)
-    const hijriStart = toHijri(now)
-    const hijriEnd = toHijri(endDate)
+
+    // Determine Hawl start date based on Islamic law
+    let startDate, endDate, hijriStart, hijriEnd
+
+    if (previousPaymentData && previousPaymentData.date) {
+      // If user has previous payment data, start Hawl from last payment date
+      // This follows proper Islamic law for Hawl continuity
+      startDate = new Date(previousPaymentData.date)
+      endDate = calculateHawlEndDate(startDate)
+      hijriStart = toHijri(startDate)
+      hijriEnd = toHijri(endDate)
+
+      console.log('Creating Hawl from last payment date:', startDate.toISOString().split('T')[0])
+    } else if (previousPaymentData && !previousPaymentData.date && assetsMaintainedAboveNisab) {
+      // User has no specific payment date but assets maintained above Nisab
+      // Ask user to estimate when they first exceeded Nisab
+      // For now, start from a reasonable estimate (1 year ago)
+      const estimatedStartDate = new Date()
+      estimatedStartDate.setFullYear(estimatedStartDate.getFullYear() - 1)
+      startDate = estimatedStartDate
+      endDate = calculateHawlEndDate(startDate)
+      hijriStart = toHijri(startDate)
+      hijriEnd = toHijri(endDate)
+
+      console.log('Creating Hawl from estimated date (no payment data, assets maintained):', startDate.toISOString().split('T')[0])
+    } else {
+      // First time payer or assets fell below Nisab - start from today
+      startDate = now
+      endDate = calculateHawlEndDate(now)
+      hijriStart = toHijri(now)
+      hijriEnd = toHijri(endDate)
+
+      console.log('Creating new Hawl from today (first time payer or broken continuity)')
+    }
 
     const newHawl = {
-      id: `hawl-${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`,
-      startDate: now.toISOString().split('T')[0],
+      id: `hawl-${startDate.getFullYear()}-${startDate.getMonth() + 1}-${startDate.getDate()}`,
+      startDate: startDate.toISOString().split('T')[0],
       endDate: endDate.toISOString().split('T')[0],
       status: HAWL_STATES.ACTIVE,
       initialAssets,
       currentAssets: initialAssets,
       nisabThreshold: currentNisab.value,
       hasBeenInterrupted: false,
-      continuousAboveNisab: true,
+      continuousAboveNisab: assetsMaintainedAboveNisab,
       previousPaymentData,
       hijriStartDate: hijriStart,
       hijriEndDate: hijriEnd,
