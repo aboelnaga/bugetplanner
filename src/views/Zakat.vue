@@ -264,6 +264,33 @@
           </template>
         </Card>
 
+        <!-- Islamic School Selection Card -->
+        <Card class="school-selection-card mb-6">
+          <template #header>
+            <div class="card-header">
+              <h3>Islamic School of Thought</h3>
+              <Tag :value="currentSchoolConfig.nisab.preference === 'silver' ? 'Silver Standard' : 'Gold Standard'"
+                :severity="currentSchoolConfig.nisab.preference === 'silver' ? 'info' : 'warning'" />
+            </div>
+          </template>
+
+          <template #content>
+            <div class="school-selection-content">
+              <div class="school-info">
+                <p class="school-description">{{ currentSchoolConfig.nisab.description }}</p>
+                <p class="school-description">{{ currentSchoolConfig.zakatRate.description }}</p>
+                <p class="school-description">{{ currentSchoolConfig.zakatableAssets.description }}</p>
+              </div>
+
+              <div class="school-actions">
+                <Button v-for="school in schoolOptions" :key="school.value" :label="school.label"
+                  :severity="selectedSchool === school.value ? 'primary' : 'secondary'"
+                  :outlined="selectedSchool !== school.value" @click="setSchool(school.value)" class="school-button" />
+              </div>
+            </div>
+          </template>
+        </Card>
+
         <!-- Other Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <!-- Nisab Card -->
@@ -648,6 +675,7 @@
 
 <script setup>
 import { useIslamicCalendar } from '@/composables/useIslamicCalendar'
+import { useIslamicLawCompliance } from '@/composables/useIslamicLawCompliance'
 import { useZakatAssets } from '@/composables/useZakatAssets'
 import { useZakatBudgetIntegration } from '@/composables/useZakatBudgetIntegration'
 import { useZakatPayments } from '@/composables/useZakatPayments'
@@ -666,6 +694,16 @@ const router = useRouter()
 
 // Hawl store
 const hawlStore = useHawlStore()
+
+// Islamic law compliance
+const {
+  selectedSchool,
+  schoolOptions,
+  currentSchoolConfig,
+  setSchool,
+  validateCompliance,
+  getComplianceReport
+} = useIslamicLawCompliance()
 
 // Zakat assets composable
 const {
@@ -1781,6 +1819,52 @@ onMounted(async () => {
   color: var(--text-color-secondary);
   font-size: 0.85rem;
   line-height: 1.4;
+}
+
+/* School Selection Card */
+.school-selection-card {
+  background: linear-gradient(135deg, var(--surface-0) 0%, var(--surface-50) 100%);
+  border: 1px solid var(--surface-200);
+}
+
+.school-selection-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.school-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.school-description {
+  margin: 0;
+  color: var(--text-color-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 0.5rem;
+  background-color: var(--surface-100);
+  border-radius: 4px;
+  border-left: 3px solid var(--primary-color);
+}
+
+.school-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.school-button {
+  min-width: 100px;
+  transition: all 0.2s ease;
+}
+
+.school-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

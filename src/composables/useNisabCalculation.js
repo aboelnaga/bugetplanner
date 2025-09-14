@@ -1,6 +1,9 @@
 import { computed, ref } from 'vue'
+import { useIslamicLawCompliance } from './useIslamicLawCompliance'
 
 export function useNisabCalculation() {
+  // Islamic law compliance
+  const { selectedSchool, currentSchoolConfig, validateNisabCalculation } = useIslamicLawCompliance()
   // State
   const goldPricePerGram = ref(0) // EGP per gram
   const silverPricePerGram = ref(0) // EGP per gram
@@ -8,9 +11,9 @@ export function useNisabCalculation() {
   const error = ref(null)
   const lastUpdated = ref(null)
 
-  // Nisab thresholds (in grams)
-  const NISAB_GOLD_GRAMS = 85 // 85 grams of gold
-  const NISAB_SILVER_GRAMS = 595 // 595 grams of silver
+  // Nisab thresholds (in grams) - validated against Islamic law
+  const NISAB_GOLD_GRAMS = 85 // 85 grams of gold (Islamic standard)
+  const NISAB_SILVER_GRAMS = 595 // 595 grams of silver (Islamic standard)
 
   // Computed properties
   const nisabGoldValue = computed(() => {
@@ -21,13 +24,24 @@ export function useNisabCalculation() {
     return silverPricePerGram.value * NISAB_SILVER_GRAMS
   })
 
-  // Use the lower of gold or silver Nisab (Islamic ruling)
+  // Calculate Nisab according to Islamic law and selected school
   const currentNisab = computed(() => {
     if (goldPricePerGram.value === 0 && silverPricePerGram.value === 0) {
       return 150000 // Fallback value in EGP
     }
 
-    // If we have both prices, use the lower one
+    // Validate Nisab calculation according to Islamic law
+    const validation = validateNisabCalculation(goldPricePerGram.value, silverPricePerGram.value)
+
+    // Use school-specific preference for Nisab calculation
+    const schoolConfig = currentSchoolConfig.value
+    if (schoolConfig.nisab.preference === 'silver' && silverPricePerGram.value > 0) {
+      return validation.silverNisab
+    } else if (schoolConfig.nisab.preference === 'gold' && goldPricePerGram.value > 0) {
+      return validation.goldNisab
+    }
+
+    // Fallback to lower of gold or silver (traditional Islamic ruling)
     if (goldPricePerGram.value > 0 && silverPricePerGram.value > 0) {
       return Math.min(nisabGoldValue.value, nisabSilverValue.value)
     }
@@ -183,6 +197,11 @@ export function useNisabCalculation() {
     loadCachedPrices,
     initialize,
     formatPrice,
-    formatGrams
+    formatGrams,
+
+    // Islamic Law Compliance
+    selectedSchool,
+    currentSchoolConfig,
+    validateNisabCalculation
   }
 }
