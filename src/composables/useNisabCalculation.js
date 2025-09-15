@@ -1,9 +1,14 @@
 import { computed, ref } from 'vue'
 import { useIslamicLawCompliance } from './useIslamicLawCompliance'
 
-export function useNisabCalculation() {
+export function useNisabCalculation(externalNisabMethod = null) {
   // Islamic law compliance
-  const { selectedSchool, currentSchoolConfig, validateNisabCalculation } = useIslamicLawCompliance()
+  const { selectedSchool, nisabCalculationMethod, currentSchoolConfig, validateNisabCalculation, setNisabCalculationMethod, loadNisabMethodFromStorage } = useIslamicLawCompliance()
+
+  // Use external method if provided, otherwise use the internal one
+  const effectiveNisabMethod = computed(() => {
+    return externalNisabMethod?.value || nisabCalculationMethod.value
+  })
   // State
   const goldPricePerGram = ref(0) // EGP per gram
   const silverPricePerGram = ref(0) // EGP per gram
@@ -26,6 +31,13 @@ export function useNisabCalculation() {
 
   // Calculate Nisab according to Islamic law and selected school
   const currentNisab = computed(() => {
+    console.log('Recalculating currentNisab:', {
+      effectiveNisabMethod: effectiveNisabMethod.value,
+      nisabCalculationMethod: nisabCalculationMethod.value,
+      goldPrice: goldPricePerGram.value,
+      silverPrice: silverPricePerGram.value
+    })
+
     if (goldPricePerGram.value === 0 && silverPricePerGram.value === 0) {
       return 150000 // Fallback value in EGP
     }
@@ -33,28 +45,34 @@ export function useNisabCalculation() {
     // Validate Nisab calculation according to Islamic law
     const validation = validateNisabCalculation(goldPricePerGram.value, silverPricePerGram.value)
 
-    // Use school-specific preference for Nisab calculation
-    const schoolConfig = currentSchoolConfig.value
-    if (schoolConfig.nisab.preference === 'silver' && silverPricePerGram.value > 0) {
+    // Use the effective Nisab calculation method (external or internal)
+    if (effectiveNisabMethod.value === 'silver' && silverPricePerGram.value > 0) {
+      console.log('Using silver Nisab:', validation.silverNisab)
       return validation.silverNisab
-    } else if (schoolConfig.nisab.preference === 'gold' && goldPricePerGram.value > 0) {
+    } else if (effectiveNisabMethod.value === 'gold' && goldPricePerGram.value > 0) {
+      console.log('Using gold Nisab:', validation.goldNisab)
       return validation.goldNisab
     }
 
     // Fallback to lower of gold or silver (traditional Islamic ruling)
     if (goldPricePerGram.value > 0 && silverPricePerGram.value > 0) {
-      return Math.min(nisabGoldValue.value, nisabSilverValue.value)
+      const fallbackValue = Math.min(nisabGoldValue.value, nisabSilverValue.value)
+      console.log('Using fallback Nisab:', fallbackValue)
+      return fallbackValue
     }
 
     // If we only have one price, use that
     if (goldPricePerGram.value > 0) {
+      console.log('Using gold only Nisab:', nisabGoldValue.value)
       return nisabGoldValue.value
     }
 
     if (silverPricePerGram.value > 0) {
+      console.log('Using silver only Nisab:', nisabSilverValue.value)
       return nisabSilverValue.value
     }
 
+    console.log('Using default fallback Nisab: 150000')
     return 150000 // Fallback
   })
 
@@ -63,6 +81,14 @@ export function useNisabCalculation() {
       return 'fallback'
     }
 
+    // Use the effective Nisab calculation method
+    if (effectiveNisabMethod.value === 'silver' && silverPricePerGram.value > 0) {
+      return 'silver'
+    } else if (effectiveNisabMethod.value === 'gold' && goldPricePerGram.value > 0) {
+      return 'gold'
+    }
+
+    // Fallback to lower of gold or silver (traditional Islamic ruling)
     if (goldPricePerGram.value > 0 && silverPricePerGram.value > 0) {
       return nisabGoldValue.value <= nisabSilverValue.value ? 'gold' : 'silver'
     }
@@ -201,7 +227,10 @@ export function useNisabCalculation() {
 
     // Islamic Law Compliance
     selectedSchool,
+    nisabCalculationMethod,
     currentSchoolConfig,
-    validateNisabCalculation
+    validateNisabCalculation,
+    setNisabCalculationMethod,
+    loadNisabMethodFromStorage
   }
 }

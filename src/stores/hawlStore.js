@@ -15,7 +15,10 @@ export const useHawlStore = defineStore('hawl', () => {
     formatHijriDate
   } = useIslamicCalendar()
 
-  // Nisab calculation composable
+  // External Nisab calculation method (will be set from outside)
+  const externalNisabCalculationMethod = ref('silver')
+
+  // Nisab calculation composable with external method
   const {
     currentNisab,
     nisabDetails,
@@ -25,7 +28,7 @@ export const useHawlStore = defineStore('hawl', () => {
     updateGoldPrice: updateNisabGoldPrice,
     updateSilverPrice: updateNisabSilverPrice,
     updatePrices: updateNisabPrices
-  } = useNisabCalculation()
+  } = useNisabCalculation(externalNisabCalculationMethod)
 
   // State
   const currentHawl = ref(null)
@@ -396,6 +399,11 @@ export const useHawlStore = defineStore('hawl', () => {
     }
   }
 
+  // Set external Nisab calculation method
+  const setExternalNisabMethod = (method) => {
+    externalNisabCalculationMethod.value = method
+  }
+
   return {
     // State
     currentHawl,
@@ -434,6 +442,7 @@ export const useHawlStore = defineStore('hawl', () => {
     getStatusSeverity,
     getStatusLabel,
     clearAllData,
-    ensureHawlStatusUpdated
+    ensureHawlStatusUpdated,
+    setExternalNisabMethod
   }
 })

@@ -144,6 +144,7 @@ export function useIslamicLawCompliance() {
 
   // State
   const selectedSchool = ref(ISLAMIC_SCHOOLS.HANAFI) // Default to Hanafi
+  const nisabCalculationMethod = ref('silver') // 'silver' or 'gold' - independent of school
   const complianceWarnings = ref([])
   const complianceErrors = ref([])
 
@@ -186,6 +187,22 @@ export function useIslamicLawCompliance() {
     }
   }
 
+  const setNisabCalculationMethod = (method) => {
+    if (method === 'silver' || method === 'gold') {
+      nisabCalculationMethod.value = method
+      
+      // Save to localStorage
+      localStorage.setItem('zakat-nisab-method', method)
+    }
+  }
+
+  const loadNisabMethodFromStorage = () => {
+    const saved = localStorage.getItem('zakat-nisab-method')
+    if (saved === 'silver' || saved === 'gold') {
+      nisabCalculationMethod.value = saved
+    }
+  }
+
   const validateNisabCalculation = (goldPrice, silverPrice) => {
     const warnings = []
     const errors = []
@@ -203,9 +220,9 @@ export function useIslamicLawCompliance() {
     const goldNisab = goldPrice * schoolConfig.nisab.gold
     const silverNisab = silverPrice * schoolConfig.nisab.silver
 
-    // Use the preferred standard for the school
+    // Use the selected Nisab calculation method (independent of school)
     let recommendedNisab
-    if (schoolConfig.nisab.preference === 'silver') {
+    if (nisabCalculationMethod.value === 'silver') {
       recommendedNisab = silverNisab
     } else {
       recommendedNisab = goldNisab
@@ -292,6 +309,7 @@ export function useIslamicLawCompliance() {
   return {
     // State
     selectedSchool,
+    nisabCalculationMethod,
     complianceWarnings,
     complianceErrors,
 
@@ -308,6 +326,8 @@ export function useIslamicLawCompliance() {
 
     // Functions
     setSchool,
+    setNisabCalculationMethod,
+    loadNisabMethodFromStorage,
     validateNisabCalculation,
     validateZakatRate,
     validateHawlDuration,

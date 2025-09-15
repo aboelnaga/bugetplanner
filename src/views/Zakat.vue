@@ -151,14 +151,68 @@
                     </div>
                   </div>
 
+                  <!-- Nisab Calculation Method Selection -->
+                  <div class="nisab-method-selection">
+                    <h5>Choose Nisab Calculation Method</h5>
+                    <p class="text-sm text-surface-600 mb-3">
+                      Choose how to calculate the Nisab threshold. This determines the minimum wealth required for Zakat
+                      eligibility:
+                    </p>
+
+                    <div class="nisab-method-options">
+                      <div class="nisab-method-option" :class="{ selected: nisabCalculationMethod === 'silver' }">
+                        <Button
+                          :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+                          :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
+                          :outlined="nisabCalculationMethod !== 'silver'" @click="setNisabCalculationMethod('silver')"
+                          class="w-full" />
+                        <p class="text-xs text-surface-600 mt-1">Lower threshold - More people eligible for Zakat</p>
+                      </div>
+
+                      <div class="nisab-method-option" :class="{ selected: nisabCalculationMethod === 'gold' }">
+                        <Button
+                          :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+                          :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
+                          :outlined="nisabCalculationMethod !== 'gold'" @click="setNisabCalculationMethod('gold')"
+                          class="w-full" />
+                        <p class="text-xs text-surface-600 mt-1">Higher threshold - Fewer people eligible for Zakat</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Nisab Display -->
                   <div class="nisab-info" v-if="hawlStore.currentNisab > 0">
                     <div class="nisab-card">
                       <h4>Current Nisab Threshold</h4>
                       <div class="nisab-value">{{ hawlStore.currentNisab.toLocaleString() }} EGP</div>
                       <p class="nisab-description">
-                        Based on current gold/silver prices
+                        Based on {{ nisabCalculationMethod }} standard
                       </p>
+                    </div>
+
+                    <!-- Eligibility Status -->
+                    <div class="eligibility-card" :class="nisabStatus.isEligible ? 'eligible' : 'not-eligible'">
+                      <div class="eligibility-header">
+                        <h4>Zakat Eligibility Status</h4>
+                        <Tag :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
+                          :severity="nisabStatus.isEligible ? 'success' : 'danger'" />
+                      </div>
+                      <div class="eligibility-details">
+                        <div class="eligibility-item">
+                          <span>Your Assets:</span>
+                          <span class="asset-amount">{{ nisabStatus.totalAssets.toLocaleString() }} EGP</span>
+                        </div>
+                        <div class="eligibility-item">
+                          <span>Nisab Threshold:</span>
+                          <span class="nisab-amount">{{ hawlStore.currentNisab.toLocaleString() }} EGP</span>
+                        </div>
+                        <div class="eligibility-item difference">
+                          <span>Difference:</span>
+                          <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'">
+                            {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
                     <div class="islamic-date-card">
@@ -264,18 +318,17 @@
           </template>
         </Card>
 
-        <!-- Islamic School Selection Card -->
-        <Card class="school-selection-card mb-6">
+        <!-- Islamic School Information Card -->
+        <Card class="school-info-card mb-6">
           <template #header>
             <div class="card-header">
-              <h3>Islamic School of Thought</h3>
-              <Tag :value="currentSchoolConfig.nisab.preference === 'silver' ? 'Silver Standard' : 'Gold Standard'"
-                :severity="currentSchoolConfig.nisab.preference === 'silver' ? 'info' : 'warning'" />
+              <h3>Islamic School of Thought (Informational)</h3>
+              <Tag :value="selectedSchool.charAt(0).toUpperCase() + selectedSchool.slice(1)" severity="info" />
             </div>
           </template>
 
           <template #content>
-            <div class="school-selection-content">
+            <div class="school-info-content">
               <div class="school-info">
                 <p class="school-description">{{ currentSchoolConfig.nisab.description }}</p>
                 <p class="school-description">{{ currentSchoolConfig.zakatRate.description }}</p>
@@ -286,6 +339,14 @@
                 <Button v-for="school in schoolOptions" :key="school.value" :label="school.label"
                   :severity="selectedSchool === school.value ? 'primary' : 'secondary'"
                   :outlined="selectedSchool !== school.value" @click="setSchool(school.value)" class="school-button" />
+              </div>
+
+              <div class="school-note">
+                <p class="text-sm text-surface-600 text-center">
+                  <i class="pi pi-info-circle mr-1"></i>
+                  School selection is for informational purposes only. Nisab calculation method is set independently
+                  above.
+                </p>
               </div>
             </div>
           </template>
@@ -321,7 +382,7 @@
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Your Assets:</label>
                       <span class="text-lg font-semibold text-surface-900">{{ nisabStatus.totalAssets.toLocaleString()
-                        }} EGP</span>
+                      }} EGP</span>
                     </div>
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Difference:</label>
@@ -345,6 +406,7 @@
                     {{ hawlStore.nisabDetails.current.toLocaleString() }} EGP
                   </div>
                 </div>
+
 
                 <!-- Settings Button -->
                 <div class="flex justify-center">
@@ -498,6 +560,27 @@
             :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
             :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
         </div>
+      </div>
+
+      <!-- Nisab Calculation Method Selection -->
+      <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+        <h4 class="text-lg font-semibold text-surface-700 mb-3">Nisab Calculation Method</h4>
+        <p class="text-sm text-surface-600 mb-3">
+          Choose how to calculate the Nisab threshold:
+        </p>
+        <div class="flex gap-3">
+          <Button
+            :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+            :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
+            :outlined="nisabCalculationMethod !== 'silver'" @click="setNisabCalculationMethod('silver')"
+            class="flex-1" />
+          <Button :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+            :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
+            :outlined="nisabCalculationMethod !== 'gold'" @click="setNisabCalculationMethod('gold')" class="flex-1" />
+        </div>
+        <p class="text-xs text-surface-600 text-center mt-2">
+          Silver standard has a lower threshold (more people eligible), while gold standard has a higher threshold.
+        </p>
       </div>
 
       <!-- Price Inputs -->
@@ -661,6 +744,27 @@
           </div>
         </div>
       </div>
+
+      <!-- Nisab Calculation Method -->
+      <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
+        <h4 class="font-semibold text-surface-900 mb-3">Nisab Calculation Method</h4>
+        <p class="text-sm text-surface-600 mb-3">
+          Choose how to calculate the Nisab threshold:
+        </p>
+        <div class="flex gap-3">
+          <Button
+            :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+            :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
+            :outlined="nisabCalculationMethod !== 'silver'" @click="setNisabCalculationMethod('silver')"
+            class="flex-1" />
+          <Button :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+            :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
+            :outlined="nisabCalculationMethod !== 'gold'" @click="setNisabCalculationMethod('gold')" class="flex-1" />
+        </div>
+        <p class="text-xs text-surface-600 text-center mt-2">
+          Silver standard has a lower threshold (more people eligible), while gold standard has a higher threshold.
+        </p>
+      </div>
     </div>
 
     <template #footer>
@@ -692,18 +796,24 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-// Hawl store
-const hawlStore = useHawlStore()
-
 // Islamic law compliance
 const {
   selectedSchool,
+  nisabCalculationMethod,
   schoolOptions,
   currentSchoolConfig,
   setSchool,
+  setNisabCalculationMethod,
+  loadNisabMethodFromStorage,
   validateCompliance,
   getComplianceReport
 } = useIslamicLawCompliance()
+
+// Hawl store
+const hawlStore = useHawlStore()
+
+// Set the external Nisab calculation method in hawlStore
+hawlStore.setExternalNisabMethod(nisabCalculationMethod)
 
 // Zakat assets composable
 const {
@@ -975,7 +1085,8 @@ const initializeEditData = () => {
     goldPrice,
     silverPrice,
     goldPriceType: typeof goldPrice,
-    silverPriceType: typeof silverPrice
+    silverPriceType: typeof silverPrice,
+    currentNisabMethod: nisabCalculationMethod.value
   })
 
   // Ensure we have valid numbers (not NaN or undefined)
@@ -984,7 +1095,8 @@ const initializeEditData = () => {
 
   console.log('Final edit prices:', {
     editGoldPrice: editGoldPrice.value,
-    editSilverPrice: editSilverPrice.value
+    editSilverPrice: editSilverPrice.value,
+    nisabMethod: nisabCalculationMethod.value
   })
 }
 
@@ -1018,6 +1130,9 @@ const resetAndRestartSetup = async () => {
 const completeSetup = async () => {
   // Refresh asset data before creating Hawl
   await refreshAssets()
+
+  // Save the Nisab calculation method selection from onboarding
+  setNisabCalculationMethod(nisabCalculationMethod.value)
 
   // Prepare previous payment data with calculated asset value
   let paymentDataWithCalculatedAssets = null
@@ -1075,10 +1190,18 @@ watch(showEditSettingsModal, (isOpen) => {
   }
 })
 
+// Watch for Nisab calculation method changes and update hawlStore
+watch(nisabCalculationMethod, (newMethod) => {
+  hawlStore.setExternalNisabMethod(newMethod)
+})
+
 // Initialize stores and assets on mount
 onMounted(async () => {
   try {
     console.log('Initializing Zakat page...')
+
+    // Load Nisab calculation method from localStorage
+    loadNisabMethodFromStorage()
 
     // Initialize the hawl store first
     if (hawlStore && typeof hawlStore.initializeHawlStore === 'function') {
@@ -1295,6 +1418,64 @@ onMounted(async () => {
   margin: 0;
   color: var(--text-color-secondary);
   font-size: 0.9rem;
+}
+
+/* Eligibility Card */
+.eligibility-card {
+  background-color: var(--surface-100);
+  padding: 1.5rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid var(--surface-200);
+  margin-top: 1rem;
+}
+
+.eligibility-card.eligible {
+  border-color: var(--green-200);
+  background-color: var(--green-50);
+}
+
+.eligibility-card.not-eligible {
+  border-color: var(--red-200);
+  background-color: var(--red-50);
+}
+
+.eligibility-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.eligibility-header h4 {
+  margin: 0;
+  color: var(--text-color);
+}
+
+.eligibility-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.eligibility-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: var(--surface-0);
+  border-radius: 4px;
+}
+
+.eligibility-item.difference {
+  font-weight: 600;
+  background-color: var(--surface-100);
+}
+
+.asset-amount,
+.nisab-amount {
+  font-weight: 600;
+  color: var(--text-color);
 }
 
 .status-summary {
@@ -1821,13 +2002,13 @@ onMounted(async () => {
   line-height: 1.4;
 }
 
-/* School Selection Card */
-.school-selection-card {
+/* School Information Card */
+.school-info-card {
   background: linear-gradient(135deg, var(--surface-0) 0%, var(--surface-50) 100%);
   border: 1px solid var(--surface-200);
 }
 
-.school-selection-content {
+.school-info-content {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1865,6 +2046,54 @@ onMounted(async () => {
 .school-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.school-note {
+  padding: 0.75rem;
+  background-color: var(--blue-50);
+  border: 1px solid var(--blue-200);
+  border-radius: 6px;
+}
+
+/* Nisab Method Selection */
+.nisab-method-selection {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: var(--surface-50);
+  border: 1px solid var(--surface-200);
+  border-radius: 8px;
+}
+
+.nisab-method-selection h5 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.nisab-method-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.nisab-method-option {
+  padding: 0.75rem;
+  border: 2px solid var(--surface-200);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  background-color: var(--surface-0);
+}
+
+.nisab-method-option.selected {
+  border-color: var(--primary-color);
+  background-color: var(--primary-50);
+}
+
+.nisab-method-option:hover {
+  border-color: var(--primary-300);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */
