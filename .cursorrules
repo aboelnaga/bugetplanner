@@ -103,4 +103,4 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 3. **Follow Existing Patterns**: Look at similar components in codebase
 4. **Test Manually**: Test in browser before adding automated tests
 5. **Keep It Simple**: Don't over-engineer for future requirements
-6. **Document Complex Logic**: Add inline comments for complex business logic 
+6. **Document Complex Logic**: Add inline comments for complex business logic

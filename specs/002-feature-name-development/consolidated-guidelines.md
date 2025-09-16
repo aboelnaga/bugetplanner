@@ -1,7 +1,7 @@
 # Consolidated Development Guidelines for Budgrt
 
-**Created**: 2025-01-27  
-**Status**: Complete  
+**Created**: 2025-01-27
+**Status**: Complete
 **Phase**: Consolidation (T026-T030)
 
 ## Overview
@@ -164,12 +164,12 @@ export function useComposableName(params) {
   const state = ref(initialValue)
   const loading = ref(false)
   const error = ref(null)
-  
+
   // Computed
   const computedValue = computed(() => {
     return state.value.someProperty
   })
-  
+
   // Methods
   const methodName = async () => {
     loading.value = true
@@ -181,16 +181,16 @@ export function useComposableName(params) {
       loading.value = false
     }
   }
-  
+
   return {
     // State
     state,
     loading,
     error,
-    
+
     // Computed
     computedValue,
-    
+
     // Methods
     methodName
   }
@@ -206,7 +206,7 @@ export const apiName = {
       .select('*')
       .eq('user_id', userId)
       .eq('year', year)
-    
+
     if (error) throw error
     return data
   }
@@ -218,10 +218,10 @@ export const apiName = {
 export const subscribeToChanges = (userId, year, callback) => {
   return supabase
     .channel('channel_name')
-    .on('postgres_changes', 
-      { 
-        event: '*', 
-        schema: 'public', 
+    .on('postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
         table: 'table_name',
         filter: `user_id=eq.${userId} AND year=eq.${year}`
       },
