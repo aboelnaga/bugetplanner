@@ -53,38 +53,40 @@ When creating this spec from a user prompt:
 ## User Scenarios & Testing *(mandatory)*
 
 ### Primary User Story
-As a developer working on the Budgrt budget planning application, I want a consolidated set of development guidelines that combines Cursor rules, Spec Kit constitution principles, and codebase patterns so that I can develop features consistently and maintain code quality.
+As a developer working on the Budgrt budget planning application, I want to extract and consolidate the actual Cursor rules, Spec Kit constitution principles, and established codebase patterns so that I have a single source of truth for development guidelines that AI and human developers can reference.
 
 ### Acceptance Scenarios
-1. **Given** a developer starting work on a new feature, **When** they reference the consolidated guidelines, **Then** they understand the project's architectural patterns and coding standards
-2. **Given** a developer implementing Islamic finance features, **When** they follow the guidelines, **Then** their code complies with Sharia law requirements
-3. **Given** a developer working with Supabase, **When** they follow the guidelines, **Then** they use proper MCP integration and RLS policies
-4. **Given** a developer creating Vue.js components, **When** they follow the guidelines, **Then** they use Composition API patterns and proper TypeScript types
+1. **Given** a developer needs to understand project rules, **When** they access the consolidated guidelines, **Then** they see the actual Cursor rules from .cursorrules file
+2. **Given** a developer needs Islamic finance compliance, **When** they follow the guidelines, **Then** they see the actual patterns from useIslamicLawCompliance.js and useNisabCalculation.js
+3. **Given** a developer needs Vue.js patterns, **When** they follow the guidelines, **Then** they see the actual composable patterns from useBudgetModals.js, useErrorHandler.js, etc.
+4. **Given** a developer needs Supabase integration, **When** they follow the guidelines, **Then** they see the actual patterns from lib/supabase.js
 
 ### Edge Cases
-- What happens when guidelines conflict with each other?
-- How does the system handle updates to guidelines when the codebase evolves?
-- How are guidelines enforced during code review?
+- What happens when extracted patterns conflict with each other?
+- How do we handle missing or incomplete patterns in the codebase?
+- How do we add new pragmatic rules without conflicting with existing ones?
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
-- **FR-001**: System MUST provide practical development guidelines optimized for solo development and fast iteration
-- **FR-002**: System MUST prioritize PrimeVue components and PrimeIcons over custom styling when possible
-- **FR-003**: System MUST include Vue.js 3 Composition API patterns as preferred approach (not mandatory)
-- **FR-004**: System MUST include Supabase integration patterns with practical error handling
-- **FR-005**: System MUST include Islamic finance compliance requirements for Zakat and Hawl calculations
-- **FR-006**: System MUST include TypeScript usage as preferred (not mandatory) for better development experience
-- **FR-007**: System MUST include practical error handling patterns that don't slow down development
-- **FR-008**: System MUST include real-time subscription patterns for Supabase integration
-- **FR-009**: System MUST include component patterns that promote reusability without over-engineering
-- **FR-010**: System MUST include state management patterns using Pinia stores
-- **FR-011**: System MUST include package documentation references for quick lookup
-- **FR-012**: System MUST include guidelines for when to add new dependencies vs using existing ones
+- **FR-001**: System MUST extract actual Cursor rules from .cursorrules file and document them
+- **FR-002**: System MUST extract actual Spec Kit constitution principles from .specify/memory/constitution.md
+- **FR-003**: System MUST extract Vue.js composable patterns from existing composables (useBudgetModals.js, useErrorHandler.js, etc.)
+- **FR-004**: System MUST extract Islamic finance compliance patterns from useIslamicLawCompliance.js and useNisabCalculation.js
+- **FR-005**: System MUST extract Supabase integration patterns from lib/supabase.js
+- **FR-006**: System MUST extract PrimeVue component usage patterns from existing components
+- **FR-007**: System MUST extract error handling patterns from useErrorHandler.js and other composables
+- **FR-008**: System MUST extract state management patterns from Pinia stores
+- **FR-009**: System MUST add pragmatic rules for solo development without conflicting with existing patterns
+- **FR-010**: System MUST update .cursorrules file with extracted rules and new pragmatic guidelines
+- **FR-011**: System MUST update .specify/memory/constitution.md with extracted principles from codebase
+- **FR-012**: System MUST consolidate all extracted rules into a single reference document
+- **FR-013**: System MUST format rules for both AI consumption and human reference
+- **FR-014**: System MUST include package documentation references for quick lookup
 
 *Example of marking unclear requirements:*
-- **FR-013**: System MUST provide guidelines for [NEEDS CLARIFICATION: testing approach - should we focus on manual testing or gradually add automated tests?]
-- **FR-014**: System MUST include [NEEDS CLARIFICATION: performance optimization - when to optimize vs when to ship fast?]
+- **FR-015**: System MUST handle [NEEDS CLARIFICATION: conflicting patterns - what to do when extracted patterns contradict each other?]
+- **FR-016**: System MUST include [NEEDS CLARIFICATION: missing patterns - what to do when expected patterns are not found in codebase?]
 
 ### Key Entities *(include if feature involves data)*
 - **Development Guidelines**: Consolidated rules and principles for consistent development
@@ -126,45 +128,47 @@ As a developer working on the Budgrt budget planning application, I want a conso
 
 ## Extracted Guidelines Summary
 
-### Cursor Rules (from .cursorrules)
+### Cursor Rules (from .cursorrules - ACTUAL EXTRACTED RULES)
 - **Project Context**: Vue.js budget planning application with Supabase integration
-- **MCP Configuration**: Use Supabase MCP for database schema, API integration, and authentication
-- **Development Guidelines**: Follow Vue.js best practices, use TypeScript, implement proper error handling
-- **Database Requirements**: Users table, budget items, monthly amounts, budget history, RLS policies
-- **API Integration**: Replace localStorage with Supabase, implement real-time updates, handle offline scenarios
+- **MCP Configuration**: Use Supabase MCP for database schema management, API integration, and authentication setup
+- **Development Guidelines**: Follow Vue.js best practices, use TypeScript for type safety, implement proper error handling
+- **Database Operations**: Use Supabase client for all database operations, implement real-time subscriptions where appropriate
+- **Database Schema Requirements**: Users table (extends Supabase auth), budget items table with proper relationships, monthly amounts table for flexible data, budget history table for tracking changes, Row Level Security (RLS) policies for data isolation
+- **API Integration**: Replace localStorage with Supabase operations, implement real-time updates, add proper loading states, handle offline scenarios gracefully
 
-### Spec Kit Constitution Principles (Adapted for Solo Development)
-- **Islamic Finance Compliance**: All calculations must comply with Sharia law (NON-NEGOTIABLE)
-- **Vue.js Best Practices**: Prefer Composition API, TypeScript when beneficial, focus on maintainable code
-- **Supabase Integration**: Use Supabase MCP, implement RLS policies, replace localStorage gradually
-- **Pragmatic Testing**: Focus on manual testing and critical path validation, add automated tests incrementally
-- **User Experience Excellence**: Intuitive interfaces, clear financial data visualization, fast development cycles
+### Spec Kit Constitution Principles (from .specify/memory/constitution.md - ACTUAL EXTRACTED PRINCIPLES)
+- **Current Status**: Constitution file contains template placeholders, needs actual principles extracted from codebase patterns
+- **Required Extraction**: Need to extract actual principles from codebase and populate constitution.md
 
-### Codebase Patterns (from analysis)
-- **Store Pattern**: Pinia stores with Composition API (useAuthStore, useBudgetCalculations)
-- **Composable Pattern**: Reusable logic in composables (useBudgetCalculations, useIslamicLawCompliance)
-- **API Layer**: Centralized Supabase operations in lib/supabase.js
+### Codebase Patterns (ACTUAL EXTRACTED PATTERNS)
+- **Composable Pattern**: All composables follow use[Name] pattern (useBudgetModals, useErrorHandler, useIslamicLawCompliance)
+- **Error Handling**: Centralized error handling with useErrorHandler composable, toast notifications, error classification by type and severity
+- **Islamic Finance**: Comprehensive Islamic law compliance with useIslamicLawCompliance.js supporting 4 schools of thought (Hanafi, Maliki, Shafi'i, Hanbali)
+- **Nisab Calculation**: useNisabCalculation.js with gold/silver price-based calculations
+- **Budget Management**: useBudgetModals.js with extensive form handling, validation, and multi-year support
+- **State Management**: Pinia stores with Composition API (useAuthStore, useBudgetCalculations)
+- **API Layer**: Centralized Supabase operations in lib/supabase.js with real-time subscriptions
 - **Component Structure**: Vue 3 SFC with script setup, template, and scoped styles
-- **Error Handling**: Try-catch blocks with practical error state management
-- **Real-time Subscriptions**: Supabase channels for live updates
-- **TypeScript Integration**: Type safety when beneficial, not mandatory for rapid development
-- **UI Components**: PrimeVue components with Tailwind CSS classes for customization
+- **Constants Management**: Centralized constants in constants/budgetConstants.js
+- **Utility Functions**: Centralized utilities in utils/budgetUtils.js
 
-### Technology Stack
-- **Frontend**: Vue.js 3, TypeScript (preferred), PrimeVue (primary UI), Tailwind CSS, Chart.js
-- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
-- **Build Tools**: Vite, PostCSS, Sass
-- **Testing**: Playwright for E2E testing (when needed), manual testing for rapid development
+### Islamic Finance Specific (ACTUAL EXTRACTED PATTERNS)
+- **Schools of Thought**: Support for Hanafi, Maliki, Shafi'i, Hanbali with different Nisab thresholds and Zakat rates
+- **Nisab Thresholds**: Gold (85g), Silver (595g) with school-specific preferences
+- **Zakat Rates**: 2.5% (1/40) with school-specific variations for specific assets
+- **Hawl Requirements**: 354-day lunar year with different continuity requirements per school
+- **Zakatable Assets**: School-specific asset categories and exemptions
+- **Compliance Validation**: Real-time compliance checking with warnings and errors
+
+### Technology Stack (ACTUAL FROM package.json)
+- **Frontend**: Vue.js 3.3.4, TypeScript 5.2.2, PrimeVue 4.3.7, Tailwind CSS 3.3.3, Chart.js 4.4.0
+- **Backend**: Supabase 2.50.5, PostgreSQL with RLS
+- **State Management**: Pinia 2.1.6
+- **Build Tools**: Vite 4.4.9, PostCSS 8.4.29, Sass 1.90.0
+- **Testing**: Playwright 1.54.2
 - **Development**: ESLint, Vue TSC, Auto-import resolver
-- **UI Components**: PrimeVue components and PrimeIcons (preferred over custom styling)
-- **Styling**: Tailwind CSS classes (preferred over custom CSS)
-
-### Islamic Finance Specific
-- **Zakat Calculations**: 2.5% (1/40) calculation with proper Hawl management
-- **Lunar Calendar**: Hijri date integration with moment-hijri
-- **Nisab Thresholds**: Gold/silver price-based calculations
-- **Hawl Management**: Lunar year tracking for Zakat obligations
-- **Compliance Validation**: Islamic law adherence in all financial calculations
+- **Islamic Calendar**: moment-hijri 3.0.0
+- **Currency**: vue-currency-input 3.2.1
 
 ### Package Documentation References
 - **Vue.js 3**: https://vuejs.org/guide/
@@ -176,8 +180,9 @@ As a developer working on the Budgrt budget planning application, I want a conso
 - **Chart.js**: https://www.chartjs.org/docs/
 - **Vite**: https://vitejs.dev/guide/
 - **TypeScript**: https://www.typescriptlang.org/docs/
+- **Moment Hijri**: https://github.com/xsoh/moment-hijri
 
-### Practical Development Guidelines
+### Pragmatic Development Guidelines (TO BE ADDED)
 - **UI Components**: Always check PrimeVue first before creating custom components
 - **Styling**: Use Tailwind CSS classes, avoid custom CSS unless absolutely necessary
 - **Icons**: Use PrimeIcons, avoid adding new icon libraries
