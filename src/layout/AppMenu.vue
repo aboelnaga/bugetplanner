@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from 'vue'
-import AppMenuItem from './AppMenuItem.vue'
+import { ref } from 'vue';
+import AppMenuItem from './AppMenuItem.vue';
 
 const model = ref([
   {
@@ -10,7 +10,8 @@ const model = ref([
       { label: 'Action Center', icon: 'pi pi-clipboard', to: '/action-center' },
       { label: 'Transactions', icon: 'pi pi-credit-card', to: '/transactions' },
       { label: 'Banking', icon: 'pi pi-wallet', to: '/banking' },
-      { label: 'Investments', icon: 'pi pi-chart-line', to: '/investments' }
+      { label: 'Investments', icon: 'pi pi-chart-line', to: '/investments' },
+      { label: 'Zakat', icon: 'pi pi-moon', to: '/zakat' }
     ]
   }
 ])

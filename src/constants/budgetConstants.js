@@ -203,6 +203,7 @@ export const CATEGORIES_BY_TYPE = {
     'Insurance',
     'Debt Payments',
     'Charity',
+    'Zakat',
     'Other'
   ]
 }
@@ -318,7 +319,7 @@ export const DEFAULT_VALUES = {
     type: BUDGET_TYPES.EXPENSE,
     category: '',
     defaultAmount: 0,
-    
+
     // New recurrence system defaults
     frequency: FREQUENCY_TYPES.REPEATS, // DEFAULT: Repeats monthly
     recurrenceInterval: 1, // DEFAULT: 1 month (monthly)
@@ -328,14 +329,14 @@ export const DEFAULT_VALUES = {
     endYear: new Date().getFullYear(), // DEFAULT: Current year
     endType: END_TYPES.SPECIFIC_DATE, // DEFAULT: End on specific date
     occurrences: 12, // DEFAULT: 12 occurrences
-    
+
     // Once frequency fields (new)
     oneTimeMonth: new Date().getMonth(), // DEFAULT: Current month
     oneTimeYear: new Date().getFullYear(), // DEFAULT: Current year
-    
+
     // Custom frequency fields
     customMonths: [],
-    
+
     // Legacy fields for backward compatibility
     recurrence: RECURRENCE_TYPES.MONTHLY,
     startDate: '',
@@ -343,18 +344,18 @@ export const DEFAULT_VALUES = {
     is_multi_year: false, // Will be computed based on start/end years
     start_year: null,
     end_year: null,
-    
+
     // Investment linking
     linked_investment_id: null,
     investment_direction: INVESTMENT_DIRECTIONS.OUTGOING,
-    
+
     // Payment schedule settings
     payment_schedule: PAYMENT_SCHEDULES.THROUGHOUT_MONTH,
     due_date: null,
     is_fixed_expense: false,
     reminder_enabled: false,
     reminder_days_before: 7,
-    
+
     // Multi-year specific
     yearlyBreakdown: [],
     totalAmount: 0,
@@ -602,6 +603,7 @@ export const TRANSACTION_CATEGORIES = {
     'Insurance',
     'Debt Payments',
     'Charity',
+    'Zakat',
     'Other'
   ],
   [TRANSACTION_TYPES.INVESTMENT]: [
@@ -663,4 +665,4 @@ export const MULTI_YEAR_CONSTANTS = {
 // Multi-year calculation helpers
 export const MULTI_YEAR_CALCULATION = {
   // Legacy calculation functions removed - now using new frequency-based system
-} 
+}

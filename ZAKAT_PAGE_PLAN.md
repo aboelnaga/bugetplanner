@@ -12,59 +12,130 @@ A comprehensive Zakat calculation and tracking system integrated with the budget
 - **Budget Integration**: Create Zakat as a budget item for financial planning
 - **Payment Tracking**: Record and manage Zakat payments
 
+## 🚨 **CRITICAL FIXES NEEDED (HIGH PRIORITY)**
+- **Hawl Continuity Logic**: Currently starts Hawl from today instead of last payment date
+- **Islamic Law Compliance**: Must follow proper Islamic jurisprudence for Hawl calculation
+- **User Experience**: Onboarding needs gold/silver price input and edit capability
+- **Asset Calculation**: Remove redundant total assets question, calculate from Zakat amount
+
 ---
 
 ## 📋 **Phase 1: Foundation & Core Features**
 
 ### **1.1 User Onboarding & Hawl Management**
-- [ ] **Create Zakat page route and component**
-- [ ] **Design onboarding flow for new users**
-- [ ] **Implement previous Zakat payment questionnaire**
-  - [ ] "Have you paid Zakat before?" question
-  - [ ] "When did you last pay Zakat?" date input
-  - [ ] "What was the amount paid?" amount input
-  - [ ] "What was your asset value at that time?" asset value input
-  - [ ] "Have assets been above Nisab since then?" continuity check
-- [ ] **Create Hawl state management system**
-  - [ ] Hawl data structure definition
-  - [ ] Hawl status calculation logic
-  - [ ] Hawl continuity validation
-  - [ ] Hawl interruption detection
-- [ ] **Implement lunar calendar integration**
-  - [ ] Hijri to Gregorian date conversion
-  - [ ] Lunar year calculation (354 days)
-  - [ ] Hawl end date calculation
+- [x] **Create Zakat page route and component**
+- [x] **Design onboarding flow for new users**
+- [x] **Implement previous Zakat payment questionnaire**
+  - [x] "Have you paid Zakat before?" question
+  - [x] "When did you last pay Zakat?" date input
+  - [x] "What was the amount paid?" amount input
+  - [x] "What was your asset value at that time?" asset value input
+  - [x] "Have assets been above Nisab since then?" continuity check
+- [x] **Create Hawl state management system**
+  - [x] Hawl data structure definition
+  - [x] Hawl status calculation logic
+  - [x] Hawl continuity validation
+  - [x] Hawl interruption detection
+- [x] **Implement lunar calendar integration**
+  - [x] Hijri to Gregorian date conversion
+  - [x] Lunar year calculation (354 days)
+  - [x] Hawl end date calculation
 
 ### **1.2 Nisab Calculation System**
-- [ ] **Create Nisab calculation service**
-  - [ ] Current gold price API integration
-  - [ ] Current silver price API integration
-  - [ ] Nisab threshold calculation (gold/silver value)
-  - [ ] Currency conversion support
-- [ ] **Implement asset eligibility checking**
-  - [ ] Total asset calculation
-  - [ ] Nisab threshold comparison
-  - [ ] Eligibility status determination
-- [ ] **Create Nisab display components**
-  - [ ] Current Nisab value display
-  - [ ] User asset total display
-  - [ ] Eligibility status indicator
+- [x] **Create Nisab calculation service**
+  - [x] Manual gold price input system
+  - [x] Manual silver price input system
+  - [x] Nisab threshold calculation (gold/silver value)
+  - [x] Price persistence with localStorage
+  - [x] Price input display on Zakat page
+  - [x] Helpful price source links for users
+- [x] **Implement asset eligibility checking**
+  - [x] Total asset calculation
+  - [x] Nisab threshold comparison
+  - [x] Eligibility status determination
+  - [x] Conditional Zakat calculation (only when eligible)
+  - [x] Not eligible message display
+- [x] **Create Nisab display components**
+  - [x] Current Nisab value display
+  - [x] User asset total display
+  - [x] Eligibility status indicator
 
 ### **1.3 Basic Zakat Calculation**
-- [ ] **Create Zakat calculation engine**
-  - [ ] 2.5% (1/40) calculation logic
-  - [ ] Asset aggregation from budget items
-  - [ ] Basic deduction handling
-  - [ ] Net Zakatable assets calculation
-- [ ] **Implement asset categories**
-  - [ ] Cash and bank accounts
-  - [ ] Gold and silver
-  - [ ] Basic investments
-  - [ ] Manual asset entry
-- [ ] **Create calculation display**
-  - [ ] Step-by-step breakdown
-  - [ ] Final Zakat amount
-  - [ ] Calculation transparency
+- [x] **Create Zakat calculation engine**
+  - [x] 2.5% (1/40) calculation logic
+  - [x] Asset aggregation from budget items
+  - [x] Basic deduction handling
+  - [x] Net Zakatable assets calculation
+- [x] **Implement asset categories**
+  - [x] Cash and bank accounts
+  - [x] Gold and silver
+  - [x] Basic investmentslay**
+  - [x] Step-by-step breakdown
+  - [x] Manual asset entry
+- [x] **Create calculation disp
+  - [x] Final Zakat amount
+  - [x] Calculation transparency
+
+### **1.4 Hawl Continuity Implementation (CRITICAL FIX)**
+- [ ] **Phase 1: Basic Continuity (Hanafi Approach)**
+  - [ ] Start from last payment date if Nisab maintained
+  - [ ] Simple continuity check: Was Nisab maintained throughout?
+  - [ ] Default to Hanafi: Most practical for modern users
+  - [ ] Handle case when no past data: Ask user if assets reduced below Nisab
+- [ ] **Phase 2: School Selection**
+  - [ ] User choice: Let users select their school of thought
+  - [ ] Different rules: Apply school-specific continuity rules
+  - [ ] Clear explanation: Show why Hawl starts from specific date
+- [ ] **Phase 3: Advanced Edge Cases**
+  - [ ] Wealth tracking: Monitor Nisab maintenance over time
+  - [ ] Multiple assets: Handle different asset types
+  - [ ] Complex scenarios: Scholar consultation guidance
+
+### **1.5 Enhanced Onboarding Experience**
+- [ ] **Include gold and silver prices in onboarding**
+  - [ ] Add price input step to onboarding flow
+  - [ ] Set initial Nisab threshold during setup
+  - [ ] Save prices for future use
+- [ ] **Add ability to edit onboarding answers**
+  - [ ] Edit previous steps after completion
+  - [ ] Re-run onboarding with updated answers
+  - [ ] Only available if no recorded Zakat payments in app
+- [ ] **Optimize asset calculation logic**
+  - [ ] Remove redundant "total assets" question
+  - [ ] Calculate total assets from Zakat amount (reverse calculation)
+  - [ ] Simplify onboarding flow
+
+---
+
+## 🏆 **Competitive Analysis & Market Opportunity**
+
+### **Current Market Gap Analysis**
+- [x] **Research existing online Zakat calculators**
+  - [x] ZakatCalculator.online - Basic asset calculation only
+  - [x] ZakatCalc.com - No Hawl management
+  - [x] Islamic Relief Calculator - Missing continuity logic
+  - [x] Zaytuna College Calculator - School selection but no Hawl continuity
+  - [x] ZakatIQ - Payment register but limited Hawl management
+- [x] **Identify critical missing features**
+  - [x] **MAJOR GAP**: No calculator handles Hawl continuity from last payment date
+  - [x] **MISSING**: Payment history integration
+  - [x] **MISSING**: Budget system integration
+  - [x] **MISSING**: Proper lunar calendar integration
+  - [x] **MISSING**: Hawl status management
+- [x] **Define competitive advantages**
+  - [x] **First proper Hawl management**: No other calculator does this correctly
+  - [x] **Complete Zakat lifecycle**: From calculation to payment to tracking
+  - [x] **Budget integration**: Connects with financial planning
+  - [x] **Islamic accuracy**: Follows proper Islamic jurisprudence
+  - [x] **User experience**: Complete Zakat management solution
+
+### **Unique Value Proposition**
+- [x] **Hawl Continuity**: Proper Islamic law implementation (CRITICAL FIX NEEDED)
+- [x] **Payment History**: Track payments over time
+- [x] **Budget Integration**: Connect with financial planning
+- [x] **Lunar Calendar**: Accurate Islamic date calculations
+- [x] **Status Management**: Clear Hawl status tracking
+- [x] **User Experience**: Complete Zakat management solution
 
 ---
 
@@ -331,12 +402,12 @@ A comprehensive Zakat calculation and tracking system integrated with the budget
   - [ ] DELETE /api/assets/remove
 
 ### **Frontend Components**
-- [ ] **ZakatPage.vue** - Main Zakat page
-- [ ] **HawlManager.vue** - Hawl tracking component
-- [ ] **ZakatCalculator.vue** - Calculation display
+- [x] **ZakatPage.vue** - Main Zakat page
+- [x] **HawlManager.vue** - Hawl tracking component (integrated in ZakatPage)
+- [x] **ZakatCalculator.vue** - Calculation display (integrated in ZakatPage)
 - [ ] **AssetManager.vue** - Asset entry and management
 - [ ] **PaymentTracker.vue** - Payment recording
-- [ ] **ZakatDashboard.vue** - Analytics dashboard
+- [x] **ZakatDashboard.vue** - Analytics dashboard (integrated in ZakatPage)
 
 ---
 
@@ -346,6 +417,12 @@ A comprehensive Zakat calculation and tracking system integrated with the budget
 - User onboarding and Hawl management
 - Basic Nisab calculations
 - Core Zakat calculation engine
+
+### **Phase 1.5: CRITICAL FIXES (IMMEDIATE)**
+- **Hawl Continuity Logic**: Fix Hawl to start from last payment date
+- **Enhanced Onboarding**: Add gold/silver prices and edit capability
+- **Asset Calculation**: Optimize onboarding flow
+- **Islamic Law Compliance**: Ensure proper Hawl calculation
 
 ### **Phase 2: Budget Integration (Weeks 5-8)**
 - Zakat budget item creation
