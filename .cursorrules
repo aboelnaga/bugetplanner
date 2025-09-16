@@ -1,19 +1,85 @@
 # Cursor Rules for Budget Planner with Supabase MCP
 
 ## Project Context
-This is a Vue.js budget planning application that will be integrated with Supabase for backend functionality.
+This is a Vue.js budget planning application with Islamic finance integration, built for solo development with fast iteration and practical guidelines.
+
+## Technology Stack
+- **Vue.js 3.3.4**: Composition API preferred, Options API acceptable for simple components
+- **PrimeVue 4.3.7**: Primary UI component library with extensive component set
+- **PrimeIcons 7.0.0**: Icon library for all icon needs
+- **Tailwind CSS 3.3.3**: Utility-first CSS framework for rapid styling
+- **Supabase 2.50.5**: Backend-as-a-Service with PostgreSQL and real-time features
+- **Pinia 2.1.6**: State management with composition API stores
+- **Chart.js 4.4.0**: Data visualization for financial charts
+- **TypeScript 5.2.2**: Optional type safety for complex logic
 
 ## MCP Configuration
 - Use Supabase MCP for database schema management
 - Use Supabase MCP for API integration
 - Use Supabase MCP for authentication setup
 
-## Development Guidelines
-- Follow Vue.js best practices
-- Use TypeScript for type safety
-- Implement proper error handling
-- Use Supabase client for all database operations
-- Implement real-time subscriptions where appropriate
+## Solo Development Guidelines (Pragmatic Approach)
+
+### UI Components Strategy
+- **PrimeVue First**: Always check PrimeVue components before creating custom ones
+- **Component Categories**:
+  - Form: InputText, Dropdown, Calendar, Checkbox, RadioButton
+  - Data Display: DataTable, Card, Panel, Accordion, Tag, Skeleton
+  - Navigation: Menu, TabView, Breadcrumb, Paginator
+  - Overlay: Dialog, Sidebar, Tooltip, Toast, ConfirmDialog
+  - Layout: Divider, Splitter, ScrollPanel
+- **Icons**: Use PrimeIcons exclusively, avoid custom icon libraries
+- **Styling**: Use Tailwind CSS classes, avoid custom CSS unless no Tailwind equivalent
+
+### Vue.js Development Patterns
+- **Composition API**: Preferred for complex components and logic reuse
+- **Composables**: Extract reusable logic into composables with clear interfaces
+- **Reactive State**: Use `ref()` for primitives, `computed()` for derived state
+- **Props/Emits**: Use `defineProps()` and `defineEmits()` for component communication
+- **Lifecycle Hooks**: Use `onMounted()`, `onUnmounted()` for component lifecycle
+
+### Supabase Integration Patterns
+- **API Layer**: Organize API functions by feature (budgetAPI, transactionAPI, accountAPI)
+- **Real-time Subscriptions**: Use consistent channel naming and user filtering
+- **Error Handling**: Centralized error handling with user-friendly messages
+- **Authentication**: Row Level Security (RLS) with user_id filtering
+- **Client Configuration**: Centralized client setup with proper auth configuration
+
+### State Management (Pinia)
+- **Store Structure**: Use composition API with `defineStore()`
+- **Cross-Store Communication**: Import other stores for data access
+- **Reactive State**: Use `ref()` and `computed()` for reactive data
+- **Actions**: Async actions for API calls with proper error handling
+
+### Error Handling Strategy
+- **Centralized Handler**: Use `useErrorHandler` composable for consistent error handling
+- **Error Classification**: Network, authentication, validation, permission, not found, server errors
+- **User Feedback**: Toast notifications with recovery actions
+- **Recovery Logic**: Exponential backoff for retryable errors
+
+### Testing Strategy (Pragmatic)
+- **Manual Testing**: Test in browser first, add automated tests for critical features only
+- **E2E Testing**: Use Playwright for end-to-end testing of critical user flows
+- **Test Structure**: Organize tests with helpers and utilities
+- **Test Data**: Use cleanup utilities for test data management
+
+### Performance Guidelines
+- **Optimize When Needed**: Avoid premature optimization, optimize only when performance issues arise
+- **Lazy Loading**: Use dynamic imports for route components
+- **Real-time Subscriptions**: Use appropriate filters to minimize unnecessary updates
+- **Component Reusability**: Create reusable components to reduce code duplication
+
+### Code Quality Standards
+- **Readability**: Focus on readable and maintainable code over perfection
+- **Documentation**: Inline comments for complex logic, README for setup
+- **Consistency**: Follow existing patterns in the codebase
+- **Simplicity**: Start simple, add complexity only when needed
+
+### Islamic Finance Compliance
+- **Zakat Calculations**: Follow proper Hawl (lunar year) requirements
+- **Nisab Thresholds**: Use Islamic law-compliant Nisab calculations
+- **School of Thought**: Support multiple Islamic schools (Hanafi, Maliki, Shafi'i, Hanbali)
+- **Asset Eligibility**: Validate assets for Zakat eligibility
 
 ## Database Schema Requirements
 - Users table (extends Supabase auth)
@@ -21,9 +87,20 @@ This is a Vue.js budget planning application that will be integrated with Supaba
 - Monthly amounts table for flexible data
 - Budget history table for tracking changes
 - Row Level Security (RLS) policies for data isolation
+- Investment assets table for Islamic finance compliance
+- Transactions table for financial tracking
 
 ## API Integration
 - Replace localStorage with Supabase operations
-- Implement real-time updates
-- Add proper loading states
-- Handle offline scenarios gracefully 
+- Implement real-time updates with proper filtering
+- Add proper loading states and error handling
+- Handle offline scenarios gracefully
+- Use consistent error handling patterns
+
+## Development Workflow
+1. **Check PrimeVue First**: Look for existing PrimeVue component
+2. **Use Tailwind Classes**: Prefer utility classes over custom CSS
+3. **Follow Existing Patterns**: Look at similar components in codebase
+4. **Test Manually**: Test in browser before adding automated tests
+5. **Keep It Simple**: Don't over-engineer for future requirements
+6. **Document Complex Logic**: Add inline comments for complex business logic
