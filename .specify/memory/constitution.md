@@ -1,50 +1,78 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Budgrt Constitution
+<!-- Budget Planning Application with Islamic Finance Integration -->
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Islamic Finance Compliance (NON-NEGOTIABLE)
+All financial calculations must comply with Islamic law (Sharia). Zakat calculations must follow proper Hawl (lunar year) requirements, Nisab thresholds, and Islamic jurisprudence. No interest-based calculations or prohibited financial instruments.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Vue.js Best Practices
+Follow Vue.js 3 Composition API patterns, use TypeScript for type safety, implement proper component composition, and maintain clean separation of concerns. All components must be reusable and well-documented.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. Supabase Integration
+Use Supabase MCP for all database operations, authentication, and real-time features. Implement proper Row Level Security (RLS) policies for data isolation. Replace localStorage with Supabase operations where appropriate.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Pragmatic Development (SOLO-FOCUSED)
+Focus on rapid prototyping and fast iteration. Manual testing preferred, automated tests for critical features only. Use existing patterns, avoid reinventing the wheel. Keep documentation minimal but useful.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. User Experience Excellence
+Prioritize intuitive interfaces, clear financial data visualization, and seamless user workflows. All financial calculations must be transparent and auditable. Provide helpful guidance for Islamic finance concepts.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## Technology Stack Requirements
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### Frontend
+- Vue.js 3 with Composition API
+- PrimeVue for UI components (extensive component set)
+- PrimeIcons for all icon needs
+- Tailwind CSS for styling (utility-first approach)
+- Chart.js for financial visualizations
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+### Backend & Database
+- Supabase for backend services
+- PostgreSQL with proper RLS policies
+- Real-time subscriptions for live updates
+- Supabase MCP for all database operations
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### Islamic Finance Features
+- Lunar calendar integration (Hijri dates)
+- Hawl (lunar year) management
+- Nisab threshold calculations
+- Zakat calculation engine
+- Islamic law compliance validation
+
+## Development Workflow
+
+### Solo Development Best Practices
+- **Rapid Prototyping**: Build MVP first, iterate quickly
+- **Manual Testing**: Test in browser, add automated tests later
+- **Code Reuse**: Leverage existing patterns, don't reinvent
+- **Documentation**: Keep it minimal but useful
+- **Dependencies**: Minimize new packages, use existing ones
+
+### PrimeVue Component Strategy
+- **Form Components**: InputText, Dropdown, Calendar, Checkbox, RadioButton
+- **Data Display**: DataTable, Card, Panel, Accordion
+- **Navigation**: Menu, TabView, Breadcrumb, Paginator
+- **Overlay**: Dialog, Sidebar, Tooltip, Toast
+- **Layout**: Divider, Splitter, ScrollPanel
+- **Icons**: PrimeIcons for all icon needs
+
+### Code Review Requirements
+- All changes must verify Islamic finance compliance
+- Supabase integration must be tested
+- Financial calculations must be validated
+- User experience must be reviewed
+- PrimeVue components must be used when available
+
+### Quality Gates
+- All financial calculations must have manual testing
+- Zakat calculations must be verified against Islamic law
+- Supabase operations must be properly secured
+- Performance must be optimized for financial data
+- Components must be reusable and well-documented
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+Constitution supersedes all other practices. Amendments require documentation, approval, and migration plan. All development must verify compliance. Complexity must be justified with clear Islamic finance or technical requirements.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2025-01-27 | **Last Amended**: 2025-01-27
