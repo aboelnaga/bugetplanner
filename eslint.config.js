@@ -82,8 +82,10 @@ module.exports = [
       'vue/script-indent': ['error', 2, {
         baseIndent: 0,
         switchCase: 1,
-        ignores: []
-      }]
+        ignores: ['ArrayExpression', 'ObjectExpression', 'CallExpression']
+      }],
+      // Disable general indent rule for Vue files to avoid conflicts
+      'indent': 'off'
     }
   },
 
