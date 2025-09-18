@@ -48,8 +48,6 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - **Code Reuse**: Leverage existing patterns, don't reinvent
 - **Documentation**: Keep it minimal but useful
 - **Dependencies**: Minimize new packages, use existing ones
-- **Linting**: Run `npm run lint` regularly to maintain code quality
-- **Error Fixing**: Fix ESLint errors immediately, address warnings when possible
 
 ### PrimeVue Component Strategy
 - **Form Components**: InputText, Dropdown, Calendar, Checkbox, RadioButton
@@ -65,19 +63,14 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - Financial calculations must be validated
 - User experience must be reviewed
 - PrimeVue components must be used when available
-- ESLint errors must be fixed before committing
-- Code formatting must follow Prettier standards
-- Vue.js component structure must follow ESLint rules
 
-### AI Assistant Linting Requirements
-- **MANDATORY**: Run `npm run lint:errors` after every code change
-- **MANDATORY**: Fix all ESLint errors before marking code as complete
-- **MANDATORY**: Use `npm run lint:fix` to automatically fix fixable issues
-- **MANDATORY**: Check linting status when debugging or troubleshooting
-- **MANDATORY**: Validate code quality by running linting as part of development process
-- **MANDATORY**: Report linting errors to user if they prevent development
-- **MANDATORY**: Suggest linting fixes when providing code solutions
-- **MANDATORY**: Include linting commands in development guidance
+#### Linting and Code Quality Requirements
+- **ESLint errors must be fixed** before committing
+- **Code formatting must follow** Prettier standards
+- **Vue.js component structure** must follow ESLint rules
+- **AI Assistants must run** `npm run lint:errors` after every code change
+- **AI Assistants must fix** all ESLint errors before marking code as complete
+- **AI Assistants must use** `npm run lint:fix` to automatically fix fixable issues
 
 ### Quality Gates
 - All financial calculations must have manual testing
@@ -85,10 +78,6 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - Supabase operations must be properly secured
 - Performance must be optimized for financial data
 - Components must be reusable and well-documented
-- ESLint errors must be zero before code review
-- Code must pass `npm run lint` without errors
-- Vue.js components must follow ESLint Vue rules
-- JavaScript code must follow ESLint JavaScript rules
 
 ## Governance
 
