@@ -118,7 +118,7 @@ const filteredTransactions = computed(() => {
   if (filters.value.dateRange) {
     const now = new Date()
     const startDate = new Date()
-    
+
     switch (filters.value.dateRange) {
       case 'today':
         startDate.setHours(0, 0, 0, 0)
@@ -136,7 +136,7 @@ const filteredTransactions = computed(() => {
         startDate.setFullYear(now.getFullYear() - 1)
         break
     }
-    
+
     items = items.filter(t => new Date(t.date) >= startDate)
   }
 
@@ -200,7 +200,7 @@ const editTransaction = (transaction) => {
 
 const deleteTransaction = async (transaction) => {
   confirm.require({
-    message: `Are you sure you want to delete this transaction?`,
+    message: 'Are you sure you want to delete this transaction?',
     header: 'Confirm Deletion',
     icon: 'pi pi-exclamation-triangle',
     accept: () => {
@@ -269,22 +269,22 @@ onMounted(async () => {
                 {{ selectedAccountName ? `Transaction history for ${selectedAccountName}` : 'Track all your income, expenses, and transfers' }}
               </p>
             </div>
-            
+
             <Button
               v-if="selectedAccountName"
-              @click="clearAccountFilter"
               icon="pi pi-arrow-left"
               label="Back to All"
               outlined
               size="small"
+              @click="clearAccountFilter"
             />
           </div>
-          
+
           <Button
-            @click="showAddTransactionModal = true"
             icon="pi pi-plus"
             label="Add Transaction"
             severity="primary"
+            @click="showAddTransactionModal = true"
           />
         </div>
       </template>
@@ -296,11 +296,15 @@ onMounted(async () => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-list text-blue-600 text-lg"></i>
+              <i class="pi pi-list text-blue-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Total Transactions</p>
-              <p class="text-2xl font-semibold">{{ transactions.length }}</p>
+              <p class="text-sm font-medium">
+                Total Transactions
+              </p>
+              <p class="text-2xl font-semibold">
+                {{ transactions.length }}
+              </p>
             </div>
           </div>
         </template>
@@ -310,11 +314,15 @@ onMounted(async () => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-arrow-up text-green-600 text-lg"></i>
+              <i class="pi pi-arrow-up text-green-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Total Income</p>
-              <p class="text-2xl font-semibold text-green-600">{{ formatCurrency(totalIncome) }}</p>
+              <p class="text-sm font-medium">
+                Total Income
+              </p>
+              <p class="text-2xl font-semibold text-green-600">
+                {{ formatCurrency(totalIncome) }}
+              </p>
             </div>
           </div>
         </template>
@@ -324,11 +332,15 @@ onMounted(async () => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-arrow-down text-red-600 text-lg"></i>
+              <i class="pi pi-arrow-down text-red-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Total Expenses</p>
-              <p class="text-2xl font-semibold text-red-600">{{ formatCurrency(totalExpenses) }}</p>
+              <p class="text-sm font-medium">
+                Total Expenses
+              </p>
+              <p class="text-2xl font-semibold text-red-600">
+                {{ formatCurrency(totalExpenses) }}
+              </p>
             </div>
           </div>
         </template>
@@ -338,11 +350,16 @@ onMounted(async () => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-chart-line text-purple-600 text-lg"></i>
+              <i class="pi pi-chart-line text-purple-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Net Balance</p>
-              <p class="text-2xl font-semibold" :class="netBalance >= 0 ? 'text-green-600' : 'text-red-600'">
+              <p class="text-sm font-medium">
+                Net Balance
+              </p>
+              <p
+                class="text-2xl font-semibold"
+                :class="netBalance >= 0 ? 'text-green-600' : 'text-red-600'"
+              >
                 {{ formatCurrency(netBalance) }}
               </p>
             </div>
@@ -355,12 +372,14 @@ onMounted(async () => {
     <Card class="mb-6">
       <template #header>
         <div class="flex items-center justify-between">
-          <h3 class="text-lg font-medium">Filters</h3>
+          <h3 class="text-lg font-medium">
+            Filters
+          </h3>
           <Button
-            @click="clearFilters"
             label="Clear All"
             text
             size="small"
+            @click="clearFilters"
           />
         </div>
       </template>
@@ -371,50 +390,50 @@ onMounted(async () => {
             <Select
               v-model="filters.type"
               :options="typeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="All Types"
               class="w-full"
-              :showClear="true"
+              :show-clear="true"
             />
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium mb-2">Category</label>
             <Select
               v-model="filters.category"
               :options="categoryOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="All Categories"
               class="w-full"
-              :showClear="true"
+              :show-clear="true"
             />
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium mb-2">Date Range</label>
             <Select
               v-model="filters.dateRange"
               :options="dateRangeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="All Time"
               class="w-full"
-              :showClear="true"
+              :show-clear="true"
             />
           </div>
-          
+
           <div>
             <label class="block text-sm font-medium mb-2">Account</label>
             <Select
               v-model="filters.account"
               :options="accountOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="All Accounts"
               class="w-full"
-              :showClear="true"
+              :show-clear="true"
             />
           </div>
         </div>
@@ -428,7 +447,7 @@ onMounted(async () => {
           <h3 class="text-lg font-medium">
             Transactions ({{ filteredTransactions.length }})
           </h3>
-          
+
           <div class="flex items-center gap-2">
             <IconField>
               <InputIcon class="pi pi-search" />
@@ -441,78 +460,115 @@ onMounted(async () => {
           </div>
         </div>
       </template>
-      
+
       <template #content>
-        <div v-if="filteredTransactions.length === 0" class="text-center py-12">
-          <i class="pi pi-inbox text-6xl mb-4"></i>
-          <h3 class="text-lg font-medium mb-2">No transactions found</h3>
+        <div
+          v-if="filteredTransactions.length === 0"
+          class="text-center py-12"
+        >
+          <i class="pi pi-inbox text-6xl mb-4" />
+          <h3 class="text-lg font-medium mb-2">
+            No transactions found
+          </h3>
           <p class="mb-6">
             {{ transactions.length === 0 ? 'Get started by adding your first transaction.' : 'No transactions match your current filters.' }}
           </p>
           <Button
-            @click="showAddTransactionModal = true"
             icon="pi pi-plus"
             label="Add Transaction"
             severity="primary"
+            @click="showAddTransactionModal = true"
           />
         </div>
-        
+
         <DataTable
           v-else
           :value="filteredTransactions"
           :filters="dtFilters"
-          filterDisplay="menu"
-          :globalFilterFields="['description', 'category', 'notes']"
-          removableSort
-          responsiveLayout="scroll"
+          filter-display="menu"
+          :global-filter-fields="['description', 'category', 'notes']"
+          removable-sort
+          responsive-layout="scroll"
           class="p-datatable-sm"
-          stripedRows
-          showGridlines
+          striped-rows
+          show-gridlines
           paginator
           :rows="20"
-          :rowsPerPageOptions="[10, 20, 50, 100]"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} transactions"
+          :rows-per-page-options="[10, 20, 50, 100]"
+          paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          current-page-report-template="Showing {first} to {last} of {totalRecords} transactions"
         >
           <template #empty>
             <div class="text-center py-8">
-              <i class="pi pi-inbox text-4xl mb-3"></i>
+              <i class="pi pi-inbox text-4xl mb-3" />
               <p>No transactions found</p>
             </div>
           </template>
 
-          <Column field="date" header="Date" sortable style="width: 120px">
+          <Column
+            field="date"
+            header="Date"
+            sortable
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <span class="font-medium">{{ formatDate(data.date) }}</span>
             </template>
           </Column>
 
-          <Column field="description" header="Description" sortable style="min-width: 200px">
+          <Column
+            field="description"
+            header="Description"
+            sortable
+            style="min-width: 200px"
+          >
             <template #body="{ data }">
               <div class="flex items-center gap-2">
                 <div
                   :class="getTransactionTypeColor(data.type)"
                   class="w-3 h-3 rounded-full flex-shrink-0"
-                ></div>
+                />
                 <span class="font-medium">{{ data.description || 'Transaction' }}</span>
               </div>
             </template>
           </Column>
 
-          <Column field="type" header="Type" sortable style="width: 100px">
+          <Column
+            field="type"
+            header="Type"
+            sortable
+            style="width: 100px"
+          >
             <template #body="{ data }">
-              <Tag :value="data.type" :severity="getTypeSeverity(data.type)" rounded />
+              <Tag
+                :value="data.type"
+                :severity="getTypeSeverity(data.type)"
+                rounded
+              />
             </template>
           </Column>
 
-          <Column field="category" header="Category" sortable style="width: 120px">
+          <Column
+            field="category"
+            header="Category"
+            sortable
+            style="width: 120px"
+          >
             <template #body="{ data }">
-              <span v-if="data.category" class="font-medium">{{ data.category }}</span>
+              <span
+                v-if="data.category"
+                class="font-medium"
+              >{{ data.category }}</span>
               <span v-else>-</span>
             </template>
           </Column>
 
-          <Column field="amount" header="Amount" sortable style="width: 120px">
+          <Column
+            field="amount"
+            header="Amount"
+            sortable
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <span
                 :class="data.type === 'income' ? 'text-green-600' : data.type === 'expense' ? 'text-red-600' : 'text-blue-600'"
@@ -523,14 +579,27 @@ onMounted(async () => {
             </template>
           </Column>
 
-          <Column field="account" header="Account" sortable style="width: 120px">
+          <Column
+            field="account"
+            header="Account"
+            sortable
+            style="width: 120px"
+          >
             <template #body="{ data }">
-              <span v-if="data.accounts?.name" class="font-medium">{{ data.accounts.name }}</span>
+              <span
+                v-if="data.accounts?.name"
+                class="font-medium"
+              >{{ data.accounts.name }}</span>
               <span v-else>-</span>
             </template>
           </Column>
 
-          <Column field="budget_item" header="Budget Item" sortable style="width: 140px">
+          <Column
+            field="budget_item"
+            header="Budget Item"
+            sortable
+            style="width: 140px"
+          >
             <template #body="{ data }">
               <Tag
                 v-if="data.budget_item_name"
@@ -543,24 +612,27 @@ onMounted(async () => {
             </template>
           </Column>
 
-          <Column header="Actions" style="width: 120px">
+          <Column
+            header="Actions"
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <div class="flex gap-1">
                 <Button
+                  v-tooltip.top="'Edit Transaction'"
                   icon="pi pi-pencil"
                   size="small"
                   text
                   severity="info"
                   @click="editTransaction(data)"
-                  v-tooltip.top="'Edit Transaction'"
                 />
                 <Button
+                  v-tooltip.top="'Delete Transaction'"
                   icon="pi pi-trash"
                   size="small"
                   text
                   severity="danger"
                   @click="deleteTransaction(data)"
-                  v-tooltip.top="'Delete Transaction'"
                 />
               </div>
             </template>
@@ -578,4 +650,4 @@ onMounted(async () => {
       @transaction-updated="onTransactionUpdated"
     />
   </div>
-</template> 
+</template>

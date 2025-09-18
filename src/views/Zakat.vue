@@ -3,7 +3,7 @@
     <!-- Page Header -->
     <div class="page-header">
       <h1 class="page-title">
-        <i class="pi pi-moon text-primary mr-2"></i>
+        <i class="pi pi-moon text-primary mr-2" />
         Zakat Calculator
       </h1>
       <p class="page-subtitle">
@@ -14,7 +14,10 @@
     <!-- Main Content -->
     <div class="zakat-content">
       <!-- Onboarding Flow -->
-      <div v-if="!hawlStore.currentHawl" class="onboarding-section">
+      <div
+        v-if="!hawlStore.currentHawl"
+        class="onboarding-section"
+      >
         <Card class="onboarding-card">
           <template #header>
             <div class="card-header">
@@ -26,45 +29,81 @@
           <template #content>
             <div class="onboarding-steps">
               <!-- Step 1: Previous Zakat Payment Question -->
-              <div class="step" :class="{ active: currentStep === 1, completed: currentStep > 1 }">
+              <div
+                class="step"
+                :class="{ active: currentStep === 1, completed: currentStep > 1 }"
+              >
                 <div class="step-header">
-                  <div class="step-number">1</div>
+                  <div class="step-number">
+                    1
+                  </div>
                   <h3>Previous Zakat Payment</h3>
                 </div>
 
-                <div v-if="currentStep === 1" class="step-content">
-                  <p class="question">Have you paid Zakat before?</p>
+                <div
+                  v-if="currentStep === 1"
+                  class="step-content"
+                >
+                  <p class="question">
+                    Have you paid Zakat before?
+                  </p>
                   <div class="button-group">
-                    <Button label="Yes, I have paid Zakat before"
-                      :class="{ 'p-button-success': hasPaidZakatBefore === true }" @click="setHasPaidZakatBefore(true)"
-                      class="mr-2" />
-                    <Button label="No, this is my first time"
+                    <Button
+                      label="Yes, I have paid Zakat before"
+                      :class="{ 'p-button-success': hasPaidZakatBefore === true }"
+                      class="mr-2"
+                      @click="setHasPaidZakatBefore(true)"
+                    />
+                    <Button
+                      label="No, this is my first time"
                       :class="{ 'p-button-success': hasPaidZakatBefore === false }"
-                      @click="setHasPaidZakatBefore(false)" outlined />
+                      outlined
+                      @click="setHasPaidZakatBefore(false)"
+                    />
                   </div>
                 </div>
               </div>
 
               <!-- Step 2: Previous Payment Details (if applicable) -->
-              <div v-if="hasPaidZakatBefore" class="step"
-                :class="{ active: currentStep === 2, completed: currentStep > 2 }">
+              <div
+                v-if="hasPaidZakatBefore"
+                class="step"
+                :class="{ active: currentStep === 2, completed: currentStep > 2 }"
+              >
                 <div class="step-header">
-                  <div class="step-number">2</div>
+                  <div class="step-number">
+                    2
+                  </div>
                   <h3>Previous Payment Details</h3>
                 </div>
 
-                <div v-if="currentStep === 2" class="step-content">
+                <div
+                  v-if="currentStep === 2"
+                  class="step-content"
+                >
                   <div class="form-grid">
                     <div class="form-field">
                       <label for="lastPaymentDate">When did you last pay Zakat?</label>
-                      <Calendar v-model="previousPaymentData.date" id="lastPaymentDate" dateFormat="mm/dd/yy"
-                        placeholder="Select date" class="w-full" />
+                      <Calendar
+                        id="lastPaymentDate"
+                        v-model="previousPaymentData.date"
+                        date-format="mm/dd/yy"
+                        placeholder="Select date"
+                        class="w-full"
+                      />
                     </div>
 
                     <div class="form-field">
                       <label for="lastPaymentAmount">What was the amount paid?</label>
-                      <InputNumber v-model="previousPaymentData.amount" id="lastPaymentAmount" mode="currency"
-                        currency="EGP" locale="en-US" placeholder="Enter amount" class="w-full" />
+                      <InputNumber
+                        id="lastPaymentAmount"
+                        v-model="previousPaymentData.amount"
+                        mode="currency"
+                        currency="EGP"
+                        locale="en-US"
+                        placeholder="Enter amount"
+                        class="w-full"
+                      />
                     </div>
 
                     <div class="form-field">
@@ -77,20 +116,32 @@
                   </div>
 
                   <div class="step-actions">
-                    <Button label="Continue" @click="proceedToStep(3)" :disabled="!isPreviousPaymentDataValid"
-                      class="p-button-primary" />
+                    <Button
+                      label="Continue"
+                      :disabled="!isPreviousPaymentDataValid"
+                      class="p-button-primary"
+                      @click="proceedToStep(3)"
+                    />
                   </div>
                 </div>
               </div>
 
               <!-- Step 3: Asset Continuity Check -->
-              <div class="step" :class="{ active: currentStep === 3, completed: currentStep > 3 }">
+              <div
+                class="step"
+                :class="{ active: currentStep === 3, completed: currentStep > 3 }"
+              >
                 <div class="step-header">
-                  <div class="step-number">{{ hasPaidZakatBefore ? '3' : '2' }}</div>
+                  <div class="step-number">
+                    {{ hasPaidZakatBefore ? '3' : '2' }}
+                  </div>
                   <h3>Asset Continuity</h3>
                 </div>
 
-                <div v-if="currentStep === 3" class="step-content">
+                <div
+                  v-if="currentStep === 3"
+                  class="step-content"
+                >
                   <p class="question">
                     {{ hasPaidZakatBefore
                       ? 'Have your assets been above the Nisab threshold continuously since your last payment?'
@@ -99,7 +150,10 @@
                   </p>
 
                   <!-- Additional question for users without payment data -->
-                  <div v-if="hasPaidZakatBefore && !previousPaymentData.date" class="continuity-explanation">
+                  <div
+                    v-if="hasPaidZakatBefore && !previousPaymentData.date"
+                    class="continuity-explanation"
+                  >
                     <p class="text-sm text-surface-600 mb-3">
                       Since you don't have a specific payment date, we need to know if your assets have been above Nisab
                       continuously.
@@ -118,16 +172,30 @@
                     <div class="price-inputs">
                       <div class="price-field">
                         <label for="goldPriceStep3">Gold Price (per gram)</label>
-                        <InputNumber v-model="goldPriceInput" id="goldPriceStep3" mode="currency" currency="EGP"
-                          locale="en-US" placeholder="Enter gold price" class="w-full"
-                          @update:modelValue="updateGoldPrice" />
+                        <InputNumber
+                          id="goldPriceStep3"
+                          v-model="goldPriceInput"
+                          mode="currency"
+                          currency="EGP"
+                          locale="en-US"
+                          placeholder="Enter gold price"
+                          class="w-full"
+                          @update:model-value="updateGoldPrice"
+                        />
                       </div>
 
                       <div class="price-field">
                         <label for="silverPriceStep3">Silver Price (per gram)</label>
-                        <InputNumber v-model="silverPriceInput" id="silverPriceStep3" mode="currency" currency="EGP"
-                          locale="en-US" placeholder="Enter silver price" class="w-full"
-                          @update:modelValue="updateSilverPrice" />
+                        <InputNumber
+                          id="silverPriceStep3"
+                          v-model="silverPriceInput"
+                          mode="currency"
+                          currency="EGP"
+                          locale="en-US"
+                          placeholder="Enter silver price"
+                          class="w-full"
+                          @update:model-value="updateSilverPrice"
+                        />
                       </div>
                     </div>
 
@@ -135,16 +203,28 @@
                     <div class="price-sources">
                       <h5>Get Current Prices From:</h5>
                       <div class="source-links">
-                        <a href="https://www.goldprice.org/" target="_blank" class="source-link">
-                          <i class="pi pi-external-link mr-1"></i>
+                        <a
+                          href="https://www.goldprice.org/"
+                          target="_blank"
+                          class="source-link"
+                        >
+                          <i class="pi pi-external-link mr-1" />
                           Gold Price.org
                         </a>
-                        <a href="https://www.silverprice.org/" target="_blank" class="source-link">
-                          <i class="pi pi-external-link mr-1"></i>
+                        <a
+                          href="https://www.silverprice.org/"
+                          target="_blank"
+                          class="source-link"
+                        >
+                          <i class="pi pi-external-link mr-1" />
                           Silver Price.org
                         </a>
-                        <a href="https://www.metals.live/" target="_blank" class="source-link">
-                          <i class="pi pi-external-link mr-1"></i>
+                        <a
+                          href="https://www.metals.live/"
+                          target="_blank"
+                          class="source-link"
+                        >
+                          <i class="pi pi-external-link mr-1" />
                           Metals.live
                         </a>
                       </div>
@@ -160,42 +240,66 @@
                     </p>
 
                     <div class="nisab-method-options">
-                      <div class="nisab-method-option" :class="{ selected: nisabCalculationMethod === 'silver' }">
+                      <div
+                        class="nisab-method-option"
+                        :class="{ selected: nisabCalculationMethod === 'silver' }"
+                      >
                         <Button
                           :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
                           :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
-                          :outlined="nisabCalculationMethod !== 'silver'" @click="setNisabCalculationMethod('silver')"
-                          class="w-full" />
-                        <p class="text-xs text-surface-600 mt-1">Lower threshold - More people eligible for Zakat</p>
+                          :outlined="nisabCalculationMethod !== 'silver'"
+                          class="w-full"
+                          @click="setNisabCalculationMethod('silver')"
+                        />
+                        <p class="text-xs text-surface-600 mt-1">
+                          Lower threshold - More people eligible for Zakat
+                        </p>
                       </div>
 
-                      <div class="nisab-method-option" :class="{ selected: nisabCalculationMethod === 'gold' }">
+                      <div
+                        class="nisab-method-option"
+                        :class="{ selected: nisabCalculationMethod === 'gold' }"
+                      >
                         <Button
                           :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
                           :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
-                          :outlined="nisabCalculationMethod !== 'gold'" @click="setNisabCalculationMethod('gold')"
-                          class="w-full" />
-                        <p class="text-xs text-surface-600 mt-1">Higher threshold - Fewer people eligible for Zakat</p>
+                          :outlined="nisabCalculationMethod !== 'gold'"
+                          class="w-full"
+                          @click="setNisabCalculationMethod('gold')"
+                        />
+                        <p class="text-xs text-surface-600 mt-1">
+                          Higher threshold - Fewer people eligible for Zakat
+                        </p>
                       </div>
                     </div>
                   </div>
 
                   <!-- Nisab Display -->
-                  <div class="nisab-info" v-if="hawlStore.currentNisab > 0">
+                  <div
+                    v-if="hawlStore.currentNisab > 0"
+                    class="nisab-info"
+                  >
                     <div class="nisab-card">
                       <h4>Current Nisab Threshold</h4>
-                      <div class="nisab-value">{{ hawlStore.currentNisab.toLocaleString() }} EGP</div>
+                      <div class="nisab-value">
+                        {{ hawlStore.currentNisab.toLocaleString() }} EGP
+                      </div>
                       <p class="nisab-description">
                         Based on {{ nisabCalculationMethod }} standard
                       </p>
                     </div>
 
                     <!-- Eligibility Status -->
-                    <div class="eligibility-card" :class="nisabStatus.isEligible ? 'eligible' : 'not-eligible'">
+                    <div
+                      class="eligibility-card"
+                      :class="nisabStatus.isEligible ? 'eligible' : 'not-eligible'"
+                    >
                       <div class="eligibility-header">
                         <h4>Zakat Eligibility Status</h4>
-                        <Tag :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
-                          :severity="nisabStatus.isEligible ? 'success' : 'danger'" />
+                        <Tag
+                          :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
+                          :severity="nisabStatus.isEligible ? 'success' : 'danger'"
+                        />
                       </div>
                       <div class="eligibility-details">
                         <div class="eligibility-item">
@@ -217,7 +321,9 @@
 
                     <div class="islamic-date-card">
                       <h4>Current Islamic Date</h4>
-                      <div class="hijri-date">{{ getCurrentHijriDate().formatted }}</div>
+                      <div class="hijri-date">
+                        {{ getCurrentHijriDate().formatted }}
+                      </div>
                       <p class="hijri-description">
                         Today's date in Hijri calendar
                       </p>
@@ -225,35 +331,55 @@
                   </div>
 
                   <div class="button-group">
-                    <Button label="Yes, assets have been above Nisab"
-                      :class="{ 'p-button-success': assetsAboveNisab === true }" @click="setAssetsAboveNisab(true)"
-                      class="mr-2" />
-                    <Button label="No, assets fell below Nisab"
-                      :class="{ 'p-button-success': assetsAboveNisab === false }" @click="setAssetsAboveNisab(false)"
-                      outlined />
+                    <Button
+                      label="Yes, assets have been above Nisab"
+                      :class="{ 'p-button-success': assetsAboveNisab === true }"
+                      class="mr-2"
+                      @click="setAssetsAboveNisab(true)"
+                    />
+                    <Button
+                      label="No, assets fell below Nisab"
+                      :class="{ 'p-button-success': assetsAboveNisab === false }"
+                      outlined
+                      @click="setAssetsAboveNisab(false)"
+                    />
                   </div>
                 </div>
               </div>
 
 
               <!-- Step 4: Current Status & Confirmation -->
-              <div class="step" :class="{ active: currentStep === 4 }">
+              <div
+                class="step"
+                :class="{ active: currentStep === 4 }"
+              >
                 <div class="step-header">
-                  <div class="step-number">{{ hasPaidZakatBefore ? '4' : '3' }}</div>
+                  <div class="step-number">
+                    {{ hasPaidZakatBefore ? '4' : '3' }}
+                  </div>
                   <h3>Setup Complete</h3>
                 </div>
 
-                <div v-if="currentStep === 4" class="step-content">
+                <div
+                  v-if="currentStep === 4"
+                  class="step-content"
+                >
                   <div class="status-summary">
                     <h4>Your Zakat Status</h4>
-                    <div class="status-card" :class="hawlStatus.class">
+                    <div
+                      class="status-card"
+                      :class="hawlStatus.class"
+                    >
                       <div class="status-icon">
-                        <i :class="hawlStatus.icon"></i>
+                        <i :class="hawlStatus.icon" />
                       </div>
                       <div class="status-content">
                         <h5>{{ hawlStatus.title }}</h5>
                         <p>{{ hawlStatus.description }}</p>
-                        <div v-if="hawlStatus.details" class="status-details">
+                        <div
+                          v-if="hawlStatus.details"
+                          class="status-details"
+                        >
                           <p>{{ hawlStatus.details }}</p>
                         </div>
                       </div>
@@ -261,7 +387,11 @@
                   </div>
 
                   <div class="step-actions">
-                    <Button label="Complete Setup" @click="completeSetup" class="p-button-primary" />
+                    <Button
+                      label="Complete Setup"
+                      class="p-button-primary"
+                      @click="completeSetup"
+                    />
                   </div>
                 </div>
               </div>
@@ -271,17 +401,29 @@
       </div>
 
       <!-- Main Zakat Dashboard (after onboarding) -->
-      <div v-else class="zakat-dashboard">
+      <div
+        v-else
+        class="zakat-dashboard"
+      >
         <!-- Hawl Status Card - Full Width -->
         <Card class="hawl-status-card mb-6">
           <template #header>
             <div class="card-header">
               <h3>Hawl Status</h3>
               <div class="header-actions">
-                <Tag :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
-                  :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)" />
-                <Button label="Edit Settings" icon="pi pi-cog" @click="showEditSettingsModal = true"
-                  severity="secondary" size="small" outlined class="ml-2" />
+                <Tag
+                  :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
+                  :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)"
+                />
+                <Button
+                  label="Edit Settings"
+                  icon="pi pi-cog"
+                  severity="secondary"
+                  size="small"
+                  outlined
+                  class="ml-2"
+                  @click="showEditSettingsModal = true"
+                />
               </div>
             </div>
           </template>
@@ -297,11 +439,17 @@
                   <label>End Date:</label>
                   <span>{{ formatDateDisplay(hawlStore.currentHawl?.endDate) }}</span>
                 </div>
-                <div v-if="hawlStore.currentHawl?.hijriStartDate" class="date-item">
+                <div
+                  v-if="hawlStore.currentHawl?.hijriStartDate"
+                  class="date-item"
+                >
                   <label>Hijri Start:</label>
                   <span>{{ hawlStore.currentHawl.hijriStartDate.formatted }}</span>
                 </div>
-                <div v-if="hawlStore.currentHawl?.hijriEndDate" class="date-item">
+                <div
+                  v-if="hawlStore.currentHawl?.hijriEndDate"
+                  class="date-item"
+                >
                   <label>Hijri End:</label>
                   <span>{{ hawlStore.currentHawl.hijriEndDate.formatted }}</span>
                 </div>
@@ -312,7 +460,10 @@
                   <span>Progress: {{ hawlProgress }}%</span>
                   <span>{{ daysRemaining }} days remaining</span>
                 </div>
-                <ProgressBar :value="hawlProgress" class="hawl-progress-bar" />
+                <ProgressBar
+                  :value="hawlProgress"
+                  class="hawl-progress-bar"
+                />
               </div>
             </div>
           </template>
@@ -323,27 +474,42 @@
           <template #header>
             <div class="card-header">
               <h3>Islamic School of Thought (Informational)</h3>
-              <Tag :value="selectedSchool.charAt(0).toUpperCase() + selectedSchool.slice(1)" severity="info" />
+              <Tag
+                :value="selectedSchool.charAt(0).toUpperCase() + selectedSchool.slice(1)"
+                severity="info"
+              />
             </div>
           </template>
 
           <template #content>
             <div class="school-info-content">
               <div class="school-info">
-                <p class="school-description">{{ currentSchoolConfig.nisab.description }}</p>
-                <p class="school-description">{{ currentSchoolConfig.zakatRate.description }}</p>
-                <p class="school-description">{{ currentSchoolConfig.zakatableAssets.description }}</p>
+                <p class="school-description">
+                  {{ currentSchoolConfig.nisab.description }}
+                </p>
+                <p class="school-description">
+                  {{ currentSchoolConfig.zakatRate.description }}
+                </p>
+                <p class="school-description">
+                  {{ currentSchoolConfig.zakatableAssets.description }}
+                </p>
               </div>
 
               <div class="school-actions">
-                <Button v-for="school in schoolOptions" :key="school.value" :label="school.label"
+                <Button
+                  v-for="school in schoolOptions"
+                  :key="school.value"
+                  :label="school.label"
                   :severity="selectedSchool === school.value ? 'primary' : 'secondary'"
-                  :outlined="selectedSchool !== school.value" @click="setSchool(school.value)" class="school-button" />
+                  :outlined="selectedSchool !== school.value"
+                  class="school-button"
+                  @click="setSchool(school.value)"
+                />
               </div>
 
               <div class="school-note">
                 <p class="text-sm text-surface-600 text-center">
-                  <i class="pi pi-info-circle mr-1"></i>
+                  <i class="pi pi-info-circle mr-1" />
                   School selection is for informational purposes only. Nisab calculation method is set independently
                   above.
                 </p>
@@ -360,11 +526,14 @@
               <div class="card-header">
                 <h3>Nisab</h3>
                 <div class="header-actions">
-                  <Tag :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
-                    :severity="nisabStatus.isEligible ? 'success' : 'danger'" />
+                  <Tag
+                    :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
+                    :severity="nisabStatus.isEligible ? 'success' : 'danger'"
+                  />
                   <Tag
                     :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
-                    :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
+                    :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'"
+                  />
                 </div>
               </div>
             </template>
@@ -386,8 +555,10 @@
                     </div>
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Difference:</label>
-                      <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'"
-                        class="text-lg font-semibold">
+                      <span
+                        :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'"
+                        class="text-lg font-semibold"
+                      >
                         {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
                       </span>
                     </div>
@@ -397,10 +568,13 @@
                 <!-- Current Nisab Threshold (Prominent) -->
                 <div class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center">
                   <div class="flex justify-center items-center gap-2 mb-2">
-                    <h4 class="text-lg font-semibold text-primary-700 m-0">Nisab Threshold</h4>
+                    <h4 class="text-lg font-semibold text-primary-700 m-0">
+                      Nisab Threshold
+                    </h4>
                     <Tag
                       :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
-                      :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
+                      :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'"
+                    />
                   </div>
                   <div class="text-2xl font-bold text-primary-700">
                     {{ hawlStore.nisabDetails.current.toLocaleString() }} EGP
@@ -410,8 +584,14 @@
 
                 <!-- Settings Button -->
                 <div class="flex justify-center">
-                  <Button label="Price Settings" icon="pi pi-cog" @click="showPriceSettingsModal = true"
-                    severity="secondary" size="small" outlined />
+                  <Button
+                    label="Price Settings"
+                    icon="pi pi-cog"
+                    severity="secondary"
+                    size="small"
+                    outlined
+                    @click="showPriceSettingsModal = true"
+                  />
                 </div>
               </div>
             </template>
@@ -422,22 +602,35 @@
             <template #header>
               <div class="card-header">
                 <h3>Asset Breakdown</h3>
-                <Tag :value="`${nisabStatus.breakdown.length} categories`" severity="info" />
+                <Tag
+                  :value="`${nisabStatus.breakdown.length} categories`"
+                  severity="info"
+                />
               </div>
             </template>
 
             <template #content>
               <div class="asset-breakdown">
-                <div v-for="category in nisabStatus.breakdown" :key="category.name" class="asset-category">
+                <div
+                  v-for="category in nisabStatus.breakdown"
+                  :key="category.name"
+                  class="asset-category"
+                >
                   <div class="category-info">
                     <span class="category-name">{{ category.name }}</span>
                     <span class="category-percentage">{{ category.percentage.toFixed(1) }}%</span>
                   </div>
-                  <div class="category-value">{{ category.value.toLocaleString() }} EGP</div>
+                  <div class="category-value">
+                    {{ category.value.toLocaleString() }} EGP
+                  </div>
                 </div>
                 <div class="asset-total">
-                  <div class="total-label">Total Zakatable Assets:</div>
-                  <div class="total-value">{{ nisabStatus.totalAssets.toLocaleString() }} EGP</div>
+                  <div class="total-label">
+                    Total Zakatable Assets:
+                  </div>
+                  <div class="total-value">
+                    {{ nisabStatus.totalAssets.toLocaleString() }} EGP
+                  </div>
                 </div>
               </div>
             </template>
@@ -448,23 +641,36 @@
             <template #header>
               <div class="card-header">
                 <h3>Zakat Calculation</h3>
-                <Tag :value="`${zakatRate}%`" severity="info" />
+                <Tag
+                  :value="`${zakatRate}%`"
+                  severity="info"
+                />
               </div>
             </template>
 
             <template #content>
               <div class="zakat-calculation">
-                <div v-if="!zakatCalculation.isEligible" class="not-eligible-message">
-                  <div class="message-icon">ℹ️</div>
+                <div
+                  v-if="!zakatCalculation.isEligible"
+                  class="not-eligible-message"
+                >
+                  <div class="message-icon">
+                    ℹ️
+                  </div>
                   <div class="message-content">
                     <h4>Not Eligible for Zakat</h4>
-                    <p>Your total assets ({{ nisabStatus.totalAssets.toLocaleString() }} EGP) are below the Nisab
-                      threshold ({{ hawlStore.currentNisab.toLocaleString() }} EGP).</p>
+                    <p>
+                      Your total assets ({{ nisabStatus.totalAssets.toLocaleString() }} EGP) are below the Nisab
+                      threshold ({{ hawlStore.currentNisab.toLocaleString() }} EGP).
+                    </p>
                     <p>Zakat is not required when assets are below Nisab.</p>
                   </div>
                 </div>
 
-                <div v-else class="calculation-breakdown">
+                <div
+                  v-else
+                  class="calculation-breakdown"
+                >
                   <div class="calculation-item">
                     <label>Total Assets:</label>
                     <span>{{ nisabStatus.totalAssets.toLocaleString() }} EGP</span>
@@ -491,14 +697,22 @@
             <template #header>
               <div class="card-header">
                 <h3>Budget Integration</h3>
-                <Tag :value="`${currentYearZakatItems.length} items`" severity="info" />
+                <Tag
+                  :value="`${currentYearZakatItems.length} items`"
+                  severity="info"
+                />
               </div>
             </template>
 
             <template #content>
               <div class="budget-integration">
-                <div v-if="!zakatCalculation.isEligible" class="not-eligible-budget">
-                  <div class="message-icon">ℹ️</div>
+                <div
+                  v-if="!zakatCalculation.isEligible"
+                  class="not-eligible-budget"
+                >
+                  <div class="message-icon">
+                    ℹ️
+                  </div>
                   <div class="message-content">
                     <h4>No Zakat Budget Required</h4>
                     <p>Since your assets are below Nisab, no Zakat budget items are needed.</p>
@@ -528,13 +742,25 @@
                   </div>
 
                   <div class="budget-progress">
-                    <ProgressBar :value="zakatBudgetStatus.percentage" class="budget-progress-bar" />
+                    <ProgressBar
+                      :value="zakatBudgetStatus.percentage"
+                      class="budget-progress-bar"
+                    />
                   </div>
 
                   <div class="budget-actions">
-                    <Button label="Create Budget Items" @click="createZakatBudgetForUpcomingYears(3)"
-                      severity="secondary" size="small" />
-                    <Button label="View in Budget" @click="router.push('/budget')" severity="primary" size="small" />
+                    <Button
+                      label="Create Budget Items"
+                      severity="secondary"
+                      size="small"
+                      @click="createZakatBudgetForUpcomingYears(3)"
+                    />
+                    <Button
+                      label="View in Budget"
+                      severity="primary"
+                      size="small"
+                      @click="router.push('/budget')"
+                    />
                   </div>
                 </div>
               </div>
@@ -546,25 +772,36 @@
   </div>
 
   <!-- Price Settings Modal -->
-  <Dialog v-model:visible="showPriceSettingsModal" modal header="Gold & Silver Price Settings"
-    :style="{ width: '600px' }" :closable="true" :dismissableMask="true">
+  <Dialog
+    v-model:visible="showPriceSettingsModal"
+    modal
+    header="Gold & Silver Price Settings"
+    :style="{ width: '600px' }"
+    :closable="true"
+    :dismissable-mask="true"
+  >
     <div class="flex flex-col gap-6">
       <!-- Current Prices Display -->
       <div class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center">
-        <h4 class="text-lg font-semibold text-primary-700 mb-2">Current Nisab Threshold</h4>
+        <h4 class="text-lg font-semibold text-primary-700 mb-2">
+          Current Nisab Threshold
+        </h4>
         <div class="text-2xl font-bold text-primary-700">
           {{ hawlStore.nisabDetails.current.toLocaleString() }} EGP
         </div>
         <div class="mt-2">
           <Tag
             :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
-            :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'" />
+            :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'"
+          />
         </div>
       </div>
 
       <!-- Nisab Calculation Method Selection -->
       <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
-        <h4 class="text-lg font-semibold text-surface-700 mb-3">Nisab Calculation Method</h4>
+        <h4 class="text-lg font-semibold text-surface-700 mb-3">
+          Nisab Calculation Method
+        </h4>
         <p class="text-sm text-surface-600 mb-3">
           Choose how to calculate the Nisab threshold:
         </p>
@@ -572,11 +809,17 @@
           <Button
             :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
             :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
-            :outlined="nisabCalculationMethod !== 'silver'" @click="setNisabCalculationMethod('silver')"
-            class="flex-1" />
-          <Button :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+            :outlined="nisabCalculationMethod !== 'silver'"
+            class="flex-1"
+            @click="setNisabCalculationMethod('silver')"
+          />
+          <Button
+            :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
             :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
-            :outlined="nisabCalculationMethod !== 'gold'" @click="setNisabCalculationMethod('gold')" class="flex-1" />
+            :outlined="nisabCalculationMethod !== 'gold'"
+            class="flex-1"
+            @click="setNisabCalculationMethod('gold')"
+          />
         </div>
         <p class="text-xs text-surface-600 text-center mt-2">
           Silver standard has a lower threshold (more people eligible), while gold standard has a higher threshold.
@@ -592,11 +835,25 @@
             <span class="font-semibold text-surface-900">Gold</span>
           </div>
           <div class="flex gap-2 mb-3">
-            <InputNumber id="gold-price-modal" v-model="goldPriceInput" :min="0" :max="999999" :step="0.01"
-              :useGrouping="true" suffix=" EGP/gram" placeholder="Enter price" @update:modelValue="updateGoldPrice"
-              class="flex-1" />
-            <Button icon="pi pi-save" @click="saveGoldPrice" :disabled="!goldPriceInput || goldPriceInput <= 0"
-              size="small" text />
+            <InputNumber
+              id="gold-price-modal"
+              v-model="goldPriceInput"
+              :min="0"
+              :max="999999"
+              :step="0.01"
+              :use-grouping="true"
+              suffix=" EGP/gram"
+              placeholder="Enter price"
+              class="flex-1"
+              @update:model-value="updateGoldPrice"
+            />
+            <Button
+              icon="pi pi-save"
+              :disabled="!goldPriceInput || goldPriceInput <= 0"
+              size="small"
+              text
+              @click="saveGoldPrice"
+            />
           </div>
           <div class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm">
             <span class="font-medium text-surface-600">Nisab (85g):</span>
@@ -613,11 +870,25 @@
             <span class="font-semibold text-surface-900">Silver</span>
           </div>
           <div class="flex gap-2 mb-3">
-            <InputNumber id="silver-price-modal" v-model="silverPriceInput" :min="0" :max="999999" :step="0.01"
-              :useGrouping="true" suffix=" EGP/gram" placeholder="Enter price" @update:modelValue="updateSilverPrice"
-              class="flex-1" />
-            <Button icon="pi pi-save" @click="saveSilverPrice" :disabled="!silverPriceInput || silverPriceInput <= 0"
-              size="small" text />
+            <InputNumber
+              id="silver-price-modal"
+              v-model="silverPriceInput"
+              :min="0"
+              :max="999999"
+              :step="0.01"
+              :use-grouping="true"
+              suffix=" EGP/gram"
+              placeholder="Enter price"
+              class="flex-1"
+              @update:model-value="updateSilverPrice"
+            />
+            <Button
+              icon="pi pi-save"
+              :disabled="!silverPriceInput || silverPriceInput <= 0"
+              size="small"
+              text
+              @click="saveSilverPrice"
+            />
           </div>
           <div class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm">
             <span class="font-medium text-surface-600">Nisab (595g):</span>
@@ -630,34 +901,54 @@
 
       <!-- Price Sources Links -->
       <div class="p-4 bg-surface-100 rounded-lg">
-        <h5 class="font-semibold text-surface-900 mb-3">Get Current Prices From:</h5>
+        <h5 class="font-semibold text-surface-900 mb-3">
+          Get Current Prices From:
+        </h5>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <a href="https://www.goldprice.org/spot-gold" target="_blank" rel="noopener noreferrer"
-            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
-            <i class="pi pi-external-link text-primary-600"></i>
+          <a
+            href="https://www.goldprice.org/spot-gold"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+          >
+            <i class="pi pi-external-link text-primary-600" />
             <span class="text-sm font-medium text-surface-900">Gold Price (International)</span>
           </a>
-          <a href="https://www.silverprice.org/spot-silver" target="_blank" rel="noopener noreferrer"
-            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
-            <i class="pi pi-external-link text-primary-600"></i>
+          <a
+            href="https://www.silverprice.org/spot-silver"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+          >
+            <i class="pi pi-external-link text-primary-600" />
             <span class="text-sm font-medium text-surface-900">Silver Price (International)</span>
           </a>
-          <a href="https://www.cbe.org.eg/en/EconomicResearch/Statistics/Pages/ExchangeRates.aspx" target="_blank"
+          <a
+            href="https://www.cbe.org.eg/en/EconomicResearch/Statistics/Pages/ExchangeRates.aspx"
+            target="_blank"
             rel="noopener noreferrer"
-            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
-            <i class="pi pi-external-link text-primary-600"></i>
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+          >
+            <i class="pi pi-external-link text-primary-600" />
             <span class="text-sm font-medium text-surface-900">CBE Exchange Rates</span>
           </a>
-          <a href="https://www.goldprice.org/spot-gold" target="_blank" rel="noopener noreferrer"
-            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors">
-            <i class="pi pi-external-link text-primary-600"></i>
+          <a
+            href="https://www.goldprice.org/spot-gold"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 p-3 bg-white border border-surface-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
+          >
+            <i class="pi pi-external-link text-primary-600" />
             <span class="text-sm font-medium text-surface-900">Local Gold Markets</span>
           </a>
         </div>
       </div>
 
       <!-- Last Updated -->
-      <div v-if="hawlStore.nisabDetails.lastUpdated" class="text-center p-3 bg-surface-100 rounded">
+      <div
+        v-if="hawlStore.nisabDetails.lastUpdated"
+        class="text-center p-3 bg-surface-100 rounded"
+      >
         <small class="text-surface-600 text-sm">
           Last updated: {{ new Date(hawlStore.nisabDetails.lastUpdated).toLocaleString() }}
         </small>
@@ -666,21 +957,34 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button label="Close" @click="showPriceSettingsModal = false" severity="secondary" text />
+        <Button
+          label="Close"
+          severity="secondary"
+          text
+          @click="showPriceSettingsModal = false"
+        />
       </div>
     </template>
   </Dialog>
 
   <!-- Edit Settings Modal -->
-  <Dialog v-model:visible="showEditSettingsModal" modal header="Edit Zakat Settings" :style="{ width: '700px' }"
-    :closable="true" :dismissableMask="true">
+  <Dialog
+    v-model:visible="showEditSettingsModal"
+    modal
+    header="Edit Zakat Settings"
+    :style="{ width: '700px' }"
+    :closable="true"
+    :dismissable-mask="true"
+  >
     <div class="flex flex-col gap-6">
       <!-- Warning Message -->
       <div class="p-4 bg-amber-50 border border-amber-200 rounded-lg">
         <div class="flex items-start gap-3">
-          <i class="pi pi-exclamation-triangle text-amber-600 mt-1"></i>
+          <i class="pi pi-exclamation-triangle text-amber-600 mt-1" />
           <div>
-            <h4 class="font-semibold text-amber-800 mb-1">Important Notice</h4>
+            <h4 class="font-semibold text-amber-800 mb-1">
+              Important Notice
+            </h4>
             <p class="text-sm text-amber-700">
               Editing these settings will reset your current Hawl and require you to go through the setup process again.
               This is only recommended if you need to correct previous payment information.
@@ -690,18 +994,33 @@
       </div>
 
       <!-- Previous Payment Data -->
-      <div v-if="hawlStore.currentHawl?.previousPaymentData"
-        class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
-        <h4 class="font-semibold text-surface-900 mb-3">Previous Payment Information</h4>
+      <div
+        v-if="hawlStore.currentHawl?.previousPaymentData"
+        class="p-4 bg-surface-50 border border-surface-200 rounded-lg"
+      >
+        <h4 class="font-semibold text-surface-900 mb-3">
+          Previous Payment Information
+        </h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-surface-700 mb-1">Last Payment Date</label>
-            <Calendar v-model="editPaymentData.date" dateFormat="mm/dd/yy" placeholder="Select date" class="w-full" />
+            <Calendar
+              v-model="editPaymentData.date"
+              date-format="mm/dd/yy"
+              placeholder="Select date"
+              class="w-full"
+            />
           </div>
           <div>
             <label class="block text-sm font-medium text-surface-700 mb-1">Payment Amount</label>
-            <InputNumber v-model="editPaymentData.amount" mode="currency" currency="EGP" locale="en-US"
-              placeholder="Enter amount" class="w-full" />
+            <InputNumber
+              v-model="editPaymentData.amount"
+              mode="currency"
+              currency="EGP"
+              locale="en-US"
+              placeholder="Enter amount"
+              class="w-full"
+            />
           </div>
         </div>
         <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded">
@@ -716,38 +1035,63 @@
 
       <!-- Asset Continuity -->
       <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
-        <h4 class="font-semibold text-surface-900 mb-3">Asset Continuity</h4>
+        <h4 class="font-semibold text-surface-900 mb-3">
+          Asset Continuity
+        </h4>
         <p class="text-sm text-surface-600 mb-3">
           Have your assets been above the Nisab threshold continuously since your last payment?
         </p>
         <div class="flex gap-3">
-          <Button label="Yes, assets maintained above Nisab"
-            :class="{ 'p-button-success': editAssetsAboveNisab === true }" @click="editAssetsAboveNisab = true" />
-          <Button label="No, assets fell below Nisab" :class="{ 'p-button-success': editAssetsAboveNisab === false }"
-            @click="editAssetsAboveNisab = false" outlined />
+          <Button
+            label="Yes, assets maintained above Nisab"
+            :class="{ 'p-button-success': editAssetsAboveNisab === true }"
+            @click="editAssetsAboveNisab = true"
+          />
+          <Button
+            label="No, assets fell below Nisab"
+            :class="{ 'p-button-success': editAssetsAboveNisab === false }"
+            outlined
+            @click="editAssetsAboveNisab = false"
+          />
         </div>
       </div>
 
       <!-- Price Settings -->
       <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
-        <h4 class="font-semibold text-surface-900 mb-3">Gold & Silver Prices</h4>
+        <h4 class="font-semibold text-surface-900 mb-3">
+          Gold & Silver Prices
+        </h4>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-surface-700 mb-1">Gold Price (per gram)</label>
-            <InputNumber v-model="editGoldPrice" mode="currency" currency="EGP" locale="en-US"
-              placeholder="Enter gold price" class="w-full" />
+            <InputNumber
+              v-model="editGoldPrice"
+              mode="currency"
+              currency="EGP"
+              locale="en-US"
+              placeholder="Enter gold price"
+              class="w-full"
+            />
           </div>
           <div>
             <label class="block text-sm font-medium text-surface-700 mb-1">Silver Price (per gram)</label>
-            <InputNumber v-model="editSilverPrice" mode="currency" currency="EGP" locale="en-US"
-              placeholder="Enter silver price" class="w-full" />
+            <InputNumber
+              v-model="editSilverPrice"
+              mode="currency"
+              currency="EGP"
+              locale="en-US"
+              placeholder="Enter silver price"
+              class="w-full"
+            />
           </div>
         </div>
       </div>
 
       <!-- Nisab Calculation Method -->
       <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
-        <h4 class="font-semibold text-surface-900 mb-3">Nisab Calculation Method</h4>
+        <h4 class="font-semibold text-surface-900 mb-3">
+          Nisab Calculation Method
+        </h4>
         <p class="text-sm text-surface-600 mb-3">
           Choose how to calculate the Nisab threshold:
         </p>
@@ -755,11 +1099,17 @@
           <Button
             :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
             :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
-            :outlined="nisabCalculationMethod !== 'silver'" @click="setNisabCalculationMethod('silver')"
-            class="flex-1" />
-          <Button :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
+            :outlined="nisabCalculationMethod !== 'silver'"
+            class="flex-1"
+            @click="setNisabCalculationMethod('silver')"
+          />
+          <Button
+            :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
             :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
-            :outlined="nisabCalculationMethod !== 'gold'" @click="setNisabCalculationMethod('gold')" class="flex-1" />
+            :outlined="nisabCalculationMethod !== 'gold'"
+            class="flex-1"
+            @click="setNisabCalculationMethod('gold')"
+          />
         </div>
         <p class="text-xs text-surface-600 text-center mt-2">
           Silver standard has a lower threshold (more people eligible), while gold standard has a higher threshold.
@@ -769,9 +1119,18 @@
 
     <template #footer>
       <div class="flex justify-end gap-2">
-        <Button label="Cancel" @click="showEditSettingsModal = false" severity="secondary" text />
-        <Button label="Reset & Restart Setup" @click="resetAndRestartSetup" severity="danger"
-          :disabled="!isEditDataValid" />
+        <Button
+          label="Cancel"
+          severity="secondary"
+          text
+          @click="showEditSettingsModal = false"
+        />
+        <Button
+          label="Reset & Restart Setup"
+          severity="danger"
+          :disabled="!isEditDataValid"
+          @click="resetAndRestartSetup"
+        />
       </div>
     </template>
   </Dialog>

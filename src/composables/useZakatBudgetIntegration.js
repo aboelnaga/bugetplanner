@@ -4,7 +4,7 @@ import { useBudgetStore } from '@/stores/budget'
 import { useHawlStore } from '@/stores/hawlStore'
 import { computed, ref } from 'vue'
 
-export function useZakatBudgetIntegration() {
+export function useZakatBudgetIntegration () {
   const budgetStore = useBudgetStore()
   const hawlStore = useHawlStore()
   const zakatPayments = useZakatPayments()
@@ -86,13 +86,13 @@ export function useZakatBudgetIntegration() {
       const budgetItemData = {
         ...ZAKAT_BUDGET_CONFIG,
         name: `Zakat Payment ${year}`,
-        year: year,
+        year,
         default_amount: amount,
         amounts: [amount], // Single yearly amount
         schedule: [{
           month: 11, // December (Hawl typically ends in December)
-          year: year,
-          amount: amount
+          year,
+          amount
         }],
         start_month: 11,
         start_year: year,

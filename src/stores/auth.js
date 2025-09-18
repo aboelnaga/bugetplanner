@@ -15,12 +15,12 @@ export const useAuthStore = defineStore('auth', () => {
   const initAuth = async () => {
     try {
       loading.value = true
-      
+
       // Get current session
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
+
       if (sessionError) throw sessionError
-      
+
       if (session?.user) {
         user.value = session.user
         await createProfileIfNeeded(session.user)
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
           .insert({
             id: userData.id,
             email: userData.email,
-            full_name: userData.user_metadata?.full_name || '',
+            full_name: userData.user_metadata?.full_name || ''
           })
 
         if (profileError) throw profileError
@@ -154,7 +154,7 @@ export const useAuthStore = defineStore('auth', () => {
       error.value = null
 
       const { error: signOutError } = await supabase.auth.signOut()
-      
+
       if (signOutError) throw signOutError
 
       user.value = null
@@ -232,11 +232,11 @@ export const useAuthStore = defineStore('auth', () => {
     user,
     loading,
     error,
-    
+
     // Computed
     isAuthenticated,
     userId,
-    
+
     // Actions
     initAuth,
     signUp,
@@ -247,4 +247,4 @@ export const useAuthStore = defineStore('auth', () => {
     updatePassword,
     updateProfile
   }
-}) 
+})

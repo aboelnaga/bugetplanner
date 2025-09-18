@@ -2,15 +2,15 @@
 // Modal state management, form handling logic, validation functions
 
 import { ref, watch } from 'vue'
-import { 
-  TRANSACTION_TYPES, 
+import {
+  TRANSACTION_TYPES,
   TRANSACTION_CATEGORIES,
   DEFAULT_TRANSACTION_VALUES,
   DATABASE_LIMITS
 } from '@/constants/budgetConstants.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
+export function useTransactionModals (transactionStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
   // Modal state
   const showAddTransactionModal = ref(false)
   const showEditTransactionModal = ref(false)
@@ -104,7 +104,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const updateCategoryOnTypeChange = () => {
     const categories = getCategoriesByType(formData.value.type)
     formData.value.category = categories[0]
-    
+
     // Reset investment direction when type changes
     if (formData.value.type === 'investment') {
       formData.value.investment_direction = 'outgoing' // Default to outgoing
@@ -117,24 +117,24 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const handleAmountInput = (event) => {
     const input = event.target
     const value = input.value
-    
+
     // Remove all non-numeric characters except decimal point
     const numericValue = value.replace(/[^\d.]/g, '')
-    
+
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    let cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
-    
+    let cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+
     // Check if the integer part exceeds the maximum length
     const maxLength = DATABASE_LIMITS.MAX_AMOUNT.toString().length // 10 digits
     if (parts[0].length > maxLength) {
       // Trim the integer part to max length
-      cleanValue = parts[0].substring(0, maxLength) + (parts.length > 1 ? '.' + parts[1] : '')
+      cleanValue = parts[0].substring(0, maxLength) + (parts.length > 1 ? `.${  parts[1]}` : '')
     }
-    
+
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
-    
+
     // Apply database limits (precision 12, scale 2 = max 9,999,999,999.99)
     if (numberValue > DATABASE_LIMITS.MAX_AMOUNT) {
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
@@ -144,10 +144,10 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
         window.amountLimitWarningShown = true
       }
     }
-    
+
     // Update form data
     formData.value.amount = numberValue
-    
+
     // Update input value with formatted display
     input.value = formatCurrency(numberValue)
   }
@@ -156,30 +156,30 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const handleTaxAmountInput = (event) => {
     const input = event.target
     const value = input.value
-    
+
     // Remove all non-numeric characters except decimal point
     const numericValue = value.replace(/[^\d.]/g, '')
-    
+
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    let cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
-    
+    const cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
-    
+
     // Apply database limits
     if (numberValue > DATABASE_LIMITS.MAX_AMOUNT) {
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
     }
-    
+
     // Update form data
     formData.value.tax_amount = numberValue
-    
+
     // Auto-calculate net amount if gross amount is set
     if (formData.value.gross_amount) {
       formData.value.net_amount = formData.value.gross_amount - numberValue
     }
-    
+
     // Update input value with formatted display
     input.value = formatCurrency(numberValue)
   }
@@ -188,30 +188,30 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const handleGrossAmountInput = (event) => {
     const input = event.target
     const value = input.value
-    
+
     // Remove all non-numeric characters except decimal point
     const numericValue = value.replace(/[^\d.]/g, '')
-    
+
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    let cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
-    
+    const cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
-    
+
     // Apply database limits
     if (numberValue > DATABASE_LIMITS.MAX_AMOUNT) {
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
     }
-    
+
     // Update form data
     formData.value.gross_amount = numberValue
-    
+
     // Auto-calculate net amount if tax amount is set
     if (formData.value.tax_amount) {
       formData.value.net_amount = numberValue - formData.value.tax_amount
     }
-    
+
     // Update input value with formatted display
     input.value = formatCurrency(numberValue)
   }
@@ -220,30 +220,30 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const handleNetAmountInput = (event) => {
     const input = event.target
     const value = input.value
-    
+
     // Remove all non-numeric characters except decimal point
     const numericValue = value.replace(/[^\d.]/g, '')
-    
+
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    let cleanValue = parts[0] + (parts.length > 1 ? '.' + parts[1] : '')
-    
+    const cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
-    
+
     // Apply database limits
     if (numberValue > DATABASE_LIMITS.MAX_AMOUNT) {
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
     }
-    
+
     // Update form data
     formData.value.net_amount = numberValue
-    
+
     // Auto-calculate gross amount if tax amount is set
     if (formData.value.tax_amount) {
       formData.value.gross_amount = numberValue + formData.value.tax_amount
     }
-    
+
     // Update input value with formatted display
     input.value = formatCurrency(numberValue)
   }
@@ -251,33 +251,33 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   // Validate form data
   const validateFormData = () => {
     const errors = []
-    
+
     if (!formData.value.description.trim()) {
       errors.push('Description is required')
     }
-    
+
     if (formData.value.amount <= 0) {
       errors.push('Amount must be greater than 0')
     }
-    
+
     // Check for database limits
     if (formData.value.amount > DATABASE_LIMITS.MAX_AMOUNT) {
       errors.push(`Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations`)
     }
-    
+
     // Validate investment direction for investment transactions
     if (formData.value.type === 'investment' && !formData.value.investment_direction) {
       errors.push('Investment direction is required for investment transactions')
     }
-    
+
     if (!formData.value.date) {
       errors.push('Date is required')
     }
-    
+
     if (!formData.value.account_id) {
       errors.push('Account selection is required')
     }
-    
+
     // Validate tax amounts consistency
     if (formData.value.gross_amount && formData.value.net_amount && formData.value.tax_amount) {
       const expectedGross = formData.value.net_amount + formData.value.tax_amount
@@ -285,7 +285,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
         errors.push('Tax amounts are inconsistent: gross amount must equal net amount + tax amount')
       }
     }
-    
+
     return errors
   }
 
@@ -312,19 +312,19 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const handleAddSubmit = async () => {
     try {
       isLoading.value = true
-      
+
       const errors = validateFormData()
       if (errors.length > 0) {
-        showToast('error', 'Validation Error', 'Please fix the following errors:\n' + errors.join('\n'))
+        showToast('error', 'Validation Error', `Please fix the following errors:\n${  errors.join('\n')}`)
         return false
       }
 
       const transactionData = createTransactionData()
       console.log('Adding transaction with data:', transactionData)
-      
+
       const result = await transactionStore.addTransaction(transactionData)
       console.log('Store result:', result)
-      
+
       if (result) {
         resetFormData()
         return result
@@ -334,7 +334,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       }
     } catch (error) {
       console.error('Error adding transaction:', error)
-      showToast('error', 'Add Transaction Failed', 'Error adding transaction: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Add Transaction Failed', `Error adding transaction: ${  error.message || 'Unknown error'}`)
       return false
     } finally {
       isLoading.value = false
@@ -345,19 +345,19 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
   const handleEditSubmit = async (transactionId) => {
     try {
       isLoading.value = true
-      
+
       const errors = validateFormData()
       if (errors.length > 0) {
-        showToast('error', 'Validation Error', 'Please fix the following errors:\n' + errors.join('\n'))
+        showToast('error', 'Validation Error', `Please fix the following errors:\n${  errors.join('\n')}`)
         return false
       }
 
       const updateData = createTransactionData()
-      
+
       console.log('Updating transaction with data:', updateData)
       const result = await transactionStore.updateTransaction(transactionId, updateData)
       console.log('Store result:', result)
-      
+
       if (result) {
         return result
       } else {
@@ -366,7 +366,7 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
       }
     } catch (error) {
       console.error('Error updating transaction:', error)
-      showToast('error', 'Update Transaction Failed', 'Error updating transaction: ' + (error.message || 'Unknown error'))
+      showToast('error', 'Update Transaction Failed', `Error updating transaction: ${  error.message || 'Unknown error'}`)
       return false
     } finally {
       isLoading.value = false
@@ -448,38 +448,38 @@ export function useTransactionModals(transactionStore, selectedYear, currentYear
     editingTransaction,
     isLoading,
     formData,
-    
+
     // Modal actions
     openAddTransactionModal,
     closeAddTransactionModal,
     openEditTransactionModal,
     closeEditTransactionModal,
-    
+
     // Form management
     initializeFormData,
     resetFormData,
     initializeFormDataFromTransaction,
     getCategoriesByType,
     updateCategoryOnTypeChange,
-    
+
     // Form input handlers
     handleAmountInput,
     handleTaxAmountInput,
     handleGrossAmountInput,
     handleNetAmountInput,
-    
+
     // Form validation and submission
     validateFormData,
     createTransactionData,
     handleAddSubmit,
     handleEditSubmit,
-    
+
     // Form handlers
     handleTransactionAdded,
     handleTransactionUpdated,
-    
+
     // Transaction actions
     editTransaction,
     deleteTransaction
   }
-} 
+}

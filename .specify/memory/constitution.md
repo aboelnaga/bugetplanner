@@ -48,6 +48,8 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - **Code Reuse**: Leverage existing patterns, don't reinvent
 - **Documentation**: Keep it minimal but useful
 - **Dependencies**: Minimize new packages, use existing ones
+- **Linting**: Run `npm run lint` regularly to maintain code quality
+- **Error Fixing**: Fix ESLint errors immediately, address warnings when possible
 
 ### PrimeVue Component Strategy
 - **Form Components**: InputText, Dropdown, Calendar, Checkbox, RadioButton
@@ -63,6 +65,9 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - Financial calculations must be validated
 - User experience must be reviewed
 - PrimeVue components must be used when available
+- ESLint errors must be fixed before committing
+- Code formatting must follow Prettier standards
+- Vue.js component structure must follow ESLint rules
 
 ### Quality Gates
 - All financial calculations must have manual testing
@@ -70,6 +75,10 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - Supabase operations must be properly secured
 - Performance must be optimized for financial data
 - Components must be reusable and well-documented
+- ESLint errors must be zero before code review
+- Code must pass `npm run lint` without errors
+- Vue.js components must follow ESLint Vue rules
+- JavaScript code must follow ESLint JavaScript rules
 
 ## Governance
 

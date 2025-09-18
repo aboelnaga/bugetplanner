@@ -76,7 +76,7 @@ const handleSubmit = async () => {
 
     // Create account
     const newAccount = await accountsStore.createAccount(accountData)
-    
+
     emit('account-added', newAccount)
     emit('close')
     resetForm()
@@ -90,14 +90,20 @@ const handleSubmit = async () => {
 
 <template>
   <BaseModal
-    :modelValue="isOpen"
-    @update:modelValue="$emit('close')"
+    :model-value="isOpen"
     title="Add New Account"
+    @update:model-value="$emit('close')"
   >
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form
+      class="space-y-6"
+      @submit.prevent="handleSubmit"
+    >
       <!-- Account Name -->
       <div>
-        <label for="name" class="block text-sm font-medium mb-2">
+        <label
+          for="name"
+          class="block text-sm font-medium mb-2"
+        >
           Account Name
         </label>
         <InputText
@@ -105,28 +111,36 @@ const handleSubmit = async () => {
           v-model="form.name"
           required
           placeholder="e.g., Chase Checking, Wells Fargo Savings"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Account Type -->
       <div>
-        <label for="type" class="block text-sm font-medium mb-2">
+        <label
+          for="type"
+          class="block text-sm font-medium mb-2"
+        >
           Account Type
         </label>
         <Select
           id="type"
           v-model="form.type"
           :options="accountTypeOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Select account type"
           required
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Starting Balance -->
       <div>
-        <label for="balance" class="block text-sm font-medium mb-2">
+        <label
+          for="balance"
+          class="block text-sm font-medium mb-2"
+        >
           Starting Balance
         </label>
         <CurrencyInput
@@ -136,12 +150,16 @@ const handleSubmit = async () => {
           inputmode="decimal"
           required
           placeholder="0.00"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Credit Limit (for credit cards) -->
       <div v-if="form.type === 'credit_card'">
-        <label for="credit_limit" class="block text-sm font-medium mb-2">
+        <label
+          for="credit_limit"
+          class="block text-sm font-medium mb-2"
+        >
           Credit Limit
         </label>
         <CurrencyInput
@@ -151,7 +169,8 @@ const handleSubmit = async () => {
           inputmode="decimal"
           required
           placeholder="0.00"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Set as Default -->
@@ -159,16 +178,24 @@ const handleSubmit = async () => {
         <Checkbox
           id="is_default"
           v-model="form.is_default"
-          :binary="true" />
-        <label for="is_default" class="ml-2 block text-sm">
+          :binary="true"
+        />
+        <label
+          for="is_default"
+          class="ml-2 block text-sm"
+        >
           Set as default account
         </label>
       </div>
 
       <!-- Error Message -->
-      <Message v-if="error" severity="error" :closable="false">
+      <Message
+        v-if="error"
+        severity="error"
+        :closable="false"
+      >
         <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
+          <i class="pi pi-exclamation-triangle" />
         </template>
         <template #message>
           {{ error }}
@@ -179,18 +206,20 @@ const handleSubmit = async () => {
       <div class="flex justify-end gap-3 pt-4">
         <Button
           type="button"
-          @click="$emit('close')"
           label="Cancel"
           outlined
-          severity="secondary" />
+          severity="secondary"
+          @click="$emit('close')"
+        />
         <Button
           type="submit"
           :disabled="loading"
           :loading="loading"
           icon="pi pi-check"
           :label="loading ? 'Adding...' : 'Add Account'"
-          severity="primary" />
+          severity="primary"
+        />
       </div>
     </form>
   </BaseModal>
-</template> 
+</template>

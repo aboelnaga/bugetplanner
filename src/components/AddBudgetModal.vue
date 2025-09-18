@@ -5,12 +5,12 @@ import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetModals } from '@/composables/useBudgetModals.js'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import { 
-  MONTHS, 
-  BUDGET_TYPES, 
-  BUDGET_TYPE_LABELS, 
-  RECURRENCE_LABELS, 
-  INVESTMENT_DIRECTIONS, 
+import {
+  MONTHS,
+  BUDGET_TYPES,
+  BUDGET_TYPE_LABELS,
+  RECURRENCE_LABELS,
+  INVESTMENT_DIRECTIONS,
   INVESTMENT_DIRECTION_LABELS,
   PAYMENT_SCHEDULES,
   PAYMENT_SCHEDULE_LABELS,
@@ -83,8 +83,8 @@ const isMultiYear = computed(() => {
       return formData.value.endYear > formData.value.startYear
     } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
       // For occurrences, calculate if it spans multiple years
-      const totalMonths = formData.value.occurrences === 1 
-        ? 0 
+      const totalMonths = formData.value.occurrences === 1
+        ? 0
         : (formData.value.occurrences - 1) * formData.value.recurrenceInterval
       const startDate = new Date(formData.value.startYear, formData.value.startMonth)
       const endDate = new Date(startDate.getTime() + (totalMonths * 30 * 24 * 60 * 60 * 1000))
@@ -123,15 +123,15 @@ const {
 } = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth, toast, confirm)
 
 // Computed options for form fields
-const typeOptions = computed(() => 
+const typeOptions = computed(() =>
   Object.entries(BUDGET_TYPE_LABELS).map(([value, label]) => ({ value, label }))
 )
 
-const categoryOptions = computed(() => 
+const categoryOptions = computed(() =>
   getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
 )
 
-const investmentDirectionOptions = computed(() => 
+const investmentDirectionOptions = computed(() =>
   Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
 )
 
@@ -143,53 +143,53 @@ const investmentOptions = computed(() => [
   }))
 ])
 
-const paymentScheduleOptions = computed(() => 
+const paymentScheduleOptions = computed(() =>
   Object.entries(PAYMENT_SCHEDULE_LABELS).map(([value, label]) => ({ value, label }))
 )
 
-const dueDateOptions = computed(() => 
-  Array.from({ length: 31 }, (_, i) => ({ 
-    value: i + 1, 
-    label: `${i + 1}${getDaySuffix(i + 1)}` 
+const dueDateOptions = computed(() =>
+  Array.from({ length: 31 }, (_, i) => ({
+    value: i + 1,
+    label: `${i + 1}${getDaySuffix(i + 1)}`
   }))
 )
 
-const reminderDaysOptions = computed(() => 
+const reminderDaysOptions = computed(() =>
   [1, 2, 3, 5, 7, 10, 14, 21, 30].map(days => ({
     value: days,
     label: `${days} day${days !== 1 ? 's' : ''} before`
   }))
 )
 
-const frequencyOptions = computed(() => 
+const frequencyOptions = computed(() =>
   Object.entries(FREQUENCY_LABELS).map(([value, label]) => ({ value, label }))
 )
 
-const recurrenceIntervalOptions = computed(() => 
+const recurrenceIntervalOptions = computed(() =>
   RECURRENCE_INTERVALS.map(interval => ({ value: interval.value, label: interval.label }))
 )
 
-const monthOptions = computed(() => 
+const monthOptions = computed(() =>
   MONTH_OPTIONS.map(month => ({ value: month.value, label: month.label }))
 )
 
-const availableStartMonthOptions = computed(() => 
+const availableStartMonthOptions = computed(() =>
   getAvailableStartMonthIndices().map(month => ({ value: month.value, label: month.label }))
 )
 
-const availableYearOptions = computed(() => 
+const availableYearOptions = computed(() =>
   getAvailableYears().map(year => ({ value: year, label: year.toString() }))
 )
 
-const availableEndYearOptions = computed(() => 
+const availableEndYearOptions = computed(() =>
   getAvailableEndYears().map(year => ({ value: year, label: year.toString() }))
 )
 
-const availableOnceMonthOptions = computed(() => 
+const availableOnceMonthOptions = computed(() =>
   getAvailableOnceMonths().map(month => ({ value: month.value, label: month.label }))
 )
 
-const endTypeOptions = computed(() => 
+const endTypeOptions = computed(() =>
   Object.entries(END_TYPE_LABELS).map(([value, label]) => ({ value, label }))
 )
 
@@ -208,7 +208,7 @@ watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     // Clear validation errors when modal opens
     validationErrors.value = []
-    
+
     if (props.mode === 'edit' && props.budget) {
       console.log('Initializing form with budget for edit:', props.budget)
       initializeFormDataFromBudget(props.budget)
@@ -253,7 +253,7 @@ watch([
   if (validationErrors.value.length > 0) {
     validationErrors.value = []
   }
-  
+
   // Update multi-year preview if available
   if (updateMultiYearPreview) {
     updateMultiYearPreview()
@@ -307,11 +307,11 @@ const closeModal = () => {
 // Unified budget submission handler
 const handleSubmit = async () => {
   console.log('AddBudgetModal handleSubmit called, mode:', props.mode)
-  
+
   try {
     // Clear previous validation errors
     validationErrors.value = []
-    
+
     // Validate form data first
     const errors = validateFormData()
     if (errors.length > 0) {
@@ -319,11 +319,11 @@ const handleSubmit = async () => {
       validationErrors.value = errors
       return
     }
-    
+
     // Use the same schedule data that preview uses (single source of truth)
     const scheduleData = schedulePreviewData.value
     console.log('Using schedule data:', scheduleData)
-    
+
     let result
     if (props.mode === 'edit') {
       console.log('Edit mode - budget:', props.budget)
@@ -331,16 +331,16 @@ const handleSubmit = async () => {
         console.error('No budget to edit')
         return
       }
-      
+
       // Use unified submit logic for both single and multi-year edits
       result = await handleUnifiedEditSubmit(props.budget.id, scheduleData)
     } else {
       // Use unified submit logic for both single and multi-year adds
       result = await handleUnifiedAddSubmit(scheduleData)
     }
-    
+
     console.log('Submit result:', result)
-    
+
     if (result) {
       console.log('Budget operation successful, closing modal')
       closeModal()
@@ -349,7 +349,7 @@ const handleSubmit = async () => {
       console.log('Budget operation failed, keeping modal open')
       const errorMessage = `Failed to ${props.mode === 'edit' ? 'update' : 'create'} budget item "${formData.value.name}". Please try again.`
       console.log('Error message:', errorMessage)
-      
+
       // Show error toast
       toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 })
     }
@@ -357,7 +357,7 @@ const handleSubmit = async () => {
     console.error('Budget submission error:', error)
     const errorMessage = `Error ${props.mode === 'edit' ? 'updating' : 'creating'} budget item "${formData.value.name}": ${error.message || 'Unknown error'}`
     console.log('Error message:', errorMessage)
-    
+
     // Show error toast
     toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 })
   }
@@ -397,7 +397,7 @@ const handleMultiYearEditWithSchedule = async (budgetId, scheduleData) => {
   }
 }
 
-// Single-year edit using schedule data  
+// Single-year edit using schedule data
 const handleSingleYearEditWithSchedule = async (budgetId, scheduleData) => {
   try {
     const updateData = createBudgetDataFromSchedule(formData.value, scheduleData.yearlyBreakdown[0])
@@ -413,7 +413,7 @@ const handleSingleYearAddSubmit = async (scheduleData) => {
   // Use the calculated amounts from schedule data instead of recalculating
   const yearData = scheduleData.yearlyBreakdown[0]
   const budgetData = createBudgetDataFromSchedule(formData.value, yearData)
-  
+
   try {
     return await budgetStore.addBudgetItemFromSchedule(budgetData)
   } catch (error) {
@@ -425,10 +425,10 @@ const handleSingleYearAddSubmit = async (scheduleData) => {
 // Multi-year add using schedule data
 const handleMultiYearAddSubmit = async (scheduleData) => {
   // Use the calculated yearly breakdown instead of recalculating
-  const budgetDataArray = scheduleData.yearlyBreakdown.map(yearData => 
+  const budgetDataArray = scheduleData.yearlyBreakdown.map(yearData =>
     createBudgetDataFromSchedule(formData.value, yearData)
   )
-  
+
   try {
     return await budgetStore.addMultiYearBudgetFromSchedule(budgetDataArray, formData.value)
   } catch (error) {
@@ -494,25 +494,25 @@ const getCalculatedEndYear = () => {
     if (formData.value.occurrences === 1) {
       return formData.value.startYear
     }
-    
+
     // Calculate the actual end year from occurrences
     let currentMonth = formData.value.startMonth
     let currentYear = formData.value.startYear
     let occurrenceCount = 0
-    
+
     while (occurrenceCount < formData.value.occurrences) {
       // Move to next occurrence
       currentMonth += formData.value.recurrenceInterval
-      
+
       // Handle year rollover
       while (currentMonth >= 12) {
         currentMonth -= 12
         currentYear++
       }
-      
+
       occurrenceCount++
     }
-    
+
     return currentYear
   }
   return formData.value.endYear
@@ -533,20 +533,20 @@ const schedulePreviewData = computed(() => {
     // Generate single-year preview data in the same format as multi-year
     const schedule = generateSchedule()
     const totalAmount = calculateTotalAmount()
-    
+
     // Use the actual year from form data, not props.selectedYear
-    const actualYear = formData.value.frequency === FREQUENCY_TYPES.ONCE 
-      ? formData.value.oneTimeYear 
+    const actualYear = formData.value.frequency === FREQUENCY_TYPES.ONCE
+      ? formData.value.oneTimeYear
       : formData.value.startYear || props.selectedYear
-    
+
     // Calculate active months from the schedule
     const activeMonths = schedule.amounts.filter(amount => amount > 0).length
-    
+
     // Always create a yearlyBreakdown entry, even if there are no active months
     // This ensures the breakdown section is always shown
     return {
       duration: 1,
-      totalAmount: totalAmount,
+      totalAmount,
       yearlyBreakdown: [{
         year: actualYear,
         amount: totalAmount,
@@ -589,7 +589,7 @@ const getMonthlyData = (yearData) => {
   return yearData.monthlyAmounts.map((amount, index) => ({
     monthIndex: index,
     monthName: months[index],
-    amount: amount,
+    amount,
     isCurrentMonth: yearData.year === currentYear.value && index === currentMonth.value,
     isPastMonth: yearData.year < currentYear.value || (yearData.year === currentYear.value && index < currentMonth.value)
   }))
@@ -597,79 +597,100 @@ const getMonthlyData = (yearData) => {
 </script>
 
 <template>
-  <BaseModal 
-    :modelValue="modelValue" 
-    @update:modelValue="$emit('update:modelValue', $event)"
+  <BaseModal
+    :model-value="modelValue"
     :size="'medium'"
     :title="props.mode === 'edit' ? 'Edit Budget Item' : 'Add Budget Item'"
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <!-- Content -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form
+      class="space-y-6"
+      @submit.prevent="handleSubmit"
+    >
       <!-- Validation Errors -->
-      <Message v-if="validationErrors.length > 0" severity="error" :closable="false">
+      <Message
+        v-if="validationErrors.length > 0"
+        severity="error"
+        :closable="false"
+      >
         <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
+          <i class="pi pi-exclamation-triangle" />
         </template>
         <div>
-          <h4 class="font-medium mb-2">Please fix the following errors:</h4>
+          <h4 class="font-medium mb-2">
+            Please fix the following errors:
+          </h4>
           <ul class="space-y-1">
-            <li v-for="error in validationErrors" :key="error" class="flex items-start">
+            <li
+              v-for="error in validationErrors"
+              :key="error"
+              class="flex items-start"
+            >
               <span class="mr-2">•</span>
               <span data-testid="validation-error-item">{{ error }}</span>
             </li>
           </ul>
         </div>
       </Message>
-      
+
       <!-- Basic Information Section -->
       <div class="space-y-4">
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Name -->
           <div class="md:col-span-2">
-            <label for="name" class="block text-sm font-medium mb-2">
+            <label
+              for="name"
+              class="block text-sm font-medium mb-2"
+            >
               <span class="text-red-500">*</span> Name
             </label>
             <InputText
               id="name"
-              v-model="formData.name" 
+              v-model="formData.name"
               placeholder="Budget item name"
               class="w-full"
               :class="{ 'p-invalid': validationErrors.some(e => e.includes('Name')) }"
               data-testid="budget-name-input"
             />
           </div>
-          
+
           <!-- Budget Type -->
           <div>
-            <label for="type" class="block text-sm font-medium mb-2">
+            <label
+              for="type"
+              class="block text-sm font-medium mb-2"
+            >
               <span class="text-red-500">*</span> Budget Type
             </label>
             <Select
               id="type"
-              v-model="formData.type" 
+              v-model="formData.type"
               :options="typeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select budget type"
               class="w-full"
               :class="{ 'p-invalid': validationErrors.some(e => e.includes('Type')) }"
-              @change="updateCategoryOnTypeChange"
               data-testid="budget-type-select"
+              @change="updateCategoryOnTypeChange"
             />
           </div>
-          
+
           <!-- Category -->
           <div>
-            <label for="category" class="block text-sm font-medium mb-2">
+            <label
+              for="category"
+              class="block text-sm font-medium mb-2"
+            >
               <span class="text-red-500">*</span> Category
             </label>
             <Select
               id="category"
               v-model="formData.category"
               :options="categoryOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select category"
               class="w-full"
               :class="{ 'p-invalid': validationErrors.some(e => e.includes('Category')) }"
@@ -677,49 +698,64 @@ const getMonthlyData = (yearData) => {
             />
           </div>
         </div>
-        
+
         <!-- Investment Settings (only for Investment type) -->
-        <div v-if="formData.type === BUDGET_TYPES.INVESTMENT" class="space-y-4">
+        <div
+          v-if="formData.type === BUDGET_TYPES.INVESTMENT"
+          class="space-y-4"
+        >
           <Divider>
             <span class="text-sm font-medium">Investment Settings</span>
           </Divider>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Investment Direction -->
             <div data-testid="investment-direction-section">
-              <label for="investment_direction" class="block text-sm font-medium mb-2">
+              <label
+                for="investment_direction"
+                class="block text-sm font-medium mb-2"
+              >
                 <span class="text-red-500">*</span> Investment Direction
               </label>
               <Select
                 id="investment_direction"
                 v-model="formData.investment_direction"
                 :options="investmentDirectionOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select direction"
                 class="w-full"
               />
             </div>
-            
+
             <!-- Link to Existing Investment -->
             <div>
-              <label for="linked_investment_id" class="block text-sm font-medium mb-2">
+              <label
+                for="linked_investment_id"
+                class="block text-sm font-medium mb-2"
+              >
                 Link to Investment Asset
               </label>
               <Select
                 id="linked_investment_id"
                 v-model="formData.linked_investment_id"
                 :options="investmentOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="No investment linked"
                 class="w-full"
               />
             </div>
           </div>
-          
+
           <!-- Linked Investment Info -->
-          <Message v-if="formData.linked_investment_id" severity="info" :closable="false" icon="pi pi-chart-line" class="mb-4">
+          <Message
+            v-if="formData.linked_investment_id"
+            severity="info"
+            :closable="false"
+            icon="pi pi-chart-line"
+            class="mb-4"
+          >
             <div class="flex items-center justify-between w-full">
               <div class="flex items-center gap-2">
                 <span class="font-medium">
@@ -731,12 +767,12 @@ const getMonthlyData = (yearData) => {
               </div>
               <Button
                 type="button"
-                @click="formData.linked_investment_id = ''"
                 icon="pi pi-times"
                 text
                 size="small"
                 severity="danger"
                 class="ml-2"
+                @click="formData.linked_investment_id = ''"
               />
             </div>
           </Message>
@@ -745,12 +781,17 @@ const getMonthlyData = (yearData) => {
 
       <!-- Financial Details Section -->
       <div class="space-y-4">
-        <h3 class="text-lg font-medium border-b pb-2">Financial Details</h3>
-        
+        <h3 class="text-lg font-medium border-b pb-2">
+          Financial Details
+        </h3>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Default Amount -->
           <div>
-            <label for="defaultAmount" class="block text-sm font-medium mb-2">
+            <label
+              for="defaultAmount"
+              class="block text-sm font-medium mb-2"
+            >
               <span class="text-red-500">*</span> Default Amount
             </label>
             <InputNumber
@@ -764,18 +805,21 @@ const getMonthlyData = (yearData) => {
               data-testid="default-amount-input"
             />
           </div>
-          
+
           <!-- Payment Schedule -->
           <div>
-            <label for="payment_schedule" class="block text-sm font-medium mb-2">
+            <label
+              for="payment_schedule"
+              class="block text-sm font-medium mb-2"
+            >
               Payment Schedule
             </label>
             <Select
               id="payment_schedule"
               v-model="formData.payment_schedule"
               :options="paymentScheduleOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select schedule"
               class="w-full"
               data-testid="payment-schedule-select"
@@ -784,17 +828,24 @@ const getMonthlyData = (yearData) => {
         </div>
 
         <!-- Due Date (only for custom_dates) -->
-        <div v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES" class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="due-date-section">
+        <div
+          v-if="formData.payment_schedule === PAYMENT_SCHEDULES.CUSTOM_DATES"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4"
+          data-testid="due-date-section"
+        >
           <div>
-            <label for="due_date" class="block text-sm font-medium mb-2">
+            <label
+              for="due_date"
+              class="block text-sm font-medium mb-2"
+            >
               Due Date (Day of Month)
             </label>
             <Select
               id="due_date"
               v-model="formData.due_date"
               :options="dueDateOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select day"
               class="w-full"
             />
@@ -810,11 +861,14 @@ const getMonthlyData = (yearData) => {
               v-model="formData.is_fixed_expense"
               :binary="true"
             />
-            <label for="is_fixed_expense" class="text-sm font-medium">
+            <label
+              for="is_fixed_expense"
+              class="text-sm font-medium"
+            >
               Fixed Expense
             </label>
           </div>
-          
+
           <!-- Reminder Toggle -->
           <div class="flex items-center gap-2">
             <Checkbox
@@ -822,24 +876,33 @@ const getMonthlyData = (yearData) => {
               v-model="formData.reminder_enabled"
               :binary="true"
             />
-            <label for="reminder_enabled" class="text-sm font-medium">
+            <label
+              for="reminder_enabled"
+              class="text-sm font-medium"
+            >
               Enable Reminders
             </label>
           </div>
         </div>
 
         <!-- Reminder Days Before (only if reminders enabled) -->
-        <div v-if="formData.reminder_enabled" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div
+          v-if="formData.reminder_enabled"
+          class="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
           <div>
-            <label for="reminder_days_before" class="block text-sm font-medium mb-2">
+            <label
+              for="reminder_days_before"
+              class="block text-sm font-medium mb-2"
+            >
               Remind Me (Days Before)
             </label>
             <Select
               id="reminder_days_before"
               v-model="formData.reminder_days_before"
               :options="reminderDaysOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select days"
               class="w-full"
             />
@@ -849,97 +912,121 @@ const getMonthlyData = (yearData) => {
 
       <!-- Schedule Section -->
       <div class="space-y-4">
-        <h3 class="text-lg font-medium border-b pb-2">Schedule</h3>
-        
+        <h3 class="text-lg font-medium border-b pb-2">
+          Schedule
+        </h3>
+
         <!-- Frequency -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label for="frequency" class="block text-sm font-medium mb-2">Frequency</label>
+            <label
+              for="frequency"
+              class="block text-sm font-medium mb-2"
+            >Frequency</label>
             <Select
               id="frequency"
-              v-model="formData.frequency" 
+              v-model="formData.frequency"
               :options="frequencyOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select frequency"
               class="w-full"
-              @change="updateSchedule"
               data-testid="frequency-select"
+              @change="updateSchedule"
             />
           </div>
-            
+
           <!-- Recurrence Interval (only for repeats) -->
           <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS">
-            <label for="recurrenceInterval" class="block text-sm font-medium mb-2">Recurrence Interval</label>
+            <label
+              for="recurrenceInterval"
+              class="block text-sm font-medium mb-2"
+            >Recurrence Interval</label>
             <Select
               id="recurrenceInterval"
               v-model="formData.recurrenceInterval"
               :options="recurrenceIntervalOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select interval"
               class="w-full"
-              @change="updateSchedule"
               data-testid="recurrence-interval-select"
+              @change="updateSchedule"
             />
           </div>
         </div>
 
         <!-- Date Selection -->
-        <div v-if="formData.frequency === FREQUENCY_TYPES.REPEATS" class="space-y-4" data-testid="start-date-section">
+        <div
+          v-if="formData.frequency === FREQUENCY_TYPES.REPEATS"
+          class="space-y-4"
+          data-testid="start-date-section"
+        >
           <!-- Start Date -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label for="startMonth" class="block text-sm font-medium mb-2">Starting Month</label>
+              <label
+                for="startMonth"
+                class="block text-sm font-medium mb-2"
+              >Starting Month</label>
               <Select
                 id="startMonth"
                 v-model="formData.startMonth"
                 :options="availableStartMonthOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select month"
                 class="w-full"
-                @change="updateLegacyRecurrence"
                 data-testid="start-month-select"
+                @change="updateLegacyRecurrence"
               />
             </div>
-            
+
             <div>
-              <label for="startYear" class="block text-sm font-medium mb-2">Starting Year</label>
+              <label
+                for="startYear"
+                class="block text-sm font-medium mb-2"
+              >Starting Year</label>
               <Select
                 id="startYear"
                 v-model="formData.startYear"
                 :options="availableYearOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select year"
                 class="w-full"
-                @change="updateLegacyRecurrence"
                 data-testid="start-year-select"
+                @change="updateLegacyRecurrence"
               />
             </div>
           </div>
 
           <!-- End Date Type and End Date Options -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="end-date-section">
+          <div
+            class="grid grid-cols-1 md:grid-cols-2 gap-4"
+            data-testid="end-date-section"
+          >
             <!-- End Date Type -->
             <div>
-              <label for="endType" class="block text-sm font-medium mb-2">
+              <label
+                for="endType"
+                class="block text-sm font-medium mb-2"
+              >
                 <span class="text-red-500">*</span> Ending
               </label>
               <Select
                 id="endType"
                 v-model="formData.endType"
                 :options="endTypeOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select end type"
                 class="w-full"
-                @change="updateLegacyRecurrence"
                 data-testid="end-type-select"
+                @change="updateLegacyRecurrence"
               />
             </div>
-            
+
             <!-- End Date (only for specific date) -->
             <div v-if="formData.endType === END_TYPES.SPECIFIC_DATE">
               <div class="grid grid-cols-2 gap-2">
@@ -947,30 +1034,33 @@ const getMonthlyData = (yearData) => {
                   id="endMonth"
                   v-model="formData.endMonth"
                   :options="monthOptions"
-                  optionLabel="label"
-                  optionValue="value"
+                  option-label="label"
+                  option-value="value"
                   placeholder="Month"
                   class="w-full"
-                  @change="updateLegacyRecurrence"
                   data-testid="end-month-select"
+                  @change="updateLegacyRecurrence"
                 />
                 <Select
                   id="endYear"
                   v-model="formData.endYear"
                   :options="availableEndYearOptions"
-                  optionLabel="label"
-                  optionValue="value"
+                  option-label="label"
+                  option-value="value"
                   placeholder="Year"
                   class="w-full"
-                  @change="updateLegacyRecurrence"
                   data-testid="end-year-select"
+                  @change="updateLegacyRecurrence"
                 />
               </div>
             </div>
-            
+
             <!-- Occurrences (only for after occurrences) -->
             <div v-if="formData.endType === END_TYPES.AFTER_OCCURRENCES">
-              <label for="occurrences" class="block text-sm font-medium mb-2">Number of Occurrences</label>
+              <label
+                for="occurrences"
+                class="block text-sm font-medium mb-2"
+              >Number of Occurrences</label>
               <InputNumber
                 id="occurrences"
                 v-model="formData.occurrences"
@@ -978,36 +1068,42 @@ const getMonthlyData = (yearData) => {
                 :max="120"
                 placeholder="Enter occurrences"
                 class="w-full"
-                @change="updateLegacyRecurrence"
                 data-testid="occurrences-input"
+                @change="updateLegacyRecurrence"
               />
             </div>
           </div>
         </div>
 
         <!-- Custom Months (for custom frequency) -->
-        <div v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM" class="space-y-3">
+        <div
+          v-if="formData.frequency === FREQUENCY_TYPES.CUSTOM"
+          class="space-y-3"
+        >
           <label class="block text-sm font-medium">Custom Months</label>
           <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
             <div
-              v-for="(month, index) in months" 
-              :key="month" 
+              v-for="(month, index) in months"
+              :key="month"
               class="flex items-center p-3 border rounded-lg transition-colors"
-              :class="{ 
+              :class="{
                 'bg-primary-50 border-primary-300': formData.customMonths.includes(index),
                 'cursor-pointer hover:bg-surface-100': index >= currentMonth,
                 'cursor-not-allowed bg-surface-100 opacity-50': index < currentMonth
               }"
             >
               <Checkbox
-                :value="index" 
                 v-model="formData.customMonths"
+                :value="index"
                 :binary="false"
-                @change="updateSchedule"
                 :disabled="index < currentMonth"
                 :data-testid="`custom-month-${index}`"
+                @change="updateSchedule"
               />
-              <span class="text-sm font-medium ml-2" :class="{ 'text-surface-500': index < currentMonth }">
+              <span
+                class="text-sm font-medium ml-2"
+                :class="{ 'text-surface-500': index < currentMonth }"
+              >
                 {{ month }}
               </span>
             </div>
@@ -1015,7 +1111,10 @@ const getMonthlyData = (yearData) => {
         </div>
 
         <!-- One Time Date (for once frequency) -->
-        <div v-if="formData.frequency === FREQUENCY_TYPES.ONCE" class="space-y-3">
+        <div
+          v-if="formData.frequency === FREQUENCY_TYPES.ONCE"
+          class="space-y-3"
+        >
           <label class="block text-sm font-medium">One-Time Date</label>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -1024,12 +1123,12 @@ const getMonthlyData = (yearData) => {
                 id="oneTimeMonth"
                 v-model="formData.oneTimeMonth"
                 :options="availableOnceMonthOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select month"
                 class="w-full"
-                @change="updateLegacyRecurrence"
                 data-testid="one-time-month-select"
+                @change="updateLegacyRecurrence"
               />
             </div>
             <div>
@@ -1038,31 +1137,39 @@ const getMonthlyData = (yearData) => {
                 id="oneTimeYear"
                 v-model="formData.oneTimeYear"
                 :options="availableYearOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select year"
                 class="w-full"
-                @change="updateLegacyRecurrence"
                 data-testid="one-time-year-select"
+                @change="updateLegacyRecurrence"
               />
             </div>
           </div>
         </div>
 
         <!-- Multi-Year Indicator (Auto-detected) -->
-        <Message v-if="isMultiYear" icon="pi pi-info-circle">Multi-Year: {{ formData.startYear }}-{{ getCalculatedEndYear() }}</Message>
+        <Message
+          v-if="isMultiYear"
+          icon="pi pi-info-circle"
+        >
+          Multi-Year: {{ formData.startYear }}-{{ getCalculatedEndYear() }}
+        </Message>
       </div>
 
       <!-- Preview Section -->
       <div class="space-y-4">
         <!-- Yearly Breakdown DataTable -->
         <div v-if="schedulePreviewData.yearlyBreakdown.length > 0">
-          <Panel :header="`${isMultiYear ? 'Yearly Breakdown' : 'Monthly Schedule'}`" toggleable>
+          <Panel
+            :header="`${isMultiYear ? 'Yearly Breakdown' : 'Monthly Schedule'}`"
+            toggleable
+          >
             <template #header>
               <div class="flex items-center justify-between w-full">
                 <div class="flex items-center gap-2">
-                  <i class="pi pi-chart-bar text-primary"></i>
-                  <span class="font-medium">schedule preview</span> 
+                  <i class="pi pi-chart-bar text-primary" />
+                  <span class="font-medium">schedule preview</span>
                 </div>
                 <div class="text-right">
                   <span class="font-semibold">{{ formatCurrency(schedulePreviewData.totalAmount) }} / </span>
@@ -1072,94 +1179,164 @@ const getMonthlyData = (yearData) => {
                 </div>
               </div>
             </template>
-            
-            <DataTable 
-              :value="schedulePreviewData.yearlyBreakdown" 
-              :expandedRows="expandedRows"
-              @row-toggle="onRowToggle"
-              dataKey="year"
+
+            <DataTable
+              :value="schedulePreviewData.yearlyBreakdown"
+              :expanded-rows="expandedRows"
+              data-key="year"
               class="p-datatable-sm"
               :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'"
-              expandableRows
+              expandable-rows
+              @row-toggle="onRowToggle"
             >
               <!-- Expandable Row -->
               <template #expansion="slotProps">
                 <div class="p-4">
-                  <DataTable 
-                    :value="getMonthlyData(slotProps.data)" 
+                  <DataTable
+                    :value="getMonthlyData(slotProps.data)"
                     class="p-datatable-sm"
-                    :showGridlines="true"
+                    :show-gridlines="true"
                   >
-                    <Column field="month" header="Month" class="w-20">
+                    <Column
+                      field="month"
+                      header="Month"
+                      class="w-20"
+                    >
                       <template #body="{ data }">
                         <div class="text-center">
-                          <div class="font-medium">{{ data.monthName }}</div>
+                          <div class="font-medium">
+                            {{ data.monthName }}
+                          </div>
                         </div>
                       </template>
                     </Column>
-                    <Column field="amount" header="Amount" class="w-24">
+                    <Column
+                      field="amount"
+                      header="Amount"
+                      class="w-24"
+                    >
                       <template #body="{ data }">
                         <div class="text-center">
-                          <div v-if="data.amount > 0" class="font-medium text-green-700">
+                          <div
+                            v-if="data.amount > 0"
+                            class="font-medium text-green-700"
+                          >
                             {{ formatCurrency(data.amount) }}
                           </div>
-                          <div v-else class="text-surface-400">-</div>
+                          <div
+                            v-else
+                            class="text-surface-400"
+                          >
+                            -
+                          </div>
                         </div>
                       </template>
                     </Column>
-                    <Column field="status" header="Status" class="w-20">
+                    <Column
+                      field="status"
+                      header="Status"
+                      class="w-20"
+                    >
                       <template #body="{ data }">
-                        <Tag 
-                          :value="data.amount > 0 ? 'Active' : 'Inactive'" 
+                        <Tag
+                          :value="data.amount > 0 ? 'Active' : 'Inactive'"
                           :severity="data.amount > 0 ? 'success' : 'secondary'"
                           size="small"
                         />
                       </template>
                     </Column>
-                    <Column field="period" header="Period" class="w-24">
+                    <Column
+                      field="period"
+                      header="Period"
+                      class="w-24"
+                    >
                       <template #body="{ data }">
                         <div class="text-center text-xs">
-                          <div v-if="data.isCurrentMonth" class="text-primary font-medium">Current</div>
-                          <div v-else-if="data.isPastMonth" class="text-surface-500">Past</div>
-                          <div v-else class="text-green-600">Future</div>
+                          <div
+                            v-if="data.isCurrentMonth"
+                            class="text-primary font-medium"
+                          >
+                            Current
+                          </div>
+                          <div
+                            v-else-if="data.isPastMonth"
+                            class="text-surface-500"
+                          >
+                            Past
+                          </div>
+                          <div
+                            v-else
+                            class="text-green-600"
+                          >
+                            Future
+                          </div>
                         </div>
                       </template>
                     </Column>
                   </DataTable>
                 </div>
               </template>
-              
+
               <!-- Main Columns -->
-              <Column expander style="width: 3rem"/>
-              <Column field="year" header="Year" class="w-20">
+              <Column
+                expander
+                style="width: 3rem"
+              />
+              <Column
+                field="year"
+                header="Year"
+                class="w-20"
+              >
                 <template #body="{ data }">
                   <div class="flex items-center gap-2">
                     <span class="font-semibold">{{ data.year }}</span>
                     <div class="flex gap-1">
-                      <Tag v-if="data.isFirstYear && isMultiYear" value="First" severity="info" size="small" />
-                      <Tag v-if="data.isLastYear && isMultiYear" value="Last" severity="success" size="small" />
+                      <Tag
+                        v-if="data.isFirstYear && isMultiYear"
+                        value="First"
+                        severity="info"
+                        size="small"
+                      />
+                      <Tag
+                        v-if="data.isLastYear && isMultiYear"
+                        value="Last"
+                        severity="success"
+                        size="small"
+                      />
                     </div>
                   </div>
                 </template>
               </Column>
-              
-              <Column field="amount" header="Yearly Amount" class="w-32">
+
+              <Column
+                field="amount"
+                header="Yearly Amount"
+                class="w-32"
+              >
                 <template #body="{ data }">
                   <span class="font-semibold text-lg">{{ formatCurrency(data.amount) }}</span>
                 </template>
               </Column>
-              
-              <Column field="monthlyAverage" header="Monthly Average" class="w-32">
+
+              <Column
+                field="monthlyAverage"
+                header="Monthly Average"
+                class="w-32"
+              >
                 <template #body="{ data }">
                   <span class="font-medium">{{ formatCurrency(data.monthlyAverage) }}</span>
                 </template>
               </Column>
-              
-              <Column field="activeMonths" header="Active Months" class="w-28">
+
+              <Column
+                field="activeMonths"
+                header="Active Months"
+                class="w-28"
+              >
                 <template #body="{ data }">
                   <div>
-                    <ProgressBar 
-                      :value="(data.monthsCount / 12) * 100" 
+                    <ProgressBar
+                      :value="(data.monthsCount / 12) * 100"
                       class="h-2 mb-1"
                     >
                       {{ data.monthsCount }}/12
@@ -1167,37 +1344,35 @@ const getMonthlyData = (yearData) => {
                   </div>
                 </template>
               </Column>
-              
-
             </DataTable>
           </Panel>
         </div>
       </div>
     </form>
-    
+
     <!-- Footer -->
     <template #footer>
       <div class="flex justify-end gap-3 w-full">
         <Button
-          type="button" 
-          @click="closeModal" 
-          :disabled="isLoading" 
+          type="button"
+          :disabled="isLoading"
           label="Cancel"
           outlined
           severity="secondary"
           data-testid="cancel-btn"
+          @click="closeModal"
         />
         <Button
-          type="submit" 
-          @click="handleSubmit"
+          type="submit"
           :disabled="isLoading || hasErrors"
           :loading="isLoading"
           icon="pi pi-check"
           :label="props.mode === 'edit' ? 'Update Budget Item' : (isMultiYear ? 'Add Multi-Year Budget' : 'Add Budget Item')"
           severity="primary"
           :data-testid="props.mode === 'edit' ? 'submit-edit-btn' : 'submit-budget-btn'"
+          @click="handleSubmit"
         />
       </div>
     </template>
   </BaseModal>
-</template> 
+</template>

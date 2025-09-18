@@ -1,8 +1,8 @@
 import { computed } from 'vue'
 import { MONTHS } from '@/constants/budgetConstants.js'
 
-export function useBudgetDataTable(budgetItems, selectedYear, currentYear, currentMonth) {
-  
+export function useBudgetDataTable (budgetItems, selectedYear, currentYear, currentMonth) {
+
   /**
    * Transform nested budget data into flat structure for DataTable
    */
@@ -25,7 +25,7 @@ export function useBudgetDataTable(budgetItems, selectedYear, currentYear, curre
         total: calculateYearlyTotal(budget.amounts || []),
         total_actual: calculateYearlyTotal(budget.actual_amounts || [])
       }
-      
+
       return flattened
     })
   })
@@ -89,8 +89,8 @@ export function useBudgetDataTable(budgetItems, selectedYear, currentYear, curre
         width: '100px',
         bodyTemplate: (data) => data[month.toLowerCase()] || 0,
         // Add special styling for current month
-        class: selectedYear.value === currentYear.value && index === currentMonth.value 
-          ? 'current-month' 
+        class: selectedYear.value === currentYear.value && index === currentMonth.value
+          ? 'current-month'
           : ''
       })
     })
@@ -127,7 +127,7 @@ export function useBudgetDataTable(budgetItems, selectedYear, currentYear, curre
           {
             cells: [
               { header: 'Budget Item', rowspan: 2, frozen: 'left' },
-              { header: `Previous Year`, rowspan: 2 },
+              { header: 'Previous Year', rowspan: 2 },
               { header: 'Monthly Budget', colspan: MONTHS.length },
               { header: 'Total', rowspan: 2, frozen: 'right' },
               { header: 'Actions', rowspan: 2, frozen: 'right' }

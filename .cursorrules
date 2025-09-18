@@ -75,6 +75,15 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 - **Consistency**: Follow existing patterns in the codebase
 - **Simplicity**: Start simple, add complexity only when needed
 
+### Linting and Code Formatting
+- **ESLint Configuration**: Use `eslint.config.js` with Vue.js and JavaScript rules
+- **Prettier Integration**: Use `.prettierrc` for consistent code formatting
+- **Lint Script**: Run `npm run lint` to check and fix code issues
+- **Code Style**: Follow ESLint rules for consistent code formatting
+- **Vue.js Linting**: Use Vue-specific ESLint rules for component validation
+- **Error Handling**: Fix ESLint errors before committing code
+- **Warning Management**: Address ESLint warnings when possible, but don't block development
+
 ### Islamic Finance Compliance
 - **Zakat Calculations**: Follow proper Hawl (lunar year) requirements
 - **Nisab Thresholds**: Use Islamic law-compliant Nisab calculations
@@ -104,3 +113,6 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 4. **Test Manually**: Test in browser before adding automated tests
 5. **Keep It Simple**: Don't over-engineer for future requirements
 6. **Document Complex Logic**: Add inline comments for complex business logic
+7. **Run Linting**: Use `npm run lint` to check and fix code issues
+8. **Fix ESLint Errors**: Address all ESLint errors before committing
+9. **Address Warnings**: Fix ESLint warnings when possible, but don't block development

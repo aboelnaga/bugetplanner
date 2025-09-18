@@ -67,7 +67,7 @@ const budgetItemForm = ref({
 // Computed
 const availableBudgetItems = computed(() => {
   if (!budgetStore.budgetItems) return []
-  return budgetStore.budgetItems.filter(item => 
+  return budgetStore.budgetItems.filter(item =>
     item.type === 'investment' && !item.investment_asset_id
   )
 })
@@ -78,10 +78,10 @@ const linkedBudgetItem = computed(() => {
 })
 
 const detailsText = computed({
-  get() {
+  get () {
     return form.value.details ? JSON.stringify(form.value.details, null, 2) : ''
   },
-  set(value) {
+  set (value) {
     try {
       form.value.details = value ? JSON.parse(value) : {}
     } catch (e) {
@@ -129,7 +129,7 @@ const budgetCategoryOptions = [
 // Validation methods
 const validateField = (fieldName) => {
   errors.value[fieldName] = ''
-  
+
   switch (fieldName) {
     case 'name':
       if (!form.value.name || form.value.name.trim() === '') {
@@ -158,7 +158,7 @@ const validateField = (fieldName) => {
 
 const validateBudgetItemField = (fieldName) => {
   budgetItemErrors.value[fieldName] = ''
-  
+
   switch (fieldName) {
     case 'name':
       if (!budgetItemForm.value.name || budgetItemForm.value.name.trim() === '') {
@@ -179,23 +179,23 @@ const validateForm = () => {
   // Clear all errors
   errors.value = {}
   budgetItemErrors.value = {}
-  
+
   // Validate main form
   validateField('name')
   validateField('type')
   validateField('purchase_amount')
   validateField('current_value')
-  
+
   // Validate budget item form if creating one
   if (createBudgetItem.value) {
     validateBudgetItemField('name')
     validateBudgetItemField('category')
   }
-  
+
   // Check if there are any errors
   const hasMainErrors = Object.keys(errors.value).some(key => errors.value[key])
   const hasBudgetItemErrors = Object.keys(budgetItemErrors.value).some(key => budgetItemErrors.value[key])
-  
+
   return !hasMainErrors && !hasBudgetItemErrors
 }
 
@@ -218,7 +218,7 @@ const initializeForm = () => {
       details: props.asset.details || {},
       budget_item_id: props.asset.budget_item_id || null
     }
-    
+
     // Set budget item form if creating new budget item
     if (props.asset.budget_items) {
       budgetItemForm.value.name = props.asset.budget_items.name
@@ -247,15 +247,15 @@ const initializeForm = () => {
 const handleSubmit = async () => {
   // Clear previous errors
   error.value = ''
-  
+
   // Validate form
   if (!validateForm()) {
     error.value = 'Please fix the errors above before submitting.'
     return
   }
-  
+
   loading.value = true
-  
+
   try {
     let budgetItemId = form.value.budget_item_id
 
@@ -266,7 +266,7 @@ const handleSubmit = async () => {
         user_id: authStore.user.id,
         year: new Date().getFullYear()
       }
-      
+
       const createdBudgetItem = await budgetStore.createBudgetItem(budgetItem)
       budgetItemId = createdBudgetItem.id
     } else if (selectedBudgetItemId.value) {
@@ -320,12 +320,23 @@ watch(selectedBudgetItemId, (newId) => {
 </script>
 
 <template>
-  <BaseModal :model-value="true" @update:model-value="$emit('close')" :title="asset ? 'Edit Investment Asset' : 'Add Investment Asset'">
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+  <BaseModal
+    :model-value="true"
+    :title="asset ? 'Edit Investment Asset' : 'Add Investment Asset'"
+    @update:model-value="$emit('close')"
+  >
+    <form
+      class="space-y-6"
+      @submit.prevent="handleSubmit"
+    >
       <!-- Error Alert -->
-      <Message v-if="error" severity="error" :closable="false">
+      <Message
+        v-if="error"
+        severity="error"
+        :closable="false"
+      >
         <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
+          <i class="pi pi-exclamation-triangle" />
         </template>
         <template #message>
           {{ error }}
@@ -335,9 +346,15 @@ watch(selectedBudgetItemId, (newId) => {
       <!-- Basic Information -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <label for="name" class="block text-sm font-medium">
+          <label
+            for="name"
+            class="block text-sm font-medium"
+          >
             Asset Name *
-            <span v-if="errors.name" class="text-red-500 ml-1">*</span>
+            <span
+              v-if="errors.name"
+              class="text-red-500 ml-1"
+            >*</span>
           </label>
           <InputText
             id="name"
@@ -345,61 +362,88 @@ watch(selectedBudgetItemId, (newId) => {
             required
             :class="{ 'p-invalid': errors.name }"
             placeholder="e.g., Downtown Apartment, Gold Portfolio"
+            class="w-full"
             @blur="validateField('name')"
-            class="w-full" />
-          <small v-if="errors.name" class="p-error">{{ errors.name }}</small>
+          />
+          <small
+            v-if="errors.name"
+            class="p-error"
+          >{{ errors.name }}</small>
         </div>
 
         <div>
-          <label for="type" class="block text-sm font-medium">
+          <label
+            for="type"
+            class="block text-sm font-medium"
+          >
             Asset Type *
-            <span v-if="errors.type" class="text-red-500 ml-1">*</span>
+            <span
+              v-if="errors.type"
+              class="text-red-500 ml-1"
+            >*</span>
           </label>
           <Select
             id="type"
             v-model="form.type"
             :options="assetTypeOptions"
-            optionLabel="label"
-            optionValue="value"
+            option-label="label"
+            option-value="value"
             placeholder="Select type"
             required
             :class="{ 'p-invalid': errors.type }"
+            class="w-full"
             @change="validateField('type')"
-            class="w-full" />
-          <small v-if="errors.type" class="p-error">{{ errors.type }}</small>
+          />
+          <small
+            v-if="errors.type"
+            class="p-error"
+          >{{ errors.type }}</small>
         </div>
       </div>
 
       <div>
-        <label for="status" class="block text-sm font-medium">Status *</label>
+        <label
+          for="status"
+          class="block text-sm font-medium"
+        >Status *</label>
         <Select
           id="status"
           v-model="form.status"
           :options="statusOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Select status"
           required
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <div>
-        <label for="description" class="block text-sm font-medium">Description</label>
+        <label
+          for="description"
+          class="block text-sm font-medium"
+        >Description</label>
         <Textarea
           id="description"
           v-model="form.description"
           rows="3"
           placeholder="Optional description of the investment"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Purchase Details -->
       <div class="border-t border-surface-200 pt-6">
-        <h4 class="text-md font-medium mb-4">Purchase Details</h4>
-        
+        <h4 class="text-md font-medium mb-4">
+          Purchase Details
+        </h4>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label for="purchase_amount" class="block text-sm font-medium">Purchase Amount</label>
+            <label
+              for="purchase_amount"
+              class="block text-sm font-medium"
+            >Purchase Amount</label>
             <div class="mt-1 relative">
               <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
               <CurrencyInput
@@ -408,12 +452,16 @@ watch(selectedBudgetItemId, (newId) => {
                 :options="currencyOptions"
                 inputmode="decimal"
                 class="pl-7 w-full"
-                placeholder="0.00" />
+                placeholder="0.00"
+              />
             </div>
           </div>
 
           <div>
-            <label for="down_payment" class="block text-sm font-medium">Down Payment</label>
+            <label
+              for="down_payment"
+              class="block text-sm font-medium"
+            >Down Payment</label>
             <div class="mt-1 relative">
               <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
               <CurrencyInput
@@ -422,12 +470,16 @@ watch(selectedBudgetItemId, (newId) => {
                 :options="currencyOptions"
                 inputmode="decimal"
                 class="pl-7 w-full"
-                placeholder="0.00" />
+                placeholder="0.00"
+              />
             </div>
           </div>
 
           <div>
-            <label for="monthly_payment" class="block text-sm font-medium">Monthly Payment</label>
+            <label
+              for="monthly_payment"
+              class="block text-sm font-medium"
+            >Monthly Payment</label>
             <div class="mt-1 relative">
               <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
               <CurrencyInput
@@ -436,28 +488,38 @@ watch(selectedBudgetItemId, (newId) => {
                 :options="currencyOptions"
                 inputmode="decimal"
                 class="pl-7 w-full"
-                placeholder="0.00" />
+                placeholder="0.00"
+              />
             </div>
           </div>
         </div>
 
         <div class="mt-6">
-          <label for="purchase_date" class="block text-sm font-medium">Purchase Date</label>
+          <label
+            for="purchase_date"
+            class="block text-sm font-medium"
+          >Purchase Date</label>
           <DatePicker
             id="purchase_date"
             v-model="form.purchase_date"
-            dateFormat="yy-mm-dd"
-            class="w-full" />
+            date-format="yy-mm-dd"
+            class="w-full"
+          />
         </div>
       </div>
 
       <!-- Current Status -->
       <div class="border-t border-surface-200 pt-6">
-        <h4 class="text-md font-medium mb-4">Current Status</h4>
-        
+        <h4 class="text-md font-medium mb-4">
+          Current Status
+        </h4>
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="current_value" class="block text-sm font-medium">Current Value</label>
+            <label
+              for="current_value"
+              class="block text-sm font-medium"
+            >Current Value</label>
             <div class="mt-1 relative">
               <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
               <CurrencyInput
@@ -466,60 +528,84 @@ watch(selectedBudgetItemId, (newId) => {
                 :options="currencyOptions"
                 inputmode="decimal"
                 class="pl-7 w-full"
-                placeholder="0.00" />
+                placeholder="0.00"
+              />
             </div>
           </div>
 
           <div>
-            <label for="last_valuation_date" class="block text-sm font-medium">Last Valuation Date</label>
+            <label
+              for="last_valuation_date"
+              class="block text-sm font-medium"
+            >Last Valuation Date</label>
             <DatePicker
               id="last_valuation_date"
               v-model="form.last_valuation_date"
-              dateFormat="yy-mm-dd"
-              class="w-full" />
+              date-format="yy-mm-dd"
+              class="w-full"
+            />
           </div>
         </div>
       </div>
 
       <!-- Location (for real estate) -->
-      <div v-if="form.type === 'real_estate'" class="border-t border-surface-200 pt-6">
-        <h4 class="text-md font-medium mb-4">Property Details</h4>
-        
+      <div
+        v-if="form.type === 'real_estate'"
+        class="border-t border-surface-200 pt-6"
+      >
+        <h4 class="text-md font-medium mb-4">
+          Property Details
+        </h4>
+
         <div>
-          <label for="location" class="block text-sm font-medium">Property Address</label>
+          <label
+            for="location"
+            class="block text-sm font-medium"
+          >Property Address</label>
           <InputText
             id="location"
             v-model="form.location"
             placeholder="e.g., 123 Main St, City, State"
-            class="w-full" />
+            class="w-full"
+          />
         </div>
       </div>
 
       <!-- Additional Details -->
       <div class="border-t border-surface-200 pt-6">
-        <h4 class="text-md font-medium mb-4">Additional Details</h4>
-        
+        <h4 class="text-md font-medium mb-4">
+          Additional Details
+        </h4>
+
         <div>
-          <label for="details" class="block text-sm font-medium">Additional Information</label>
+          <label
+            for="details"
+            class="block text-sm font-medium"
+          >Additional Information</label>
           <Textarea
             id="details"
             v-model="detailsText"
             rows="3"
             placeholder="Any additional details about the investment"
-            class="w-full" />
-          <p class="mt-1 text-sm text-surface-500">This will be stored as JSON for flexible data storage.</p>
+            class="w-full"
+          />
+          <p class="mt-1 text-sm text-surface-500">
+            This will be stored as JSON for flexible data storage.
+          </p>
         </div>
       </div>
 
       <!-- Budget Item Integration -->
       <div class="border-t border-surface-200 pt-6">
-        <h4 class="text-md font-medium mb-4">Budget Integration</h4>
-        
+        <h4 class="text-md font-medium mb-4">
+          Budget Integration
+        </h4>
+
         <div v-if="!form.budget_item_id && !createBudgetItem">
           <p class="text-sm text-surface-600 mb-4">
             Link this investment to a budget item to track payments and income.
           </p>
-          
+
           <div class="space-y-4">
             <!-- Link to Existing Budget Item -->
             <div v-if="availableBudgetItems.length > 0">
@@ -527,17 +613,23 @@ watch(selectedBudgetItemId, (newId) => {
               <Select
                 v-model="selectedBudgetItemId"
                 :options="budgetItemOptions"
-                optionLabel="label"
-                optionValue="value"
+                option-label="label"
+                option-value="value"
                 placeholder="Select budget item"
-                class="w-full" />
-              <p class="mt-1 text-xs text-surface-500">Available investment-type budget items</p>
+                class="w-full"
+              />
+              <p class="mt-1 text-xs text-surface-500">
+                Available investment-type budget items
+              </p>
             </div>
 
             <!-- Divider -->
-            <div v-if="availableBudgetItems.length > 0" class="relative">
+            <div
+              v-if="availableBudgetItems.length > 0"
+              class="relative"
+            >
               <div class="absolute inset-0 flex items-center">
-                <div class="w-full border-t border-surface-300"></div>
+                <div class="w-full border-t border-surface-300" />
               </div>
               <div class="relative flex justify-center text-sm">
                 <span class="px-2 bg-white text-surface-500">or</span>
@@ -547,110 +639,165 @@ watch(selectedBudgetItemId, (newId) => {
             <!-- Create New Budget Item Button -->
             <Button
               type="button"
-              @click="createBudgetItem = true"
               icon="pi pi-plus"
               label="Create New Budget Item"
               outlined
-              class="w-full" />
+              class="w-full"
+              @click="createBudgetItem = true"
+            />
 
             <!-- Skip Option -->
             <div class="text-center">
               <Button
                 type="button"
-                @click="skipBudgetItem = true"
                 label="Skip for now"
                 text
-                class="text-sm" />
+                class="text-sm"
+                @click="skipBudgetItem = true"
+              />
             </div>
           </div>
         </div>
 
         <!-- Linked Budget Item Display -->
-        <div v-else-if="form.budget_item_id && !createBudgetItem" class="bg-blue-50 border border-blue-200 rounded-md p-4">
+        <div
+          v-else-if="form.budget_item_id && !createBudgetItem"
+          class="bg-blue-50 border border-blue-200 rounded-md p-4"
+        >
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-blue-800">Linked to Budget Item</p>
-              <p class="text-sm text-blue-600">{{ linkedBudgetItem?.name }}</p>
-              <p class="text-xs text-blue-500">{{ linkedBudgetItem?.category }}</p>
+              <p class="text-sm font-medium text-blue-800">
+                Linked to Budget Item
+              </p>
+              <p class="text-sm text-blue-600">
+                {{ linkedBudgetItem?.name }}
+              </p>
+              <p class="text-xs text-blue-500">
+                {{ linkedBudgetItem?.category }}
+              </p>
             </div>
             <Button
               type="button"
-              @click="unlinkBudgetItem"
               label="Unlink"
               text
-              severity="secondary" />
+              severity="secondary"
+              @click="unlinkBudgetItem"
+            />
           </div>
         </div>
 
         <!-- Skip Confirmation -->
-        <div v-else-if="skipBudgetItem" class="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+        <div
+          v-else-if="skipBudgetItem"
+          class="bg-yellow-50 border border-yellow-200 rounded-md p-4"
+        >
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-sm font-medium text-yellow-800">No Budget Item Linked</p>
-              <p class="text-sm text-yellow-600">You can link a budget item later from the investment details.</p>
+              <p class="text-sm font-medium text-yellow-800">
+                No Budget Item Linked
+              </p>
+              <p class="text-sm text-yellow-600">
+                You can link a budget item later from the investment details.
+              </p>
             </div>
             <Button
               type="button"
-              @click="skipBudgetItem = false"
               label="Change"
               text
-              severity="secondary" />
+              severity="secondary"
+              @click="skipBudgetItem = false"
+            />
           </div>
         </div>
       </div>
 
       <!-- Create Budget Item Form -->
-      <div v-if="createBudgetItem" class="border-t border-surface-200 pt-6">
+      <div
+        v-if="createBudgetItem"
+        class="border-t border-surface-200 pt-6"
+      >
         <div class="flex items-center justify-between mb-4">
-          <h4 class="text-md font-medium">Create Budget Item</h4>
+          <h4 class="text-md font-medium">
+            Create Budget Item
+          </h4>
           <Button
             type="button"
-            @click="createBudgetItem = false"
             icon="pi pi-times"
             text
-            severity="secondary" />
+            severity="secondary"
+            @click="createBudgetItem = false"
+          />
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label for="budget_name" class="block text-sm font-medium">
+            <label
+              for="budget_name"
+              class="block text-sm font-medium"
+            >
               Budget Item Name *
-              <span v-if="budgetItemErrors.name" class="text-red-500 ml-1">*</span>
+              <span
+                v-if="budgetItemErrors.name"
+                class="text-red-500 ml-1"
+              >*</span>
             </label>
             <InputText
               id="budget_name"
               v-model="budgetItemForm.name"
               :class="{ 'p-invalid': budgetItemErrors.name }"
               placeholder="e.g., Apartment Payment"
+              class="w-full"
               @blur="validateBudgetItemField('name')"
-              class="w-full" />
-            <small v-if="budgetItemErrors.name" class="p-error">{{ budgetItemErrors.name }}</small>
+            />
+            <small
+              v-if="budgetItemErrors.name"
+              class="p-error"
+            >{{ budgetItemErrors.name }}</small>
           </div>
 
           <div>
-            <label for="budget_category" class="block text-sm font-medium">
+            <label
+              for="budget_category"
+              class="block text-sm font-medium"
+            >
               Category *
-              <span v-if="budgetItemErrors.category" class="text-red-500 ml-1">*</span>
+              <span
+                v-if="budgetItemErrors.category"
+                class="text-red-500 ml-1"
+              >*</span>
             </label>
             <Select
               id="budget_category"
               v-model="budgetItemForm.category"
               :options="budgetCategoryOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select category"
               :class="{ 'p-invalid': budgetItemErrors.category }"
+              class="w-full"
               @change="validateBudgetItemField('category')"
-              class="w-full" />
-            <small v-if="budgetItemErrors.category" class="p-error">{{ budgetItemErrors.category }}</small>
+            />
+            <small
+              v-if="budgetItemErrors.category"
+              class="p-error"
+            >{{ budgetItemErrors.category }}</small>
           </div>
         </div>
 
         <!-- Budget Item Preview -->
-        <div v-if="budgetItemForm.name && budgetItemForm.category" class="mt-4 p-3 bg-surface-50 rounded-md">
-          <p class="text-sm text-surface-600">This will create a budget item:</p>
-          <p class="text-sm font-medium">{{ budgetItemForm.name }}</p>
-          <p class="text-xs text-surface-500">{{ budgetItemForm.category }} • Investment • Outgoing</p>
+        <div
+          v-if="budgetItemForm.name && budgetItemForm.category"
+          class="mt-4 p-3 bg-surface-50 rounded-md"
+        >
+          <p class="text-sm text-surface-600">
+            This will create a budget item:
+          </p>
+          <p class="text-sm font-medium">
+            {{ budgetItemForm.name }}
+          </p>
+          <p class="text-xs text-surface-500">
+            {{ budgetItemForm.category }} • Investment • Outgoing
+          </p>
         </div>
       </div>
     </form>
@@ -658,7 +805,10 @@ watch(selectedBudgetItemId, (newId) => {
     <template #footer>
       <div class="flex justify-between items-center">
         <div class="text-sm text-surface-500">
-          <span v-if="Object.keys(errors).length > 0 || Object.keys(budgetItemErrors).length > 0" class="text-red-500">
+          <span
+            v-if="Object.keys(errors).length > 0 || Object.keys(budgetItemErrors).length > 0"
+            class="text-red-500"
+          >
             Please fix the errors above
           </span>
           <span v-else>
@@ -668,20 +818,22 @@ watch(selectedBudgetItemId, (newId) => {
         <div class="flex gap-3">
           <Button
             type="button"
-            @click="$emit('close')"
             label="Cancel"
             outlined
-            severity="secondary" />
+            severity="secondary"
+            @click="$emit('close')"
+          />
           <Button
             type="submit"
-            @click="handleSubmit"
             :disabled="loading || Object.keys(errors).length > 0 || Object.keys(budgetItemErrors).length > 0"
             :loading="loading"
             icon="pi pi-check"
             :label="asset ? 'Update' : 'Create' + ' Investment'"
-            severity="primary" />
+            severity="primary"
+            @click="handleSubmit"
+          />
         </div>
       </div>
     </template>
   </BaseModal>
-</template> 
+</template>

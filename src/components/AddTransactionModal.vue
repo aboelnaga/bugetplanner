@@ -6,8 +6,8 @@ import { useAccountsStore } from '@/stores/accounts.js'
 import { useTransactionModals } from '@/composables/useTransactionModals.js'
 import { useToast } from 'primevue/usetoast'
 import { useConfirm } from 'primevue/useconfirm'
-import { 
-  TRANSACTION_TYPE_LABELS, 
+import {
+  TRANSACTION_TYPE_LABELS,
   TRANSACTION_TYPE_ICONS,
   INVESTMENT_DIRECTIONS,
   INVESTMENT_DIRECTION_LABELS,
@@ -82,18 +82,18 @@ const {
 } = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast, confirm)
 
 // Computed options for form fields
-const typeOptions = computed(() => 
+const typeOptions = computed(() =>
   Object.entries(TRANSACTION_TYPE_LABELS).map(([value, label]) => ({
     value,
     label: `${TRANSACTION_TYPE_ICONS[value]} ${label}`
   }))
 )
 
-const categoryOptions = computed(() => 
+const categoryOptions = computed(() =>
   getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
 )
 
-const investmentDirectionOptions = computed(() => 
+const investmentDirectionOptions = computed(() =>
   Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
 )
 
@@ -171,7 +171,7 @@ watch(() => props.modelValue, (isOpen) => {
     } else {
       // Initialize form for new transaction
       initializeFormData()
-      
+
       // Pre-fill form if budget item is provided (for new transactions from budget items)
       if (props.budgetItem && !props.budgetItem.account_id) {
         formData.value.budget_item_id = props.budgetItem.id
@@ -181,7 +181,7 @@ watch(() => props.modelValue, (isOpen) => {
         formData.value.description = props.budgetItem.name
         formData.value.date = new Date().toISOString().split('T')[0] // Today's date
       }
-      
+
       // Set account based on priority: selectedAccount > defaultAccount
       if (!formData.value.account_id) {
         if (props.selectedAccount) {
@@ -196,21 +196,24 @@ watch(() => props.modelValue, (isOpen) => {
 </script>
 
 <template>
-  <BaseModal 
-    :modelValue="modelValue" 
+  <BaseModal
+    :model-value="modelValue"
     :loading="isLoading"
-    @update:modelValue="$emit('update:modelValue', $event)"
-    :title="isEditMode ? 'Edit Transaction' : 'Add Transaction'">
-    
+    :title="isEditMode ? 'Edit Transaction' : 'Add Transaction'"
+    @update:model-value="$emit('update:modelValue', $event)"
+  >
     <!-- Content -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form
+      class="space-y-6"
+      @submit.prevent="handleSubmit"
+    >
       <!-- Basic Information Section -->
       <div class="space-y-4">
         <h4 class="text-lg font-semibold flex items-center gap-2">
-          <i class="pi pi-info-circle text-primary"></i>
+          <i class="pi pi-info-circle text-primary" />
           Transaction Details
         </h4>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Description -->
           <div class="md:col-span-2">
@@ -218,27 +221,29 @@ watch(() => props.modelValue, (isOpen) => {
               <span class="text-red-500">*</span> Description
             </label>
             <InputText
-              v-model="formData.description" 
-              required 
+              v-model="formData.description"
+              required
               placeholder="e.g., Grocery shopping, Salary payment"
-              class="w-full" />
+              class="w-full"
+            />
           </div>
-          
+
           <!-- Transaction Type -->
           <div>
             <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Transaction Type
             </label>
             <Select
-              v-model="formData.type" 
+              v-model="formData.type"
               :options="typeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select transaction type"
+              class="w-full"
               @change="updateCategoryOnTypeChange"
-              class="w-full" />
+            />
           </div>
-          
+
           <!-- Category -->
           <div>
             <label class="block text-sm font-medium mb-2">
@@ -247,12 +252,13 @@ watch(() => props.modelValue, (isOpen) => {
             <Select
               v-model="formData.category"
               :options="categoryOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select category"
-              class="w-full" />
+              class="w-full"
+            />
           </div>
-          
+
           <!-- Investment Direction (only for investment type) -->
           <div v-if="formData.type === 'investment'">
             <label class="block text-sm font-medium mb-2">
@@ -261,10 +267,11 @@ watch(() => props.modelValue, (isOpen) => {
             <Select
               v-model="formData.investment_direction"
               :options="investmentDirectionOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select direction"
-              class="w-full" />
+              class="w-full"
+            />
           </div>
         </div>
       </div>
@@ -272,10 +279,10 @@ watch(() => props.modelValue, (isOpen) => {
       <!-- Financial Details Section -->
       <div class="space-y-4">
         <h4 class="text-lg font-semibold flex items-center gap-2">
-          <i class="pi pi-dollar text-green-600"></i>
+          <i class="pi pi-dollar text-green-600" />
           Financial Details
         </h4>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Amount -->
           <div>
@@ -296,27 +303,28 @@ watch(() => props.modelValue, (isOpen) => {
               Maximum: {{ DATABASE_LIMITS.MAX_AMOUNT_FORMATTED }}
             </p>
           </div>
-          
+
           <!-- Date -->
           <div>
             <label class="block text-sm font-medium mb-2">
               <span class="text-red-500">*</span> Date
             </label>
             <DatePicker
-              v-model="formData.date" 
-              required 
-              dateFormat="yy-mm-dd"
-              class="w-full" />
+              v-model="formData.date"
+              required
+              date-format="yy-mm-dd"
+              class="w-full"
+            />
           </div>
         </div>
 
         <!-- Tax Tracking (optional) -->
         <div class="space-y-4 pt-4 border-t border-surface-200">
           <h5 class="text-md font-medium flex items-center gap-2">
-            <i class="pi pi-calculator text-purple-600"></i>
+            <i class="pi pi-calculator text-purple-600" />
             Tax Information (Optional)
           </h5>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Gross Amount -->
             <div>
@@ -331,7 +339,7 @@ watch(() => props.modelValue, (isOpen) => {
                 class="w-full"
               />
             </div>
-            
+
             <!-- Tax Amount -->
             <div>
               <label class="block text-sm font-medium mb-2">
@@ -345,7 +353,7 @@ watch(() => props.modelValue, (isOpen) => {
                 class="w-full"
               />
             </div>
-            
+
             <!-- Net Amount -->
             <div>
               <label class="block text-sm font-medium mb-2">
@@ -360,8 +368,11 @@ watch(() => props.modelValue, (isOpen) => {
               />
             </div>
           </div>
-          
-          <Message severity="info" icon="pi pi-lightbulb">
+
+          <Message
+            severity="info"
+            icon="pi pi-lightbulb"
+          >
             Fill any two fields and the third will be calculated automatically
           </Message>
         </div>
@@ -370,10 +381,10 @@ watch(() => props.modelValue, (isOpen) => {
       <!-- Linking Section -->
       <div class="space-y-4">
         <h4 class="text-lg font-semibold flex items-center gap-2">
-          <i class="pi pi-link text-indigo-600"></i>
+          <i class="pi pi-link text-indigo-600" />
           Linking & Organization
         </h4>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Budget Item Link -->
           <div>
@@ -383,12 +394,13 @@ watch(() => props.modelValue, (isOpen) => {
             <Select
               v-model="formData.budget_item_id"
               :options="budgetItemOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="No budget item linked"
-              class="w-full" />
+              class="w-full"
+            />
           </div>
-          
+
           <!-- Account -->
           <div>
             <label class="block text-sm font-medium mb-2">
@@ -397,11 +409,12 @@ watch(() => props.modelValue, (isOpen) => {
             <Select
               v-model="formData.account_id"
               :options="accountOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="Select an account"
               required
-              class="w-full" />
+              class="w-full"
+            />
           </div>
         </div>
       </div>
@@ -409,10 +422,10 @@ watch(() => props.modelValue, (isOpen) => {
       <!-- Additional Information Section -->
       <div class="space-y-4">
         <h4 class="text-lg font-semibold flex items-center gap-2">
-          <i class="pi pi-tag text-orange-600"></i>
+          <i class="pi pi-tag text-orange-600" />
           Additional Information
         </h4>
-        
+
         <div class="space-y-4">
           <!-- Tags -->
           <div>
@@ -420,61 +433,69 @@ watch(() => props.modelValue, (isOpen) => {
               Tags
             </label>
             <InputText
-              v-model="tagInput" 
-              @keydown.enter.prevent="addTag"
+              v-model="tagInput"
               placeholder="Type a tag and press Enter"
-              class="w-full" />
-            
+              class="w-full"
+              @keydown.enter.prevent="addTag"
+            />
+
             <!-- Display tags -->
-            <div v-if="formData.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
-              <Tag 
-                v-for="(tag, index) in formData.tags" 
+            <div
+              v-if="formData.tags.length > 0"
+              class="flex flex-wrap gap-2 mt-2"
+            >
+              <Tag
+                v-for="(tag, index) in formData.tags"
                 :key="index"
                 :value="tag"
                 severity="info"
                 class="cursor-pointer"
-                @click="removeTag(index)">
+                @click="removeTag(index)"
+              >
                 <template #icon>
-                  <i class="pi pi-times text-xs"></i>
+                  <i class="pi pi-times text-xs" />
                 </template>
               </Tag>
             </div>
           </div>
-          
+
           <!-- Notes -->
           <div>
             <label class="block text-sm font-medium mb-2">
               Notes
             </label>
             <Textarea
-              v-model="formData.notes" 
+              v-model="formData.notes"
               rows="3"
               placeholder="Additional notes about this transaction..."
-              class="w-full" />
+              class="w-full"
+            />
           </div>
         </div>
       </div>
     </form>
-    
+
     <!-- Footer -->
     <template #footer>
       <div class="flex justify-end gap-3 w-full">
         <Button
-          type="button" 
-          @click="closeModal" 
-          :disabled="isLoading" 
+          type="button"
+          :disabled="isLoading"
           label="Cancel"
           outlined
-          severity="secondary" />
+          severity="secondary"
+          @click="closeModal"
+        />
         <Button
-          type="submit" 
-          @click="handleSubmit"
-          :disabled="isLoading" 
+          type="submit"
+          :disabled="isLoading"
           :loading="isLoading"
           icon="pi pi-check"
           :label="isEditMode ? 'Update Transaction' : 'Add Transaction'"
-          severity="primary" />
+          severity="primary"
+          @click="handleSubmit"
+        />
       </div>
     </template>
   </BaseModal>
-</template> 
+</template>

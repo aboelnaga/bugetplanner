@@ -1,4 +1,4 @@
-import { computed, onMounted, reactive } from 'vue';
+import { computed, onMounted, reactive } from 'vue'
 
 const layoutConfig = reactive({
   preset: 'Aura',
@@ -6,7 +6,7 @@ const layoutConfig = reactive({
   surface: null,
   darkTheme: false,
   menuMode: 'static'
-});
+})
 
 const layoutState = reactive({
   staticMenuDesktopInactive: false,
@@ -17,62 +17,62 @@ const layoutState = reactive({
   menuHoverActive: false,
   activeMenuItem: null,
   sidebarCollapsed: false
-});
+})
 
-export function useLayout() {
+export function useLayout () {
   // Load sidebar collapsed state from localStorage on mount
   onMounted(() => {
-    const savedCollapsedState = localStorage.getItem('sidebar-collapsed');
+    const savedCollapsedState = localStorage.getItem('sidebar-collapsed')
     if (savedCollapsedState !== null) {
-      layoutState.sidebarCollapsed = JSON.parse(savedCollapsedState);
+      layoutState.sidebarCollapsed = JSON.parse(savedCollapsedState)
     }
-  });
+  })
 
   const setActiveMenuItem = (item) => {
-    layoutState.activeMenuItem = item.value || item;
-  };
+    layoutState.activeMenuItem = item.value || item
+  }
 
   const toggleDarkMode = () => {
     if (!document.startViewTransition) {
-      executeDarkModeToggle();
+      executeDarkModeToggle()
 
-      return;
+      return
     }
 
-    document.startViewTransition(() => executeDarkModeToggle(event));
-  };
+    document.startViewTransition(() => executeDarkModeToggle(event))
+  }
 
   const executeDarkModeToggle = () => {
-    layoutConfig.darkTheme = !layoutConfig.darkTheme;
-    document.documentElement.classList.toggle('app-dark');
-  };
+    layoutConfig.darkTheme = !layoutConfig.darkTheme
+    document.documentElement.classList.toggle('app-dark')
+  }
 
   const toggleMenu = () => {
     if (layoutConfig.menuMode === 'overlay') {
-      layoutState.overlayMenuActive = !layoutState.overlayMenuActive;
+      layoutState.overlayMenuActive = !layoutState.overlayMenuActive
     }
 
     if (window.innerWidth > 991) {
       // For desktop, toggle between expanded and collapsed (not hidden)
-      layoutState.sidebarCollapsed = !layoutState.sidebarCollapsed;
-      layoutState.staticMenuDesktopInactive = false; // Keep sidebar visible
+      layoutState.sidebarCollapsed = !layoutState.sidebarCollapsed
+      layoutState.staticMenuDesktopInactive = false // Keep sidebar visible
 
       // Save the collapsed state to localStorage
-      localStorage.setItem('sidebar-collapsed', JSON.stringify(layoutState.sidebarCollapsed));
+      localStorage.setItem('sidebar-collapsed', JSON.stringify(layoutState.sidebarCollapsed))
     } else {
-      layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive;
+      layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive
     }
-  };
+  }
 
-  const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive);
+  const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive)
 
-  const isSidebarCollapsed = computed(() => layoutState.sidebarCollapsed);
+  const isSidebarCollapsed = computed(() => layoutState.sidebarCollapsed)
 
-  const isDarkTheme = computed(() => layoutConfig.darkTheme);
+  const isDarkTheme = computed(() => layoutConfig.darkTheme)
 
-  const getPrimary = computed(() => layoutConfig.primary);
+  const getPrimary = computed(() => layoutConfig.primary)
 
-  const getSurface = computed(() => layoutConfig.surface);
+  const getSurface = computed(() => layoutConfig.surface)
 
   return {
     layoutConfig,
@@ -85,5 +85,5 @@ export function useLayout() {
     getSurface,
     setActiveMenuItem,
     toggleDarkMode
-  };
+  }
 }

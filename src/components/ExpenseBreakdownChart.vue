@@ -4,7 +4,7 @@ import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
-  Legend,
+  Legend
 } from 'chart.js'
 import { Doughnut } from 'vue-chartjs'
 
@@ -21,7 +21,7 @@ const chartData = computed(() => {
   const expenseCategories = []
   const expenseValues = []
   const colors = [
-    '#3b82f6', '#ef4444', '#22c55e', '#f59e0b', 
+    '#3b82f6', '#ef4444', '#22c55e', '#f59e0b',
     '#8b5cf6', '#ec4899', '#10b981', '#f97316',
     '#6366f1', '#84cc16', '#06b6d4', '#e11d48'
   ]
@@ -84,18 +84,18 @@ const chartOptions = {
     },
     tooltip: {
       callbacks: {
-        label: function(context) {
+        label (context) {
           const label = context.label || ''
           const value = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'EGP',
             minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            maximumFractionDigits: 0
           }).format(context.parsed)
-          
+
           const total = context.dataset.data.reduce((sum, val) => sum + val, 0)
           const percentage = ((context.parsed / total) * 100).toFixed(1)
-          
+
           return `${label}: ${value} (${percentage}%)`
         }
       }
@@ -113,4 +113,4 @@ const chartOptions = {
       :options="chartOptions"
     />
   </div>
-</template> 
+</template>

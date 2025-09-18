@@ -1,6 +1,6 @@
 import { ref, nextTick } from 'vue'
 
-export function useSmartRefresh() {
+export function useSmartRefresh () {
   const isRefreshing = ref(false)
   const refreshProgress = ref(0)
   const lastScrollPosition = ref(0)
@@ -116,7 +116,7 @@ export function useSmartRefresh() {
       return result
     } catch (error) {
       console.error('Optimistic update error:', error)
-      
+
       // Attempt rollback
       if (rollbackFunction) {
         try {
@@ -149,7 +149,7 @@ export function useSmartRefresh() {
 
     return async (refreshFunction, options = {}) => {
       const now = Date.now()
-      
+
       // Clear existing timeout
       if (timeoutId) {
         clearTimeout(timeoutId)
@@ -158,7 +158,7 @@ export function useSmartRefresh() {
       // Check if we need to wait
       if (now - lastRefreshTime < minRefreshInterval) {
         const waitTime = minRefreshInterval - (now - lastRefreshTime)
-        
+
         return new Promise((resolve, reject) => {
           timeoutId = setTimeout(async () => {
             try {
@@ -187,4 +187,4 @@ export function useSmartRefresh() {
     saveViewState,
     restoreViewState
   }
-} 
+}

@@ -5,7 +5,7 @@ import { useAuthStore } from './auth.js'
 
 export const useTransactionStore = defineStore('transactions', () => {
   const authStore = useAuthStore()
-  
+
   // State
   const transactions = ref([])
   const transactionStats = ref({
@@ -20,7 +20,7 @@ export const useTransactionStore = defineStore('transactions', () => {
   const error = ref(null)
   const selectedYear = ref(new Date().getFullYear())
   const selectedMonth = ref(null) // null means all months
-  
+
   // Separate loading states for different operations
   const addLoading = ref(false)
   const editLoading = ref(false)
@@ -37,15 +37,15 @@ export const useTransactionStore = defineStore('transactions', () => {
       transactions.value = []
       return
     }
-    
+
     try {
       loading.value = true
       error.value = null
-      
+
       console.log('Store: Fetching transactions for user:', authStore.userId, 'year:', year, 'month:', month)
       const data = await transactionAPI.getTransactions(authStore.userId, year, month)
       console.log('Store: Fetched transactions:', data)
-      
+
       transactions.value = data || []
     } catch (err) {
       error.value = err.message
@@ -69,15 +69,15 @@ export const useTransactionStore = defineStore('transactions', () => {
       }
       return
     }
-    
+
     try {
       statsLoading.value = true
       error.value = null
-      
+
       console.log('Store: Fetching transaction stats for user:', authStore.userId, 'year:', year, 'month:', month)
       const data = await transactionAPI.getTransactionStats(authStore.userId, year, month)
       console.log('Store: Fetched transaction stats:', data)
-      
+
       transactionStats.value = data
     } catch (err) {
       error.value = err.message
@@ -98,11 +98,11 @@ export const useTransactionStore = defineStore('transactions', () => {
   // Add new transaction
   const addTransaction = async (transactionData) => {
     if (!authStore.isAuthenticated || !authStore.userId) return null
-    
+
     try {
       addLoading.value = true
       error.value = null
-      
+
       // Prepare transaction data
       const transaction = {
         ...transactionData,
@@ -110,22 +110,22 @@ export const useTransactionStore = defineStore('transactions', () => {
         year: new Date(transactionData.date).getFullYear(),
         month: new Date(transactionData.date).getMonth()
       }
-      
+
       console.log('Store: Creating transaction with data:', transaction)
       const data = await transactionAPI.createTransaction(transaction)
       console.log('Store: API returned data:', data)
-      
+
       // Add to local state immediately
       transactions.value.unshift(data)
-      
+
       // Update budget item actual amounts if linked
       if (data.budget_item_id) {
         await updateBudgetItemActuals(data.budget_item_id, data.amount, 'add', data.date)
       }
-      
+
       // Refresh stats
       await fetchTransactionStats()
-      
+
       return data
     } catch (err) {
       error.value = err.message
@@ -139,29 +139,29 @@ export const useTransactionStore = defineStore('transactions', () => {
   // Update transaction
   const updateTransaction = async (id, updates) => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
-    
+
     try {
       editLoading.value = true
       error.value = null
-      
+
       // Get the original transaction to calculate the difference
       const originalTransaction = transactions.value.find(t => t.id === id)
       if (!originalTransaction) return false
-      
+
       // Update year and month if date changed
       if (updates.date) {
         updates.year = new Date(updates.date).getFullYear()
         updates.month = new Date(updates.date).getMonth()
       }
-      
+
       const data = await transactionAPI.updateTransaction(id, updates)
-      
+
       // Update local state immediately
       const index = transactions.value.findIndex(item => item.id === id)
       if (index !== -1) {
         transactions.value[index] = { ...transactions.value[index], ...data }
       }
-      
+
       // Update budget item actual amounts if linked
       if (data.budget_item_id) {
         // Remove old amount from old month
@@ -180,10 +180,10 @@ export const useTransactionStore = defineStore('transactions', () => {
         // Transaction unlinked from budget item
         await updateBudgetItemActuals(originalTransaction.budget_item_id, originalTransaction.amount, 'delete', originalTransaction.date)
       }
-      
+
       // Refresh stats
       await fetchTransactionStats()
-      
+
       return true
     } catch (err) {
       error.value = err.message
@@ -197,27 +197,27 @@ export const useTransactionStore = defineStore('transactions', () => {
   // Delete transaction
   const deleteTransaction = async (id) => {
     if (!authStore.isAuthenticated || !authStore.userId) return false
-    
+
     try {
       deleteLoading.value = true
       error.value = null
-      
+
       // Get the transaction before deleting to update budget actuals
       const transaction = transactions.value.find(t => t.id === id)
-      
+
       await transactionAPI.deleteTransaction(id)
-      
+
       // Remove from local state immediately
       transactions.value = transactions.value.filter(item => item.id !== id)
-      
+
       // Update budget item actual amounts if linked
       if (transaction && transaction.budget_item_id) {
         await updateBudgetItemActuals(transaction.budget_item_id, transaction.amount, 'delete', transaction.date)
       }
-      
+
       // Refresh stats
       await fetchTransactionStats()
-      
+
       return true
     } catch (err) {
       error.value = err.message
@@ -231,7 +231,7 @@ export const useTransactionStore = defineStore('transactions', () => {
   // Get transactions by budget item
   const getTransactionsByBudgetItem = async (budgetItemId, year = null) => {
     if (!authStore.isAuthenticated || !authStore.userId) return []
-    
+
     try {
       const data = await transactionAPI.getTransactionsByBudgetItem(authStore.userId, budgetItemId, year)
       return data || []
@@ -345,17 +345,17 @@ export const useTransactionStore = defineStore('transactions', () => {
     error,
     selectedYear,
     selectedMonth,
-    
+
     // Loading states
     addLoading,
     editLoading,
     deleteLoading,
     statsLoading,
-    
+
     // Computed
     currentYear,
     currentMonth,
-    
+
     // Actions
     fetchTransactions,
     fetchTransactionStats,
@@ -370,4 +370,4 @@ export const useTransactionStore = defineStore('transactions', () => {
     initialize,
     watchAuth
   }
-}) 
+})

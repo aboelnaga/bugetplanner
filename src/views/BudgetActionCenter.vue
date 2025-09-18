@@ -1,11 +1,11 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useBudgetStore } from '../stores/budget'
-import { useTransactionStore } from '../stores/transactions'
-import { useAuthStore } from '../stores/auth'
 import { useToast } from 'primevue/usetoast'
+import { computed, onMounted, ref, watch } from 'vue'
 import AddTransactionModal from '../components/AddTransactionModal.vue'
 import BaseModal from '../components/BaseModal.vue'
+import { useAuthStore } from '../stores/auth'
+import { useBudgetStore } from '../stores/budget'
+import { useTransactionStore } from '../stores/transactions'
 import { formatCurrency, formatDate } from '../utils/budgetUtils'
 // PrimeVue components via auto-import: Button, Dropdown, Tag, SelectButton, DataTable, Column, ProgressBar, Panel, DatePicker
 
@@ -350,7 +350,7 @@ const getDueDateColor = (item) => {
 }
 
 const getDueDateTooltip = (item) => {
-  return formatDate(calculateDueDate(item));
+  return formatDate(calculateDueDate(item))
 }
 
 const calculateDueDate = (item) => {
@@ -489,9 +489,14 @@ watch(selectedDate, async (newDate, oldDate) => {
 
 <template>
   <!-- Auto-Close Loading Indicator -->
-  <div v-if="budgetStore.isAutoClosing" class="fixed top-0 left-0 right-0 z-50">
-    <div class="bg-amber-500 h-1 transition-all duration-300" :style="{ width: budgetStore.autoCloseProgress + '%' }">
-    </div>
+  <div
+    v-if="budgetStore.isAutoClosing"
+    class="fixed top-0 left-0 right-0 z-50"
+  >
+    <div
+      class="bg-amber-500 h-1 transition-all duration-300"
+      :style="{ width: budgetStore.autoCloseProgress + '%' }"
+    />
   </div>
 
   <!-- Month Navigation -->
@@ -501,26 +506,62 @@ watch(selectedDate, async (newDate, oldDate) => {
         <!-- Month Navigation Controls -->
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="flex items-center gap-2">
-            <Button icon="pi pi-chevron-left" rounded text :disabled="isLoading" @click="previousMonth" />
+            <Button
+              icon="pi pi-chevron-left"
+              rounded
+              text
+              :disabled="isLoading"
+              @click="previousMonth"
+            />
 
-            <DatePicker v-model="selectedDate" view="month" dateFormat="MM yy" :disabled="isLoading" showIcon
-                        iconDisplay="input" :manualInput="false" inputClass="text-center w-32 sm:w-40" />
+            <DatePicker
+              v-model="selectedDate"
+              view="month"
+              date-format="MM yy"
+              :disabled="isLoading"
+              show-icon
+              icon-display="input"
+              :manual-input="false"
+              input-class="text-center w-32 sm:w-40"
+            />
 
-            <Button icon="pi pi-chevron-right" rounded text :disabled="isLoading" @click="nextMonth" />
+            <Button
+              icon="pi pi-chevron-right"
+              rounded
+              text
+              :disabled="isLoading"
+              @click="nextMonth"
+            />
           </div>
         </div>
 
         <!-- Month Actions -->
         <div class="flex flex-col sm:flex-row items-center gap-2">
           <!-- Month Closure Status -->
-          <Tag v-if="isMonthClosed" value="Month Closed" severity="success" />
+          <Tag
+            v-if="isMonthClosed"
+            value="Month Closed"
+            severity="success"
+          />
 
           <!-- Close Month Button -->
-          <Button v-else-if="canCloseMonth" label="Close Month" icon="pi pi-step-forward" severity="info" outlined
-                  :disabled="isLoading" @click="handleCloseMonth" />
+          <Button
+            v-else-if="canCloseMonth"
+            label="Close Month"
+            icon="pi pi-step-forward"
+            severity="info"
+            outlined
+            :disabled="isLoading"
+            @click="handleCloseMonth"
+          />
 
-          <Button v-if="!isCurrentMonthSelected" label="Current Month" link :disabled="isLoading"
-                  @click="goToCurrentMonth" />
+          <Button
+            v-if="!isCurrentMonthSelected"
+            label="Current Month"
+            link
+            :disabled="isLoading"
+            @click="goToCurrentMonth"
+          />
         </div>
       </div>
     </template>
@@ -530,43 +571,69 @@ watch(selectedDate, async (newDate, oldDate) => {
   <Card>
     <template #content>
       <!-- Loading State -->
-      <div v-if="isLoading" class="flex items-center justify-center py-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <div
+        v-if="isLoading"
+        class="flex items-center justify-center py-12"
+      >
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
         <span class="ml-3 text-gray-600">Loading budget items...</span>
       </div>
 
       <!-- Content -->
       <div v-else>
-        <div v-if="budgetItems.length === 0" class="px-6 py-12 text-center">
-          <i class="pi pi-box text-6xl text-gray-400 mb-4"></i>
-          <h3 class="mt-2 text-sm font-medium text-gray-900">No budget items found</h3>
+        <div
+          v-if="budgetItems.length === 0"
+          class="px-6 py-12 text-center"
+        >
+          <i class="pi pi-box text-6xl text-gray-400 mb-4" />
+          <h3 class="mt-2 text-sm font-medium text-gray-900">
+            No budget items found
+          </h3>
           <p class="mt-1 text-sm text-gray-500">
             {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
           </p>
         </div>
 
         <!-- Grid View (Mobile) -->
-        <div v-if="budgetItems.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 relative">
+        <div
+          v-if="budgetItems.length > 0"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:hidden gap-4 relative"
+        >
           <!-- Loading Overlay for Grid -->
-          <div v-if="isLoading"
-               class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-10 flex items-center justify-center rounded-lg">
+          <div
+            v-if="isLoading"
+            class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-10 flex items-center justify-center rounded-lg"
+          >
             <div class="flex flex-col items-center gap-2">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
               <span class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
             </div>
           </div>
 
-          <Panel v-for="item in budgetItems" :key="item.id" class="hover:shadow-lg transition-shadow duration-200">
+          <Panel
+            v-for="item in budgetItems"
+            :key="item.id"
+            class="hover:shadow-lg transition-shadow duration-200"
+          >
             <template #header>
               <div class="flex items-center gap-2">
-                <div :class="getStatusColor(item).bg" class="w-2 h-2 rounded-full flex-shrink-0"></div>
+                <div
+                  :class="getStatusColor(item).bg"
+                  class="w-2 h-2 rounded-full flex-shrink-0"
+                />
                 <span class="font-medium truncate">{{ item.name }}</span>
               </div>
             </template>
             <!-- Type and Status Tags -->
             <div class="flex items-center gap-2 mb-3">
-              <Tag :value="item.type" :severity="getTypeSeverity(item)" />
-              <Tag :value="getStatusLabel(getItemStatus(item))" :severity="getStatusSeverity(getItemStatus(item))" />
+              <Tag
+                :value="item.type"
+                :severity="getTypeSeverity(item)"
+              />
+              <Tag
+                :value="getStatusLabel(getItemStatus(item))"
+                :severity="getStatusSeverity(getItemStatus(item))"
+              />
             </div>
 
             <!-- Amount and Progress -->
@@ -574,32 +641,48 @@ watch(selectedDate, async (newDate, oldDate) => {
               <div class="text-lg font-bold mb-2">
                 {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
-              <div v-if="getActualAmount(item) > 0" class="text-xs mb-3">
+              <div
+                v-if="getActualAmount(item) > 0"
+                class="text-xs mb-3"
+              >
                 {{ formatCurrency(getActualAmount(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
               <!-- Progress Bar -->
-              <div v-if="item.transactions && item.transactions.length > 0" class="mb-3">
-                <ProgressBar :value="getProgressPercentage(item)" :class="getProgressBarColor(item).replace('bg-', '')"
-                             class="h-1.5" :showValue="false" />
+              <div
+                v-if="item.transactions && item.transactions.length > 0"
+                class="mb-3"
+              >
+                <ProgressBar
+                  :value="getProgressPercentage(item)"
+                  :class="getProgressBarColor(item).replace('bg-', '')"
+                  class="h-1.5"
+                  :show-value="false"
+                />
               </div>
             </div>
 
             <!-- Details -->
             <div class="space-y-2 mb-4 text-xs">
               <div class="flex items-center">
-                <i class="pi pi-tag mr-2"></i>
+                <i class="pi pi-tag mr-2" />
                 {{ item.category }}
               </div>
               <div class="flex items-center">
-                <i class="pi pi-clock mr-2"></i>
+                <i class="pi pi-clock mr-2" />
                 {{ item.paymentSchedule }}
               </div>
-              <div v-if="item.dueDate" class="flex items-center">
-                <i class="pi pi-calendar mr-2"></i>
+              <div
+                v-if="item.dueDate"
+                class="flex items-center"
+              >
+                <i class="pi pi-calendar mr-2" />
                 {{ formatDate(calculateDueDate(item)) }}
               </div>
-              <div v-if="item.transactions && item.transactions.length > 0" class="flex items-center">
-                <i class="pi pi-credit-card mr-2"></i>
+              <div
+                v-if="item.transactions && item.transactions.length > 0"
+                class="flex items-center"
+              >
+                <i class="pi pi-credit-card mr-2" />
                 {{ item.transactions.length }} transactions
               </div>
             </div>
@@ -607,13 +690,22 @@ watch(selectedDate, async (newDate, oldDate) => {
             <!-- Quick Stats -->
             <div class="mb-4">
               <div class="text-xs">
-                <span v-if="getRemainingAmount(item) > 0" class="text-orange-600 font-medium">
+                <span
+                  v-if="getRemainingAmount(item) > 0"
+                  class="text-orange-600 font-medium"
+                >
                   Remaining: {{ formatCurrency(getRemainingAmount(item)) }}
                 </span>
-                <span v-else-if="getRemainingAmount(item) < 0" class="text-red-600 font-medium">
+                <span
+                  v-else-if="getRemainingAmount(item) < 0"
+                  class="text-red-600 font-medium"
+                >
                   Over: {{ formatCurrency(Math.abs(getRemainingAmount(item))) }}
                 </span>
-                <span v-else class="text-green-600 font-medium">
+                <span
+                  v-else
+                  class="text-green-600 font-medium"
+                >
                   Complete
                 </span>
               </div>
@@ -621,36 +713,76 @@ watch(selectedDate, async (newDate, oldDate) => {
 
             <!-- Actions -->
             <div class="flex flex-wrap gap-2">
-              <Button v-if="getItemStatus(item) !== 'completed'" label="Paid" icon="pi pi-check" size="small"
-                      severity="success" @click="markAsPaid(item)" />
+              <Button
+                v-if="getItemStatus(item) !== 'completed'"
+                label="Paid"
+                icon="pi pi-check"
+                size="small"
+                severity="success"
+                @click="markAsPaid(item)"
+              />
 
-              <Button label="Add" icon="pi pi-plus" size="small" outlined @click="addTransaction(item)" />
+              <Button
+                label="Add"
+                icon="pi pi-plus"
+                size="small"
+                outlined
+                @click="addTransaction(item)"
+              />
 
-              <Button label="History" icon="pi pi-clock" size="small" text @click="toggleHistory(item)" />
+              <Button
+                label="History"
+                icon="pi pi-clock"
+                size="small"
+                text
+                @click="toggleHistory(item)"
+              />
 
-              <Button label="Skip" icon="pi pi-times" size="small" outlined severity="secondary"
-                      @click="skipItem(item)" />
+              <Button
+                label="Skip"
+                icon="pi pi-times"
+                size="small"
+                outlined
+                severity="secondary"
+                @click="skipItem(item)"
+              />
             </div>
 
             <!-- Transaction History (Collapsible) -->
-            <div v-if="getExpandedRows.includes(item.id)" class="pt-4">
+            <div
+              v-if="getExpandedRows.includes(item.id)"
+              class="pt-4"
+            >
               <div class="rounded p-3">
-                <h5 class="text-xs font-medium mb-3">Transaction History</h5>
+                <h5 class="text-xs font-medium mb-3">
+                  Transaction History
+                </h5>
 
-                <div v-if="item.transactions && item.transactions.length > 0" class="space-y-2">
-                  <div v-for="transaction in item.transactions" :key="transaction.id"
-                       class="flex items-center gap-2 p-2 rounded text-xs">
+                <div
+                  v-if="item.transactions && item.transactions.length > 0"
+                  class="space-y-2"
+                >
+                  <div
+                    v-for="transaction in item.transactions"
+                    :key="transaction.id"
+                    class="flex items-center gap-2 p-2 rounded text-xs"
+                  >
                     <div class="flex items-center gap-2">
                       <span class="truncate">{{ transaction.description || 'Transaction' }}</span>
                     </div>
-                    <span :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-                          class="font-medium">
+                    <span
+                      :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                      class="font-medium"
+                    >
                       {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                     </span>
                   </div>
                 </div>
 
-                <div v-else class="text-xs text-center py-2">
+                <div
+                  v-else
+                  class="text-xs text-center py-2"
+                >
                   No transactions yet.
                 </div>
               </div>
@@ -659,53 +791,110 @@ watch(selectedDate, async (newDate, oldDate) => {
         </div>
 
         <!-- Table View (Desktop) -->
-        <div v-if="budgetItems.length > 0" class="hidden lg:block">
-          <DataTable :value="tableItems" removableSort responsiveLayout="scroll" v-model:expandedRows="expandedRows"
-                     dataKey="id">
+        <div
+          v-if="budgetItems.length > 0"
+          class="hidden lg:block"
+        >
+          <DataTable
+            v-model:expanded-rows="expandedRows"
+            :value="tableItems"
+            removable-sort
+            responsive-layout="scroll"
+            data-key="id"
+          >
             <template #expansion="{ data }">
-              <div v-if="!data.transactions || data.transactions.length === 0" class="p-4">
-                <p class="text-sm">No transactions yet</p>
+              <div
+                v-if="!data.transactions || data.transactions.length === 0"
+                class="p-4"
+              >
+                <p class="text-sm">
+                  No transactions yet
+                </p>
               </div>
-              <div v-else class="p-4">
-                <h5 class="text-sm font-medium mb-3">Transaction History</h5>
+              <div
+                v-else
+                class="p-4"
+              >
+                <h5 class="text-sm font-medium mb-3">
+                  Transaction History
+                </h5>
 
-                <DataTable :value="data.transactions || []" responsiveLayout="scroll" class="nested-datatable">
-                  <Column field="date" header="Date" sortable>
+                <DataTable
+                  :value="data.transactions || []"
+                  responsive-layout="scroll"
+                  class="nested-datatable"
+                >
+                  <Column
+                    field="date"
+                    header="Date"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
                       <span>{{ formatDate(transaction.date) }}</span>
                     </template>
                   </Column>
 
-                  <Column field="amount" header="Amount" sortable>
+                  <Column
+                    field="amount"
+                    header="Amount"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
-                      <span :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
-                            class="font-medium">
+                      <span
+                        :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                        class="font-medium"
+                      >
                         {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
                       </span>
                     </template>
                   </Column>
 
-                  <Column field="type" header="Type" sortable>
+                  <Column
+                    field="type"
+                    header="Type"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
-                      <Tag :value="transaction.type" :severity="transaction.type === 'income' ? 'success' : 'danger'" />
+                      <Tag
+                        :value="transaction.type"
+                        :severity="transaction.type === 'income' ? 'success' : 'danger'"
+                      />
                     </template>
                   </Column>
 
-                  <Column field="account" header="Account" sortable>
+                  <Column
+                    field="account"
+                    header="Account"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
                       <span v-if="transaction.accounts?.name">{{ transaction.accounts?.name }}</span>
-                      <span v-else class="text-gray-400">-</span>
+                      <span
+                        v-else
+                        class="text-gray-400"
+                      >-</span>
                     </template>
                   </Column>
 
-                  <Column field="category" header="Category" sortable>
+                  <Column
+                    field="category"
+                    header="Category"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
                       <span v-if="transaction.category">{{ transaction.category }}</span>
-                      <span v-else class="text-gray-400">-</span>
+                      <span
+                        v-else
+                        class="text-gray-400"
+                      >-</span>
                     </template>
                   </Column>
 
-                  <Column field="description" header="Description" sortable>
+                  <Column
+                    field="description"
+                    header="Description"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
                       <div class="flex items-center gap-2">
                         <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
@@ -713,20 +902,45 @@ watch(selectedDate, async (newDate, oldDate) => {
                     </template>
                   </Column>
 
-                  <Column field="notes" header="Notes" sortable>
+                  <Column
+                    field="notes"
+                    header="Notes"
+                    sortable
+                  >
                     <template #body="{ data: transaction }">
-                      <span v-if="transaction.notes" class="truncate max-w-xs">{{ transaction.notes }}</span>
-                      <span v-else class="text-gray-400">-</span>
+                      <span
+                        v-if="transaction.notes"
+                        class="truncate max-w-xs"
+                      >{{ transaction.notes }}</span>
+                      <span
+                        v-else
+                        class="text-gray-400"
+                      >-</span>
                     </template>
                   </Column>
 
-                  <Column header="Actions" style="width: 120px">
+                  <Column
+                    header="Actions"
+                    style="width: 120px"
+                  >
                     <template #body="{ data: transaction }">
                       <div class="flex gap-1">
-                        <Button icon="pi pi-pencil" size="small" text severity="info"
-                                @click="editTransaction(transaction)" v-tooltip.top="'Edit Transaction'" />
-                        <Button icon="pi pi-trash" size="small" text severity="danger"
-                                @click="deleteTransaction(transaction)" v-tooltip.top="'Delete Transaction'" />
+                        <Button
+                          v-tooltip.top="'Edit Transaction'"
+                          icon="pi pi-pencil"
+                          size="small"
+                          text
+                          severity="info"
+                          @click="editTransaction(transaction)"
+                        />
+                        <Button
+                          v-tooltip.top="'Delete Transaction'"
+                          icon="pi pi-trash"
+                          size="small"
+                          text
+                          severity="danger"
+                          @click="deleteTransaction(transaction)"
+                        />
                       </div>
                     </template>
                   </Column>
@@ -734,16 +948,35 @@ watch(selectedDate, async (newDate, oldDate) => {
               </div>
             </template>
 
-            <Column expander style="width: 3rem" />
-            <Column field="type" header="Type" sortable>
+            <Column
+              expander
+              style="width: 3rem"
+            />
+            <Column
+              field="type"
+              header="Type"
+              sortable
+            >
               <template #body="{ data }">
-                <Tag :value="data.type" :severity="getTypeSeverity(data)" rounded />
+                <Tag
+                  :value="data.type"
+                  :severity="getTypeSeverity(data)"
+                  rounded
+                />
               </template>
             </Column>
-            <Column field="name" header="Name" sortable filter filterPlaceholder="Search by name">
+            <Column
+              field="name"
+              header="Name"
+              sortable
+              filter
+              filter-placeholder="Search by name"
+            >
               <template #body="{ data }">
                 <div>
-                  <div class="font-medium">{{ data.name }}</div>
+                  <div class="font-medium">
+                    {{ data.name }}
+                  </div>
                   <div class="text-xs text-gray-500">
                     {{ (data.transactions || []).length }} paid
                   </div>
@@ -756,36 +989,81 @@ watch(selectedDate, async (newDate, oldDate) => {
                   <div class="font-medium text-center">
                     {{ formatCurrency(getActualAmount(data)) }} / {{ formatCurrency(getBudgetAmount(data)) }}
                   </div>
-                  <ProgressBar :value="getProgressPercentage(data)"
-                               :class="getProgressBarColor(data).replace('bg-', '')" style="height: 4px;" :showValue="false" />
+                  <ProgressBar
+                    :value="getProgressPercentage(data)"
+                    :class="getProgressBarColor(data).replace('bg-', '')"
+                    style="height: 4px;"
+                    :show-value="false"
+                  />
                 </div>
               </template>
             </Column>
-            <Column field="statusLabel" header="Status" sortable>
+            <Column
+              field="statusLabel"
+              header="Status"
+              sortable
+            >
               <template #body="{ data }">
-                <Tag :value="getStatusLabel(getItemStatus(data))" :severity="getStatusSeverity(getItemStatus(data))"
-                     rounded />
+                <Tag
+                  :value="getStatusLabel(getItemStatus(data))"
+                  :severity="getStatusSeverity(getItemStatus(data))"
+                  rounded
+                />
               </template>
             </Column>
-            <Column field="due" header="Due"">
+            <Column
+              field="due"
+              header="Due"
+            >
               <template #body="{ data }">
-                <span :class="getDueDateColor(data)" v-tooltip.top="getDueDateTooltip(data)">
+                <span
+                  v-tooltip.top="getDueDateTooltip(data)"
+                  :class="getDueDateColor(data)"
+                >
                   {{ getDueDateText(data) }}
                 </span>
               </template>
             </Column>
-            <Column field="category" header="Category">
+            <Column
+              field="category"
+              header="Category"
+            >
               <template #body="{ data }">
-                <Tag :value="data.category" severity="info" rounded />
+                <Tag
+                  :value="data.category"
+                  severity="info"
+                  rounded
+                />
               </template>
             </Column>
-            <Column header="Actions" style="width: 180px">
+            <Column
+              header="Actions"
+              style="width: 180px"
+            >
               <template #body="{ data }">
                 <div class="flex gap-2">
-                  <Button v-if="getItemStatus(data) !== 'completed'" label="Pay" icon="pi pi-check" size="small"
-                          severity="success" @click="markAsPaid(data)" />
-                  <Button label="Add" icon="pi pi-plus" size="small" outlined @click="addTransaction(data)" />
-                  <Button label="Skip" icon="pi pi-times" size="small" outlined @click="skipItem(data)" />
+                  <Button
+                    v-if="getItemStatus(data) !== 'completed'"
+                    label="Pay"
+                    icon="pi pi-check"
+                    size="small"
+                    severity="success"
+                    @click="markAsPaid(data)"
+                  />
+                  <Button
+                    label="Add"
+                    icon="pi pi-plus"
+                    size="small"
+                    outlined
+                    @click="addTransaction(data)"
+                  />
+                  <Button
+                    label="Skip"
+                    icon="pi pi-times"
+                    size="small"
+                    outlined
+                    @click="skipItem(data)"
+                  />
                 </div>
               </template>
             </Column>
@@ -796,11 +1074,19 @@ watch(selectedDate, async (newDate, oldDate) => {
   </Card>
 
   <!-- Add Transaction Modal -->
-  <AddTransactionModal v-model="showAddTransactionModal" :budget-item="selectedBudgetItem"
-                       @transaction-added="onTransactionAdded" @transaction-updated="onTransactionUpdated" />
+  <AddTransactionModal
+    v-model="showAddTransactionModal"
+    :budget-item="selectedBudgetItem"
+    @transaction-added="onTransactionAdded"
+    @transaction-updated="onTransactionUpdated"
+  />
 
   <!-- Skip Item Modal -->
-  <BaseModal v-if="showSkipModal" @close="closeSkipModal" title="Skip Budget Item">
+  <BaseModal
+    v-if="showSkipModal"
+    title="Skip Budget Item"
+    @close="closeSkipModal"
+  >
     <div class="space-y-4">
       <p>
         Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This will mark it as skipped for this month.
@@ -810,20 +1096,27 @@ watch(selectedDate, async (newDate, oldDate) => {
         <label class="block text-sm font-medium mb-2">
           Reason (optional)
         </label>
-        <textarea v-model="skipReason" rows="3"
-                  class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Why are you skipping this item?"></textarea>
+        <textarea
+          v-model="skipReason"
+          rows="3"
+          class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Why are you skipping this item?"
+        />
       </div>
     </div>
 
     <template #footer>
       <div class="flex justify-end space-x-3">
-        <button @click="closeSkipModal"
-                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
+        <button
+          class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50"
+          @click="closeSkipModal"
+        >
           Cancel
         </button>
-        <button @click="confirmSkip"
-                class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700">
+        <button
+          class="px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700"
+          @click="confirmSkip"
+        >
           Skip Item
         </button>
       </div>

@@ -1113,17 +1113,37 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
 <template>
   <div class="card">
     <!-- Header Controls - Only show when there's data or loading -->
-    <div v-if="!hasNoDataForYear" class="flex justify-between items-center mb-4">
+    <div
+      v-if="!hasNoDataForYear"
+      class="flex justify-between items-center mb-4"
+    >
       <!-- Dual Mode Filter -->
       <div class="flex items-center space-x-3">
         <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Display Mode:</span>
         <div class="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
-          <Button @click="$emit('update:dualMode', 'both')" :label="'Both'" :text="props.dualMode !== 'both'"
-            :outlined="props.dualMode !== 'both'" size="small" class="mr-1" />
-          <Button @click="$emit('update:dualMode', 'actual')" :label="'Actual'" :text="props.dualMode !== 'actual'"
-            :outlined="props.dualMode !== 'actual'" size="small" class="mr-1" />
-          <Button @click="$emit('update:dualMode', 'expected')" :label="'Expected'"
-            :text="props.dualMode !== 'expected'" :outlined="props.dualMode !== 'expected'" size="small" />
+          <Button
+            :label="'Both'"
+            :text="props.dualMode !== 'both'"
+            :outlined="props.dualMode !== 'both'"
+            size="small"
+            class="mr-1"
+            @click="$emit('update:dualMode', 'both')"
+          />
+          <Button
+            :label="'Actual'"
+            :text="props.dualMode !== 'actual'"
+            :outlined="props.dualMode !== 'actual'"
+            size="small"
+            class="mr-1"
+            @click="$emit('update:dualMode', 'actual')"
+          />
+          <Button
+            :label="'Expected'"
+            :text="props.dualMode !== 'expected'"
+            :outlined="props.dualMode !== 'expected'"
+            size="small"
+            @click="$emit('update:dualMode', 'expected')"
+          />
         </div>
       </div>
 
@@ -1132,56 +1152,103 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         <!-- Type Filter -->
         <div class="flex items-center gap-2">
           <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Type:</label>
-          <Select v-model="filters.type.value" :options="typeOptions" placeholder="All Types" class="w-40" size="small"
-            showClear />
+          <Select
+            v-model="filters.type.value"
+            :options="typeOptions"
+            placeholder="All Types"
+            class="w-40"
+            size="small"
+            show-clear
+          />
         </div>
 
         <!-- Category Filter -->
         <div class="flex items-center gap-2">
           <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Category:</label>
-          <Select v-model="filters.category.value" :options="categoryOptions" placeholder="All Categories" class="w-40"
-            size="small" showClear />
+          <Select
+            v-model="filters.category.value"
+            :options="categoryOptions"
+            placeholder="All Categories"
+            class="w-40"
+            size="small"
+            show-clear
+          />
         </div>
 
         <!-- Search Input -->
         <IconField>
           <InputIcon class="pi pi-search" />
-          <InputText v-model="filters['global'].value" placeholder="Search budget items..." class="w-80" />
-          <InputIcon v-if="hasActiveFilter" class="pi pi-times cursor-pointer hover:text-red-500"
-            @click="clearFilters" />
+          <InputText
+            v-model="filters['global'].value"
+            placeholder="Search budget items..."
+            class="w-80"
+          />
+          <InputIcon
+            v-if="hasActiveFilter"
+            class="pi pi-times cursor-pointer hover:text-red-500"
+            @click="clearFilters"
+          />
         </IconField>
 
         <!-- Filter Active Indicator -->
-        <Tag v-if="hasActiveFilter" value="Filtered" severity="info" class="text-xs" />
+        <Tag
+          v-if="hasActiveFilter"
+          value="Filtered"
+          severity="info"
+          class="text-xs"
+        />
       </div>
     </div>
 
     <!-- Error State -->
-    <div v-if="shouldShowErrorState" class="flex flex-col items-center justify-center py-16">
+    <div
+      v-if="shouldShowErrorState"
+      class="flex flex-col items-center justify-center py-16"
+    >
       <!-- Error icon -->
       <div class="mb-6">
-        <i class="pi pi-exclamation-triangle !text-4xl text-red-500 dark:text-red-400"></i>
+        <i class="pi pi-exclamation-triangle !text-4xl text-red-500 dark:text-red-400" />
       </div>
 
       <!-- Error content -->
       <div class="text-center max-w-md">
-        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">Error loading budget data</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ error }}</p>
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          Error loading budget data
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+          {{ error }}
+        </p>
 
         <!-- Retry button -->
-        <Button @click="$emit('retry')" icon="pi pi-refresh" label="Retry" severity="secondary" size="small" />
+        <Button
+          icon="pi pi-refresh"
+          label="Retry"
+          severity="secondary"
+          size="small"
+          @click="$emit('retry')"
+        />
       </div>
     </div>
 
     <!-- DataTable with Column Groups - Only show when there's data or loading -->
-    <DataTable v-else-if="!hasNoDataForYear" :value="flattenedBudgetData" :loading="loading" :filters="filters"
-      filterDisplay="menu" :globalFilterFields="['name', 'category', 'type', 'investment_direction']" tableStyle=""
-      scrollable scrollHeight="60vh" class="budget-datatable" showGridlines>
+    <DataTable
+      v-else-if="!hasNoDataForYear"
+      :value="flattenedBudgetData"
+      :loading="loading"
+      :filters="filters"
+      filter-display="menu"
+      :global-filter-fields="['name', 'category', 'type', 'investment_direction']"
+      table-style=""
+      scrollable
+      scroll-height="60vh"
+      class="budget-datatable"
+      show-gridlines
+    >
       <template #empty>
         <div class="flex flex-col items-center justify-center py-16">
           <!-- Simple icon -->
           <div class="mb-6">
-            <i class="pi pi-inbox !text-4xl text-gray-400 dark:text-gray-500"></i>
+            <i class="pi pi-inbox !text-4xl text-gray-400 dark:text-gray-500" />
           </div>
 
           <!-- Content -->
@@ -1198,12 +1265,30 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
 
             <!-- Action buttons -->
             <div class="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button v-if="hasActiveFilter" @click="clearFilters" icon="pi pi-filter-slash" label="Clear Filter"
-                severity="secondary" size="small" />
-              <Button v-if="!hasActiveFilter" @click="$emit('add-budget')" icon="pi pi-plus" label="Add Budget Item"
-                severity="primary" size="small" />
-              <Button v-if="!hasActiveFilter && canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')"
-                icon="pi pi-copy" :label="`Copy from ${selectedYear - 1}`" severity="secondary" size="small" />
+              <Button
+                v-if="hasActiveFilter"
+                icon="pi pi-filter-slash"
+                label="Clear Filter"
+                severity="secondary"
+                size="small"
+                @click="clearFilters"
+              />
+              <Button
+                v-if="!hasActiveFilter"
+                icon="pi pi-plus"
+                label="Add Budget Item"
+                severity="primary"
+                size="small"
+                @click="$emit('add-budget')"
+              />
+              <Button
+                v-if="!hasActiveFilter && canCopyFromPreviousYear"
+                icon="pi pi-copy"
+                :label="`Copy from ${selectedYear - 1}`"
+                severity="secondary"
+                size="small"
+                @click="$emit('copy-from-previous-year')"
+              />
             </div>
           </div>
         </div>
@@ -1212,39 +1297,74 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         <div class="p-datatable-loading-content w-full overflow-x-auto">
           <div class="skeleton-table-container">
             <!-- Skeleton rows for budget items -->
-            <div v-for="i in 4" :key="i" class="p-datatable-loading-row w-full">
+            <div
+              v-for="i in 4"
+              :key="i"
+              class="p-datatable-loading-row w-full"
+            >
               <div class="flex items-stretch w-full skeleton-row">
                 <!-- Budget Item Name Column -->
                 <div class="w-64 p-4 flex-shrink-0 skeleton-cell flex flex-col justify-center">
-                  <Skeleton width="100%" height="1.5rem" class="mb-2" />
-                  <Skeleton width="60%" height="1rem" />
+                  <Skeleton
+                    width="100%"
+                    height="1.5rem"
+                    class="mb-2"
+                  />
+                  <Skeleton
+                    width="60%"
+                    height="1rem"
+                  />
                 </div>
 
                 <!-- Previous Year Column -->
                 <div class="w-32 p-3 flex-shrink-0 skeleton-cell flex items-center justify-center">
-                  <Skeleton width="80%" height="1.5rem" />
+                  <Skeleton
+                    width="80%"
+                    height="1.5rem"
+                  />
                 </div>
 
                 <!-- Monthly Columns -->
-                <div v-for="j in 4" :key="j"
-                  class="w-24 p-2 flex-shrink-0 skeleton-cell flex items-center justify-center">
-                  <Skeleton width="90%" height="1.5rem" />
+                <div
+                  v-for="j in 4"
+                  :key="j"
+                  class="w-24 p-2 flex-shrink-0 skeleton-cell flex items-center justify-center"
+                >
+                  <Skeleton
+                    width="90%"
+                    height="1.5rem"
+                  />
                 </div>
 
                 <!-- Total Column -->
                 <div class="w-32 p-3 flex-shrink-0 skeleton-cell flex items-center justify-center">
-                  <Skeleton width="85%" height="1.5rem" />
+                  <Skeleton
+                    width="85%"
+                    height="1.5rem"
+                  />
                 </div>
 
                 <!-- Spacer to push Actions to the right -->
-                <div class="flex-1"></div>
+                <div class="flex-1" />
 
                 <!-- Actions Column - Fixed to the right -->
                 <div class="p-3 flex-shrink-0 flex items-center justify-center">
                   <div class="flex gap-1">
-                    <Skeleton shape="circle" size="2rem" class="mr-2" />
-                    <Skeleton shape="circle" size="2rem" class="mr-2" />
-                    <Skeleton shape="circle" size="2rem" class="mr-2" />
+                    <Skeleton
+                      shape="circle"
+                      size="2rem"
+                      class="mr-2"
+                    />
+                    <Skeleton
+                      shape="circle"
+                      size="2rem"
+                      class="mr-2"
+                    />
+                    <Skeleton
+                      shape="circle"
+                      size="2rem"
+                      class="mr-2"
+                    />
                   </div>
                 </div>
               </div>
@@ -1257,34 +1377,80 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
       <!-- Column Groups Header -->
       <ColumnGroup type="header">
         <Row>
-          <Column header="Budget Item" :rowspan="1" frozen alignFrozen="left" />
-          <Column header="Prev. Years" :rowspan="1" />
-          <Column v-for="(month, index) in months" :key="month" :class="getMonthColumnClass(month)">
+          <Column
+            header="Budget Item"
+            :rowspan="1"
+            frozen
+            align-frozen="left"
+          />
+          <Column
+            header="Prev. Years"
+            :rowspan="1"
+          />
+          <Column
+            v-for="(month, index) in months"
+            :key="month"
+            :class="getMonthColumnClass(month)"
+          >
             <template #header>
               <div class="text-center">
-                <div class="font-medium">{{ month }}</div>
+                <div class="font-medium">
+                  {{ month }}
+                </div>
                 <!-- Month status using getMonthHeaderContent -->
-                <div v-if="getMonthHeaderContent(month)" class="text-xs font-medium">
+                <div
+                  v-if="getMonthHeaderContent(month)"
+                  class="text-xs font-medium"
+                >
                   {{ getMonthHeaderContent(month) }}
                 </div>
                 <!-- Close month button -->
-                <div v-else-if="canCloseMonth(index)" class="text-xs">
-                  <Button @click="handleCloseMonth(index)" variant="link" label="Close" size="small" severity="info" />
+                <div
+                  v-else-if="canCloseMonth(index)"
+                  class="text-xs"
+                >
+                  <Button
+                    variant="link"
+                    label="Close"
+                    size="small"
+                    severity="info"
+                    @click="handleCloseMonth(index)"
+                  />
                 </div>
               </div>
             </template>
           </Column>
-          <Column header="Total" :rowspan="1" frozen alignFrozen="right" />
-          <Column header="Actions" :rowspan="1" frozen alignFrozen="right" />
+          <Column
+            header="Total"
+            :rowspan="1"
+            frozen
+            align-frozen="right"
+          />
+          <Column
+            header="Actions"
+            :rowspan="1"
+            frozen
+            align-frozen="right"
+          />
         </Row>
-
       </ColumnGroup>
 
       <!-- Budget Item Column -->
-      <Column field="name" frozen alignFrozen="left" :showFilterMenu="false" filter>
+      <Column
+        field="name"
+        frozen
+        align-frozen="left"
+        :show-filter-menu="false"
+        filter
+      >
         <template #filter="{ filterModel, filterCallback }">
-          <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter"
-            placeholder="Search by name..." />
+          <InputText
+            v-model="filterModel.value"
+            type="text"
+            class="p-column-filter"
+            placeholder="Search by name..."
+            @input="filterCallback()"
+          />
         </template>
         <template #body="slotProps">
           <div class="space-y-1">
@@ -1301,24 +1467,37 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
             <!-- Secondary Info: Special Indicators -->
             <div class="flex items-center space-x-4 text-xs">
               <!-- Type Badge -->
-              <Tag :icon="getTypeIcon(slotProps.data)" :severity="getTypeSeverity(slotProps.data)"
-                :value="getTypeLabel(slotProps.data.type)" class="text-xs" />
+              <Tag
+                :icon="getTypeIcon(slotProps.data)"
+                :severity="getTypeSeverity(slotProps.data)"
+                :value="getTypeLabel(slotProps.data.type)"
+                class="text-xs"
+              />
 
               <!-- Virtual Item Indicator -->
-              <div v-if="slotProps.data.is_virtual" class="flex items-center text-muted-color">
-                <i class="pi pi-plus-circle text-xs mr-1"></i>
+              <div
+                v-if="slotProps.data.is_virtual"
+                class="flex items-center text-muted-color"
+              >
+                <i class="pi pi-plus-circle text-xs mr-1" />
                 <span class="text-xs">{{ getVirtualItemLabel(slotProps.data) }}</span>
               </div>
 
               <!-- Multi-Year Indicator -->
-              <div v-if="slotProps.data.is_multi_year" class="flex items-center text-primary-600">
-                <i class="pi pi-calendar text-xs mr-1"></i>
+              <div
+                v-if="slotProps.data.is_multi_year"
+                class="flex items-center text-primary-600"
+              >
+                <i class="pi pi-calendar text-xs mr-1" />
                 <span class="text-xs">{{ slotProps.data.start_year }}-{{ slotProps.data.end_year }}</span>
               </div>
 
               <!-- Linked Investment Indicator -->
-              <div v-if="slotProps.data.linked_investment_id" class="flex items-center text-primary-500">
-                <i class="pi pi-link text-xs mr-1"></i>
+              <div
+                v-if="slotProps.data.linked_investment_id"
+                class="flex items-center text-primary-500"
+              >
+                <i class="pi pi-link text-xs mr-1" />
                 <span class="text-xs">Linked</span>
               </div>
             </div>
@@ -1329,48 +1508,105 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
       <!-- Previous Year Column -->
       <Column field="previousYear">
         <template #body="slotProps">
-          <BudgetCell :data="slotProps.data" :renderCellTemplate="renderCellTemplate"
-            :getCellTextColorClass="getCellTextColorClass" />
+          <BudgetCell
+            :data="slotProps.data"
+            :render-cell-template="renderCellTemplate"
+            :get-cell-text-color-class="getCellTextColorClass"
+          />
         </template>
       </Column>
 
       <!-- Monthly Columns -->
-      <Column v-for="month in months" :key="month" :field="month.toLowerCase()" :class="getMonthColumnClass(month)">
+      <Column
+        v-for="month in months"
+        :key="month"
+        :field="month.toLowerCase()"
+        :class="getMonthColumnClass(month)"
+      >
         <template #body="slotProps">
-          <BudgetCell :data="slotProps.data" :month="month" :renderCellTemplate="renderCellTemplate"
-            :getCellTextColorClass="getCellTextColorClass" />
+          <BudgetCell
+            :data="slotProps.data"
+            :month="month"
+            :render-cell-template="renderCellTemplate"
+            :get-cell-text-color-class="getCellTextColorClass"
+          />
         </template>
       </Column>
 
       <!-- Total Column -->
-      <Column field="total" frozen alignFrozen="right">
+      <Column
+        field="total"
+        frozen
+        align-frozen="right"
+      >
         <template #body="slotProps">
-          <BudgetCell :data="slotProps.data" :isTotal="true" :renderCellTemplate="renderCellTemplate"
-            :getCellTextColorClass="getCellTextColorClass" />
+          <BudgetCell
+            :data="slotProps.data"
+            :is-total="true"
+            :render-cell-template="renderCellTemplate"
+            :get-cell-text-color-class="getCellTextColorClass"
+          />
         </template>
       </Column>
 
       <!-- Actions Column -->
-      <Column field="actions" frozen alignFrozen="right">
+      <Column
+        field="actions"
+        frozen
+        align-frozen="right"
+      >
         <template #body="slotProps">
           <div class="flex justify-center space-x-1">
             <!-- Virtual item actions -->
             <template v-if="slotProps.data.is_virtual">
-              <Button @click="$emit('view-transactions')" icon="pi pi-eye" severity="secondary" size="small" text
-                rounded title="View unlinked transactions" aria-label="View unlinked transactions"
-                data-testid="view-unlinked-transactions-btn" />
+              <Button
+                icon="pi pi-eye"
+                severity="secondary"
+                size="small"
+                text
+                rounded
+                title="View unlinked transactions"
+                aria-label="View unlinked transactions"
+                data-testid="view-unlinked-transactions-btn"
+                @click="$emit('view-transactions')"
+              />
             </template>
 
             <!-- Regular budget item actions -->
             <template v-else>
-              <Button @click="$emit('edit-budget', slotProps.data)" icon="pi pi-pencil" severity="info" size="small"
-                text rounded title="Edit budget item" aria-label="Edit budget item" data-testid="edit-budget-btn" />
-              <Button @click="$emit('duplicate-budget', slotProps.data)" icon="pi pi-copy" severity="success"
-                size="small" text rounded title="Duplicate budget item" aria-label="Duplicate budget item"
-                data-testid="duplicate-budget-btn" />
-              <Button @click="$emit('delete-budget', slotProps.data.id)" icon="pi pi-trash" severity="danger"
-                size="small" text rounded title="Delete budget item" aria-label="Delete budget item"
-                data-testid="delete-budget-btn" />
+              <Button
+                icon="pi pi-pencil"
+                severity="info"
+                size="small"
+                text
+                rounded
+                title="Edit budget item"
+                aria-label="Edit budget item"
+                data-testid="edit-budget-btn"
+                @click="$emit('edit-budget', slotProps.data)"
+              />
+              <Button
+                icon="pi pi-copy"
+                severity="success"
+                size="small"
+                text
+                rounded
+                title="Duplicate budget item"
+                aria-label="Duplicate budget item"
+                data-testid="duplicate-budget-btn"
+                @click="$emit('duplicate-budget', slotProps.data)"
+              />
+              <Button
+                icon="pi pi-trash"
+                severity="danger"
+                size="small"
+                text
+                rounded
+                title="Delete budget item"
+                aria-label="Delete budget item"
+                data-testid="delete-budget-btn"
+                @click="$emit('delete-budget', slotProps.data.id)"
+              />
             </template>
           </div>
         </template>
@@ -1381,253 +1617,489 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
         <template v-if="showDetailedBreakdown">
           <!-- Income Breakdown -->
           <Row>
-            <Column frozen alignFrozen="left" :footerStyle="childRowStyle">
+            <Column
+              frozen
+              align-frozen="left"
+              :footer-style="childRowStyle"
+            >
               <template #footer>
-                <div class="ml-6 text-muted-color">Income Total:</div>
+                <div class="ml-6 text-muted-color">
+                  Income Total:
+                </div>
               </template>
             </Column>
-            <Column :footerStyle="childRowStyle">
+            <Column :footer-style="childRowStyle">
               <template #footer>
-                <FooterDualModeCell :data="getAllPreviousYearsIncomeTotalWithDual()" itemType="income"
-                  :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getAllPreviousYearsIncomeTotalWithDual()"
+                  item-type="income"
+                  :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column v-for="month in months" :key="month" :footerStyle="childRowStyle"
-              :class="getMonthColumnClass(month)">
+            <Column
+              v-for="month in months"
+              :key="month"
+              :footer-style="childRowStyle"
+              :class="getMonthColumnClass(month)"
+            >
               <template #footer>
-                <FooterDualModeCell :data="getMonthlyIncomeTotalWithDual(month)" itemType="income"
-                  :closedTooltip="`Month is closed - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getMonthlyIncomeTotalWithDual(month)"
+                  item-type="income"
+                  :closed-tooltip="`Month is closed - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column frozen alignFrozen="right" :footerStyle="childRowStyle">
+            <Column
+              frozen
+              align-frozen="right"
+              :footer-style="childRowStyle"
+            >
               <template #footer>
-                <FooterDualModeCell :data="getYearlyIncomeTotalWithDual()" itemType="income"
-                  :closedTooltip="`Yearly total - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getYearlyIncomeTotalWithDual()"
+                  item-type="income"
+                  :closed-tooltip="`Yearly total - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column footer="" frozen alignFrozen="right" :footerStyle="childRowStyle" />
+            <Column
+              footer=""
+              frozen
+              align-frozen="right"
+              :footer-style="childRowStyle"
+            />
           </Row>
 
           <!-- Expenses Breakdown -->
           <Row>
-            <Column frozen alignFrozen="left" :footerStyle="childRowStyle">
+            <Column
+              frozen
+              align-frozen="left"
+              :footer-style="childRowStyle"
+            >
               <template #footer>
-                <div class="ml-6 text-muted-color">Expenses Total:</div>
+                <div class="ml-6 text-muted-color">
+                  Expenses Total:
+                </div>
               </template>
             </Column>
-            <Column :footerStyle="childRowStyle">
+            <Column :footer-style="childRowStyle">
               <template #footer>
-                <FooterDualModeCell :data="getAllPreviousYearsExpensesTotalWithDual()" itemType="expense"
-                  :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getAllPreviousYearsExpensesTotalWithDual()"
+                  item-type="expense"
+                  :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column v-for="month in months" :key="month" :footerStyle="childRowStyle"
-              :class="getMonthColumnClass(month)">
+            <Column
+              v-for="month in months"
+              :key="month"
+              :footer-style="childRowStyle"
+              :class="getMonthColumnClass(month)"
+            >
               <template #footer>
-                <FooterDualModeCell :data="getMonthlyExpensesTotalWithDual(month)" itemType="expense"
-                  :closedTooltip="`Month is closed - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getMonthlyExpensesTotalWithDual(month)"
+                  item-type="expense"
+                  :closed-tooltip="`Month is closed - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column frozen alignFrozen="right" :footerStyle="childRowStyle">
+            <Column
+              frozen
+              align-frozen="right"
+              :footer-style="childRowStyle"
+            >
               <template #footer>
-                <FooterDualModeCell :data="getYearlyExpensesTotalWithDual()" itemType="expense"
-                  :closedTooltip="`Yearly total - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getYearlyExpensesTotalWithDual()"
+                  item-type="expense"
+                  :closed-tooltip="`Yearly total - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column footer="" frozen alignFrozen="right" :footerStyle="childRowStyle" />
+            <Column
+              footer=""
+              frozen
+              align-frozen="right"
+              :footer-style="childRowStyle"
+            />
           </Row>
 
           <template v-if="showDetailedInvestmentBreakdown">
             <!-- Investment Returns -->
             <Row>
-              <Column frozen alignFrozen="left" :footerStyle="grandchildRowStyle">
+              <Column
+                frozen
+                align-frozen="left"
+                :footer-style="grandchildRowStyle"
+              >
                 <template #footer>
-                  <div class="ml-12 text-muted-color">Investment in:</div>
+                  <div class="ml-12 text-muted-color">
+                    Investment in:
+                  </div>
                 </template>
               </Column>
-              <Column :footerStyle="grandchildRowStyle">
+              <Column :footer-style="grandchildRowStyle">
                 <template #footer>
-                  <FooterDualModeCell :data="getAllPreviousYearsInvestmentIncomingTotalWithDual()" itemType="income"
-                    :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
-                    :dualMode="dualMode" />
+                  <FooterDualModeCell
+                    :data="getAllPreviousYearsInvestmentIncomingTotalWithDual()"
+                    item-type="income"
+                    :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                    :format-amount-with-sign="formatAmountWithSign"
+                    :format-currency="formatCurrency"
+                    :dual-mode="dualMode"
+                  />
                 </template>
               </Column>
-              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle"
-                :class="getMonthColumnClass(month)">
+              <Column
+                v-for="month in months"
+                :key="month"
+                :footer-style="grandchildRowStyle"
+                :class="getMonthColumnClass(month)"
+              >
                 <template #footer>
-                  <FooterDualModeCell :data="getMonthlyInvestmentIncomingTotalWithDual(month)" itemType="income"
-                    :closedTooltip="`Month is closed - actual amount is displayed`"
-                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
-                    :dualMode="dualMode" />
+                  <FooterDualModeCell
+                    :data="getMonthlyInvestmentIncomingTotalWithDual(month)"
+                    item-type="income"
+                    :closed-tooltip="`Month is closed - actual amount is displayed`"
+                    :format-amount-with-sign="formatAmountWithSign"
+                    :format-currency="formatCurrency"
+                    :dual-mode="dualMode"
+                  />
                 </template>
               </Column>
-              <Column frozen alignFrozen="right" :footerStyle="grandchildRowStyle">
+              <Column
+                frozen
+                align-frozen="right"
+                :footer-style="grandchildRowStyle"
+              >
                 <template #footer>
-                  <FooterDualModeCell :data="getYearlyInvestmentIncomingTotalWithDual()" itemType="income"
-                    :closedTooltip="`Yearly total - actual amount is displayed`"
-                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
-                    :dualMode="dualMode" />
+                  <FooterDualModeCell
+                    :data="getYearlyInvestmentIncomingTotalWithDual()"
+                    item-type="income"
+                    :closed-tooltip="`Yearly total - actual amount is displayed`"
+                    :format-amount-with-sign="formatAmountWithSign"
+                    :format-currency="formatCurrency"
+                    :dual-mode="dualMode"
+                  />
                 </template>
               </Column>
-              <Column footer="" frozen alignFrozen="right" :footerStyle="grandchildRowStyle" />
+              <Column
+                footer=""
+                frozen
+                align-frozen="right"
+                :footer-style="grandchildRowStyle"
+              />
             </Row>
 
             <!-- Investment Purchases -->
             <Row>
-              <Column frozen alignFrozen="left" :footerStyle="grandchildRowStyle">
+              <Column
+                frozen
+                align-frozen="left"
+                :footer-style="grandchildRowStyle"
+              >
                 <template #footer>
-                  <div class="ml-12 text-muted-color">Investment out:</div>
+                  <div class="ml-12 text-muted-color">
+                    Investment out:
+                  </div>
                 </template>
               </Column>
-              <Column :footerStyle="grandchildRowStyle">
+              <Column :footer-style="grandchildRowStyle">
                 <template #footer>
-                  <FooterDualModeCell :data="getAllPreviousYearsInvestmentOutgoingTotalWithDual()" itemType="expense"
-                    :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
-                    :dualMode="dualMode" />
+                  <FooterDualModeCell
+                    :data="getAllPreviousYearsInvestmentOutgoingTotalWithDual()"
+                    item-type="expense"
+                    :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                    :format-amount-with-sign="formatAmountWithSign"
+                    :format-currency="formatCurrency"
+                    :dual-mode="dualMode"
+                  />
                 </template>
               </Column>
-              <Column v-for="month in months" :key="month" :footerStyle="grandchildRowStyle"
-                :class="getMonthColumnClass(month)">
+              <Column
+                v-for="month in months"
+                :key="month"
+                :footer-style="grandchildRowStyle"
+                :class="getMonthColumnClass(month)"
+              >
                 <template #footer>
-                  <FooterDualModeCell :data="getMonthlyInvestmentOutgoingTotalWithDual(month)" itemType="expense"
-                    :closedTooltip="`Month is closed - actual amount is displayed`"
-                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
-                    :dualMode="dualMode" />
+                  <FooterDualModeCell
+                    :data="getMonthlyInvestmentOutgoingTotalWithDual(month)"
+                    item-type="expense"
+                    :closed-tooltip="`Month is closed - actual amount is displayed`"
+                    :format-amount-with-sign="formatAmountWithSign"
+                    :format-currency="formatCurrency"
+                    :dual-mode="dualMode"
+                  />
                 </template>
               </Column>
-              <Column frozen alignFrozen="right" :footerStyle="grandchildRowStyle">
+              <Column
+                frozen
+                align-frozen="right"
+                :footer-style="grandchildRowStyle"
+              >
                 <template #footer>
-                  <FooterDualModeCell :data="getYearlyInvestmentOutgoingTotalWithDual()" itemType="expense"
-                    :closedTooltip="`Yearly total - actual amount is displayed`"
-                    :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency"
-                    :dualMode="dualMode" />
+                  <FooterDualModeCell
+                    :data="getYearlyInvestmentOutgoingTotalWithDual()"
+                    item-type="expense"
+                    :closed-tooltip="`Yearly total - actual amount is displayed`"
+                    :format-amount-with-sign="formatAmountWithSign"
+                    :format-currency="formatCurrency"
+                    :dual-mode="dualMode"
+                  />
                 </template>
               </Column>
-              <Column footer="" frozen alignFrozen="right" :footerStyle="grandchildRowStyle" />
+              <Column
+                footer=""
+                frozen
+                align-frozen="right"
+                :footer-style="grandchildRowStyle"
+              />
             </Row>
           </template>
           <!-- Net Investment -->
           <Row>
-            <Column footer="" frozen alignFrozen="left"
-              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
+            <Column
+              footer=""
+              frozen
+              align-frozen="left"
+              :footer-style="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
+            >
               <template #footer>
                 <div class="ml-6 flex items-center space-x-2">
-                  <Button @click="showDetailedInvestmentBreakdown = !showDetailedInvestmentBreakdown"
-                    :icon="showDetailedInvestmentBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'" text rounded
-                    size="small" severity="secondary"
-                    :title="showDetailedInvestmentBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'" />
+                  <Button
+                    :icon="showDetailedInvestmentBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'"
+                    text
+                    rounded
+                    size="small"
+                    severity="secondary"
+                    :title="showDetailedInvestmentBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'"
+                    @click="showDetailedInvestmentBreakdown = !showDetailedInvestmentBreakdown"
+                  />
                   <span class="text-muted-color">Net Investment</span>
                 </div>
               </template>
             </Column>
-            <Column :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
+            <Column :footer-style="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
               <template #footer>
-                <FooterDualModeCell :data="getAllPreviousYearsInvestmentNetTotalWithDual()" itemType="net"
-                  :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getAllPreviousYearsInvestmentNetTotalWithDual()"
+                  item-type="net"
+                  :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column v-for="month in months" :key="month"
-              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
-              :class="getMonthColumnClass(month)">
+            <Column
+              v-for="month in months"
+              :key="month"
+              :footer-style="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
+              :class="getMonthColumnClass(month)"
+            >
               <template #footer>
-                <FooterDualModeCell :data="getMonthlyInvestmentNetTotalWithDual(month)" itemType="net"
-                  :closedTooltip="`Month is closed - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getMonthlyInvestmentNetTotalWithDual(month)"
+                  item-type="net"
+                  :closed-tooltip="`Month is closed - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column frozen alignFrozen="right"
-              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'">
+            <Column
+              frozen
+              align-frozen="right"
+              :footer-style="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
+            >
               <template #footer>
-                <FooterDualModeCell :data="getYearlyInvestmentNetTotalWithDual()" itemType="net"
-                  :closedTooltip="`Yearly total - actual amount is displayed`"
-                  :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+                <FooterDualModeCell
+                  :data="getYearlyInvestmentNetTotalWithDual()"
+                  item-type="net"
+                  :closed-tooltip="`Yearly total - actual amount is displayed`"
+                  :format-amount-with-sign="formatAmountWithSign"
+                  :format-currency="formatCurrency"
+                  :dual-mode="dualMode"
+                />
               </template>
             </Column>
-            <Column footer="" frozen alignFrozen="right"
-              :footerStyle="childRowStyle + 'border-bottom-color: var(--p-green-500);'" />
+            <Column
+              footer=""
+              frozen
+              align-frozen="right"
+              :footer-style="childRowStyle + 'border-bottom-color: var(--p-green-500);'"
+            />
           </Row>
         </template>
         <!-- Core Summary Rows (Always Visible) -->
         <Row>
-          <Column frozen alignFrozen="left" :footerStyle="parentRowStyle">
+          <Column
+            frozen
+            align-frozen="left"
+            :footer-style="parentRowStyle"
+          >
             <template #footer>
               <div class="flex items-center space-x-2">
-                <Button @click="showDetailedBreakdown = !showDetailedBreakdown"
-                  :icon="showDetailedBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'" text rounded
+                <Button
+                  :icon="showDetailedBreakdown ? 'pi pi-chevron-up' : 'pi pi-chevron-right'"
+                  text
+                  rounded
                   severity="secondary"
-                  :title="showDetailedBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'" />
+                  :title="showDetailedBreakdown ? 'Hide detailed breakdown' : 'Show detailed breakdown'"
+                  @click="showDetailedBreakdown = !showDetailedBreakdown"
+                />
                 <span>Net Balance</span>
               </div>
             </template>
           </Column>
-          <Column :footerStyle="parentRowStyle">
+          <Column :footer-style="parentRowStyle">
             <template #footer>
-              <FooterDualModeCell :data="getAllPreviousYearsNetTotalWithDual()" itemType="net"
-                :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+              <FooterDualModeCell
+                :data="getAllPreviousYearsNetTotalWithDual()"
+                item-type="net"
+                :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                :format-amount-with-sign="formatAmountWithSign"
+                :format-currency="formatCurrency"
+                :dual-mode="dualMode"
+              />
             </template>
           </Column>
-          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle"
-            :class="getMonthColumnClass(month)">
+          <Column
+            v-for="month in months"
+            :key="month"
+            :footer-style="parentRowStyle"
+            :class="getMonthColumnClass(month)"
+          >
             <template #footer>
-              <FooterDualModeCell :data="getMonthlyNetTotalWithDual(month)" itemType="net"
-                :closedTooltip="`Month is closed - actual amount is displayed`"
-                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+              <FooterDualModeCell
+                :data="getMonthlyNetTotalWithDual(month)"
+                item-type="net"
+                :closed-tooltip="`Month is closed - actual amount is displayed`"
+                :format-amount-with-sign="formatAmountWithSign"
+                :format-currency="formatCurrency"
+                :dual-mode="dualMode"
+              />
             </template>
           </Column>
-          <Column frozen alignFrozen="right" :footerStyle="parentRowStyle">
+          <Column
+            frozen
+            align-frozen="right"
+            :footer-style="parentRowStyle"
+          >
             <template #footer>
-              <FooterDualModeCell :data="getYearlyNetTotalWithDual()" itemType="net"
-                :closedTooltip="`Yearly total - actual amount is displayed`"
-                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+              <FooterDualModeCell
+                :data="getYearlyNetTotalWithDual()"
+                item-type="net"
+                :closed-tooltip="`Yearly total - actual amount is displayed`"
+                :format-amount-with-sign="formatAmountWithSign"
+                :format-currency="formatCurrency"
+                :dual-mode="dualMode"
+              />
             </template>
           </Column>
-          <Column footer="" frozen alignFrozen="right" :footerStyle="parentRowStyle" />
+          <Column
+            footer=""
+            frozen
+            align-frozen="right"
+            :footer-style="parentRowStyle"
+          />
         </Row>
 
         <Row>
-          <Column footer="Cumulative Savings:" frozen alignFrozen="left" :footerStyle="parentRowStyle" />
-          <Column :footerStyle="parentRowStyle">
+          <Column
+            footer="Cumulative Savings:"
+            frozen
+            align-frozen="left"
+            :footer-style="parentRowStyle"
+          />
+          <Column :footer-style="parentRowStyle">
             <template #footer>
-              <FooterDualModeCell :data="getAllPreviousYearsNetTotalWithDual()" itemType="net"
-                :closedTooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
-                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+              <FooterDualModeCell
+                :data="getAllPreviousYearsNetTotalWithDual()"
+                item-type="net"
+                :closed-tooltip="`All previous years data (2020-${selectedYear - 1}) - actual amount is displayed`"
+                :format-amount-with-sign="formatAmountWithSign"
+                :format-currency="formatCurrency"
+                :dual-mode="dualMode"
+              />
             </template>
           </Column>
-          <Column v-for="month in months" :key="month" :footerStyle="parentRowStyle"
-            :class="getMonthColumnClass(month)">
+          <Column
+            v-for="month in months"
+            :key="month"
+            :footer-style="parentRowStyle"
+            :class="getMonthColumnClass(month)"
+          >
             <template #footer>
-              <FooterDualModeCell :data="getMonthlySavingsTotalWithDual(month)" itemType="net"
-                :closedTooltip="`Month is closed - actual amount is displayed`"
-                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+              <FooterDualModeCell
+                :data="getMonthlySavingsTotalWithDual(month)"
+                item-type="net"
+                :closed-tooltip="`Month is closed - actual amount is displayed`"
+                :format-amount-with-sign="formatAmountWithSign"
+                :format-currency="formatCurrency"
+                :dual-mode="dualMode"
+              />
             </template>
           </Column>
-          <Column frozen alignFrozen="right" :footerStyle="parentRowStyle">
+          <Column
+            frozen
+            align-frozen="right"
+            :footer-style="parentRowStyle"
+          >
             <template #footer>
-              <FooterDualModeCell :data="getYearlySavingsTotalWithDual()" itemType="net"
-                :closedTooltip="`Yearly total - actual amount is displayed`"
-                :formatAmountWithSign="formatAmountWithSign" :formatCurrency="formatCurrency" :dualMode="dualMode" />
+              <FooterDualModeCell
+                :data="getYearlySavingsTotalWithDual()"
+                item-type="net"
+                :closed-tooltip="`Yearly total - actual amount is displayed`"
+                :format-amount-with-sign="formatAmountWithSign"
+                :format-currency="formatCurrency"
+                :dual-mode="dualMode"
+              />
             </template>
           </Column>
-          <Column footer="" frozen alignFrozen="right" :footerStyle="parentRowStyle" />
+          <Column
+            footer=""
+            frozen
+            align-frozen="right"
+            :footer-style="parentRowStyle"
+          />
         </Row>
       </ColumnGroup>
     </DataTable>
 
     <!-- Standalone Empty State for No Data for Year -->
-    <div v-if="hasNoDataForYear" class="flex flex-col items-center justify-center py-16">
+    <div
+      v-if="hasNoDataForYear"
+      class="flex flex-col items-center justify-center py-16"
+    >
       <!-- Simple icon -->
       <div class="mb-6">
-        <i class="pi pi-inbox !text-4xl text-gray-400 dark:text-gray-500"></i>
+        <i class="pi pi-inbox !text-4xl text-gray-400 dark:text-gray-500" />
       </div>
 
       <!-- Content -->
@@ -1641,10 +2113,21 @@ const renderCellTemplate = (data, month = null, isTotal = false) => {
 
         <!-- Action buttons -->
         <div class="flex flex-col sm:flex-row gap-3 justify-center">
-          <Button @click="$emit('add-budget')" icon="pi pi-plus" label="Add Budget Item" severity="primary"
-            size="small" />
-          <Button v-if="canCopyFromPreviousYear" @click="$emit('copy-from-previous-year')" icon="pi pi-copy"
-            :label="`Copy from ${selectedYear - 1}`" severity="secondary" size="small" />
+          <Button
+            icon="pi pi-plus"
+            label="Add Budget Item"
+            severity="primary"
+            size="small"
+            @click="$emit('add-budget')"
+          />
+          <Button
+            v-if="canCopyFromPreviousYear"
+            icon="pi pi-copy"
+            :label="`Copy from ${selectedYear - 1}`"
+            severity="secondary"
+            size="small"
+            @click="$emit('copy-from-previous-year')"
+          />
         </div>
       </div>
     </div>

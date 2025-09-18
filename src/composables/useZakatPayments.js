@@ -1,7 +1,7 @@
 import { useHawlStore } from '@/stores/hawlStore'
 import { computed, ref } from 'vue'
 
-export function useZakatPayments() {
+export function useZakatPayments () {
   const hawlStore = useHawlStore()
 
   // State

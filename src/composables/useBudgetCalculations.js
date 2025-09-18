@@ -5,7 +5,7 @@ import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
 import { useTransactionStore } from '@/stores/transactions.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 
-export function useBudgetCalculations(budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
+export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
   const yearlySummariesStore = useYearlySummariesStore()
   const transactionStore = useTransactionStore()
   // Basic budget amount calculations

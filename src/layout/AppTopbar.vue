@@ -17,7 +17,7 @@ const displayName = computed(() => authStore.user?.user_metadata?.full_name || '
 const email = computed(() => authStore.user?.email || '')
 const displayNameShort = computed(() => {
   const name = displayName.value || ''
-  return name.length > 18 ? name.slice(0, 18) + '…' : name
+  return name.length > 18 ? `${name.slice(0, 18)  }…` : name
 })
 const userInitials = computed(() => {
   const fullName = authStore.user?.user_metadata?.full_name || ''
@@ -61,43 +61,65 @@ const onSignOut = async () => {
 <template>
   <div class="layout-topbar">
     <div class="layout-topbar-logo-container">
-      <button class="layout-menu-button layout-topbar-action" @click="toggleMenu">
-        <i class="pi pi-bars"></i>
+      <button
+        class="layout-menu-button layout-topbar-action"
+        @click="toggleMenu"
+      >
+        <i class="pi pi-bars" />
       </button>
-      <router-link to="/" class="layout-topbar-logo">Budgrt</router-link>
+      <router-link
+        to="/"
+        class="layout-topbar-logo"
+      >
+        Budgrt
+      </router-link>
     </div>
 
     <div class="layout-topbar-actions">
       <div class="layout-config-menu">
-        <button type="button" class="layout-topbar-action" @click="toggleDarkMode">
-          <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"></i>
+        <button
+          type="button"
+          class="layout-topbar-action"
+          @click="toggleDarkMode"
+        >
+          <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]" />
         </button>
       </div>
-      
+
       <button
         ref="profileBtnRef"
         type="button"
         class="inline-flex items-center gap-2 px-2 py-1 border-round overflow-hidden max-w-[160px]"
         @click="toggleProfile($event)"
       >
-        <Avatar :label="userInitials" class="bg-primary-500 text-white" shape="circle" />
+        <Avatar
+          :label="userInitials"
+          class="bg-primary-500 text-white"
+          shape="circle"
+        />
         <span class="font-medium hidden md:inline truncate">{{ displayNameShort }}</span>
-        <i class="hidden md:inline" :class="['pi', isProfileOpen ? 'pi-chevron-up' : 'pi-chevron-down']"></i>
+        <i
+          class="hidden md:inline"
+          :class="['pi', isProfileOpen ? 'pi-chevron-up' : 'pi-chevron-down']"
+        />
       </button>
       <Popover
         ref="profilePanel"
-        appendTo="self"
+        append-to="self"
+        class=" w-[160px]"
         @show="onPopoverShow"
         @hide="onPopoverHide"
-        class=" w-[160px]"
       >
         <ul class="list-none p-0 m-0 flex flex-col">
           <li class="flex items-center gap-2 px-2 py-3 hover:surface-200 cursor-pointer rounded-border layout-topbar-menu-item">
-            <i class="pi pi-user"></i>
+            <i class="pi pi-user" />
             <span>Profile</span>
           </li>
-          <li class="flex items-center gap-2 px-2 py-3 hover:surface-200 cursor-pointer rounded-border layout-topbar-menu-item" @click="onSignOut">
-            <i class="pi pi-sign-out"></i>
+          <li
+            class="flex items-center gap-2 px-2 py-3 hover:surface-200 cursor-pointer rounded-border layout-topbar-menu-item"
+            @click="onSignOut"
+          >
+            <i class="pi pi-sign-out" />
             <span>Sign Out</span>
           </li>
         </ul>

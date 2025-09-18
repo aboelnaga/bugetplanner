@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export function useAutoCloseFeedback(toastFunction = null) {
+export function useAutoCloseFeedback (toastFunction = null) {
   const isAutoClosing = ref(false)
   const autoCloseProgress = ref(0)
   const showHeaderBadge = ref(false)
@@ -18,17 +18,17 @@ export function useAutoCloseFeedback(toastFunction = null) {
   }
 
   const startAutoCloseFeedback = (year, month, onComplete) => {
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December']
     const monthName = monthNames[month]
-    
+
     // Set loading state
     isAutoClosing.value = true
     autoCloseProgress.value = 0
-    
+
     // Show immediate feedback toast
     showToast('info', 'Auto-Closing Month', `🔄 Auto-closing ${monthName} ${year}...`, 3000)
-    
+
     // Simulate progress (since auto-close is fast, we'll show quick progress)
     const progressInterval = setInterval(() => {
       autoCloseProgress.value += 20
@@ -40,26 +40,26 @@ export function useAutoCloseFeedback(toastFunction = null) {
   }
 
   const completeAutoCloseFeedback = (year, month, onComplete) => {
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December']
     const monthName = monthNames[month]
-    
+
     // Reset loading state
     isAutoClosing.value = false
     autoCloseProgress.value = 0
-    
+
     // Show success toast
     showToast('success', 'Month Auto-Closed', `✓ ${monthName} ${year} has been automatically closed. Actual amounts are now displayed.`, 5000)
-    
+
     // Show header badge for 5 seconds
     showHeaderBadge.value = true
     headerBadgeText.value = `✓ ${monthName} ${year} Closed`
-    
+
     setTimeout(() => {
       showHeaderBadge.value = false
       headerBadgeText.value = ''
     }, 5000)
-    
+
     // Call completion callback to refresh data
     if (onComplete) {
       onComplete(year, month)
@@ -81,4 +81,4 @@ export function useAutoCloseFeedback(toastFunction = null) {
     completeAutoCloseFeedback,
     handleAutoCloseResult
   }
-} 
+}

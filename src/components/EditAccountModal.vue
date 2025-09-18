@@ -118,11 +118,21 @@ const formatCurrency = (amount) => {
 </script>
 
 <template>
-  <BaseModal :modelValue="isOpen" @update:modelValue="$emit('close')" title="Edit Account">
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+  <BaseModal
+    :model-value="isOpen"
+    title="Edit Account"
+    @update:model-value="$emit('close')"
+  >
+    <form
+      class="space-y-6"
+      @submit.prevent="handleSubmit"
+    >
       <!-- Account Name -->
       <div>
-        <label for="name" class="block text-sm font-medium mb-2">
+        <label
+          for="name"
+          class="block text-sm font-medium mb-2"
+        >
           Account Name
         </label>
         <InputText
@@ -130,28 +140,36 @@ const formatCurrency = (amount) => {
           v-model="formData.name"
           required
           placeholder="Enter account name"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Account Type -->
       <div>
-        <label for="type" class="block text-sm font-medium mb-2">
+        <label
+          for="type"
+          class="block text-sm font-medium mb-2"
+        >
           Account Type
         </label>
         <Select
           id="type"
           v-model="formData.type"
           :options="accountTypeOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Select account type"
           required
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Credit Limit (only for credit cards) -->
       <div v-if="formData.type === 'credit_card'">
-        <label for="credit_limit" class="block text-sm font-medium mb-2">
+        <label
+          for="credit_limit"
+          class="block text-sm font-medium mb-2"
+        >
           Credit Limit
         </label>
         <CurrencyInput
@@ -161,7 +179,8 @@ const formatCurrency = (amount) => {
           inputmode="decimal"
           required
           placeholder="Enter credit limit"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Current Balance (read-only for reference) -->
@@ -182,16 +201,24 @@ const formatCurrency = (amount) => {
         <Checkbox
           id="is_default"
           v-model="formData.is_default"
-          :binary="true" />
-        <label for="is_default" class="ml-2 block text-sm">
+          :binary="true"
+        />
+        <label
+          for="is_default"
+          class="ml-2 block text-sm"
+        >
           Set as default account
         </label>
       </div>
 
       <!-- Error Message -->
-      <Message v-if="error" severity="error" :closable="false">
+      <Message
+        v-if="error"
+        severity="error"
+        :closable="false"
+      >
         <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
+          <i class="pi pi-exclamation-triangle" />
         </template>
         <template #message>
           {{ error }}
@@ -202,18 +229,20 @@ const formatCurrency = (amount) => {
       <div class="flex justify-end gap-3 pt-4">
         <Button
           type="button"
-          @click="$emit('close')"
           label="Cancel"
           outlined
-          severity="secondary" />
+          severity="secondary"
+          @click="$emit('close')"
+        />
         <Button
           type="submit"
           :disabled="loading"
           :loading="loading"
           icon="pi pi-check"
           :label="loading ? 'Updating...' : 'Update Account'"
-          severity="primary" />
+          severity="primary"
+        />
       </div>
     </form>
   </BaseModal>
-</template> 
+</template>
