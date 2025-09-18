@@ -419,13 +419,13 @@ const skipItem = (item) => {
 const editTransaction = (transaction) => {
   // TODO: Implement transaction editing
   console.log('Edit transaction:', transaction)
-  // This could open a modal or navigate to transaction edit page
+// This could open a modal or navigate to transaction edit page
 }
 
 const deleteTransaction = (transaction) => {
   // TODO: Implement transaction deletion with confirmation
   console.log('Delete transaction:', transaction)
-  // This should show a confirmation dialog before deleting
+// This should show a confirmation dialog before deleting
 }
 
 
