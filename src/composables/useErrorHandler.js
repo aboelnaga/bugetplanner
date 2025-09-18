@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export function useErrorHandler(toastFunction = null) {
+export function useErrorHandler (toastFunction = null) {
   const errors = ref([])
   const isHandlingError = ref(false)
 
@@ -39,41 +39,41 @@ export function useErrorHandler(toastFunction = null) {
     if (!error) return ERROR_TYPES.UNKNOWN
 
     // Network errors
-    if (error.code === 'NETWORK_ERROR' || 
+    if (error.code === 'NETWORK_ERROR' ||
         error.message?.includes('network') ||
         error.message?.includes('fetch')) {
       return ERROR_TYPES.NETWORK
     }
 
     // Authentication errors
-    if (error.code === 'PGRST301' || 
+    if (error.code === 'PGRST301' ||
         error.message?.includes('auth') ||
         error.message?.includes('unauthorized')) {
       return ERROR_TYPES.AUTHENTICATION
     }
 
     // Validation errors
-    if (error.code === 'PGRST400' || 
+    if (error.code === 'PGRST400' ||
         error.message?.includes('validation') ||
         error.message?.includes('invalid')) {
       return ERROR_TYPES.VALIDATION
     }
 
     // Permission errors
-    if (error.code === 'PGRST403' || 
+    if (error.code === 'PGRST403' ||
         error.message?.includes('permission') ||
         error.message?.includes('forbidden')) {
       return ERROR_TYPES.PERMISSION
     }
 
     // Not found errors
-    if (error.code === 'PGRST404' || 
+    if (error.code === 'PGRST404' ||
         error.message?.includes('not found')) {
       return ERROR_TYPES.NOT_FOUND
     }
 
     // Server errors
-    if (error.code === 'PGRST500' || 
+    if (error.code === 'PGRST500' ||
         error.status >= 500) {
       return ERROR_TYPES.SERVER
     }
@@ -240,7 +240,7 @@ export function useErrorHandler(toastFunction = null) {
         const errorType = classifyError(error)
 
         // Don't retry certain error types
-        if (errorType === ERROR_TYPES.AUTHENTICATION || 
+        if (errorType === ERROR_TYPES.AUTHENTICATION ||
             errorType === ERROR_TYPES.PERMISSION ||
             errorType === ERROR_TYPES.VALIDATION) {
           throw error
@@ -294,4 +294,4 @@ export function useErrorHandler(toastFunction = null) {
     getErrorMessage,
     getRecoveryAction
   }
-} 
+}

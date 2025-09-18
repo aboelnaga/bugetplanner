@@ -49,7 +49,7 @@ const formData = ref({
 
 // Computed properties
 const availableFromAccounts = computed(() => {
-  return accountsStore.accounts.filter(account => 
+  return accountsStore.accounts.filter(account =>
     account.type !== 'credit_card' || account.balance < 0
   )
 })
@@ -68,30 +68,30 @@ const selectedToAccount = computed(() => {
 
 const maxTransferAmount = computed(() => {
   if (!selectedFromAccount.value) return 0
-  
+
   if (selectedFromAccount.value.type === 'credit_card') {
     return accountsStore.getAvailableCredit(selectedFromAccount.value.id) || 0
   }
-  
+
   return selectedFromAccount.value.balance
 })
 
 const isFormValid = computed(() => {
   if (!formData.value.amount || formData.value.amount <= 0) return false
-  
+
   if (formData.value.transferType === 'account_to_account') {
-    return formData.value.fromAccountId && formData.value.toAccountId && 
-           formData.value.fromAccountId !== formData.value.toAccountId
+    return formData.value.fromAccountId && formData.value.toAccountId &&
+      formData.value.fromAccountId !== formData.value.toAccountId
   }
-  
+
   if (formData.value.transferType === 'account_to_cash') {
     return formData.value.fromAccountId
   }
-  
+
   if (formData.value.transferType === 'cash_to_account') {
     return formData.value.toAccountId
   }
-  
+
   return false
 })
 
@@ -125,7 +125,7 @@ const updateFormBasedOnType = () => {
   // Reset account selections when type changes
   formData.value.fromAccountId = ''
   formData.value.toAccountId = ''
-  
+
   // Pre-fill description based on type
   switch (formData.value.transferType) {
     case 'account_to_account':
@@ -146,18 +146,18 @@ const updateAvailableBalance = () => {
 
 const getAvailableBalance = (account) => {
   if (!account) return 0
-  
+
   if (account.type === 'credit_card') {
     return accountsStore.getAvailableCredit(account.id) || 0
   }
-  
+
   return account.balance
 }
 
 const handleAmountInput = (event) => {
   const value = event.target.value.replace(/[^0-9.]/g, '')
   const numValue = parseFloat(value) || 0
-  
+
   if (numValue > maxTransferAmount.value) {
     formData.value.amount = maxTransferAmount.value
   } else {
@@ -188,19 +188,19 @@ const handleSubmit = async () => {
     error.value = 'Please fill in all required fields correctly'
     return
   }
-  
+
   if (formData.value.amount > maxTransferAmount.value) {
     error.value = `Amount exceeds available balance (${formatCurrency(maxTransferAmount.value)})`
     return
   }
-  
+
   isLoading.value = true
   error.value = ''
-  
+
   try {
     // Create transfer transactions based on type
     const transactions = []
-    
+
     switch (formData.value.transferType) {
       case 'account_to_account':
         // Create two transactions: one negative, one positive
@@ -213,7 +213,7 @@ const handleSubmit = async () => {
           description: `Transfer to ${selectedToAccount.value?.name}`,
           notes: formData.value.notes
         })
-        
+
         transactions.push({
           account_id: formData.value.toAccountId,
           type: 'income',
@@ -224,7 +224,7 @@ const handleSubmit = async () => {
           notes: formData.value.notes
         })
         break
-        
+
       case 'account_to_cash':
         // Create one negative transaction
         transactions.push({
@@ -237,7 +237,7 @@ const handleSubmit = async () => {
           notes: formData.value.notes
         })
         break
-        
+
       case 'cash_to_account':
         // Create one positive transaction
         transactions.push({
@@ -251,15 +251,15 @@ const handleSubmit = async () => {
         })
         break
     }
-    
+
     // Add all transactions
     for (const transaction of transactions) {
       await transactionStore.addTransaction(transaction)
     }
-    
+
     emit('transfer-completed', transactions)
     closeModal()
-    
+
   } catch (err) {
     error.value = err.message || 'Failed to complete transfer'
   } finally {
@@ -276,7 +276,7 @@ onMounted(async () => {
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     resetForm()
-    
+
     // Pre-fill from account if provided
     if (props.fromAccount) {
       formData.value.fromAccountId = props.fromAccount.id
@@ -287,22 +287,30 @@ watch(() => props.modelValue, (isOpen) => {
 </script>
 
 <template>
-  <BaseModal :modelValue="modelValue" @update:modelValue="$emit('update:modelValue')" title="Transfer Funds"> 
+  <BaseModal
+    :model-value="modelValue"
+    title="Transfer Funds"
+    @update:model-value="$emit('update:modelValue')"
+  >
     <!-- Content -->
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form
+      class="space-y-6"
+      @submit.prevent="handleSubmit"
+    >
       <!-- Transfer Type -->
       <div>
         <label class="block text-sm font-medium mb-2">
           <span class="text-red-500">*</span> Transfer Type
         </label>
         <Select
-          v-model="formData.transferType" 
+          v-model="formData.transferType"
           :options="transferTypeOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Select transfer type"
+          class="w-full"
           @change="updateFormBasedOnType"
-          class="w-full" />
+        />
       </div>
 
       <!-- From Account -->
@@ -313,12 +321,16 @@ watch(() => props.modelValue, (isOpen) => {
         <Select
           v-model="formData.fromAccountId"
           :options="fromAccountOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Select account"
+          class="w-full"
           @change="updateAvailableBalance"
-          class="w-full" />
-        <p v-if="selectedFromAccount" class="text-sm text-surface-500 mt-1">
+        />
+        <p
+          v-if="selectedFromAccount"
+          class="text-sm text-surface-500 mt-1"
+        >
           Available: {{ formatCurrency(getAvailableBalance(selectedFromAccount)) }}
         </p>
       </div>
@@ -331,11 +343,12 @@ watch(() => props.modelValue, (isOpen) => {
         <Select
           v-model="formData.toAccountId"
           :options="toAccountOptions"
-          optionLabel="label"
-          optionValue="value"
+          option-label="label"
+          option-value="value"
           placeholder="Select account"
+          class="w-full"
           @change="updateAvailableBalance"
-          class="w-full" />
+        />
       </div>
 
       <!-- Amount -->
@@ -364,61 +377,70 @@ watch(() => props.modelValue, (isOpen) => {
           <span class="text-red-500">*</span> Date
         </label>
         <DatePicker
-          v-model="formData.date" 
-          required 
-          dateFormat="yy-mm-dd"
-          class="w-full" />
+          v-model="formData.date"
+          required
+          date-format="yy-mm-dd"
+          class="w-full"
+        />
       </div>
 
       <!-- Description -->
       <div>
         <label class="block text-sm font-medium mb-2">Description</label>
         <InputText
-          v-model="formData.description" 
+          v-model="formData.description"
           placeholder="e.g., Transfer to savings, ATM withdrawal"
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Notes -->
       <div>
         <label class="block text-sm font-medium mb-2">Notes</label>
         <Textarea
-          v-model="formData.notes" 
+          v-model="formData.notes"
           rows="3"
           placeholder="Additional notes about this transfer..."
-          class="w-full" />
+          class="w-full"
+        />
       </div>
 
       <!-- Error Message -->
-      <Message v-if="error" severity="error" :closable="false">
+      <Message
+        v-if="error"
+        severity="error"
+        :closable="false"
+      >
         <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
+          <i class="pi pi-exclamation-triangle" />
         </template>
         <template #message>
           {{ error }}
         </template>
       </Message>
     </form>
-    
+
     <!-- Footer -->
     <template #footer>
       <div class="flex justify-end gap-3 w-full">
         <Button
-          type="button" 
-          @click="closeModal" 
-          :disabled="isLoading" 
+          type="button"
+          :disabled="isLoading"
           label="Cancel"
           outlined
-          severity="secondary" />
+          severity="secondary"
+          @click="closeModal"
+        />
         <Button
-          type="submit" 
-          @click="handleSubmit"
-          :disabled="isLoading || !isFormValid" 
+          type="submit"
+          :disabled="isLoading || !isFormValid"
           :loading="isLoading"
           icon="pi pi-check"
           :label="isLoading ? 'Processing...' : 'Complete Transfer'"
-          severity="primary" />
+          severity="primary"
+          @click="handleSubmit"
+        />
       </div>
     </template>
   </BaseModal>
-</template> 
+</template>

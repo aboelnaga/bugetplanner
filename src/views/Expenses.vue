@@ -10,14 +10,14 @@ const formatCurrency = (amount) => {
     style: 'currency',
     currency: 'EGP',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(Math.abs(amount))
 }
 
 const expenseCategories = computed(() => {
   const total = currentMonth?.monthlySpending || 0
   if (total === 0) return []
-  
+
   const categories = [
     {
       name: 'Family Budget',
@@ -55,7 +55,7 @@ const expenseCategories = computed(() => {
       percentage: ((((currentMonth?.expenses?.charity || 0) + (currentMonth?.expenses?.zakat || 0)) / total) * 100).toFixed(1)
     }
   ].filter(cat => cat.amount > 0)
-  
+
   return categories
 })
 </script>
@@ -63,51 +63,85 @@ const expenseCategories = computed(() => {
 <template>
   <div class="space-y-6">
     <div class="flex justify-between items-center">
-      <h1 class="text-3xl font-bold text-gray-900">Expense Management</h1>
-      <button class="btn-primary">Add Expense</button>
+      <h1 class="text-3xl font-bold text-gray-900">
+        Expense Management
+      </h1>
+      <button class="btn-primary">
+        Add Expense
+      </button>
     </div>
 
     <!-- Expense Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
       <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Total Monthly</h3>
-        <p class="text-3xl font-bold text-red-600">{{ formatCurrency(currentMonth?.monthlySpending || 0) }}</p>
+        <h3 class="text-lg font-semibold mb-3">
+          Total Monthly
+        </h3>
+        <p class="text-3xl font-bold text-red-600">
+          {{ formatCurrency(currentMonth?.monthlySpending || 0) }}
+        </p>
       </div>
-      
+
       <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Family Expenses</h3>
-        <p class="text-3xl font-bold text-blue-600">{{ formatCurrency(totalFamilyExpenses || 0) }}</p>
+        <h3 class="text-lg font-semibold mb-3">
+          Family Expenses
+        </h3>
+        <p class="text-3xl font-bold text-blue-600">
+          {{ formatCurrency(totalFamilyExpenses || 0) }}
+        </p>
       </div>
-      
+
       <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Investments</h3>
-        <p class="text-3xl font-bold text-green-600">{{ formatCurrency(totalInvestments || 0) }}</p>
+        <h3 class="text-lg font-semibold mb-3">
+          Investments
+        </h3>
+        <p class="text-3xl font-bold text-green-600">
+          {{ formatCurrency(totalInvestments || 0) }}
+        </p>
       </div>
-      
+
       <div class="card">
-        <h3 class="text-lg font-semibold mb-3">Charity & Zakat</h3>
-        <p class="text-3xl font-bold text-purple-600">{{ formatCurrency((currentMonth?.expenses?.charity || 0) + (currentMonth?.expenses?.zakat || 0)) }}</p>
+        <h3 class="text-lg font-semibold mb-3">
+          Charity & Zakat
+        </h3>
+        <p class="text-3xl font-bold text-purple-600">
+          {{ formatCurrency((currentMonth?.expenses?.charity || 0) + (currentMonth?.expenses?.zakat || 0)) }}
+        </p>
       </div>
     </div>
 
     <!-- Expense Categories -->
     <div class="card">
-      <h3 class="text-lg font-semibold mb-4">Expense Categories</h3>
+      <h3 class="text-lg font-semibold mb-4">
+        Expense Categories
+      </h3>
       <div class="space-y-4">
-        <div v-for="(category, key) in expenseCategories" :key="key" class="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
+        <div
+          v-for="(category, key) in expenseCategories"
+          :key="key"
+          class="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
+        >
           <div class="flex items-center space-x-3">
-            <div :class="['w-4 h-4 rounded-full', category.color]"></div>
+            <div :class="['w-4 h-4 rounded-full', category.color]" />
             <div>
-              <div class="font-medium">{{ category.name }}</div>
-              <div class="text-sm text-gray-500">{{ category.description }}</div>
+              <div class="font-medium">
+                {{ category.name }}
+              </div>
+              <div class="text-sm text-gray-500">
+                {{ category.description }}
+              </div>
             </div>
           </div>
           <div class="text-right">
-            <div class="font-semibold">{{ formatCurrency(category.amount) }}</div>
-            <div class="text-sm text-gray-500">{{ category.percentage }}%</div>
+            <div class="font-semibold">
+              {{ formatCurrency(category.amount) }}
+            </div>
+            <div class="text-sm text-gray-500">
+              {{ category.percentage }}%
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</template> 
+</template>

@@ -1,26 +1,26 @@
 <script setup>
-import { useLayout } from '@/layout/composables/layout';
-import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes';
-import Aura from '@primeuix/themes/aura';
-import Lara from '@primeuix/themes/lara';
-import Nora from '@primeuix/themes/nora';
-import { ref } from 'vue';
+import { useLayout } from '@/layout/composables/layout'
+import { $t, updatePreset, updateSurfacePalette } from '@primeuix/themes'
+import Aura from '@primeuix/themes/aura'
+import Lara from '@primeuix/themes/lara'
+import Nora from '@primeuix/themes/nora'
+import { ref } from 'vue'
 
-const { layoutConfig, isDarkTheme } = useLayout();
+const { layoutConfig, isDarkTheme } = useLayout()
 
 const presets = {
   Aura,
   Lara,
   Nora
-};
-const preset = ref(layoutConfig.preset);
-const presetOptions = ref(Object.keys(presets));
+}
+const preset = ref(layoutConfig.preset)
+const presetOptions = ref(Object.keys(presets))
 
-const menuMode = ref(layoutConfig.menuMode);
+const menuMode = ref(layoutConfig.menuMode)
 const menuModeOptions = ref([
   { label: 'Static', value: 'static' },
   { label: 'Overlay', value: 'overlay' }
-]);
+])
 
 const primaryColors = ref([
   { name: 'noir', palette: {} },
@@ -40,7 +40,7 @@ const primaryColors = ref([
   { name: 'fuchsia', palette: { 50: '#fdf4ff', 100: '#fae8ff', 200: '#f5d0fe', 300: '#f0abfc', 400: '#e879f9', 500: '#d946ef', 600: '#c026d3', 700: '#a21caf', 800: '#86198f', 900: '#701a75', 950: '#4a044e' } },
   { name: 'pink', palette: { 50: '#fdf2f8', 100: '#fce7f3', 200: '#fbcfe8', 300: '#f9a8d4', 400: '#f472b6', 500: '#ec4899', 600: '#db2777', 700: '#be185d', 800: '#9d174d', 900: '#831843', 950: '#500724' } },
   { name: 'rose', palette: { 50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 800: '#9f1239', 900: '#881337', 950: '#4c0519' } }
-]);
+])
 
 const surfaces = ref([
   {
@@ -75,10 +75,10 @@ const surfaces = ref([
     name: 'ocean',
     palette: { 0: '#ffffff', 50: '#fbfcfc', 100: '#F7F9F8', 200: '#EFF3F2', 300: '#DADEDD', 400: '#B1B7B6', 500: '#828787', 600: '#5F7274', 700: '#415B61', 800: '#29444E', 900: '#183240', 950: '#0c1920' }
   }
-]);
+])
 
-function getPresetExt() {
-  const color = primaryColors.value.find((c) => c.name === layoutConfig.primary);
+function getPresetExt () {
+  const color = primaryColors.value.find((c) => c.name === layoutConfig.primary)
 
   if (color.name === 'noir') {
     return {
@@ -127,7 +127,7 @@ function getPresetExt() {
           }
         }
       }
-    };
+    }
   } else {
     return {
       semantic: {
@@ -163,38 +163,38 @@ function getPresetExt() {
           }
         }
       }
-    };
+    }
   }
 }
 
-function updateColors(type, color) {
+function updateColors (type, color) {
   if (type === 'primary') {
-    layoutConfig.primary = color.name;
+    layoutConfig.primary = color.name
   } else if (type === 'surface') {
-    layoutConfig.surface = color.name;
+    layoutConfig.surface = color.name
   }
 
-  applyTheme(type, color);
+  applyTheme(type, color)
 }
 
-function applyTheme(type, color) {
+function applyTheme (type, color) {
   if (type === 'primary') {
-    updatePreset(getPresetExt());
+    updatePreset(getPresetExt())
   } else if (type === 'surface') {
-    updateSurfacePalette(color.palette);
+    updateSurfacePalette(color.palette)
   }
 }
 
-function onPresetChange() {
-  layoutConfig.preset = preset.value;
-  const presetValue = presets[preset.value];
-  const surfacePalette = surfaces.value.find((s) => s.name === layoutConfig.surface)?.palette;
+function onPresetChange () {
+  layoutConfig.preset = preset.value
+  const presetValue = presets[preset.value]
+  const surfacePalette = surfaces.value.find((s) => s.name === layoutConfig.surface)?.palette
 
-  $t().preset(presetValue).preset(getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
+  $t().preset(presetValue).preset(getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true })
 }
 
-function onMenuModeChange() {
-  layoutConfig.menuMode = menuMode.value;
+function onMenuModeChange () {
+  layoutConfig.menuMode = menuMode.value
 }
 </script>
 
@@ -211,10 +211,10 @@ function onMenuModeChange() {
             :key="primaryColor.name"
             type="button"
             :title="primaryColor.name"
-            @click="updateColors('primary', primaryColor)"
             :class="['border-none w-5 h-5 rounded-full p-0 cursor-pointer outline-none outline-offset-1', { 'outline-primary': layoutConfig.primary === primaryColor.name }]"
             :style="{ backgroundColor: `${primaryColor.name === 'noir' ? 'var(--text-color)' : primaryColor.palette['500']}` }"
-          ></button>
+            @click="updateColors('primary', primaryColor)"
+          />
         </div>
       </div>
       <div>
@@ -225,22 +225,34 @@ function onMenuModeChange() {
             :key="surface.name"
             type="button"
             :title="surface.name"
-            @click="updateColors('surface', surface)"
             :class="[
               'border-none w-5 h-5 rounded-full p-0 cursor-pointer outline-none outline-offset-1',
               { 'outline-primary': layoutConfig.surface ? layoutConfig.surface === surface.name : isDarkTheme ? surface.name === 'zinc' : surface.name === 'slate' }
             ]"
             :style="{ backgroundColor: `${surface.palette['500']}` }"
-          ></button>
+            @click="updateColors('surface', surface)"
+          />
         </div>
       </div>
       <div class="flex flex-col gap-2">
         <span class="text-sm text-muted-color font-semibold">Presets</span>
-        <SelectButton v-model="preset" @change="onPresetChange" :options="presetOptions" :allowEmpty="false" />
+        <SelectButton
+          v-model="preset"
+          :options="presetOptions"
+          :allow-empty="false"
+          @change="onPresetChange"
+        />
       </div>
       <div class="flex flex-col gap-2">
         <span class="text-sm text-muted-color font-semibold">Menu Mode</span>
-        <SelectButton v-model="menuMode" @change="onMenuModeChange" :options="menuModeOptions" :allowEmpty="false" optionLabel="label" optionValue="value" />
+        <SelectButton
+          v-model="menuMode"
+          :options="menuModeOptions"
+          :allow-empty="false"
+          option-label="label"
+          option-value="value"
+          @change="onMenuModeChange"
+        />
       </div>
     </div>
   </div>

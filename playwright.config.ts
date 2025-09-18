@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -25,20 +25,20 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    
+
     /* Take screenshot on failure */
     screenshot: 'only-on-failure',
-    
+
     /* Record video on failure */
-    video: 'retain-on-failure',
+    video: 'retain-on-failure'
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
-    },
+      use: { ...devices['Desktop Chrome'] }
+    }
   ],
 
   /* Run your local dev server before starting the tests */
@@ -48,18 +48,18 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120000, // Increase timeout to 2 minutes
     stdout: 'pipe',
-    stderr: 'pipe',
+    stderr: 'pipe'
   },
 
   /* Global timeout for all tests */
   timeout: 30000,
-  
+
   /* Expect timeout for assertions */
   expect: {
-    timeout: 10000,
+    timeout: 10000
   },
-  
+
   /* Global setup and teardown */
   globalSetup: undefined,
-  globalTeardown: undefined,
-}); 
+  globalTeardown: undefined
+})

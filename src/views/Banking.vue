@@ -75,7 +75,7 @@ const handleAccountClick = (account) => {
   // Navigate to account details or transactions filtered by account
   router.push({
     name: 'Transactions',
-    query: { 
+    query: {
       account: account.id,
       action: 'history'
     }
@@ -105,7 +105,7 @@ const handleTransfer = (account) => {
 const handleAccountHistory = (account) => {
   router.push({
     name: 'Transactions',
-    query: { 
+    query: {
       account: account.id,
       action: 'history'
     }
@@ -168,43 +168,61 @@ onMounted(async () => {
       <template #content>
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold">Banking</h1>
-            <p class="mt-2">Manage your accounts and track balances</p>
+            <h1 class="text-3xl font-bold">
+              Banking
+            </h1>
+            <p class="mt-2">
+              Manage your accounts and track balances
+            </p>
           </div>
-          
+
           <Button
-            @click="showAddModal = true"
             icon="pi pi-plus"
             label="Add Account"
             severity="primary"
+            @click="showAddModal = true"
           />
         </div>
       </template>
     </Card>
 
     <!-- Loading State -->
-    <div v-if="accountsStore.loading" class="flex justify-center items-center py-12">
+    <div
+      v-if="accountsStore.loading"
+      class="flex justify-center items-center py-12"
+    >
       <div class="flex flex-col items-center gap-3">
-        <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+        <i class="pi pi-spin pi-spinner text-4xl text-blue-600" />
         <span>Loading accounts...</span>
       </div>
     </div>
 
     <!-- Error State -->
-    <Card v-else-if="accountsStore.error" class="mb-6" severity="danger">
+    <Card
+      v-else-if="accountsStore.error"
+      class="mb-6"
+      severity="danger"
+    >
       <template #content>
         <div class="flex items-center gap-3">
-          <i class="pi pi-exclamation-triangle text-xl"></i>
+          <i class="pi pi-exclamation-triangle text-xl" />
           <div>
-            <h3 class="font-medium">Error loading accounts</h3>
-            <p class="mt-1">{{ accountsStore.error }}</p>
+            <h3 class="font-medium">
+              Error loading accounts
+            </h3>
+            <p class="mt-1">
+              {{ accountsStore.error }}
+            </p>
           </div>
         </div>
       </template>
     </Card>
 
     <!-- Accounts Grid -->
-    <div v-else-if="accountsStore.accounts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+    <div
+      v-else-if="accountsStore.accounts.length > 0"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
+    >
       <Card
         v-for="account in accountsStore.accounts"
         :key="account.id"
@@ -215,44 +233,56 @@ onMounted(async () => {
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <i :class="getAccountIcon(account.type)" class="text-blue-600 text-lg"></i>
+                <i
+                  :class="getAccountIcon(account.type)"
+                  class="text-blue-600 text-lg"
+                />
               </div>
               <div>
-                <h3 class="font-semibold">{{ account.name }}</h3>
-                <p class="text-sm capitalize">{{ account.type.replace('_', ' ') }}</p>
+                <h3 class="font-semibold">
+                  {{ account.name }}
+                </h3>
+                <p class="text-sm capitalize">
+                  {{ account.type.replace('_', ' ') }}
+                </p>
               </div>
             </div>
-            
+
             <div class="flex items-center gap-1">
               <Button
                 v-if="account.is_default"
+                v-tooltip.top="'Default Account'"
                 icon="pi pi-star-fill"
                 size="small"
                 text
                 severity="warning"
-                v-tooltip.top="'Default Account'"
               />
               <Button
+                v-tooltip.top="'More Options'"
                 icon="pi pi-ellipsis-v"
                 size="small"
                 text
                 @click.stop="showAccountMenu($event, account)"
-                v-tooltip.top="'More Options'"
               />
             </div>
           </div>
         </template>
-        
+
         <template #content>
           <div class="space-y-4">
             <!-- Balance -->
             <div class="text-center">
-              <p class="text-sm mb-1">Current Balance</p>
-              <p class="text-2xl font-bold" :class="getBalanceColor(account.balance)">
+              <p class="text-sm mb-1">
+                Current Balance
+              </p>
+              <p
+                class="text-2xl font-bold"
+                :class="getBalanceColor(account.balance)"
+              >
                 {{ formatCurrency(account.balance) }}
               </p>
             </div>
-            
+
             <!-- Account Details -->
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
@@ -268,7 +298,7 @@ onMounted(async () => {
                 <span class="font-medium">{{ account.interest_rate ? `${account.interest_rate}%` : 'N/A' }}</span>
               </div>
             </div>
-            
+
             <!-- Quick Actions -->
             <div class="flex gap-2 pt-2">
               <Button
@@ -276,16 +306,16 @@ onMounted(async () => {
                 label="History"
                 size="small"
                 outlined
-                @click.stop="handleAccountHistory(account)"
                 class="flex-1"
+                @click.stop="handleAccountHistory(account)"
               />
               <Button
                 icon="pi pi-exchange"
                 label="Transfer"
                 size="small"
                 outlined
-                @click.stop="handleTransfer(account)"
                 class="flex-1"
+                @click.stop="handleTransfer(account)"
               />
             </div>
           </div>
@@ -294,41 +324,64 @@ onMounted(async () => {
     </div>
 
     <!-- Empty State -->
-    <Card v-else class="text-center py-12">
+    <Card
+      v-else
+      class="text-center py-12"
+    >
       <template #content>
         <div class="mb-4">
-          <i class="pi pi-wallet text-6xl"></i>
+          <i class="pi pi-wallet text-6xl" />
         </div>
-        <h3 class="text-lg font-medium mb-2">No accounts yet</h3>
-        <p class="mb-6">Get started by adding your first bank account</p>
+        <h3 class="text-lg font-medium mb-2">
+          No accounts yet
+        </h3>
+        <p class="mb-6">
+          Get started by adding your first bank account
+        </p>
         <Button
-          @click="showAddModal = true"
           icon="pi pi-plus"
           label="Add Your First Account"
           severity="primary"
+          @click="showAddModal = true"
         />
       </template>
     </Card>
 
     <!-- Account Summary -->
-    <Card v-if="accountsStore.accounts.length > 0" class="mb-6">
+    <Card
+      v-if="accountsStore.accounts.length > 0"
+      class="mb-6"
+    >
       <template #header>
-        <h2 class="text-xl font-semibold">Account Summary</h2>
+        <h2 class="text-xl font-semibold">
+          Account Summary
+        </h2>
       </template>
       <template #content>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div class="text-center">
-            <p class="text-sm mb-2">Total Balance</p>
-            <p class="text-3xl font-bold" :class="getTotalBalanceColor(accountsStore.totalBalance)">
+            <p class="text-sm mb-2">
+              Total Balance
+            </p>
+            <p
+              class="text-3xl font-bold"
+              :class="getTotalBalanceColor(accountsStore.totalBalance)"
+            >
               {{ formatCurrency(accountsStore.totalBalance) }}
             </p>
           </div>
           <div class="text-center">
-            <p class="text-sm text-gray-500 mb-2">Number of Accounts</p>
-            <p class="text-3xl font-bold">{{ accountsStore.accounts.length }}</p>
+            <p class="text-sm text-gray-500 mb-2">
+              Number of Accounts
+            </p>
+            <p class="text-3xl font-bold">
+              {{ accountsStore.accounts.length }}
+            </p>
           </div>
           <div class="text-center">
-            <p class="text-sm mb-2">Default Account</p>
+            <p class="text-sm mb-2">
+              Default Account
+            </p>
             <p class="text-xl font-semibold">
               {{ accountsStore.defaultAccount?.name || 'None' }}
             </p>
@@ -338,10 +391,15 @@ onMounted(async () => {
     </Card>
 
     <!-- Recent Transactions -->
-    <Card v-if="accountsStore.accounts.length > 0" class="mb-6">
+    <Card
+      v-if="accountsStore.accounts.length > 0"
+      class="mb-6"
+    >
       <template #header>
         <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold">Recent Transactions</h2>
+          <h2 class="text-xl font-semibold">
+            Recent Transactions
+          </h2>
           <Button
             label="View All"
             text
@@ -354,42 +412,62 @@ onMounted(async () => {
         <DataTable
           :value="recentTransactions"
           :rows="5"
-          :showGridlines="true"
-          stripedRows
+          :show-gridlines="true"
+          striped-rows
           class="p-datatable-sm"
         >
           <template #empty>
             <div class="text-center py-8">
-              <i class="pi pi-inbox text-4xl mb-3"></i>
+              <i class="pi pi-inbox text-4xl mb-3" />
               <p>No recent transactions</p>
             </div>
           </template>
 
-          <Column field="date" header="Date" style="width: 120px">
+          <Column
+            field="date"
+            header="Date"
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <span class="font-medium">{{ formatDate(data.date) }}</span>
             </template>
           </Column>
 
-          <Column field="description" header="Description" style="min-width: 200px">
+          <Column
+            field="description"
+            header="Description"
+            style="min-width: 200px"
+          >
             <template #body="{ data }">
               <div class="flex items-center gap-2">
                 <div
                   :class="getTransactionTypeColor(data.type)"
                   class="w-3 h-3 rounded-full flex-shrink-0"
-                ></div>
+                />
                 <span class="font-medium">{{ data.description || 'Transaction' }}</span>
               </div>
             </template>
           </Column>
 
-          <Column field="type" header="Type" style="width: 100px">
+          <Column
+            field="type"
+            header="Type"
+            style="width: 100px"
+          >
             <template #body="{ data }">
-              <Tag :value="data.type" :severity="getTypeSeverity(data.type)" rounded />
+              <Tag
+                :value="data.type"
+                :severity="getTypeSeverity(data.type)"
+                rounded
+              />
             </template>
           </Column>
 
-          <Column field="amount" header="Amount" style="width: 120px">
+          <Column
+            field="amount"
+            header="Amount"
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <span
                 :class="data.type === 'income' ? 'text-green-600' : data.type === 'expense' ? 'text-red-600' : 'text-blue-600'"
@@ -400,9 +478,16 @@ onMounted(async () => {
             </template>
           </Column>
 
-          <Column field="account" header="Account" style="width: 120px">
+          <Column
+            field="account"
+            header="Account"
+            style="width: 120px"
+          >
             <template #body="{ data }">
-              <span v-if="data.accounts?.name" class="font-medium">{{ data.accounts.name }}</span>
+              <span
+                v-if="data.accounts?.name"
+                class="font-medium"
+              >{{ data.accounts.name }}</span>
               <span v-else>-</span>
             </template>
           </Column>
@@ -411,7 +496,10 @@ onMounted(async () => {
     </Card>
 
     <!-- Account Menu Overlay -->
-    <OverlayPanel ref="accountMenu" class="w-48">
+    <OverlayPanel
+      ref="accountMenu"
+      class="w-48"
+    >
       <div class="p-2">
         <Button
           icon="pi pi-pencil"
@@ -461,4 +549,4 @@ onMounted(async () => {
       @transfer-completed="handleTransferCompleted"
     />
   </div>
-</template> 
+</template>

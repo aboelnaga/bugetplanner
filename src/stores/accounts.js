@@ -5,14 +5,14 @@ import { useAuthStore } from './auth'
 
 export const useAccountsStore = defineStore('accounts', () => {
   const authStore = useAuthStore()
-  
+
   // State
   const accounts = ref([])
   const loading = ref(false)
   const error = ref(null)
 
   // Getters
-  const defaultAccount = computed(() => 
+  const defaultAccount = computed(() =>
     accounts.value.find(account => account.is_default)
   )
 
@@ -27,7 +27,7 @@ export const useAccountsStore = defineStore('accounts', () => {
     return grouped
   })
 
-  const totalBalance = computed(() => 
+  const totalBalance = computed(() =>
     accounts.value.reduce((total, account) => {
       if (account.type === 'credit_card') {
         // For credit cards, show available credit (credit_limit - balance)
@@ -37,11 +37,11 @@ export const useAccountsStore = defineStore('accounts', () => {
     }, 0)
   )
 
-  const getAccountById = computed(() => (id) => 
+  const getAccountById = computed(() => (id) =>
     accounts.value.find(account => account.id === id)
   )
 
-  const getAccountByName = computed(() => (name) => 
+  const getAccountByName = computed(() => (name) =>
     accounts.value.find(account => account.name === name)
   )
 
@@ -51,10 +51,10 @@ export const useAccountsStore = defineStore('accounts', () => {
       accounts.value = []
       return
     }
-    
+
     loading.value = true
     error.value = null
-    
+
     try {
       const data = await accountAPI.getAccounts(authStore.userId)
       accounts.value = data || []
@@ -68,16 +68,16 @@ export const useAccountsStore = defineStore('accounts', () => {
 
   const createAccount = async (accountData) => {
     if (!authStore.isAuthenticated || !authStore.userId) return null
-    
+
     loading.value = true
     error.value = null
-    
+
     try {
       const data = await accountAPI.createAccount({
         ...accountData,
         user_id: authStore.userId
       })
-      
+
       accounts.value.push(data)
       return data
     } catch (err) {
@@ -92,7 +92,7 @@ export const useAccountsStore = defineStore('accounts', () => {
   const updateAccount = async (id, updates) => {
     loading.value = true
     error.value = null
-    
+
     try {
       // If we're setting this account as default, unset all other accounts first
       if (updates.is_default === true) {
@@ -107,14 +107,14 @@ export const useAccountsStore = defineStore('accounts', () => {
           }
         }
       }
-      
+
       const data = await accountAPI.updateAccount(id, updates)
-      
+
       const index = accounts.value.findIndex(account => account.id === id)
       if (index !== -1) {
         accounts.value[index] = data
       }
-      
+
       return data
     } catch (err) {
       error.value = err.message
@@ -128,13 +128,13 @@ export const useAccountsStore = defineStore('accounts', () => {
   const deleteAccount = async (id) => {
     loading.value = true
     error.value = null
-    
+
     try {
       // Check if account has transactions
       const { data: transactions, error: checkError } = await accountAPI.checkAccountTransactions(id)
 
       if (checkError) throw checkError
-      
+
       if (transactions && transactions.length > 0) {
         throw new Error('Cannot delete account with existing transactions')
       }
@@ -163,7 +163,7 @@ export const useAccountsStore = defineStore('accounts', () => {
           }
         }
       }
-      
+
       // Then set the selected account as default
       await updateAccount(id, { is_default: true })
     } catch (err) {
@@ -184,7 +184,7 @@ export const useAccountsStore = defineStore('accounts', () => {
   const getAvailableCredit = (accountId) => {
     const account = getAccountById.value(accountId)
     if (!account || account.type !== 'credit_card') return null
-    
+
     return (account.credit_limit || 0) - account.balance
   }
 
@@ -241,14 +241,14 @@ export const useAccountsStore = defineStore('accounts', () => {
     accounts,
     loading,
     error,
-    
+
     // Getters
     defaultAccount,
     accountsByType,
     totalBalance,
     getAccountById,
     getAccountByName,
-    
+
     // Actions
     fetchAccounts,
     createAccount,
@@ -263,4 +263,4 @@ export const useAccountsStore = defineStore('accounts', () => {
     initialize,
     watchAuth
   }
-}) 
+})

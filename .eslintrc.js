@@ -3,15 +3,15 @@ module.exports = {
   env: {
     node: true,
     browser: true,
-    es2021: true,
+    es2021: true
   },
   extends: [
     'eslint:recommended',
-    'plugin:vue/vue3-essential',
+    'plugin:vue/vue3-essential'
   ],
   parserOptions: {
     ecmaVersion: 2021,
-    sourceType: 'module',
+    sourceType: 'module'
   },
   plugins: ['vue'],
   rules: {
@@ -134,15 +134,15 @@ module.exports = {
     'spaced-comment': 'off',
     'no-dupe-keys': 'off',
     'no-undef': 'off',
-    'no-case-declarations': 'off',
+    'no-case-declarations': 'off'
   },
   overrides: [
     {
       files: ['*.vue'],
       rules: {
-        'vue/script-indent': 'off', // Let Prettier handle Vue script indentation
-      },
-    },
+        'vue/script-indent': 'off' // Let Prettier handle Vue script indentation
+      }
+    }
   ],
   ignorePatterns: [
     'dist/**',
@@ -152,6 +152,6 @@ module.exports = {
     'playwright-report/**',
     'test-results/**',
     'tests/**',
-    'components.d.ts',
-  ],
-};
+    'components.d.ts'
+  ]
+}

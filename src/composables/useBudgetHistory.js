@@ -4,7 +4,7 @@
 import { computed } from 'vue'
 import { formatCurrency, historyUtils } from '@/utils/budgetUtils.js'
 
-export function useBudgetHistory(budgetStore) {
+export function useBudgetHistory (budgetStore) {
   // Get history items
   const historyItems = computed(() => budgetStore.budgetHistory || [])
 
@@ -88,7 +88,7 @@ export function useBudgetHistory(budgetStore) {
     const totalIncrease = historyItems.value
       .filter(change => change.new_amount > change.old_amount)
       .reduce((sum, change) => sum + (change.new_amount - change.old_amount), 0)
-    
+
     const totalDecrease = historyItems.value
       .filter(change => change.new_amount < change.old_amount)
       .reduce((sum, change) => sum + (change.old_amount - change.new_amount), 0)
@@ -109,7 +109,7 @@ export function useBudgetHistory(budgetStore) {
   // Get history items grouped by budget item
   const getHistoryByBudgetItem = () => {
     const grouped = {}
-    
+
     historyItems.value.forEach(change => {
       const itemId = change.budget_item_id
       if (!grouped[itemId]) {
@@ -120,14 +120,14 @@ export function useBudgetHistory(budgetStore) {
       }
       grouped[itemId].changes.push(change)
     })
-    
+
     return grouped
   }
 
   // Get history items grouped by month
   const getHistoryByMonth = () => {
     const grouped = {}
-    
+
     historyItems.value.forEach(change => {
       const monthKey = `${change.month_index + 1}`
       if (!grouped[monthKey]) {
@@ -138,7 +138,7 @@ export function useBudgetHistory(budgetStore) {
       }
       grouped[monthKey].changes.push(change)
     })
-    
+
     return grouped
   }
 
@@ -165,25 +165,25 @@ export function useBudgetHistory(budgetStore) {
     historyItems,
     uniqueBudgetItems,
     latestChangeTime,
-    
+
     // Formatting
     formatHistoryCurrency,
     formatHistoryValue,
     formatTimestamp,
     formatFullDate,
-    
+
     // Utilities
     getBudgetItemName,
     getChangeIndicator,
     getHistoryStats,
-    
+
     // Grouping
     getHistoryByBudgetItem,
     getHistoryByMonth,
-    
+
     // Filtering
     filterHistoryByDateRange,
     filterHistoryByBudgetItem,
     filterHistoryByMonth
   }
-} 
+}

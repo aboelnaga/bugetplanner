@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
  * Islamic Law Compliance Composable
  * Ensures Zakat calculations follow proper Islamic jurisprudence
  */
-export function useIslamicLawCompliance() {
+export function useIslamicLawCompliance () {
 
   // Islamic Schools of Thought (Madhahib)
   const ISLAMIC_SCHOOLS = {
@@ -190,7 +190,7 @@ export function useIslamicLawCompliance() {
   const setNisabCalculationMethod = (method) => {
     if (method === 'silver' || method === 'gold') {
       nisabCalculationMethod.value = method
-      
+
       // Save to localStorage
       localStorage.setItem('zakat-nisab-method', method)
     }

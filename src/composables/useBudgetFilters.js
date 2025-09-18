@@ -4,7 +4,7 @@
 import { computed, ref } from 'vue'
 import { BUDGET_TYPES, FILTER_OPTIONS } from '@/constants/budgetConstants.js'
 
-export function useBudgetFilters(budgetItems, budgetStore) {
+export function useBudgetFilters (budgetItems, budgetStore) {
   // Filter state
   const selectedTypeFilter = ref(FILTER_OPTIONS.ALL)
   const selectedCategoryFilter = ref(FILTER_OPTIONS.ALL)
@@ -51,7 +51,7 @@ export function useBudgetFilters(budgetItems, budgetStore) {
   // Grouped budget items
   const groupedBudgetItems = computed(() => {
     if (!groupByCategory.value) return {}
-    
+
     const grouped = {}
     filteredBudgetItems.value.forEach(item => {
       if (!grouped[item.category]) {
@@ -59,13 +59,13 @@ export function useBudgetFilters(budgetItems, budgetStore) {
       }
       grouped[item.category].push(item)
     })
-    
+
     // Sort categories alphabetically
     const sortedGrouped = {}
     Object.keys(grouped).sort().forEach(key => {
       sortedGrouped[key] = grouped[key]
     })
-    
+
     return sortedGrouped
   })
 
@@ -108,20 +108,20 @@ export function useBudgetFilters(budgetItems, budgetStore) {
   const getCategoryType = (categoryItems) => {
     // Determine the predominant type in the category
     if (categoryItems.length === 0) return BUDGET_TYPES.EXPENSE
-    
+
     const typeCounts = categoryItems.reduce((counts, item) => {
-      const key = item.type === BUDGET_TYPES.INVESTMENT 
+      const key = item.type === BUDGET_TYPES.INVESTMENT
         ? `${item.type}-${item.investment_direction}`
         : item.type
       counts[key] = (counts[key] || 0) + 1
       return counts
     }, {})
-    
+
     // Return the most common type
-    const mostCommonType = Object.keys(typeCounts).reduce((a, b) => 
+    const mostCommonType = Object.keys(typeCounts).reduce((a, b) =>
       typeCounts[a] > typeCounts[b] ? a : b
     )
-    
+
     return mostCommonType
   }
 
@@ -130,7 +130,7 @@ export function useBudgetFilters(budgetItems, budgetStore) {
     selectedTypeFilter,
     selectedCategoryFilter,
     groupByCategory,
-    
+
     // Computed properties
     incomeCount,
     expenseCount,
@@ -145,10 +145,10 @@ export function useBudgetFilters(budgetItems, budgetStore) {
     hasInvestmentOutgoingData,
     hasInvestmentData,
     hasAnyData,
-    
+
     // Actions
     clearAllFilters,
     toggleGroupByCategory,
     getCategoryType
   }
-} 
+}

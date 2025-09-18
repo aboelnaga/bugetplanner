@@ -3,7 +3,7 @@ import { supabase } from './supabase.js'
 // Authentication helper functions
 export const authAPI = {
   // Sign up with email and password
-  async signUp(email, password, fullName = '') {
+  async signUp (email, password, fullName = '') {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -13,84 +13,84 @@ export const authAPI = {
         }
       }
     })
-    
+
     if (error) throw error
-    
+
     // Create profile if signup successful
     if (data.user) {
       await this.createProfile(data.user.id, email, fullName)
     }
-    
+
     return data
   },
 
   // Sign in with email and password
-  async signIn(email, password) {
+  async signIn (email, password) {
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
-    
+
     if (error) throw error
     return data
   },
 
   // Sign out
-  async signOut() {
+  async signOut () {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
   },
 
   // Get current user
-  async getCurrentUser() {
+  async getCurrentUser () {
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error) throw error
     return user
   },
 
   // Create or update profile
-  async createProfile(userId, email, fullName) {
+  async createProfile (userId, email, fullName) {
     const { data, error } = await supabase
       .from('profiles')
       .upsert({
         id: userId,
-        email: email,
+        email,
         full_name: fullName
       })
       .select()
       .single()
-    
+
     if (error) throw error
     return data
   },
 
   // Get user profile
-  async getProfile(userId) {
+  async getProfile (userId) {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', userId)
       .single()
-    
+
     if (error) throw error
     return data
   },
 
   // Update profile
-  async updateProfile(userId, updates) {
+  async updateProfile (userId, updates) {
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('id', userId)
       .select()
       .single()
-    
+
     if (error) throw error
     return data
   },
 
   // Listen to auth state changes
-  onAuthStateChange(callback) {
+  onAuthStateChange (callback) {
     return supabase.auth.onAuthStateChange(callback)
   }
 }
@@ -132,4 +132,4 @@ export const useAuth = () => {
     getProfile: authAPI.getProfile,
     updateProfile: authAPI.updateProfile
   }
-} 
+}

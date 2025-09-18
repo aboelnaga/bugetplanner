@@ -5,7 +5,7 @@ import { computed } from 'vue'
 import { SUMMARY_ROWS, SUMMARY_VALUE_STYLES } from '@/constants/budgetConstants.js'
 import { summaryUtils } from '@/utils/budgetUtils.js'
 
-export function useBudgetSummaries(
+export function useBudgetSummaries (
   budgetItems,
   selectedTypeFilter,
   hasIncomeData,
@@ -30,7 +30,7 @@ export function useBudgetSummaries(
   const shouldShowSummaryRow = (rowKey) => {
     const rowConfig = SUMMARY_ROWS[rowKey]
     if (!rowConfig) return false
-    
+
     return summaryUtils.shouldShowSummaryRow(rowConfig, summaryConditions.value)
   }
 
@@ -59,7 +59,7 @@ export function useBudgetSummaries(
   const getSummaryRowStyling = (rowKey) => {
     const rowConfig = SUMMARY_ROWS[rowKey]
     if (!rowConfig) return {}
-    
+
     return {
       bgColor: rowConfig.bgColor,
       textColor: rowConfig.textColor,
@@ -82,7 +82,7 @@ export function useBudgetSummaries(
       'NET_INVESTMENT',
       'NET_BALANCE'
     ]
-    
+
     return order.filter(rowKey => shouldShowSummaryRow(rowKey))
   }
 
@@ -91,14 +91,14 @@ export function useBudgetSummaries(
     shouldShowSummaryRow,
     getVisibleSummaryRows,
     getSummaryRowOrder,
-    
+
     // Configuration
     getSummaryRowConfig,
     getSummaryRowStyling,
-    
+
     // Styling
     getSummaryCellClasses,
     getSummaryTotalClasses,
     formatSummaryValue
   }
-} 
+}

@@ -86,6 +86,15 @@ This document consolidates all development guidelines, patterns, and best practi
 - **Consistency**: Follow existing patterns in the codebase
 - **Simplicity**: Start simple, add complexity only when needed
 
+### Linting and Code Formatting
+- **ESLint Configuration**: Use `eslint.config.js` with Vue.js and JavaScript rules
+- **Prettier Integration**: Use `.prettierrc` for consistent code formatting
+- **Lint Script**: Run `npm run lint` to check and fix code issues
+- **Code Style**: Follow ESLint rules for consistent code formatting
+- **Vue.js Linting**: Use Vue-specific ESLint rules for component validation
+- **Error Handling**: Fix ESLint errors before committing code
+- **Warning Management**: Address ESLint warnings when possible, but don't block development
+
 ## Islamic Finance Compliance
 
 ### Core Principles
@@ -269,6 +278,15 @@ Don't over-engineer for future requirements.
 ### 6. Document Complex Logic
 Add inline comments for complex business logic.
 
+### 7. Run Linting
+Use `npm run lint` to check and fix code issues.
+
+### 8. Fix ESLint Errors
+Address all ESLint errors before committing.
+
+### 9. Address Warnings
+Fix ESLint warnings when possible, but don't block development.
+
 ## File Organization
 
 ### Component Structure
@@ -300,6 +318,9 @@ src/
 - ✅ Test manually in browser first
 - ✅ Keep components simple and focused
 - ✅ Use TypeScript for complex logic
+- ✅ Run `npm run lint` regularly
+- ✅ Fix ESLint errors before committing
+- ✅ Follow ESLint and Prettier formatting rules
 
 ### Don'ts
 - ❌ Create custom components when PrimeVue equivalent exists
@@ -309,6 +330,9 @@ src/
 - ❌ Skip manual testing
 - ❌ Create overly complex components
 - ❌ Ignore Islamic finance compliance requirements
+- ❌ Commit code with ESLint errors
+- ❌ Ignore code formatting standards
+- ❌ Skip linting in development workflow
 
 ## AI Assistance Guidelines
 
@@ -321,6 +345,14 @@ When providing AI assistance for this project:
 5. **Focus on pragmatic solutions** for solo development
 6. **Maintain consistency** with existing code structure
 7. **Provide clear, actionable guidance** for implementation
+8. **MANDATORY: Run `npm run lint:errors`** after every code change
+9. **MANDATORY: Fix all ESLint errors** before marking code as complete
+10. **MANDATORY: Use `npm run lint:fix`** to automatically fix fixable issues
+11. **MANDATORY: Check linting status** when debugging or troubleshooting
+12. **MANDATORY: Validate code quality** by running linting as part of development process
+13. **MANDATORY: Report linting errors** to user if they prevent development
+14. **MANDATORY: Suggest linting fixes** when providing code solutions
+15. **MANDATORY: Include linting commands** in development guidance
 
 ## Conclusion
 

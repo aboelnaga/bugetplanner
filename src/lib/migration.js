@@ -4,7 +4,7 @@ import { supabase, budgetAPI } from './supabase.js'
 export const migrateBudgetData = async (userId) => {
   try {
     console.log('Starting budget data migration...')
-    
+
     // Sample budget data from your current store
     const sampleBudgetItems = [
       {
@@ -92,20 +92,20 @@ export const migrateBudgetData = async (userId) => {
           ...item,
           user_id: userId
         })
-        
+
         console.log(`Created budget item: ${item.name}`)
         migratedItems.push(budgetItem)
 
         // Generate monthly amounts based on recurrence
         const amounts = generateMonthlyAmounts(item)
-        
+
         // Update budget item with amounts array
         await budgetAPI.updateBudgetItem(budgetItem.id, {
-          amounts: amounts
+          amounts
         })
-        
+
         console.log(`Created amounts for: ${item.name}`)
-        
+
       } catch (error) {
         console.error(`Error migrating ${item.name}:`, error)
       }
@@ -113,7 +113,7 @@ export const migrateBudgetData = async (userId) => {
 
     console.log(`Migration completed. ${migratedItems.length} items migrated.`)
     return migratedItems
-    
+
   } catch (error) {
     console.error('Migration failed:', error)
     throw error
@@ -124,7 +124,7 @@ export const migrateBudgetData = async (userId) => {
 const generateMonthlyAmounts = (budgetItem) => {
   const amounts = new Array(12).fill(0)
   const startMonth = budgetItem.start_month
-  
+
   switch (budgetItem.recurrence) {
     case 'monthly':
       for (let month = startMonth; month < 12; month++) {
@@ -153,7 +153,7 @@ const generateMonthlyAmounts = (budgetItem) => {
       amounts[startMonth] = budgetItem.default_amount
       break
   }
-  
+
   return amounts
 }
 
@@ -165,9 +165,9 @@ export const checkMigrationStatus = async (userId) => {
       .select('id')
       .eq('user_id', userId)
       .limit(1)
-    
+
     if (error) throw error
-    
+
     return {
       needsMigration: data.length === 0,
       itemCount: data.length
@@ -176,4 +176,4 @@ export const checkMigrationStatus = async (userId) => {
     console.error('Error checking migration status:', error)
     return { needsMigration: false, itemCount: 0 }
   }
-} 
+}

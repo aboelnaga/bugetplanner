@@ -4,7 +4,7 @@ import moment from 'moment-hijri'
  * Islamic Calendar Composable
  * Provides Hijri to Gregorian date conversion and Hawl calculations
  */
-export function useIslamicCalendar() {
+export function useIslamicCalendar () {
 
   /**
    * Convert Gregorian date to Hijri date

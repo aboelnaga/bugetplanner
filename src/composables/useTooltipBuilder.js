@@ -1,6 +1,6 @@
 // Reusable tooltip builder for Planned/Actual/Status lines
 
-export function useTooltipBuilder(formatCurrency) {
+export function useTooltipBuilder (formatCurrency) {
   const BLUE_PLANNED = 'text-blue-300'
   const GREEN = 'text-green-300'
   const RED = 'text-red-300'
@@ -126,7 +126,7 @@ export function useTooltipBuilder(formatCurrency) {
   return {
     buildTooltip,
     actualColorFor,
-    buildNetBreakdownTooltip,
+    buildNetBreakdownTooltip
   }
 }
 

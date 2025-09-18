@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { useIslamicLawCompliance } from './useIslamicLawCompliance'
 
-export function useNisabCalculation(externalNisabMethod = null) {
+export function useNisabCalculation (externalNisabMethod = null) {
   // Islamic law compliance
   const { selectedSchool, nisabCalculationMethod, currentSchoolConfig, validateNisabCalculation, setNisabCalculationMethod, loadNisabMethodFromStorage } = useIslamicLawCompliance()
 

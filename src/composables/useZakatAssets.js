@@ -4,7 +4,7 @@ import { useInvestmentAssetsStore } from '@/stores/investmentAssets'
 import { useTransactionStore } from '@/stores/transactions'
 import { computed } from 'vue'
 
-export function useZakatAssets() {
+export function useZakatAssets () {
   const budgetStore = useBudgetStore()
   const accountsStore = useAccountsStore()
   const investmentAssetsStore = useInvestmentAssetsStore()

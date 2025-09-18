@@ -53,7 +53,7 @@ const MyPreset = definePreset(Aura, {
       }
     }
   }
-});
+})
 
 app.use(pinia)
 app.use(router)
@@ -64,8 +64,8 @@ app.use(PrimeVue, {
       darkModeSelector: '.app-dark'
     }
   }
-});
-app.use(ConfirmationService);
-app.use(ToastService);
-app.directive('tooltip', Tooltip);
+})
+app.use(ConfirmationService)
+app.use(ToastService)
+app.directive('tooltip', Tooltip)
 app.mount('#app')

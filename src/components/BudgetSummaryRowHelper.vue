@@ -9,7 +9,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  
+
   // Data
   months: {
     type: Array,
@@ -56,7 +56,7 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
-  
+
   // Calculation functions
   calculateMonthly: {
     type: Function,
@@ -70,7 +70,7 @@ const props = defineProps({
     type: Function,
     required: true
   },
-  
+
   // Tooltip functions
   getMonthlyTooltip: {
     type: Function,
@@ -84,13 +84,13 @@ const props = defineProps({
     type: Function,
     required: true
   },
-  
+
   // Functions
   formatCurrency: {
     type: Function,
     required: true
   },
-  
+
   // Styling
   borderTopClass: {
     type: String,
@@ -140,5 +140,6 @@ const grandTotalTooltip = computed(() => props.getGrandTotalTooltip())
     :grand-total-tooltip="grandTotalTooltip"
     :format-currency="formatCurrency"
     :border-top-class="borderTopClass"
-    :use-value-based-styling="useValueBasedStyling" />
-</template> 
+    :use-value-based-styling="useValueBasedStyling"
+  />
+</template>

@@ -67,13 +67,16 @@ const handleConfirm = async () => {
 </script>
 
 <template>
-  <BaseModal v-model="isOpen" title="Close Month">
+  <BaseModal
+    v-model="isOpen"
+    title="Close Month"
+  >
     <div class="space-y-4">
       <!-- Warning Icon and Message -->
       <div class="flex items-start gap-3">
         <div class="flex-shrink-0">
           <div class="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center">
-            <i class="pi pi-exclamation-triangle text-amber-600"></i>
+            <i class="pi pi-exclamation-triangle text-amber-600" />
           </div>
         </div>
         <div class="flex-1">
@@ -81,7 +84,7 @@ const handleConfirm = async () => {
             Close {{ monthName }} {{ year }}?
           </h3>
           <p class="mt-1 text-sm text-surface-600">
-            This will finalize the month and show actual spending amounts instead of planned amounts. 
+            This will finalize the month and show actual spending amounts instead of planned amounts.
             You can still add or edit transactions, but the month will be marked as closed.
           </p>
         </div>
@@ -89,7 +92,9 @@ const handleConfirm = async () => {
 
       <!-- Month Summary -->
       <div class="bg-surface-50 rounded-lg p-4">
-        <h4 class="text-sm font-medium mb-2">Month Summary</h4>
+        <h4 class="text-sm font-medium mb-2">
+          Month Summary
+        </h4>
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span class="text-surface-600">Total Budget Items:</span>
@@ -103,9 +108,12 @@ const handleConfirm = async () => {
       </div>
 
       <!-- Warning Message -->
-      <Message severity="warn" :closable="false">
+      <Message
+        severity="warn"
+        :closable="false"
+      >
         <template #messageicon>
-          <i class="pi pi-exclamation-triangle"></i>
+          <i class="pi pi-exclamation-triangle" />
         </template>
         <template #message>
           <strong>Note:</strong> This action cannot be undone. The month will be permanently marked as closed.
@@ -117,19 +125,21 @@ const handleConfirm = async () => {
     <template #footer>
       <div class="flex justify-end gap-3">
         <Button
-          @click="handleCancel"
           :disabled="loading"
           label="Cancel"
           outlined
-          severity="secondary" />
+          severity="secondary"
+          @click="handleCancel"
+        />
         <Button
-          @click="handleConfirm"
           :disabled="loading"
           :loading="loading"
           icon="pi pi-check"
           :label="loading ? 'Closing...' : 'Close Month'"
-          severity="warn" />
+          severity="warn"
+          @click="handleConfirm"
+        />
       </div>
     </template>
   </BaseModal>
-</template> 
+</template>

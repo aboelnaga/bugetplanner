@@ -64,6 +64,14 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - User experience must be reviewed
 - PrimeVue components must be used when available
 
+#### Linting and Code Quality Requirements
+- **ESLint errors must be fixed** before committing
+- **Code formatting must follow** Prettier standards
+- **Vue.js component structure** must follow ESLint rules
+- **AI Assistants must run** `npm run lint:errors` after every code change
+- **AI Assistants must fix** all ESLint errors before marking code as complete
+- **AI Assistants must use** `npm run lint:fix` to automatically fix fixable issues
+
 ### Quality Gates
 - All financial calculations must have manual testing
 - Zakat calculations must be verified against Islamic law

@@ -28,7 +28,7 @@ const formatCurrency = (amount) => {
     style: 'currency',
     currency: 'EGP',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(Math.abs(amount))
 }
 </script>
@@ -38,12 +38,18 @@ const formatCurrency = (amount) => {
     <!-- Header -->
     <div class="flex justify-between items-center">
       <div>
-        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p class="text-gray-600 mt-1">{{ currentMonthData?.month || 'Current' }} {{ currentMonthData?.year || new Date().getFullYear() }} Overview</p>
+        <h1 class="text-3xl font-bold text-gray-900">
+          Dashboard
+        </h1>
+        <p class="text-gray-600 mt-1">
+          {{ currentMonthData?.month || 'Current' }} {{ currentMonthData?.year || new Date().getFullYear() }} Overview
+        </p>
       </div>
       <div class="flex items-center space-x-4">
         <div class="text-right">
-          <div class="text-sm text-gray-500">Total Savings</div>
+          <div class="text-sm text-gray-500">
+            Total Savings
+          </div>
           <div class="text-2xl font-bold text-green-600">
             {{ formatCurrency(currentMonthData?.savings || 0) }}
           </div>
@@ -87,13 +93,17 @@ const formatCurrency = (amount) => {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Monthly Trend Chart -->
       <div class="card">
-        <h3 class="text-lg font-semibold mb-4">Monthly Trend (2024)</h3>
+        <h3 class="text-lg font-semibold mb-4">
+          Monthly Trend (2024)
+        </h3>
         <MonthlyTrendChart :data="monthlyData" />
       </div>
 
       <!-- Expense Breakdown -->
       <div class="card">
-        <h3 class="text-lg font-semibold mb-4">Expense Breakdown</h3>
+        <h3 class="text-lg font-semibold mb-4">
+          Expense Breakdown
+        </h3>
         <ExpenseBreakdownChart :expenses="currentMonth.expenses" />
       </div>
     </div>
@@ -102,16 +112,22 @@ const formatCurrency = (amount) => {
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Family Budget Summary -->
       <div class="card">
-        <h3 class="text-lg font-semibold mb-4">Family Budget</h3>
+        <h3 class="text-lg font-semibold mb-4">
+          Family Budget
+        </h3>
         <div class="space-y-3">
-          <div 
-            v-for="(member, key) in familyBudgets" 
+          <div
+            v-for="(member, key) in familyBudgets"
             :key="key"
             class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
           >
             <div>
-              <div class="font-medium capitalize">{{ key }}</div>
-              <div class="text-sm text-gray-500">{{ member.category }}</div>
+              <div class="font-medium capitalize">
+                {{ key }}
+              </div>
+              <div class="text-sm text-gray-500">
+                {{ member.category }}
+              </div>
             </div>
             <div class="text-lg font-semibold">
               {{ formatCurrency(member.monthly) }}
@@ -128,14 +144,20 @@ const formatCurrency = (amount) => {
 
       <!-- Recent Transactions & Quick Actions -->
       <div class="card">
-        <h3 class="text-lg font-semibold mb-4">Quick Insights</h3>
+        <h3 class="text-lg font-semibold mb-4">
+          Quick Insights
+        </h3>
         <div class="space-y-4">
           <!-- Investment Summary -->
           <div class="p-4 bg-blue-50 rounded-lg">
             <div class="flex justify-between items-center">
               <div>
-                <div class="font-medium text-blue-900">Total Investments</div>
-                <div class="text-sm text-blue-600">Real Estate & Assets</div>
+                <div class="font-medium text-blue-900">
+                  Total Investments
+                </div>
+                <div class="text-sm text-blue-600">
+                  Real Estate & Assets
+                </div>
               </div>
               <div class="text-xl font-bold text-blue-900">
                 {{ formatCurrency(totalInvestments) }}
@@ -147,8 +169,12 @@ const formatCurrency = (amount) => {
           <div class="p-4 bg-green-50 rounded-lg">
             <div class="flex justify-between items-center">
               <div>
-                <div class="font-medium text-green-900">Savings Rate</div>
-                <div class="text-sm text-green-600">This Month</div>
+                <div class="font-medium text-green-900">
+                  Savings Rate
+                </div>
+                <div class="text-sm text-green-600">
+                  This Month
+                </div>
               </div>
               <div class="text-xl font-bold text-green-900">
                 {{ currentSavingsRate }}%
@@ -160,8 +186,12 @@ const formatCurrency = (amount) => {
           <div class="p-4 bg-purple-50 rounded-lg">
             <div class="flex justify-between items-center">
               <div>
-                <div class="font-medium text-purple-900">Next Zakat</div>
-                <div class="text-sm text-purple-600">Annual Islamic Tax</div>
+                <div class="font-medium text-purple-900">
+                  Next Zakat
+                </div>
+                <div class="text-sm text-purple-600">
+                  Annual Islamic Tax
+                </div>
               </div>
               <div class="text-xl font-bold text-purple-900">
                 {{ formatCurrency(zakatDue) }}
@@ -174,8 +204,10 @@ const formatCurrency = (amount) => {
 
     <!-- Future Projections -->
     <div class="card">
-      <h3 class="text-lg font-semibold mb-4">5-Year Financial Projection</h3>
+      <h3 class="text-lg font-semibold mb-4">
+        5-Year Financial Projection
+      </h3>
       <ProjectionChart :projections="projections" />
     </div>
   </div>
-</template> 
+</template>

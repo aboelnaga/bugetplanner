@@ -8,7 +8,7 @@ import {
   LineElement,
   Title,
   Tooltip,
-  Legend,
+  Legend
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
 
@@ -66,12 +66,12 @@ const chartOptions = {
     y: {
       beginAtZero: true,
       ticks: {
-        callback: function(value) {
+        callback (value) {
           return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'EGP',
             minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            maximumFractionDigits: 0
           }).format(value)
         }
       }
@@ -79,17 +79,17 @@ const chartOptions = {
   },
   plugins: {
     legend: {
-      position: 'top',
+      position: 'top'
     },
     tooltip: {
       callbacks: {
-        label: function(context) {
+        label (context) {
           const label = context.dataset.label || ''
           const value = new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'EGP',
             minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            maximumFractionDigits: 0
           }).format(context.parsed.y)
           return `${label}: ${value}`
         }
@@ -107,4 +107,4 @@ const chartOptions = {
       :options="chartOptions"
     />
   </div>
-</template> 
+</template>

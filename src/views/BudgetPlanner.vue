@@ -413,63 +413,103 @@ watch(selectedYear, async (newYear) => {
 <template>
   <div>
     <!-- Smart Refresh Loading Indicator -->
-    <div v-if="isRefreshing" class="fixed top-0 left-0 right-0 z-50">
-      <div class="bg-blue-600 h-1 transition-all duration-300" :style="{ width: refreshProgress + '%' }"></div>
+    <div
+      v-if="isRefreshing"
+      class="fixed top-0 left-0 right-0 z-50"
+    >
+      <div
+        class="bg-blue-600 h-1 transition-all duration-300"
+        :style="{ width: refreshProgress + '%' }"
+      />
     </div>
 
 
     <div class="space-y-6">
       <!-- Auto-Close Progress Message -->
-      <Message v-if="budgetStore.isAutoClosing" severity="info" :closable="false"
-        class="fixed top-4 left-4 right-4 z-50">
+      <Message
+        v-if="budgetStore.isAutoClosing"
+        severity="info"
+        :closable="false"
+        class="fixed top-4 left-4 right-4 z-50"
+      >
         <template #icon>
-          <i class="pi pi-spin pi-spinner"></i>
+          <i class="pi pi-spin pi-spinner" />
         </template>
         Auto-closing months... {{ budgetStore.autoCloseProgress }}%
       </Message>
 
       <!-- Auto-close Notification -->
-      <Message v-if="budgetStore.showHeaderBadge" :severity="'success'" :closable="true">
+      <Message
+        v-if="budgetStore.showHeaderBadge"
+        :severity="'success'"
+        :closable="true"
+      >
         <template #icon>
-          <i class="pi pi-check-circle"></i>
+          <i class="pi pi-check-circle" />
         </template>
         {{ budgetStore.headerBadgeText }}
       </Message>
 
       <!-- Account Balances Summary -->
-      <Card v-if="accountsStore.accounts.length > 0" class="mb-4">
+      <Card
+        v-if="accountsStore.accounts.length > 0"
+        class="mb-4"
+      >
         <template #header>
           <div class="flex items-center justify-between p-6 pb-0">
             <div class="flex items-center gap-3">
-              <h3 class="text-lg font-semibold text-color m-0">Account Balances</h3>
-              <Tag :value="formatCurrency(accountsStore.totalBalance)"
-                :severity="accountsStore.totalBalance >= 0 ? 'success' : 'danger'" size="small" />
+              <h3 class="text-lg font-semibold text-color m-0">
+                Account Balances
+              </h3>
+              <Tag
+                :value="formatCurrency(accountsStore.totalBalance)"
+                :severity="accountsStore.totalBalance >= 0 ? 'success' : 'danger'"
+                size="small"
+              />
             </div>
-            <Button label="Manage" icon="pi pi-cog" size="small" severity="secondary" text
-              @click="$router.push('/banking')" />
+            <Button
+              label="Manage"
+              icon="pi pi-cog"
+              size="small"
+              severity="secondary"
+              text
+              @click="$router.push('/banking')"
+            />
           </div>
         </template>
         <template #content>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div v-for="account in accountsStore.accounts" :key="account.id"
-              class="surface-50 border surface-border rounded p-3">
+            <div
+              v-for="account in accountsStore.accounts"
+              :key="account.id"
+              class="surface-50 border surface-border rounded p-3"
+            >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-base">{{ getAccountIcon(account.type) }}</span>
                   <div>
                     <span class="font-bold text-color mr-2">{{ account.name }}</span>
-                    <Tag :value="account.type.replace('_', ' ')" severity="secondary" size="small" />
+                    <Tag
+                      :value="account.type.replace('_', ' ')"
+                      severity="secondary"
+                      size="small"
+                    />
                   </div>
                 </div>
                 <div class="text-right">
                   <div v-if="account.type === 'credit_card'">
-                    <p class="text-xs text-color-secondary">Available</p>
+                    <p class="text-xs text-color-secondary">
+                      Available
+                    </p>
                     <p class="text-sm font-semibold text-green-500">
                       {{ formatCurrency(getAvailableCredit(account.id)) }}
                     </p>
                   </div>
                   <div v-else>
-                    <p class="text-sm font-semibold" :class="getBalanceColor(account.balance)">
+                    <p
+                      class="text-sm font-semibold"
+                      :class="getBalanceColor(account.balance)"
+                    >
                       {{ formatCurrency(account.balance) }}
                     </p>
                   </div>
@@ -481,27 +521,43 @@ watch(selectedYear, async (newYear) => {
       </Card>
 
       <!-- Budget Control Panel -->
-      <BudgetControlPanel :selected-year="selectedYear" :available-years="availableYears"
-        :can-copy-from-previous-year="canCopyFromPreviousYear" :budget-items="budgetItems"
-        @update:selected-year="(year) => selectedYear = year" @add-year="addNewYear"
-        @copy-from-previous-year="copyFromPreviousYear" @add-budget="openAddBudgetModalUnified" />
+      <BudgetControlPanel
+        :selected-year="selectedYear"
+        :available-years="availableYears"
+        :can-copy-from-previous-year="canCopyFromPreviousYear"
+        :budget-items="budgetItems"
+        @update:selected-year="(year) => selectedYear = year"
+        @add-year="addNewYear"
+        @copy-from-previous-year="copyFromPreviousYear"
+        @add-budget="openAddBudgetModalUnified"
+      />
 
       <!-- New DataTable Implementation (for comparison/testing) -->
       <div class="mt-8">
-        <BudgetDataTable :loading="budgetStore.loading" :error="budgetStore.error" :budget-items="budgetItems"
-          :selected-year="selectedYear" :current-year="budgetStore.currentYear" :current-month="currentMonth"
-          :format-currency="formatCurrency" :calculate-monthly-income="calculateMonthlyIncome"
-          :calculate-monthly-expenses="calculateMonthlyExpenses" :calculate-monthly-total="calculateMonthlyTotal"
+        <BudgetDataTable
+          :loading="budgetStore.loading"
+          :error="budgetStore.error"
+          :budget-items="budgetItems"
+          :selected-year="selectedYear"
+          :current-year="budgetStore.currentYear"
+          :current-month="currentMonth"
+          :format-currency="formatCurrency"
+          :calculate-monthly-income="calculateMonthlyIncome"
+          :calculate-monthly-expenses="calculateMonthlyExpenses"
+          :calculate-monthly-total="calculateMonthlyTotal"
           :calculate-grand-total-income="calculateGrandTotalIncome"
-          :calculate-grand-total-expenses="calculateGrandTotalExpenses" :calculate-grand-total="calculateGrandTotal"
+          :calculate-grand-total-expenses="calculateGrandTotalExpenses"
+          :calculate-grand-total="calculateGrandTotal"
           :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
           :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
           :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
           :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
           :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
           :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
-          :calculate-previous-year-savings="calculatePreviousYearSavings" :closed-months="closedMonths"
-          :get-actual-amount="getActualAmount" :dual-mode="dualMode"
+          :calculate-previous-year-savings="calculatePreviousYearSavings"
+          :closed-months="closedMonths"
+          :get-actual-amount="getActualAmount"
+          :dual-mode="dualMode"
           :calculate-monthly-actual-income="calculateMonthlyActualIncome"
           :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
           :calculate-monthly-actual-total="calculateMonthlyActualTotal"
@@ -524,23 +580,39 @@ watch(selectedYear, async (newYear) => {
           :calculate-all-previous-years-investment-outgoing-total-with-dual="calculateAllPreviousYearsInvestmentOutgoingTotalWithDual"
           :calculate-all-previous-years-net-total-with-dual="calculateAllPreviousYearsNetTotalWithDual"
           :calculate-all-previous-years-investment-net-total-with-dual="calculateAllPreviousYearsInvestmentNetTotalWithDual"
-          :can-copy-from-previous-year="canCopyFromPreviousYear" @edit-budget="editBudgetUnified"
-          @duplicate-budget="duplicateBudget" @delete-budget="deleteBudget" @view-transactions="handleViewTransactions"
-          @update:dual-mode="(mode) => dualMode = mode" @add-budget="openAddBudgetModalUnified"
-          @copy-from-previous-year="copyFromPreviousYear" @close-month="handleCloseMonth"
-          @retry="budgetStore.fetchBudgetItems()" />
+          :can-copy-from-previous-year="canCopyFromPreviousYear"
+          @edit-budget="editBudgetUnified"
+          @duplicate-budget="duplicateBudget"
+          @delete-budget="deleteBudget"
+          @view-transactions="handleViewTransactions"
+          @update:dual-mode="(mode) => dualMode = mode"
+          @add-budget="openAddBudgetModalUnified"
+          @copy-from-previous-year="copyFromPreviousYear"
+          @close-month="handleCloseMonth"
+          @retry="budgetStore.fetchBudgetItems()"
+        />
       </div>
-
-
     </div>
 
     <!-- Unified Budget Modal -->
-    <AddBudgetModal v-model="showAddBudgetModal" :mode="budgetModalMode" :budget="editingBudget"
-      :selected-year="selectedYear" @budget-added="handleBudgetAdded" @budget-updated="handleBudgetUpdated" />
+    <AddBudgetModal
+      v-model="showAddBudgetModal"
+      :mode="budgetModalMode"
+      :budget="editingBudget"
+      :selected-year="selectedYear"
+      @budget-added="handleBudgetAdded"
+      @budget-updated="handleBudgetUpdated"
+    />
 
     <!-- Close Month Modal -->
-    <CloseMonthModal v-model="showCloseMonthModal" :year="closingMonthYear" :month="closingMonthIndex"
-      :budget-items-count="budgetItems.length" :transactions-count="transactionsCount" @confirm="confirmCloseMonth" />
+    <CloseMonthModal
+      v-model="showCloseMonthModal"
+      :year="closingMonthYear"
+      :month="closingMonthIndex"
+      :budget-items-count="budgetItems.length"
+      :transactions-count="transactionsCount"
+      @confirm="confirmCloseMonth"
+    />
 
     <!-- History Modal -->
     <!-- <HistoryModal v-model="showHistoryModal" /> -->

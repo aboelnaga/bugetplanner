@@ -70,25 +70,27 @@ const getModalHeader = () => {
 <template>
   <Dialog
     :visible="modelValue"
-    @update:visible="$emit('update:modelValue', $event)"
     :modal="true"
     :closable="true"
-    :closeOnEscape="true"
-    :dismissableMask="false"
+    :close-on-escape="true"
+    :dismissable-mask="false"
     :draggable="false"
     :style="getModalStyle()"
     :breakpoints="getModalBreakpoints()"
     :header="getModalHeader()"
     class="p-fluid"
+    @update:visible="$emit('update:modelValue', $event)"
   >
     <!-- Content -->
-    <slot></slot>
-    
+    <slot />
+
     <!-- Footer -->
-    <template #footer v-if="$slots.footer">
-      <slot name="footer"></slot>
+    <template
+      v-if="$slots.footer"
+      #footer
+    >
+      <slot name="footer" />
     </template>
   </Dialog>
 </template>
 
- 

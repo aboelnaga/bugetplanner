@@ -27,7 +27,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-  
+
   // Computed properties
   hasIncomeData: {
     type: Boolean,
@@ -37,7 +37,7 @@ const props = defineProps({
     type: Boolean,
     required: true
   },
-  
+
   // Functions
   calculateMonthlyIncome: {
     type: Function,
@@ -79,7 +79,7 @@ const props = defineProps({
     type: Function,
     required: true
   },
-  
+
   // Planned calculation props for tooltips
   calculateMonthlyPlannedIncome: {
     type: Function,
@@ -97,7 +97,7 @@ const props = defineProps({
     type: Function,
     default: null
   },
-  
+
   // Previous year calculations
   calculatePreviousYearIncomeTotal: {
     type: Function,
@@ -154,24 +154,24 @@ const getPreviousYearInvestmentIncomingTotal = () => {
 const getPreviousYearIncomeTooltip = () => {
   const total = getPreviousYearIncomeTotal()
   const previousYear = props.selectedYear - 1
-  
+
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
   const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
-  
+
   if (detailedValues) {
     const incomePlanned = detailedValues.income.planned
     const incomeActual = detailedValues.income.actual
     const variance = incomeActual - incomePlanned
     const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
     const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-    
+
     return `PY ${previousYear} Income<br>` +
-           `Planned: <span class="text-blue-300">${props.formatCurrency(incomePlanned)}</span><br>` +
-           `Actual: <span class="text-green-300">${props.formatCurrency(incomeActual)}</span><br>` +
-           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+      `Planned: <span class="text-blue-300">${props.formatCurrency(incomePlanned)}</span><br>` +
+      `Actual: <span class="text-green-300">${props.formatCurrency(incomeActual)}</span><br>` +
+      `Variance: <span class="${varianceColor}">${varianceText}</span>`
   }
-  
+
   // Fallback to simple display
   return `PY ${previousYear} Income (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
@@ -179,24 +179,24 @@ const getPreviousYearIncomeTooltip = () => {
 const getPreviousYearInvestmentIncomingTooltip = () => {
   const total = getPreviousYearInvestmentIncomingTotal()
   const previousYear = props.selectedYear - 1
-  
+
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
   const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
-  
+
   if (detailedValues) {
     const incomingPlanned = detailedValues.investmentIncoming.planned
     const incomingActual = detailedValues.investmentIncoming.actual
     const variance = incomingActual - incomingPlanned
     const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
     const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
-    
+
     return `PY ${previousYear} Investment Returns<br>` +
-           `Planned: <span class="text-blue-300">${props.formatCurrency(incomingPlanned)}</span><br>` +
-           `Actual: <span class="text-green-300">${props.formatCurrency(incomingActual)}</span><br>` +
-           `Variance: <span class="${varianceColor}">${varianceText}</span>`
+      `Planned: <span class="text-blue-300">${props.formatCurrency(incomingPlanned)}</span><br>` +
+      `Actual: <span class="text-green-300">${props.formatCurrency(incomingActual)}</span><br>` +
+      `Variance: <span class="${varianceColor}">${varianceText}</span>`
   }
-  
+
   // Fallback to simple display
   return `PY ${previousYear} Investment Returns (Actual): <span class="text-green-300">${props.formatCurrency(total)}</span>`
 }
@@ -223,7 +223,8 @@ const getPreviousYearInvestmentIncomingTooltip = () => {
     :get-monthly-tooltip="getIncomeTooltip"
     :get-grand-total-tooltip="getIncomeYearlyTooltip"
     :get-previous-year-tooltip="getPreviousYearIncomeTooltip"
-    :format-currency="formatCurrency" />
+    :format-currency="formatCurrency"
+  />
 
   <!-- Investment Returns Line -->
   <BudgetSummaryRowHelper
@@ -246,5 +247,6 @@ const getPreviousYearInvestmentIncomingTooltip = () => {
     :get-grand-total-tooltip="getInvestmentIncomingYearlyTooltip"
     :get-previous-year-tooltip="getPreviousYearInvestmentIncomingTooltip"
     :format-currency="formatCurrency"
-    border-top-class="border-t-2 border-gray-200" />
-</template> 
+    border-top-class="border-t-2 border-gray-200"
+  />
+</template>

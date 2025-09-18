@@ -35,19 +35,19 @@ const portfolioValue = computed(() => ({
 
 const filteredInvestments = computed(() => {
   let filtered = investmentAssets.value || []
-  
+
   if (selectedType.value) {
     filtered = filtered.filter(inv => inv.investment_type === selectedType.value)
   }
-  
+
   if (searchTerm.value) {
     const term = searchTerm.value.toLowerCase()
-    filtered = filtered.filter(inv => 
+    filtered = filtered.filter(inv =>
       inv.name.toLowerCase().includes(term) ||
       inv.description?.toLowerCase().includes(term)
     )
   }
-  
+
   return filtered
 })
 
@@ -57,7 +57,7 @@ const formatCurrency = (amount) => {
     style: 'currency',
     currency: 'EGP',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 0
   }).format(Math.abs(amount))
 }
 
@@ -94,9 +94,9 @@ const getStatusSeverity = (status) => {
 const formatROI = (investment) => {
   const purchaseAmount = parseFloat(investment.purchase_amount) || 0
   const currentValue = parseFloat(investment.current_value) || 0
-  
+
   if (purchaseAmount === 0) return 'N/A'
-  
+
   const roi = currentValue - purchaseAmount
   return formatCurrency(roi)
 }
@@ -104,9 +104,9 @@ const formatROI = (investment) => {
 const formatROIPercentage = (investment) => {
   const purchaseAmount = parseFloat(investment.purchase_amount) || 0
   const currentValue = parseFloat(investment.current_value) || 0
-  
+
   if (purchaseAmount === 0) return 'N/A'
-  
+
   const roi = currentValue - purchaseAmount
   const roiPercentage = (roi / purchaseAmount) * 100
   return `${roiPercentage.toFixed(2)}%`
@@ -115,9 +115,9 @@ const formatROIPercentage = (investment) => {
 const getROIColor = (investment) => {
   const purchaseAmount = parseFloat(investment.purchase_amount) || 0
   const currentValue = parseFloat(investment.current_value) || 0
-  
+
   if (purchaseAmount === 0) return ''
-  
+
   const roi = currentValue - purchaseAmount
   return roi >= 0 ? 'text-green-600' : 'text-red-600'
 }
@@ -178,15 +178,19 @@ onMounted(() => {
       <template #content>
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 class="text-3xl font-bold">Investment Portfolio</h1>
-            <p class="mt-2">Manage your investments and track portfolio performance</p>
+            <h1 class="text-3xl font-bold">
+              Investment Portfolio
+            </h1>
+            <p class="mt-2">
+              Manage your investments and track portfolio performance
+            </p>
           </div>
-          
+
           <Button
-            @click="router.push('/investments/create')"
             icon="pi pi-plus"
             label="Add Investment"
             severity="primary"
+            @click="router.push('/investments/create')"
           />
         </div>
       </template>
@@ -198,11 +202,15 @@ onMounted(() => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-chart-line text-green-600 text-lg"></i>
+              <i class="pi pi-chart-line text-green-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Total Portfolio Value</p>
-              <p class="text-2xl font-semibold text-green-600">{{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}</p>
+              <p class="text-sm font-medium">
+                Total Portfolio Value
+              </p>
+              <p class="text-2xl font-semibold text-green-600">
+                {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}
+              </p>
             </div>
           </div>
         </template>
@@ -212,11 +220,15 @@ onMounted(() => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-briefcase text-blue-600 text-lg"></i>
+              <i class="pi pi-briefcase text-blue-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Total Investments</p>
-              <p class="text-2xl font-semibold text-blue-600">{{ investmentAssets?.length || 0 }}</p>
+              <p class="text-sm font-medium">
+                Total Investments
+              </p>
+              <p class="text-2xl font-semibold text-blue-600">
+                {{ investmentAssets?.length || 0 }}
+              </p>
             </div>
           </div>
         </template>
@@ -226,11 +238,15 @@ onMounted(() => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-percentage text-purple-600 text-lg"></i>
+              <i class="pi pi-percentage text-purple-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">Total ROI</p>
-              <p class="text-2xl font-semibold text-purple-600">{{ formatCurrency(portfolioValue?.totalROI || 0) }}</p>
+              <p class="text-sm font-medium">
+                Total ROI
+              </p>
+              <p class="text-2xl font-semibold text-purple-600">
+                {{ formatCurrency(portfolioValue?.totalROI || 0) }}
+              </p>
             </div>
           </div>
         </template>
@@ -240,11 +256,15 @@ onMounted(() => {
         <template #content>
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-              <i class="pi pi-chart-pie text-orange-600 text-lg"></i>
+              <i class="pi pi-chart-pie text-orange-600 text-lg" />
             </div>
             <div>
-              <p class="text-sm font-medium">ROI %</p>
-              <p class="text-2xl font-semibold text-orange-600">{{ formatPercentage(portfolioValue?.totalROIPercentage || 0) }}</p>
+              <p class="text-sm font-medium">
+                ROI %
+              </p>
+              <p class="text-2xl font-semibold text-orange-600">
+                {{ formatPercentage(portfolioValue?.totalROIPercentage || 0) }}
+              </p>
             </div>
           </div>
         </template>
@@ -255,19 +275,21 @@ onMounted(() => {
     <Card>
       <template #header>
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <h3 class="text-xl font-semibold">Investment Portfolio</h3>
-          
+          <h3 class="text-xl font-semibold">
+            Investment Portfolio
+          </h3>
+
           <div class="flex flex-col sm:flex-row gap-3">
             <Select
               v-model="selectedType"
               :options="typeOptions"
-              optionLabel="label"
-              optionValue="value"
+              option-label="label"
+              option-value="value"
               placeholder="All Types"
               class="w-full sm:w-40"
-              :showClear="true"
+              :show-clear="true"
             />
-            
+
             <IconField>
               <InputIcon class="pi pi-search" />
               <InputText
@@ -279,65 +301,85 @@ onMounted(() => {
           </div>
         </div>
       </template>
-      
+
       <template #content>
-        <div v-if="loading" class="flex justify-center items-center py-12">
+        <div
+          v-if="loading"
+          class="flex justify-center items-center py-12"
+        >
           <div class="flex flex-col items-center gap-3">
-            <i class="pi pi-spin pi-spinner text-4xl text-blue-600"></i>
+            <i class="pi pi-spin pi-spinner text-4xl text-blue-600" />
             <span>Loading investments...</span>
           </div>
         </div>
-        
-        <div v-else-if="filteredInvestments.length === 0" class="text-center py-12">
-          <i class="pi pi-briefcase text-6xl mb-4"></i>
-          <h3 class="text-lg font-medium mb-2">No investments found</h3>
+
+        <div
+          v-else-if="filteredInvestments.length === 0"
+          class="text-center py-12"
+        >
+          <i class="pi pi-briefcase text-6xl mb-4" />
+          <h3 class="text-lg font-medium mb-2">
+            No investments found
+          </h3>
           <p class="mb-6">
             {{ investmentAssets?.length === 0 ? 'Get started by creating your first investment.' : 'No investments match your current filters.' }}
           </p>
           <Button
-            @click="router.push('/investments/create')"
             icon="pi pi-plus"
             label="Add Investment"
             severity="primary"
+            @click="router.push('/investments/create')"
           />
         </div>
-        
+
         <DataTable
           v-else
           :value="filteredInvestments"
-          removableSort
-          responsiveLayout="scroll"
+          removable-sort
+          responsive-layout="scroll"
           class="p-datatable-sm"
-          stripedRows
-          showGridlines
+          striped-rows
+          show-gridlines
           paginator
           :rows="10"
-          :rowsPerPageOptions="[5, 10, 25, 50]"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} investments"
+          :rows-per-page-options="[5, 10, 25, 50]"
+          paginator-template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          current-page-report-template="Showing {first} to {last} of {totalRecords} investments"
         >
           <template #empty>
             <div class="text-center py-8">
-              <i class="pi pi-briefcase text-4xl mb-3"></i>
+              <i class="pi pi-briefcase text-4xl mb-3" />
               <p>No investments found</p>
             </div>
           </template>
 
-          <Column field="name" header="Investment Name" sortable style="min-width: 200px">
+          <Column
+            field="name"
+            header="Investment Name"
+            sortable
+            style="min-width: 200px"
+          >
             <template #body="{ data }">
               <div class="flex items-center gap-3">
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <i class="pi pi-briefcase text-blue-600 text-sm"></i>
+                  <i class="pi pi-briefcase text-blue-600 text-sm" />
                 </div>
                 <div>
                   <span class="font-medium">{{ data.name }}</span>
-                  <p class="text-sm capitalize">{{ formatInvestmentType(data.investment_type) }}</p>
+                  <p class="text-sm capitalize">
+                    {{ formatInvestmentType(data.investment_type) }}
+                  </p>
                 </div>
               </div>
             </template>
           </Column>
 
-          <Column field="status" header="Status" sortable style="width: 120px">
+          <Column
+            field="status"
+            header="Status"
+            sortable
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <Tag
                 :value="formatStatus(data.real_estate_status || data.status)"
@@ -347,19 +389,34 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column field="purchase_amount" header="Purchase Amount" sortable style="width: 140px">
+          <Column
+            field="purchase_amount"
+            header="Purchase Amount"
+            sortable
+            style="width: 140px"
+          >
             <template #body="{ data }">
               <span class="font-semibold">{{ formatCurrency(data.purchase_amount) }}</span>
             </template>
           </Column>
 
-          <Column field="current_value" header="Current Value" sortable style="width: 140px">
+          <Column
+            field="current_value"
+            header="Current Value"
+            sortable
+            style="width: 140px"
+          >
             <template #body="{ data }">
               <span class="font-semibold">{{ formatCurrency(data.current_value || 0) }}</span>
             </template>
           </Column>
 
-          <Column field="roi" header="ROI" sortable style="width: 120px">
+          <Column
+            field="roi"
+            header="ROI"
+            sortable
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <span
                 :class="getROIColor(data)"
@@ -370,7 +427,12 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column field="roi_percentage" header="ROI %" sortable style="width: 100px">
+          <Column
+            field="roi_percentage"
+            header="ROI %"
+            sortable
+            style="width: 100px"
+          >
             <template #body="{ data }">
               <span
                 :class="getROIColor(data)"
@@ -381,24 +443,27 @@ onMounted(() => {
             </template>
           </Column>
 
-          <Column header="Actions" style="width: 120px">
+          <Column
+            header="Actions"
+            style="width: 120px"
+          >
             <template #body="{ data }">
               <div class="flex gap-1">
                 <Button
+                  v-tooltip.top="'View Details'"
                   icon="pi pi-eye"
                   size="small"
                   text
                   severity="info"
                   @click="viewInvestment(data.id)"
-                  v-tooltip.top="'View Details'"
                 />
                 <Button
+                  v-tooltip.top="'Delete Investment'"
                   icon="pi pi-trash"
                   size="small"
                   text
                   severity="danger"
                   @click="deleteInvestment(data)"
-                  v-tooltip.top="'Delete Investment'"
                 />
               </div>
             </template>
@@ -410,21 +475,30 @@ onMounted(() => {
     <!-- Investment Strategy -->
     <Card v-if="investmentAssets?.length > 0">
       <template #header>
-        <h3 class="text-xl font-semibold">Investment Strategy</h3>
+        <h3 class="text-xl font-semibold">
+          Investment Strategy
+        </h3>
       </template>
       <template #content>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 class="font-medium mb-2">Portfolio Overview</h4>
-            <p class="text-sm">Your current portfolio includes {{ investmentAssets?.length || 0 }} investments with a total value of {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}.</p>
+            <h4 class="font-medium mb-2">
+              Portfolio Overview
+            </h4>
+            <p class="text-sm">
+              Your current portfolio includes {{ investmentAssets?.length || 0 }} investments with a total value of {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}.
+            </p>
           </div>
           <div>
-            <h4 class="font-medium mb-2">Diversification Opportunity</h4>
-            <p class="text-sm">Consider diversifying with different investment types to balance your portfolio and reduce risk.</p>
+            <h4 class="font-medium mb-2">
+              Diversification Opportunity
+            </h4>
+            <p class="text-sm">
+              Consider diversifying with different investment types to balance your portfolio and reduce risk.
+            </p>
           </div>
         </div>
       </template>
     </Card>
-    
   </div>
-</template> 
+</template>

@@ -1,9 +1,9 @@
 <script setup>
 import { computed } from 'vue'
-import { 
-  DollarSign, 
-  CreditCard, 
-  TrendingUp, 
+import {
+  DollarSign,
+  CreditCard,
+  TrendingUp,
   Calculator,
   ArrowUp,
   ArrowDown
@@ -52,7 +52,7 @@ const getIconBackgroundColor = () => {
 
 const getChangeColor = () => {
   if (!props.change) return 'text-gray-500'
-  
+
   if (props.change.includes('+')) {
     return 'text-green-600'
   } else if (props.change.includes('-')) {
@@ -63,7 +63,7 @@ const getChangeColor = () => {
 
 const getTrendIcon = () => {
   if (!props.change) return null
-  
+
   if (props.change.includes('+')) {
     return ArrowUp
   } else if (props.change.includes('-')) {
@@ -77,21 +77,27 @@ const getTrendIcon = () => {
   <div class="stat-card">
     <div class="flex items-start justify-between">
       <div class="flex-1">
-        <p class="text-sm font-medium text-gray-600">{{ title }}</p>
-        <p class="text-2xl font-bold text-gray-900 mt-1">{{ value }}</p>
+        <p class="text-sm font-medium text-gray-600">
+          {{ title }}
+        </p>
+        <p class="text-2xl font-bold text-gray-900 mt-1">
+          {{ value }}
+        </p>
         <p :class="['text-sm mt-2 flex items-center', getChangeColor()]">
-          <component 
-            :is="getTrendIcon()" 
-            class="w-4 h-4 mr-1" 
+          <component
+            :is="getTrendIcon()"
             v-if="change && !change.includes('savings')"
+            class="w-4 h-4 mr-1"
           />
           {{ change }}
         </p>
       </div>
       <div :class="['p-3 rounded-lg', getIconBackgroundColor()]">
-        <component :is="iconComponent" :class="['w-6 h-6', getIconColor()]" />
+        <component
+          :is="iconComponent"
+          :class="['w-6 h-6', getIconColor()]"
+        />
       </div>
     </div>
   </div>
-</template> 
- 
+</template>

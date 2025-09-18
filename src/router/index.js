@@ -21,12 +21,12 @@ const routes = [
   { path: '/investments', name: 'Investments', component: Investments, meta: { requiresAuth: true } },
   { path: '/investments/create', name: 'CreateInvestment', component: CreateInvestment, meta: { requiresAuth: true } },
   { path: '/investments/:id', name: 'InvestmentDetails', component: InvestmentDetails, meta: { requiresAuth: true } },
-  { path: '/zakat', name: 'Zakat', component: Zakat, meta: { requiresAuth: true } },
+  { path: '/zakat', name: 'Zakat', component: Zakat, meta: { requiresAuth: true } }
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
 })
 
 // Navigation guard

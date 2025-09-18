@@ -1,7 +1,7 @@
 // Budget utilities
 // Formatting functions, validation helpers, date utilities
 
-import { BUDGET_TYPE_ICONS, BUDGET_TYPE_STYLES, SUMMARY_VALUE_STYLES, TABLE_CELL_STYLES } from '@/constants/budgetConstants.js';
+import { BUDGET_TYPE_ICONS, BUDGET_TYPE_STYLES, SUMMARY_VALUE_STYLES, TABLE_CELL_STYLES } from '@/constants/budgetConstants.js'
 
 // Currency formatting
 export const formatCurrency = (amount) => {
@@ -10,8 +10,8 @@ export const formatCurrency = (amount) => {
     currency: 'EGP',
     currencyDisplay: 'symbol',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(Math.abs(amount || 0)).replace("EGP", "");
+    maximumFractionDigits: 0
+  }).format(Math.abs(amount || 0)).replace('EGP', '')
 }
 
 // Compact currency formatting for better display in small spaces
@@ -371,7 +371,7 @@ export const scheduleUtils = {
   // Generate schedule based on new frequency system
   generateSchedule: (frequency, startMonth, endMonth, startYear, endYear, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null, defaultAmount = 0) => {
     let schedule = []
-    let amounts = new Array(12).fill(0)
+    const amounts = new Array(12).fill(0)
 
     switch (frequency) {
       case 'repeats':

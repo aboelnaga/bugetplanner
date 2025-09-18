@@ -18,7 +18,7 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 - Use Supabase MCP for API integration
 - Use Supabase MCP for authentication setup
 
-## Solo Development Guidelines (Pragmatic Approach)
+## Development Guidelines
 
 ### UI Components Strategy
 - **PrimeVue First**: Always check PrimeVue components before creating custom ones
@@ -41,7 +41,6 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 ### Supabase Integration Patterns
 - **API Layer**: Organize API functions by feature (budgetAPI, transactionAPI, accountAPI)
 - **Real-time Subscriptions**: Use consistent channel naming and user filtering
-- **Error Handling**: Centralized error handling with user-friendly messages
 - **Authentication**: Row Level Security (RLS) with user_id filtering
 - **Client Configuration**: Centralized client setup with proper auth configuration
 
@@ -57,7 +56,7 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 - **User Feedback**: Toast notifications with recovery actions
 - **Recovery Logic**: Exponential backoff for retryable errors
 
-### Testing Strategy (Pragmatic)
+### Testing Strategy
 - **Manual Testing**: Test in browser first, add automated tests for critical features only
 - **E2E Testing**: Use Playwright for end-to-end testing of critical user flows
 - **Test Structure**: Organize tests with helpers and utilities
@@ -74,6 +73,23 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 - **Documentation**: Inline comments for complex logic, README for setup
 - **Consistency**: Follow existing patterns in the codebase
 - **Simplicity**: Start simple, add complexity only when needed
+
+### Linting and Code Formatting
+- **ESLint Configuration**: Use `eslint.config.js` with Vue.js and JavaScript rules
+- **Prettier Integration**: Use `.prettierrc` for consistent code formatting
+- **Lint Script**: Run `npm run lint` to check and fix code issues
+- **Vue.js Linting**: Use Vue-specific ESLint rules for component validation
+- **Error Handling**: Fix ESLint errors before committing code
+- **Warning Management**: Address ESLint warnings when possible, but don't block development
+
+#### AI Assistant Linting Requirements
+- **MANDATORY**: Run `npm run lint:errors` after every code change
+- **MANDATORY**: Fix all ESLint errors before marking code as complete
+- **MANDATORY**: Use `npm run lint:fix` to automatically fix fixable issues
+- **MANDATORY**: Check linting status when debugging or troubleshooting
+- **MANDATORY**: Validate code quality by running linting as part of development process
+- **MANDATORY**: Report linting errors to user if they prevent development
+- **MANDATORY**: Suggest linting fixes when providing code solutions
 
 ### Islamic Finance Compliance
 - **Zakat Calculations**: Follow proper Hawl (lunar year) requirements
@@ -92,10 +108,8 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 
 ## API Integration
 - Replace localStorage with Supabase operations
-- Implement real-time updates with proper filtering
 - Add proper loading states and error handling
 - Handle offline scenarios gracefully
-- Use consistent error handling patterns
 
 ## Development Workflow
 1. **Check PrimeVue First**: Look for existing PrimeVue component
@@ -104,3 +118,4 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 4. **Test Manually**: Test in browser before adding automated tests
 5. **Keep It Simple**: Don't over-engineer for future requirements
 6. **Document Complex Logic**: Add inline comments for complex business logic
+7. **Run Linting**: Use `npm run lint` to check and fix code issues
