@@ -345,9 +345,14 @@ When providing AI assistance for this project:
 5. **Focus on pragmatic solutions** for solo development
 6. **Maintain consistency** with existing code structure
 7. **Provide clear, actionable guidance** for implementation
-8. **Ensure code follows ESLint rules** and formatting standards
-9. **Include linting commands** in development guidance
-10. **Address ESLint errors** in code suggestions
+8. **MANDATORY: Run `npm run lint:errors`** after every code change
+9. **MANDATORY: Fix all ESLint errors** before marking code as complete
+10. **MANDATORY: Use `npm run lint:fix`** to automatically fix fixable issues
+11. **MANDATORY: Check linting status** when debugging or troubleshooting
+12. **MANDATORY: Validate code quality** by running linting as part of development process
+13. **MANDATORY: Report linting errors** to user if they prevent development
+14. **MANDATORY: Suggest linting fixes** when providing code solutions
+15. **MANDATORY: Include linting commands** in development guidance
 
 ## Conclusion
 

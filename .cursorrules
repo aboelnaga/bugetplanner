@@ -116,3 +116,12 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 7. **Run Linting**: Use `npm run lint` to check and fix code issues
 8. **Fix ESLint Errors**: Address all ESLint errors before committing
 9. **Address Warnings**: Fix ESLint warnings when possible, but don't block development
+
+## AI Assistant Instructions
+- **Always run linting** after making code changes using `npm run lint:errors`
+- **Fix ESLint errors** before suggesting code is complete
+- **Use `npm run lint:fix`** to automatically fix fixable issues
+- **Check linting status** when debugging or troubleshooting
+- **Validate code quality** by running linting as part of the development process
+- **Report linting errors** to the user if they prevent development
+- **Suggest linting fixes** when providing code solutions

@@ -69,6 +69,16 @@ Prioritize intuitive interfaces, clear financial data visualization, and seamles
 - Code formatting must follow Prettier standards
 - Vue.js component structure must follow ESLint rules
 
+### AI Assistant Linting Requirements
+- **MANDATORY**: Run `npm run lint:errors` after every code change
+- **MANDATORY**: Fix all ESLint errors before marking code as complete
+- **MANDATORY**: Use `npm run lint:fix` to automatically fix fixable issues
+- **MANDATORY**: Check linting status when debugging or troubleshooting
+- **MANDATORY**: Validate code quality by running linting as part of development process
+- **MANDATORY**: Report linting errors to user if they prevent development
+- **MANDATORY**: Suggest linting fixes when providing code solutions
+- **MANDATORY**: Include linting commands in development guidance
+
 ### Quality Gates
 - All financial calculations must have manual testing
 - Zakat calculations must be verified against Islamic law
