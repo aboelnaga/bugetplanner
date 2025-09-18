@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Personal Budget Management App",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run lint:errors && vite",
+    "build": "npm run lint:errors && vite build",
     "preview": "vite preview",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
@@ -13,7 +13,12 @@
     "test:simple": "playwright test --config=playwright.config.simple.ts",
     "test:no-server": "SKIP_WEBSERVER=true playwright test",
     "lint": "eslint . --ext .vue,.js,.ts",
-    "lint:fix": "eslint . --ext .vue,.js,.ts --fix"
+    "lint:check": "eslint . --ext .vue,.js,.ts --max-warnings 0",
+    "lint:errors": "eslint . --ext .vue,.js,.ts --quiet",
+    "lint:fix": "eslint . --ext .vue,.js,.ts --fix",
+    "lint:warn": "eslint . --ext .vue,.js,.ts --max-warnings 50",
+    "dev:no-lint": "vite",
+    "build:no-lint": "vite build"
   },
   "dependencies": {
     "@primevue/themes": "^4.3.7",
