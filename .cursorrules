@@ -82,6 +82,15 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 - **Error Handling**: Fix ESLint errors before committing code
 - **Warning Management**: Address ESLint warnings when possible, but don't block development
 
+#### AI Assistant Linting Requirements
+- **MANDATORY**: Run `npm run lint:errors` after every code change
+- **MANDATORY**: Fix all ESLint errors before marking code as complete
+- **MANDATORY**: Use `npm run lint:fix` to automatically fix fixable issues
+- **MANDATORY**: Check linting status when debugging or troubleshooting
+- **MANDATORY**: Validate code quality by running linting as part of development process
+- **MANDATORY**: Report linting errors to user if they prevent development
+- **MANDATORY**: Suggest linting fixes when providing code solutions
+
 ### Islamic Finance Compliance
 - **Zakat Calculations**: Follow proper Hawl (lunar year) requirements
 - **Nisab Thresholds**: Use Islamic law-compliant Nisab calculations
@@ -110,12 +119,3 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 5. **Keep It Simple**: Don't over-engineer for future requirements
 6. **Document Complex Logic**: Add inline comments for complex business logic
 7. **Run Linting**: Use `npm run lint` to check and fix code issues
-
-## AI Assistant Instructions
-- **Always run linting** after making code changes using `npm run lint:errors`
-- **Fix ESLint errors** before suggesting code is complete
-- **Use `npm run lint:fix`** to automatically fix fixable issues
-- **Check linting status** when debugging or troubleshooting
-- **Validate code quality** by running linting as part of the development process
-- **Report linting errors** to the user if they prevent development
-- **Suggest linting fixes** when providing code solutions
