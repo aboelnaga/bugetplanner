@@ -4,14 +4,86 @@
 This is a Vue.js budget planning application with Islamic finance integration, built for solo development with fast iteration and practical guidelines.
 
 ## Technology Stack
+
+### Core Framework
 - **Vue.js 3.3.4**: Composition API preferred, Options API acceptable for simple components
+  - [Vue.js Documentation](https://vuejs.org/)
+  - [Vue.js Composition API Guide](https://vuejs.org/guide/composition-api/)
+  - [Vue.js Migration Guide](https://vuejs.org/guide/migration/)
+
+### UI Components & Styling
 - **PrimeVue 4.3.7**: Primary UI component library with extensive component set
+  - [PrimeVue Documentation](https://primevue.org/)
+  - [PrimeVue Components](https://primevue.org/components/)
+  - [PrimeVue Configuration](https://primevue.org/configuration/)
 - **PrimeIcons 7.0.0**: Icon library for all icon needs
+  - [PrimeIcons Documentation](https://primevue.org/icons/)
+  - [PrimeIcons List](https://primeng.org/icons)
 - **Tailwind CSS 3.3.3**: Utility-first CSS framework for rapid styling
+  - [Tailwind CSS Documentation](https://tailwindcss.com/)
+  - [Tailwind CSS Classes](https://tailwindcss.com/docs/utility-first)
+  - [Tailwind CSS Configuration](https://tailwindcss.com/docs/configuration)
+- **PrimeFlex 4.0.0**: CSS utility library for PrimeVue
+  - [PrimeFlex Documentation](https://primevue.org/primeflex/)
+- **TailwindCSS PrimeUI 0.6.1**: Tailwind integration for PrimeVue
+  - [TailwindCSS PrimeUI Documentation](https://github.com/primefaces/tailwindcss-primeui)
+
+### Backend & Database
 - **Supabase 2.50.5**: Backend-as-a-Service with PostgreSQL and real-time features
+  - [Supabase Documentation](https://supabase.com/docs)
+  - [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript)
+  - [Supabase Auth](https://supabase.com/docs/guides/auth)
+  - [Supabase Database](https://supabase.com/docs/guides/database)
+  - [Supabase Realtime](https://supabase.com/docs/guides/realtime)
+
+### State Management
 - **Pinia 2.1.6**: State management with composition API stores
+  - [Pinia Documentation](https://pinia.vuejs.org/)
+  - [Pinia Store Guide](https://pinia.vuejs.org/core-concepts/)
+  - [Pinia Composition API](https://pinia.vuejs.org/cookbook/composing-stores.html)
+
+### Data Visualization
 - **Chart.js 4.4.0**: Data visualization for financial charts
+  - [Chart.js Documentation](https://www.chartjs.org/)
+  - [Chart.js Configuration](https://www.chartjs.org/docs/latest/configuration/)
+- **Vue Chart.js 5.2.0**: Vue.js wrapper for Chart.js
+  - [Vue Chart.js Documentation](https://vue-chartjs.org/)
+
+### Routing & Navigation
+- **Vue Router 4.2.4**: Official router for Vue.js
+  - [Vue Router Documentation](https://router.vuejs.org/)
+  - [Vue Router Composition API](https://router.vuejs.org/guide/advanced/composition-api.html)
+
+### Development Tools
+- **Vite 4.4.9**: Build tool and development server
+  - [Vite Documentation](https://vitejs.dev/)
+  - [Vite Vue Plugin](https://github.com/vitejs/vite-plugin-vue)
 - **TypeScript 5.2.2**: Optional type safety for complex logic
+  - [TypeScript Documentation](https://www.typescriptlang.org/)
+  - [TypeScript Vue Guide](https://vuejs.org/guide/typescript/)
+- **ESLint 9.35.0**: JavaScript and Vue.js linting
+  - [ESLint Documentation](https://eslint.org/)
+  - [ESLint Vue Plugin](https://eslint.vuejs.org/)
+- **Prettier 3.6.2**: Code formatting
+  - [Prettier Documentation](https://prettier.io/)
+
+### Testing
+- **Playwright 1.54.2**: End-to-end testing
+  - [Playwright Documentation](https://playwright.dev/)
+  - [Playwright Vue Testing](https://playwright.dev/docs/test-components)
+
+### Islamic Finance & Utilities
+- **Moment Hijri 3.0.0**: Islamic calendar integration
+  - [Moment Hijri Documentation](https://github.com/xsoh/moment-hijri)
+- **Date-fns 2.30.0**: Modern JavaScript date utility library
+  - [Date-fns Documentation](https://date-fns.org/)
+- **Vue Currency Input 3.2.1**: Currency input component
+  - [Vue Currency Input Documentation](https://github.com/dm4t2/vue-currency-input)
+
+### Icons & Assets
+- **Lucide Vue Next 0.284.0**: Additional icon library
+  - [Lucide Icons](https://lucide.dev/)
+  - [Lucide Vue](https://lucide.dev/guide/packages/lucide-vue-next)
 
 ## MCP Configuration
 - Use Supabase MCP for database schema management
@@ -119,3 +191,23 @@ This is a Vue.js budget planning application with Islamic finance integration, b
 5. **Keep It Simple**: Don't over-engineer for future requirements
 6. **Document Complex Logic**: Add inline comments for complex business logic
 7. **Run Linting**: Use `npm run lint` to check and fix code issues
+
+## Quick Reference Links
+
+### Essential Documentation
+- [Vue.js Composition API](https://vuejs.org/guide/composition-api/) - Core Vue.js patterns
+- [PrimeVue Components](https://primevue.org/components/) - UI component library
+- [Tailwind CSS Classes](https://tailwindcss.com/docs/utility-first) - Styling utilities
+- [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript) - Backend integration
+- [Pinia Store Guide](https://pinia.vuejs.org/core-concepts/) - State management
+- [Chart.js Configuration](https://www.chartjs.org/docs/latest/configuration/) - Data visualization
+
+### Development Tools
+- [ESLint Vue Plugin](https://eslint.vuejs.org/) - Vue.js linting rules
+- [Prettier Configuration](https://prettier.io/docs/en/configuration.html) - Code formatting
+- [Vite Vue Plugin](https://github.com/vitejs/vite-plugin-vue) - Build configuration
+- [Playwright Testing](https://playwright.dev/) - E2E testing
+
+### Islamic Finance
+- [Moment Hijri](https://github.com/xsoh/moment-hijri) - Islamic calendar
+- [Date-fns](https://date-fns.org/) - Date utilities
