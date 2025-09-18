@@ -1,0 +1,14 @@
+{
+  "watch": ["src"],
+  "ext": "vue,js,ts",
+  "ignore": [
+    "src/**/*.test.js",
+    "src/**/*.spec.js",
+    "node_modules/**",
+    "dist/**",
+    "*.min.js"
+  ],
+  "exec": "npm run lint:errors",
+  "delay": 1000,
+  "verbose": true
+}

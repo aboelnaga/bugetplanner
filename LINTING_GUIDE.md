@@ -6,6 +6,8 @@ This guide explains the linting setup and available scripts for the Budgrt budge
 
 ### Development Scripts
 - **`npm run dev`**: Runs linting (errors only) then starts development server
+- **`npm run dev:watch`**: Runs linting on file changes + development server (recommended)
+- **`npm run dev:eslint-watch`**: Uses ESLint's built-in watch mode + development server
 - **`npm run build`**: Runs linting (errors only) then builds for production
 - **`npm run dev:no-lint`**: Starts development server without linting
 - **`npm run build:no-lint`**: Builds for production without linting
@@ -14,6 +16,7 @@ This guide explains the linting setup and available scripts for the Budgrt budge
 - **`npm run lint`**: Shows all linting issues (errors + warnings)
 - **`npm run lint:check`**: Strict check - fails on any warnings (0 warnings allowed)
 - **`npm run lint:errors`**: Only shows errors (ignores warnings) - used by dev/build
+- **`npm run lint:watch`**: Watches for file changes and runs linting automatically
 - **`npm run lint:fix`**: Automatically fixes fixable issues
 - **`npm run lint:warn`**: Allows up to 50 warnings (useful for gradual cleanup)
 
@@ -52,7 +55,16 @@ These prevent the dev/build scripts from running:
 
 ## Recommended Workflow
 
-### For Development
+### For Development with Auto-Linting
+1. **Start with**: `npm run dev:watch` (recommended for development)
+   - Runs linting on file changes automatically
+   - Shows linting results in real-time as you code
+   - Development server runs alongside linting
+2. **Alternative**: `npm run dev:eslint-watch` (uses ESLint's built-in watch)
+3. **Fix errors**: Linting will show errors as you make changes
+4. **Auto-fix**: Use `npm run lint:fix` for fixable issues
+
+### For Development without Auto-Linting
 1. **Start with**: `npm run dev` (will fail if errors exist)
 2. **Fix errors**: Use `npm run lint:errors` to see only errors
 3. **Auto-fix**: Use `npm run lint:fix` for fixable issues
@@ -116,13 +128,33 @@ The project includes VS Code configuration for:
 - **`.editorconfig`**: Editor consistency settings
 - **`.vscode/settings.json`**: VS Code specific settings
 
+## Watch Mode Features
+
+### Real-Time Linting
+- **File watching**: Automatically detects changes to `.vue`, `.js`, `.ts` files
+- **Instant feedback**: Shows linting results immediately after saving files
+- **Error highlighting**: Displays errors and warnings in the terminal
+- **Non-blocking**: Development server continues running even with linting errors
+
+### Two Watch Options
+1. **`npm run dev:watch`**: Uses nodemon for file watching
+   - More customizable with `nodemon.json` config
+   - Better performance for large projects
+   - Configurable delay and ignore patterns
+
+2. **`npm run dev:eslint-watch`**: Uses ESLint's built-in watch mode
+   - Native ESLint functionality
+   - Simpler setup
+   - Good for smaller projects
+
 ## Best Practices
 
-1. **Fix errors first**: Always address errors before warnings
-2. **Use auto-fix**: Run `npm run lint:fix` regularly
-3. **IDE integration**: Let your IDE show linting issues in real-time
-4. **Gradual improvement**: Don't try to fix all warnings at once
-5. **Consistent formatting**: Use Prettier for consistent code style
+1. **Use watch mode**: `npm run dev:watch` for development with auto-linting
+2. **Fix errors first**: Always address errors before warnings
+3. **Use auto-fix**: Run `npm run lint:fix` regularly
+4. **IDE integration**: Let your IDE show linting issues in real-time
+5. **Gradual improvement**: Don't try to fix all warnings at once
+6. **Consistent formatting**: Use Prettier for consistent code style
 
 ## Troubleshooting
 

@@ -4,6 +4,8 @@
   "description": "Personal Budget Management App",
   "scripts": {
     "dev": "npm run lint:errors && vite",
+    "dev:watch": "concurrently \"npm run lint:watch\" \"vite\"",
+    "dev:eslint-watch": "concurrently \"eslint . --ext .vue,.js,.ts --watch\" \"vite\"",
     "build": "npm run lint:errors && vite build",
     "preview": "vite preview",
     "test": "playwright test",
@@ -15,6 +17,7 @@
     "lint": "eslint . --ext .vue,.js,.ts",
     "lint:check": "eslint . --ext .vue,.js,.ts --max-warnings 0",
     "lint:errors": "eslint . --ext .vue,.js,.ts --quiet",
+    "lint:watch": "nodemon --watch src --ext vue,js,ts --exec \"npm run lint:errors\"",
     "lint:fix": "eslint . --ext .vue,.js,.ts --fix",
     "lint:warn": "eslint . --ext .vue,.js,.ts --max-warnings 50",
     "dev:no-lint": "vite",
