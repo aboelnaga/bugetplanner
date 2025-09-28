@@ -9,7 +9,6 @@ import { useConfirm } from 'primevue/useconfirm'
 import {
   TRANSACTION_TYPE_LABELS,
   TRANSACTION_TYPE_ICONS,
-  INVESTMENT_DIRECTIONS,
   INVESTMENT_DIRECTION_LABELS,
   DATABASE_LIMITS
 } from '@/constants/budgetConstants.js'
@@ -75,13 +74,8 @@ const {
   formData,
   isLoading,
   initializeFormData,
-  resetFormData,
   getCategoriesByType,
   updateCategoryOnTypeChange,
-  handleAmountInput,
-  handleTaxAmountInput,
-  handleGrossAmountInput,
-  handleNetAmountInput,
   handleAddSubmit,
   handleEditSubmit,
   initializeFormDataFromTransaction

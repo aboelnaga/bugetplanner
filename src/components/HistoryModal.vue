@@ -5,8 +5,8 @@ import { useBudgetHistory } from '@/composables/useBudgetHistory.js'
 import { MONTHS } from '@/constants/budgetConstants.js'
 import { formatCompactCurrency } from '@/utils/budgetUtils.js'
 
-// Props
-const props = defineProps({
+  // Props
+  defineProps({
     modelValue: {
       type: Boolean,
       default: false
@@ -23,15 +23,8 @@ const budgetStore = useBudgetStore()
 const months = MONTHS
 
 // History composable
-const {
-  historyItems,
-  formatHistoryValue,
-  formatTimestamp,
-  formatFullDate,
-  getChangeIndicator,
-  getBudgetItemName,
-  getHistoryStats
-} = useBudgetHistory(budgetStore)
+const { historyItems, formatTimestamp, getBudgetItemName, getHistoryStats } =
+    useBudgetHistory(budgetStore)
 
 // Get history statistics
 const historyStats = computed(() => getHistoryStats())
@@ -311,7 +304,7 @@ const closeModal = () => {
                 <!-- Month headers -->
                 <div class="grid grid-cols-12 gap-1 mb-2">
                   <div
-                    v-for="(month, index) in months"
+                    v-for="(month, _index) in months"
                     :key="month"
                     class="text-center py-2 px-1 text-xs font-semibold text-gray-700 rounded"
                   >

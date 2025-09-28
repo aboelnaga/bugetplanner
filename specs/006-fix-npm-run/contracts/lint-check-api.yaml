@@ -1,0 +1,207 @@
+openapi: 3.0.0
+info:
+  title: ESLint Warning Cleanup API
+  description: API for managing ESLint warning cleanup tasks
+  version: 1.0.0
+  contact:
+    name: Budget Planning Application
+    email: dev@budgrt.app
+
+paths:
+  /api/lint/check:
+    get:
+      summary: Check current ESLint warnings
+      description: Returns all current ESLint warnings in the codebase
+      operationId: checkLintWarnings
+      responses:
+        "200":
+          description: List of ESLint warnings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalWarnings:
+                    type: integer
+                    description: Total number of warnings
+                    example: 149
+                  warnings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ESLintWarning"
+                  summary:
+                    type: object
+                    properties:
+                      unusedVars:
+                        type: integer
+                        description: Number of unused variable warnings
+                      propValidation:
+                        type: integer
+                        description: Number of prop validation warnings
+                      security:
+                        type: integer
+                        description: Number of security warnings
+                      imports:
+                        type: integer
+                        description: Number of unused import warnings
+                      other:
+                        type: integer
+                        description: Number of other warnings
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/lint/fix:
+    post:
+      summary: Auto-fix ESLint warnings
+      description: Attempts to automatically fix fixable ESLint warnings
+      operationId: autoFixLintWarnings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filePaths:
+                  type: array
+                  items:
+                    type: string
+                  description: Specific files to fix (optional, fixes all if not provided)
+                dryRun:
+                  type: boolean
+                  description: Whether to perform a dry run without making changes
+                  default: false
+      responses:
+        "200":
+          description: Auto-fix results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fixedWarnings:
+                    type: integer
+                    description: Number of warnings that were fixed
+                  remainingWarnings:
+                    type: integer
+                    description: Number of warnings that could not be auto-fixed
+                  filesModified:
+                    type: array
+                    items:
+                      type: string
+                    description: List of files that were modified
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    description: Any errors that occurred during fixing
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/lint/verify:
+    post:
+      summary: Verify ESLint warning fixes
+      description: Verifies that all ESLint warnings have been resolved
+      operationId: verifyLintFixes
+      responses:
+        "200":
+          description: Verification results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  allFixed:
+                    type: boolean
+                    description: Whether all warnings have been fixed
+                  remainingWarnings:
+                    type: integer
+                    description: Number of remaining warnings
+                  warnings:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ESLintWarning"
+                    description: Remaining warnings if any
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    ESLintWarning:
+      type: object
+      required:
+        - filePath
+        - lineNumber
+        - ruleName
+        - message
+        - severity
+        - category
+        - fixable
+      properties:
+        filePath:
+          type: string
+          description: Path to the file containing the warning
+          example: "src/components/AccountCard.vue"
+        lineNumber:
+          type: integer
+          description: Line number where warning occurs
+          example: 13
+        ruleName:
+          type: string
+          description: ESLint rule that triggered the warning
+          example: "no-unused-vars"
+        message:
+          type: string
+          description: Human-readable warning message
+          example: "'emit' is assigned a value but never used"
+        severity:
+          type: string
+          enum: [warning, error]
+          description: Warning severity level
+          example: "warning"
+        category:
+          type: string
+          enum: [unused-vars, prop-validation, security, import, other]
+          description: Category of the warning
+          example: "unused-vars"
+        fixable:
+          type: boolean
+          description: Whether the warning can be automatically fixed
+          example: true
+
+    Error:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: "Failed to process ESLint warnings"
+        code:
+          type: string
+          description: Error code
+          example: "LINT_PROCESSING_ERROR"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true

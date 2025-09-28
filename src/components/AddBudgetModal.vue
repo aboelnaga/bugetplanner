@@ -1,5 +1,5 @@
 <script setup>
-import { computed, watch, ref, onMounted } from 'vue'
+import { computed, watch, ref } from 'vue'
 import { useBudgetStore } from '@/stores/budget.js'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets.js'
 import { useBudgetModals } from '@/composables/useBudgetModals.js'
@@ -9,14 +9,9 @@ import {
   MONTHS,
   BUDGET_TYPES,
   BUDGET_TYPE_LABELS,
-  RECURRENCE_LABELS,
-  INVESTMENT_DIRECTIONS,
   INVESTMENT_DIRECTION_LABELS,
   PAYMENT_SCHEDULES,
   PAYMENT_SCHEDULE_LABELS,
-  PAYMENT_SCHEDULE_DESCRIPTIONS,
-  DATABASE_LIMITS,
-  MULTI_YEAR_CONSTANTS,
   FREQUENCY_TYPES,
   FREQUENCY_LABELS,
   RECURRENCE_INTERVALS,
@@ -24,13 +19,8 @@ import {
   END_TYPES,
   END_TYPE_LABELS
 } from '@/constants/budgetConstants.js'
-import {
-  formatCurrency,
-  formatCompactCurrency
-} from '@/utils/budgetUtils.js'
+import { formatCurrency } from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
-import CurrencyInput from './CurrencyInput.vue'
-import { currencyOptions } from '@/constants/currencyOptions.js'
 
 // Props
 const props = defineProps({
@@ -118,13 +108,10 @@ const {
   isLoading,
   initializeFormData,
   initializeFormDataFromBudget,
-  resetFormData,
   getCategoriesByType,
   updateCategoryOnTypeChange,
   updateSchedule,
   getAvailableStartMonthIndices,
-  getMonthLabel,
-  getSchedulePreviewClass,
   calculateTotalAmount,
   generateSchedule,
   updateMultiYearPreview,
@@ -570,18 +557,6 @@ const createBudgetDataFromSchedule = (formData, yearData) => {
     }
 }
 
-// Get multi-year duration
-const getMultiYearDuration = () => {
-  if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
-    return formData.value.endYear - formData.value.startYear + 1
-  } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
-    // Calculate the actual duration by finding the end year
-    const calculatedEndYear = getCalculatedEndYear()
-    return calculatedEndYear - formData.value.startYear + 1
-  }
-  return 0
-}
-
 // Get calculated end year for occurrence-based endings
 const getCalculatedEndYear = () => {
   if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
@@ -662,26 +637,6 @@ const schedulePreviewData = computed(() => {
       }
     }
   })
-
-// Unified class for schedule month headers
-const getScheduleMonthClass = (amount, index) => {
-  if (amount > 0) {
-    return 'bg-primary-100 text-primary-800 border border-primary-200'
-  } else if (index < currentMonth.value) {
-    return 'bg-surface-100 opacity-50'
-  } else {
-    return 'bg-surface-50 border border-surface-200'
-  }
-}
-
-// Unified class for schedule amount values
-const getScheduleAmountClass = (amount, index) => {
-  if (amount > 0) {
-    return 'border-green-200 bg-green-100 text-green-800'
-  } else {
-    return 'border border-surface-200 bg-surface text-surface-500'
-  }
-}
 
 // DataTable methods
 const onRowToggle = (event) => {

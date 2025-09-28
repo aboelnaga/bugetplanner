@@ -159,17 +159,6 @@ const getAvailableBalance = (account) => {
   return account.balance
 }
 
-const handleAmountInput = (event) => {
-  const value = event.target.value.replace(/[^0-9.]/g, '')
-  const numValue = parseFloat(value) || 0
-
-  if (numValue > maxTransferAmount.value) {
-    formData.value.amount = maxTransferAmount.value
-  } else {
-    formData.value.amount = numValue
-  }
-}
-
 const closeModal = () => {
     emit('update:modelValue', false)
     resetForm()

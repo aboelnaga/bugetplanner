@@ -1,0 +1,25 @@
+# budgrt Development Guidelines
+
+Auto-generated from all feature plans. Last updated: 2025-09-28
+
+## Active Technologies
+- JavaScript ES6+, Vue.js 3.3.4 + ESLint 9.35.0, Vue.js, PrimeVue, Tailwind CSS (006-fix-npm-run)
+
+## Project Structure
+```
+backend/
+frontend/
+tests/
+```
+
+## Commands
+npm test [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLOGIES] npm run lint
+
+## Code Style
+JavaScript ES6+, Vue.js 3.3.4: Follow standard conventions
+
+## Recent Changes
+- 006-fix-npm-run: Added JavaScript ES6+, Vue.js 3.3.4 + ESLint 9.35.0, Vue.js, PrimeVue, Tailwind CSS
+
+<!-- MANUAL ADDITIONS START -->
+<!-- MANUAL ADDITIONS END -->

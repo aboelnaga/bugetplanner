@@ -10,10 +10,22 @@ import {
 } from 'lucide-vue-next'
 
 const props = defineProps({
-    title: String,
-    value: String,
-    change: String,
-    icon: String,
+    title: {
+      type: String,
+      default: ''
+    },
+    value: {
+      type: String,
+      default: ''
+    },
+    change: {
+      type: String,
+      default: ''
+    },
+    icon: {
+      type: String,
+      default: ''
+    },
     color: {
       type: String,
       default: 'blue'

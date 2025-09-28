@@ -186,7 +186,7 @@ export function useErrorHandler (toastFunction = null) {
     const {
       showNotification = true,
       logError = true,
-      retryFunction = null,
+      _retryFunction = null,
       onRecovery = null
     } = options
 

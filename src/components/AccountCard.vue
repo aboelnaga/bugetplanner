@@ -1,54 +1,48 @@
 <script setup>
-import { computed } from 'vue'
-import { useAccountsStore } from '../stores/accounts'
-import { useTransactionStore } from '../stores/transactions'
+  import { computed } from "vue";
+  import { useAccountsStore } from "../stores/accounts";
+  import { useTransactionStore } from "../stores/transactions";
 
-const props = defineProps({
+  const props = defineProps({
     account: {
       type: Object,
-      required: true
-    }
-  })
+      required: true,
+    },
+  });
 
-const emit = defineEmits([
-    'edit',
-    'set-default',
-    'delete',
-    'transfer',
-    'history'
-  ])
+  defineEmits(["edit", "set-default", "delete", "transfer", "history"]);
 
-const accountsStore = useAccountsStore()
-const transactionStore = useTransactionStore()
+  const accountsStore = useAccountsStore();
+  const transactionStore = useTransactionStore();
 
-const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
-const getAvailableCredit = (accountId) =>
-    accountsStore.getAvailableCredit(accountId)
+  const getAccountIcon = (type) => accountsStore.getAccountIcon(type);
+  const getAvailableCredit = (accountId) =>
+    accountsStore.getAvailableCredit(accountId);
 
-// Get recent transactions for this account
-const recentTransactions = computed(() =>
-    transactionStore.getRecentTransactionsByAccount(props.account.id, 3)
-  )
+  // Get recent transactions for this account
+  const recentTransactions = computed(() =>
+    transactionStore.getRecentTransactionsByAccount(props.account.id, 3),
+  );
 
-const formatCurrency = (amount) => {
-  if (amount === null || amount === undefined) return '$0.00'
-  return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount)
-}
+  const formatCurrency = (amount) => {
+    if (amount === null || amount === undefined) return "$0.00";
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(amount);
+  };
 
-const getBalanceColor = (balance) => {
-  if (balance >= 0) return 'text-green-600'
-  return 'text-red-600'
-}
+  const getBalanceColor = (balance) => {
+    if (balance >= 0) return "text-green-600";
+    return "text-red-600";
+  };
 
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
-}
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+  };
 </script>
 
 <template>
@@ -123,13 +117,8 @@ const formatDate = (date) => {
     <div class="space-y-3">
       <!-- Balance Display -->
       <div class="text-center">
-        <div
-          v-if="account.type === 'credit_card'"
-          class="space-y-1"
-        >
-          <p class="text-sm text-gray-500">
-            Available Credit
-          </p>
+        <div v-if="account.type === 'credit_card'" class="space-y-1">
+          <p class="text-sm text-gray-500">Available Credit</p>
           <p class="text-2xl font-bold text-green-600">
             {{ formatCurrency(getAvailableCredit(account.id)) }}
           </p>
@@ -138,9 +127,7 @@ const formatDate = (date) => {
           </p>
         </div>
         <div v-else>
-          <p class="text-sm text-gray-500">
-            Balance
-          </p>
+          <p class="text-sm text-gray-500">Balance</p>
           <p
             class="text-2xl font-bold"
             :class="getBalanceColor(account.balance)"
