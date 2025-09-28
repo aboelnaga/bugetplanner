@@ -12,25 +12,31 @@ export function useBudgetFilters (budgetItems, budgetStore) {
 
   // Computed properties for quick stats
   const incomeCount = computed(() => {
-    return (budgetItems.value || []).filter(b => b && b.type === BUDGET_TYPES.INCOME).length
+    return (budgetItems.value || []).filter(
+      (b) => b && b.type === BUDGET_TYPES.INCOME
+    ).length
   })
 
   const expenseCount = computed(() => {
-    return (budgetItems.value || []).filter(b => b && b.type === BUDGET_TYPES.EXPENSE).length
+    return (budgetItems.value || []).filter(
+      (b) => b && b.type === BUDGET_TYPES.EXPENSE
+    ).length
   })
 
   const investmentCount = computed(() => {
-    return (budgetItems.value || []).filter(b => b && b.type === BUDGET_TYPES.INVESTMENT).length
+    return (budgetItems.value || []).filter(
+      (b) => b && b.type === BUDGET_TYPES.INVESTMENT
+    ).length
   })
 
   const totalCount = computed(() => {
-    return (budgetItems.value || []).filter(b => b).length
+    return (budgetItems.value || []).filter((b) => b).length
   })
 
   // Category management
   const uniqueCategories = computed(() => {
-    const categories = new Set()
-    ;(budgetItems.value || []).forEach(item => {
+    const categories = new Set();
+    (budgetItems.value || []).forEach((item) => {
       if (item && item.category) {
         categories.add(item.category)
       }
@@ -40,10 +46,14 @@ export function useBudgetFilters (budgetItems, budgetStore) {
 
   // Filtered budget items
   const filteredBudgetItems = computed(() => {
-    return budgetItems.value.filter(item => {
+    return budgetItems.value.filter((item) => {
       if (!item) return false
-      const typeMatches = selectedTypeFilter.value === FILTER_OPTIONS.ALL || item.type === selectedTypeFilter.value
-      const categoryMatches = selectedCategoryFilter.value === FILTER_OPTIONS.ALL || item.category === selectedCategoryFilter.value
+      const typeMatches =
+        selectedTypeFilter.value === FILTER_OPTIONS.ALL ||
+        item.type === selectedTypeFilter.value
+      const categoryMatches =
+        selectedCategoryFilter.value === FILTER_OPTIONS.ALL ||
+        item.category === selectedCategoryFilter.value
       return typeMatches && categoryMatches
     })
   })
@@ -53,7 +63,7 @@ export function useBudgetFilters (budgetItems, budgetStore) {
     if (!groupByCategory.value) return {}
 
     const grouped = {}
-    filteredBudgetItems.value.forEach(item => {
+    filteredBudgetItems.value.forEach((item) => {
       if (!grouped[item.category]) {
         grouped[item.category] = []
       }
@@ -62,28 +72,42 @@ export function useBudgetFilters (budgetItems, budgetStore) {
 
     // Sort categories alphabetically
     const sortedGrouped = {}
-    Object.keys(grouped).sort().forEach(key => {
-      sortedGrouped[key] = grouped[key]
-    })
+    Object.keys(grouped)
+      .sort()
+      .forEach((key) => {
+        sortedGrouped[key] = grouped[key]
+      })
 
     return sortedGrouped
   })
 
   // Data availability checks
   const hasIncomeData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === BUDGET_TYPES.INCOME)
+    return filteredBudgetItems.value.some(
+      (item) => item.type === BUDGET_TYPES.INCOME
+    )
   })
 
   const hasExpenseData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === BUDGET_TYPES.EXPENSE)
+    return filteredBudgetItems.value.some(
+      (item) => item.type === BUDGET_TYPES.EXPENSE
+    )
   })
 
   const hasInvestmentIncomingData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === BUDGET_TYPES.INVESTMENT && item.investment_direction === 'incoming')
+    return filteredBudgetItems.value.some(
+      (item) =>
+        item.type === BUDGET_TYPES.INVESTMENT &&
+        item.investment_direction === 'incoming'
+    )
   })
 
   const hasInvestmentOutgoingData = computed(() => {
-    return filteredBudgetItems.value.some(item => item.type === BUDGET_TYPES.INVESTMENT && item.investment_direction === 'outgoing')
+    return filteredBudgetItems.value.some(
+      (item) =>
+        item.type === BUDGET_TYPES.INVESTMENT &&
+        item.investment_direction === 'outgoing'
+    )
   })
 
   const hasInvestmentData = computed(() => {
@@ -91,7 +115,9 @@ export function useBudgetFilters (budgetItems, budgetStore) {
   })
 
   const hasAnyData = computed(() => {
-    return hasIncomeData.value || hasExpenseData.value || hasInvestmentData.value
+    return (
+      hasIncomeData.value || hasExpenseData.value || hasInvestmentData.value
+    )
   })
 
   // Filter actions
@@ -110,9 +136,10 @@ export function useBudgetFilters (budgetItems, budgetStore) {
     if (categoryItems.length === 0) return BUDGET_TYPES.EXPENSE
 
     const typeCounts = categoryItems.reduce((counts, item) => {
-      const key = item.type === BUDGET_TYPES.INVESTMENT
-        ? `${item.type}-${item.investment_direction}`
-        : item.type
+      const key =
+        item.type === BUDGET_TYPES.INVESTMENT
+          ? `${item.type}-${item.investment_direction}`
+          : item.type
       counts[key] = (counts[key] || 0) + 1
       return counts
     }, {})

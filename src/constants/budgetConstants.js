@@ -3,14 +3,34 @@
 
 // Months array
 export const MONTHS = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec'
 ]
 
 // Full month names for dropdowns
 export const MONTH_NAMES = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
 ]
 
 // Month options for dropdowns
@@ -52,7 +72,8 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-slate-200',
     fontWeight: 'font-bold',
     fontSize: 'text-base',
-    showCondition: (selectedTypeFilter, hasAnyData) => selectedTypeFilter === 'all' && hasAnyData
+    showCondition: (selectedTypeFilter, hasAnyData) =>
+      selectedTypeFilter === 'all' && hasAnyData
   },
   NET_INVESTMENT: {
     id: 'net-investment',
@@ -65,7 +86,9 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-blue-200',
     fontWeight: 'font-semibold',
     fontSize: 'text-sm',
-    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentData
+    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData) =>
+      (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') &&
+      hasInvestmentData
   },
   SAVINGS: {
     id: 'savings',
@@ -78,7 +101,8 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-green-200',
     fontWeight: 'font-bold',
     fontSize: 'text-base',
-    showCondition: (selectedTypeFilter, hasAnyData) => selectedTypeFilter === 'all' && hasAnyData
+    showCondition: (selectedTypeFilter, hasAnyData) =>
+      selectedTypeFilter === 'all' && hasAnyData
   },
   TOTAL_INCOME: {
     id: 'total-income',
@@ -90,7 +114,14 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-emerald-200',
     fontWeight: 'font-semibold',
     fontSize: 'text-sm',
-    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'income') && hasIncomeData
+    showCondition: (
+      selectedTypeFilter,
+      hasAnyData,
+      hasInvestmentData,
+      hasIncomeData
+    ) =>
+      (selectedTypeFilter === 'all' || selectedTypeFilter === 'income') &&
+      hasIncomeData
   },
   INVESTMENT_RETURNS: {
     id: 'investment-returns',
@@ -102,7 +133,15 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-emerald-200',
     fontWeight: 'font-medium',
     fontSize: 'text-sm',
-    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentIncomingData
+    showCondition: (
+      selectedTypeFilter,
+      hasAnyData,
+      hasInvestmentData,
+      hasIncomeData,
+      hasInvestmentIncomingData
+    ) =>
+      (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') &&
+      hasInvestmentIncomingData
   },
   TOTAL_EXPENSES: {
     id: 'total-expenses',
@@ -114,7 +153,16 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-rose-200',
     fontWeight: 'font-semibold',
     fontSize: 'text-sm',
-    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData, hasExpenseData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'expense') && hasExpenseData
+    showCondition: (
+      selectedTypeFilter,
+      hasAnyData,
+      hasInvestmentData,
+      hasIncomeData,
+      hasInvestmentIncomingData,
+      hasExpenseData
+    ) =>
+      (selectedTypeFilter === 'all' || selectedTypeFilter === 'expense') &&
+      hasExpenseData
   },
   INVESTMENT_PURCHASES: {
     id: 'investment-purchases',
@@ -126,7 +174,17 @@ export const SUMMARY_ROWS = {
     borderColor: 'border-rose-200',
     fontWeight: 'font-medium',
     fontSize: 'text-sm',
-    showCondition: (selectedTypeFilter, hasAnyData, hasInvestmentData, hasIncomeData, hasInvestmentIncomingData, hasExpenseData, hasInvestmentOutgoingData) => (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') && hasInvestmentOutgoingData
+    showCondition: (
+      selectedTypeFilter,
+      hasAnyData,
+      hasInvestmentData,
+      hasIncomeData,
+      hasInvestmentIncomingData,
+      hasExpenseData,
+      hasInvestmentOutgoingData
+    ) =>
+      (selectedTypeFilter === 'all' || selectedTypeFilter === 'investment') &&
+      hasInvestmentOutgoingData
   }
 }
 
@@ -529,7 +587,8 @@ export const EMPTY_STATES = {
   NO_BUDGET_ITEMS: {
     icon: '📊',
     title: 'No budget items for {year}',
-    message: 'Start by adding your first budget item or copy from a previous year.',
+    message:
+      'Start by adding your first budget item or copy from a previous year.',
     showActions: true,
     actions: ['add-first-budget', 'copy-from-previous-year']
   },

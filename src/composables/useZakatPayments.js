@@ -38,16 +38,20 @@ export function useZakatPayments () {
   })
 
   const completedPayments = computed(() => {
-    return payments.value.filter(payment => payment.status === PAYMENT_STATUS.COMPLETED)
+    return payments.value.filter(
+      (payment) => payment.status === PAYMENT_STATUS.COMPLETED
+    )
   })
 
   const pendingPayments = computed(() => {
-    return payments.value.filter(payment => payment.status === PAYMENT_STATUS.PENDING)
+    return payments.value.filter(
+      (payment) => payment.status === PAYMENT_STATUS.PENDING
+    )
   })
 
   const paymentsByYear = computed(() => {
     const grouped = {}
-    payments.value.forEach(payment => {
+    payments.value.forEach((payment) => {
       const year = new Date(payment.paymentDate).getFullYear()
       if (!grouped[year]) {
         grouped[year] = []
@@ -81,8 +85,10 @@ export function useZakatPayments () {
         id: `payment-${Date.now()}`,
         hawlId: hawlStore.currentHawl?.id,
         amount: parseFloat(paymentData.amount),
-        paymentDate: paymentData.paymentDate || new Date().toISOString().split('T')[0],
-        paymentMethod: paymentData.paymentMethod || PAYMENT_METHODS.BANK_TRANSFER,
+        paymentDate:
+          paymentData.paymentDate || new Date().toISOString().split('T')[0],
+        paymentMethod:
+          paymentData.paymentMethod || PAYMENT_METHODS.BANK_TRANSFER,
         status: PAYMENT_STATUS.PENDING,
         description: paymentData.description || '',
         recipient: paymentData.recipient || '',
@@ -96,7 +102,10 @@ export function useZakatPayments () {
       savePayments()
 
       // If this is for the current Hawl, mark it as paid
-      if (hawlStore.currentHawl && payment.hawlId === hawlStore.currentHawl.id) {
+      if (
+        hawlStore.currentHawl &&
+        payment.hawlId === hawlStore.currentHawl.id
+      ) {
         await markHawlAsPaid(payment)
       }
 
@@ -115,7 +124,7 @@ export function useZakatPayments () {
     error.value = null
 
     try {
-      const paymentIndex = payments.value.findIndex(p => p.id === paymentId)
+      const paymentIndex = payments.value.findIndex((p) => p.id === paymentId)
       if (paymentIndex === -1) {
         throw new Error('Payment not found')
       }
@@ -160,7 +169,7 @@ export function useZakatPayments () {
     error.value = null
 
     try {
-      const paymentIndex = payments.value.findIndex(p => p.id === paymentId)
+      const paymentIndex = payments.value.findIndex((p) => p.id === paymentId)
       if (paymentIndex === -1) {
         throw new Error('Payment not found')
       }
@@ -195,7 +204,6 @@ export function useZakatPayments () {
       // Create new Hawl for next year
       const newAssetValue = hawlStore.currentHawl?.currentAssets || 0
       await hawlStore.restartHawl(newAssetValue)
-
     } catch (err) {
       console.error('Error marking Hawl as paid:', err)
       throw err
@@ -203,13 +211,15 @@ export function useZakatPayments () {
   }
 
   const getPaymentsByHawl = (hawlId) => {
-    return payments.value.filter(payment => payment.hawlId === hawlId)
+    return payments.value.filter((payment) => payment.hawlId === hawlId)
   }
 
   const getPaymentsByDateRange = (startDate, endDate) => {
-    return payments.value.filter(payment => {
+    return payments.value.filter((payment) => {
       const paymentDate = new Date(payment.paymentDate)
-      return paymentDate >= new Date(startDate) && paymentDate <= new Date(endDate)
+      return (
+        paymentDate >= new Date(startDate) && paymentDate <= new Date(endDate)
+      )
     })
   }
 
@@ -218,12 +228,14 @@ export function useZakatPayments () {
       total: payments.value.length,
       completed: completedPayments.value.length,
       pending: pendingPayments.value.length,
-      failed: payments.value.filter(p => p.status === PAYMENT_STATUS.FAILED).length,
+      failed: payments.value.filter((p) => p.status === PAYMENT_STATUS.FAILED)
+        .length,
       totalAmount: totalPayments.value,
       currentYearAmount: currentYearTotal.value,
-      averageAmount: completedPayments.value.length > 0
-        ? totalPayments.value / completedPayments.value.length
-        : 0
+      averageAmount:
+        completedPayments.value.length > 0
+          ? totalPayments.value / completedPayments.value.length
+          : 0
     }
 
     return stats
@@ -261,7 +273,9 @@ export function useZakatPayments () {
       stats: getPaymentStats()
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: 'application/json'
+    })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url

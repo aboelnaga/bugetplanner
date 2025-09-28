@@ -36,14 +36,17 @@ export const useBudgetStore = defineStore('budget', () => {
   // Savings calculations
   const calculateMonthlySavings = (monthIndex, year = selectedYear.value) => {
     // Get budget items for the specific year
-    const yearItems = budgetItems.value.filter(item => item.year === year)
+    const yearItems = budgetItems.value.filter((item) => item.year === year)
 
     // Calculate monthly net balance (income - expenses)
     const monthlyIncome = yearItems.reduce((sum, budget) => {
       if (budget.type === 'income') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
-      if (budget.type === 'investment' && budget.investment_direction === 'incoming') {
+      if (
+        budget.type === 'investment' &&
+        budget.investment_direction === 'incoming'
+      ) {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
       return sum
@@ -53,7 +56,10 @@ export const useBudgetStore = defineStore('budget', () => {
       if (budget.type === 'expense') {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
-      if (budget.type === 'investment' && budget.investment_direction === 'outgoing') {
+      if (
+        budget.type === 'investment' &&
+        budget.investment_direction === 'outgoing'
+      ) {
         return sum + (parseFloat(budget.amounts[monthIndex]) || 0)
       }
       return sum
@@ -62,7 +68,10 @@ export const useBudgetStore = defineStore('budget', () => {
     return monthlyIncome - monthlyExpenses
   }
 
-  const calculateCumulativeSavings = (monthIndex, year = selectedYear.value) => {
+  const calculateCumulativeSavings = (
+    monthIndex,
+    year = selectedYear.value
+  ) => {
     let cumulativeSavings = 0
 
     // Add savings from previous years (simplified - could be enhanced with actual data)
@@ -104,7 +113,10 @@ export const useBudgetStore = defineStore('budget', () => {
     }, 0)
 
     const monthlySaving = monthlyIncome - monthlyExpenses
-    const savings = calculateCumulativeSavings(currentMonthIndex, currentYearValue)
+    const savings = calculateCumulativeSavings(
+      currentMonthIndex,
+      currentYearValue
+    )
 
     return {
       month: currentMonthIndex,
@@ -152,7 +164,9 @@ export const useBudgetStore = defineStore('budget', () => {
   const currentSavingsRate = computed(() => {
     const currentMonth = currentMonthData.value
     if (currentMonth.monthlyIncome === 0) return 0
-    return Math.round((currentMonth.monthlySaving / currentMonth.monthlyIncome) * 100)
+    return Math.round(
+      (currentMonth.monthlySaving / currentMonth.monthlyIncome) * 100
+    )
   })
 
   // Zakat calculation (2.5% of savings)
@@ -180,10 +194,14 @@ export const useBudgetStore = defineStore('budget', () => {
   // Budget items with virtual unlinked items
   const budgetItemsWithUnlinked = computed(() => {
     // Get unlinked transactions from transaction store
-    const unlinkedTransactions = transactionStore.transactions?.filter(transaction => {
-      const transactionYear = new Date(transaction.date).getFullYear()
-      return transactionYear === selectedYear.value && transaction.budget_item_id === null
-    }) || []
+    const unlinkedTransactions =
+      transactionStore.transactions?.filter((transaction) => {
+        const transactionYear = new Date(transaction.date).getFullYear()
+        return (
+          transactionYear === selectedYear.value &&
+          transaction.budget_item_id === null
+        )
+      }) || []
 
     // If no unlinked transactions, return original budget items
     if (unlinkedTransactions.length === 0) {
@@ -191,22 +209,32 @@ export const useBudgetStore = defineStore('budget', () => {
     }
 
     // Separate transactions by type
-    const incomeTransactions = unlinkedTransactions.filter(transaction => {
+    const incomeTransactions = unlinkedTransactions.filter((transaction) => {
       return transaction.type === 'income'
     })
 
-    const expenseTransactions = unlinkedTransactions.filter(transaction => {
+    const expenseTransactions = unlinkedTransactions.filter((transaction) => {
       return transaction.type === 'expense'
     })
 
     // For investment transactions, use the investment_direction field
-    const investmentIncomingTransactions = unlinkedTransactions.filter(transaction => {
-      return transaction.type === 'investment' && transaction.investment_direction === 'incoming'
-    })
+    const investmentIncomingTransactions = unlinkedTransactions.filter(
+      (transaction) => {
+        return (
+          transaction.type === 'investment' &&
+          transaction.investment_direction === 'incoming'
+        )
+      }
+    )
 
-    const investmentOutgoingTransactions = unlinkedTransactions.filter(transaction => {
-      return transaction.type === 'investment' && transaction.investment_direction === 'outgoing'
-    })
+    const investmentOutgoingTransactions = unlinkedTransactions.filter(
+      (transaction) => {
+        return (
+          transaction.type === 'investment' &&
+          transaction.investment_direction === 'outgoing'
+        )
+      }
+    )
 
     const virtualItems = []
 
@@ -214,14 +242,19 @@ export const useBudgetStore = defineStore('budget', () => {
     const createVirtualItem = (transactions, type, name, category) => {
       if (transactions.length === 0) return null
 
-      const monthlyAmounts = Array(12).fill(0).map((_, monthIndex) => {
-        return transactions
-          .filter(transaction => {
-            const transactionMonth = new Date(transaction.date).getMonth()
-            return transactionMonth === monthIndex
-          })
-          .reduce((sum, transaction) => sum + (parseFloat(transaction.amount) || 0), 0)
-      })
+      const monthlyAmounts = Array(12)
+        .fill(0)
+        .map((_, monthIndex) => {
+          return transactions
+            .filter((transaction) => {
+              const transactionMonth = new Date(transaction.date).getMonth()
+              return transactionMonth === monthIndex
+            })
+            .reduce(
+              (sum, transaction) => sum + (parseFloat(transaction.amount) || 0),
+              0
+            )
+        })
 
       return {
         id: `unlinked-${type}`,
@@ -249,10 +282,30 @@ export const useBudgetStore = defineStore('budget', () => {
     }
 
     // Create virtual items for each type
-    const incomeVirtual = createVirtualItem(incomeTransactions, 'income', 'Unlinked Income', 'Unlinked')
-    const expenseVirtual = createVirtualItem(expenseTransactions, 'expense', 'Unlinked Expenses', 'Unlinked')
-    const investmentIncomingVirtual = createVirtualItem(investmentIncomingTransactions, 'investment', 'Unlinked Investment Incoming', 'Unlinked')
-    const investmentOutgoingVirtual = createVirtualItem(investmentOutgoingTransactions, 'investment', 'Unlinked Investment Outgoing', 'Unlinked')
+    const incomeVirtual = createVirtualItem(
+      incomeTransactions,
+      'income',
+      'Unlinked Income',
+      'Unlinked'
+    )
+    const expenseVirtual = createVirtualItem(
+      expenseTransactions,
+      'expense',
+      'Unlinked Expenses',
+      'Unlinked'
+    )
+    const investmentIncomingVirtual = createVirtualItem(
+      investmentIncomingTransactions,
+      'investment',
+      'Unlinked Investment Incoming',
+      'Unlinked'
+    )
+    const investmentOutgoingVirtual = createVirtualItem(
+      investmentOutgoingTransactions,
+      'investment',
+      'Unlinked Investment Outgoing',
+      'Unlinked'
+    )
 
     // Add virtual items to the array
     if (incomeVirtual) virtualItems.push(incomeVirtual)
@@ -265,8 +318,6 @@ export const useBudgetStore = defineStore('budget', () => {
       investmentOutgoingVirtual.investment_direction = 'outgoing'
       virtualItems.push(investmentOutgoingVirtual)
     }
-
-
 
     return [...budgetItems.value, ...virtualItems]
   })
@@ -308,8 +359,6 @@ export const useBudgetStore = defineStore('budget', () => {
     }
   }
 
-
-
   // Add new budget item
   const addBudgetItem = async (budgetData) => {
     if (!authStore.isAuthenticated || !authStore.userId) return null
@@ -325,13 +374,17 @@ export const useBudgetStore = defineStore('budget', () => {
         year: selectedYear.value,
         // Map new frequency fields - use snake_case from baseData
         frequency: budgetData.frequency || 'repeats',
-        recurrence_interval: budgetData.recurrence_interval || budgetData.recurrenceInterval || 1,
-        start_year: budgetData.start_year || budgetData.startYear || selectedYear.value,
-        end_year: budgetData.end_year || budgetData.endYear || selectedYear.value,
+        recurrence_interval:
+          budgetData.recurrence_interval || budgetData.recurrenceInterval || 1,
+        start_year:
+          budgetData.start_year || budgetData.startYear || selectedYear.value,
+        end_year:
+          budgetData.end_year || budgetData.endYear || selectedYear.value,
         end_type: budgetData.end_type || budgetData.endType || 'specific_date',
         occurrences: budgetData.occurrences || 12,
         one_time_year: budgetData.one_time_year || budgetData.oneTimeYear,
-        custom_months: budgetData.custom_months || budgetData.customMonths || [],
+        custom_months:
+          budgetData.custom_months || budgetData.customMonths || [],
         // Legacy recurrence field (required by database schema)
         recurrence: budgetData.recurrence || 'monthly',
         // New frequency system fields
@@ -365,7 +418,19 @@ export const useBudgetStore = defineStore('budget', () => {
       addLoading.value = true
       error.value = null
 
-      const { start_year, end_year, end_month, defaultAmount, start_month, recurrence, customMonths, frequency, recurrenceInterval, endType, occurrences } = budgetData
+      const {
+        start_year,
+        end_year,
+        end_month,
+        defaultAmount,
+        start_month,
+        recurrence,
+        customMonths,
+        frequency,
+        recurrenceInterval,
+        endType,
+        occurrences
+      } = budgetData
 
       const linkedGroupId = crypto.randomUUID() // Generate unique group ID
 
@@ -402,7 +467,8 @@ export const useBudgetStore = defineStore('budget', () => {
                 monthOffset = month - start_month
               } else {
                 // For subsequent years, calculate from the beginning of the year
-                monthOffset = month + (12 - start_month) + ((year - start_year - 1) * 12)
+                monthOffset =
+                  month + (12 - start_month) + (year - start_year - 1) * 12
               }
 
               if (monthOffset >= 0 && monthOffset % recurrenceInterval === 0) {
@@ -449,13 +515,18 @@ export const useBudgetStore = defineStore('budget', () => {
           const data = await budgetAPI.createBudgetItem(yearBudgetData)
           createdItems.push(data)
         } catch (createError) {
-          console.error(`Store: Failed to create budget item for year ${year}:`, createError)
+          console.error(
+            `Store: Failed to create budget item for year ${year}:`,
+            createError
+          )
           throw createError
         }
       }
 
       // Add only current year items to local state
-      const currentYearItems = createdItems.filter(item => item.year === selectedYear.value)
+      const currentYearItems = createdItems.filter(
+        (item) => item.year === selectedYear.value
+      )
       budgetItems.value.push(...currentYearItems)
 
       // Refresh budget items to ensure proper filtering
@@ -473,7 +544,9 @@ export const useBudgetStore = defineStore('budget', () => {
 
   // Get linked budget items (for multi-year budgets)
   const getLinkedBudgetItems = (linkedGroupId) => {
-    return budgetItems.value.filter(item => item.linked_group_id === linkedGroupId)
+    return budgetItems.value.filter(
+      (item) => item.linked_group_id === linkedGroupId
+    )
   }
 
   // Delete multi-year budget items
@@ -492,7 +565,9 @@ export const useBudgetStore = defineStore('budget', () => {
       }
 
       // Remove from local state
-      budgetItems.value = budgetItems.value.filter(item => item.linked_group_id !== linkedGroupId)
+      budgetItems.value = budgetItems.value.filter(
+        (item) => item.linked_group_id !== linkedGroupId
+      )
 
       return true
     } catch (err) {
@@ -533,17 +608,15 @@ export const useBudgetStore = defineStore('budget', () => {
 
       // Check if the multi-year structure has changed
       const firstItem = linkedItems[0]
-      const structureChanged = (
+      const structureChanged =
         firstItem.start_year !== start_year ||
         firstItem.end_year !== end_year ||
         firstItem.end_month !== end_month ||
         firstItem.start_month !== start_month ||
         firstItem.frequency !== frequency ||
         firstItem.recurrence_interval !== recurrence_interval
-      )
 
       if (structureChanged) {
-
         // Delete all existing linked items
         for (const item of linkedItems) {
           await budgetAPI.deleteBudgetItem(item.id)
@@ -565,7 +638,6 @@ export const useBudgetStore = defineStore('budget', () => {
           return false
         }
       } else {
-
         // Update each linked item with recalculated amounts for that specific year
         for (const item of linkedItems) {
           const year = item.year
@@ -597,10 +669,14 @@ export const useBudgetStore = defineStore('budget', () => {
                   monthOffset = month - start_month
                 } else {
                   // For subsequent years, calculate from the beginning of the year
-                  monthOffset = month + (12 - start_month) + ((year - start_year - 1) * 12)
+                  monthOffset =
+                    month + (12 - start_month) + (year - start_year - 1) * 12
                 }
 
-                if (monthOffset >= 0 && monthOffset % recurrence_interval === 0) {
+                if (
+                  monthOffset >= 0 &&
+                  monthOffset % recurrence_interval === 0
+                ) {
                   shouldHaveAmount = true
                 }
               } else if (frequency === 'custom') {
@@ -653,9 +729,15 @@ export const useBudgetStore = defineStore('budget', () => {
 
           try {
             // Update this specific year's item
-            const result = await budgetAPI.updateBudgetItem(item.id, yearUpdateData)
+            const result = await budgetAPI.updateBudgetItem(
+              item.id,
+              yearUpdateData
+            )
           } catch (updateError) {
-            console.error(`Store: Failed to update budget item for year ${year}:`, updateError)
+            console.error(
+              `Store: Failed to update budget item for year ${year}:`,
+              updateError
+            )
             throw updateError
           }
         }
@@ -704,15 +786,21 @@ export const useBudgetStore = defineStore('budget', () => {
         const data = await budgetAPI.createBudgetItem(finalBudgetData)
 
         if (!data) {
-          console.error(`API returned null or undefined data for year ${yearBudgetData.year}`)
-          throw new Error(`Failed to create budget item for year ${yearBudgetData.year}: No data returned from API`)
+          console.error(
+            `API returned null or undefined data for year ${yearBudgetData.year}`
+          )
+          throw new Error(
+            `Failed to create budget item for year ${yearBudgetData.year}: No data returned from API`
+          )
         }
 
         createdItems.push(data)
       }
 
       // Add only current year items to the store
-      const currentYearItems = createdItems.filter(item => item.year === selectedYear.value)
+      const currentYearItems = createdItems.filter(
+        (item) => item.year === selectedYear.value
+      )
       budgetItems.value.push(...currentYearItems)
 
       // Sort budget items
@@ -722,7 +810,6 @@ export const useBudgetStore = defineStore('budget', () => {
       await fetchBudgetItems(selectedYear.value)
 
       return createdItems
-
     } catch (err) {
       error.value = err.message
       console.error('Error in addMultiYearBudgetFromSchedule:', err)
@@ -755,7 +842,9 @@ export const useBudgetStore = defineStore('budget', () => {
 
       if (!data) {
         console.error('API returned null or undefined data')
-        throw new Error('Failed to create budget item: No data returned from API')
+        throw new Error(
+          'Failed to create budget item: No data returned from API'
+        )
       }
 
       // Add to store only if it belongs to the currently selected year
@@ -765,7 +854,6 @@ export const useBudgetStore = defineStore('budget', () => {
       }
 
       return data
-
     } catch (err) {
       error.value = err.message
       console.error('Error in addBudgetItemFromSchedule:', err)
@@ -785,13 +873,13 @@ export const useBudgetStore = defineStore('budget', () => {
       error.value = null
 
       // Get the current budget item to compare amounts
-      const currentBudget = budgetItems.value.find(item => item.id === id)
+      const currentBudget = budgetItems.value.find((item) => item.id === id)
       if (!currentBudget) return false
 
       const data = await budgetAPI.updateBudgetItem(id, updates)
 
       // Update local state immediately - no need for general loading state
-      const index = budgetItems.value.findIndex(item => item.id === id)
+      const index = budgetItems.value.findIndex((item) => item.id === id)
       if (index !== -1) {
         budgetItems.value[index] = { ...budgetItems.value[index], ...data }
       }
@@ -833,11 +921,11 @@ export const useBudgetStore = defineStore('budget', () => {
       await budgetAPI.deleteBudgetItem(id)
 
       // Get budget name before deletion for toast message
-      const budgetToDelete = budgetItems.value.find(item => item.id === id)
+      const budgetToDelete = budgetItems.value.find((item) => item.id === id)
       const budgetName = budgetToDelete?.name || 'Budget item'
 
       // Remove from local state immediately - no need for general loading state
-      budgetItems.value = budgetItems.value.filter(item => item.id !== id)
+      budgetItems.value = budgetItems.value.filter((item) => item.id !== id)
 
       return true
     } catch (err) {
@@ -856,7 +944,7 @@ export const useBudgetStore = defineStore('budget', () => {
 
     try {
       // Update local state first
-      const budget = budgetItems.value.find(b => b.id === budgetId)
+      const budget = budgetItems.value.find((b) => b.id === budgetId)
       if (!budget) return false
 
       const oldAmount = budget.amounts[monthIndex] || 0
@@ -887,8 +975,6 @@ export const useBudgetStore = defineStore('budget', () => {
       return false
     }
   }
-
-
 
   // Add budget history entry
   // const addBudgetHistory = async (budgetId, monthIndex, newAmount, oldAmount = null) => {
@@ -941,7 +1027,11 @@ export const useBudgetStore = defineStore('budget', () => {
       loading.value = true
       error.value = null
 
-      const data = await budgetAPI.copyBudgetItems(authStore.userId, sourceYear, targetYear)
+      const data = await budgetAPI.copyBudgetItems(
+        authStore.userId,
+        sourceYear,
+        targetYear
+      )
 
       // Refresh current year data
       await fetchBudgetItems(targetYear)
@@ -978,7 +1068,6 @@ export const useBudgetStore = defineStore('budget', () => {
 
   // Get budget items for a specific month with transactions
   const getBudgetItemsForMonth = async (month, year) => {
-
     if (!authStore.isAuthenticated || !authStore.userId) {
       return []
     }
@@ -987,15 +1076,16 @@ export const useBudgetStore = defineStore('budget', () => {
     await fetchBudgetItems(year)
 
     // Filter budget items for the specified year
-    const yearItems = budgetItems.value.filter(item => item.year === year)
+    const yearItems = budgetItems.value.filter((item) => item.year === year)
 
     // For now, return all items for the year since we don't have month-specific filtering
     // In the future, we could add month-specific logic based on payment schedules
-    return yearItems.map(item => {
+    return yearItems.map((item) => {
       // Get transactions for this budget item
-      const itemTransactions = transactionStore?.transactions?.filter(t =>
-        t.budget_item_id === item.id
-      ) || []
+      const itemTransactions =
+        transactionStore?.transactions?.filter(
+          (t) => t.budget_item_id === item.id
+        ) || []
 
       return {
         ...item,
@@ -1011,10 +1101,11 @@ export const useBudgetStore = defineStore('budget', () => {
     }
 
     // Try to find matching item by name and category
-    const matchingItem = previousYearItems.value.find(item =>
-      item.name === budgetItem.name &&
-      item.category === budgetItem.category &&
-      item.type === budgetItem.type
+    const matchingItem = previousYearItems.value.find(
+      (item) =>
+        item.name === budgetItem.name &&
+        item.category === budgetItem.category &&
+        item.type === budgetItem.type
     )
 
     return matchingItem || null
@@ -1145,9 +1236,6 @@ export const useBudgetStore = defineStore('budget', () => {
     isMonthClosed,
     initialize,
     watchAuth,
-    addLoading,
-    editLoading,
-    deleteLoading,
     addMultiYearBudgetItem,
     getLinkedBudgetItems,
     deleteMultiYearBudgetItems,

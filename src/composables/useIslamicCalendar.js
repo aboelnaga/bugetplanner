@@ -5,7 +5,6 @@ import moment from 'moment-hijri'
  * Provides Hijri to Gregorian date conversion and Hawl calculations
  */
 export function useIslamicCalendar () {
-
   /**
    * Convert Gregorian date to Hijri date
    * @param {Date|string} gregorianDate - Gregorian date to convert
@@ -30,7 +29,10 @@ export function useIslamicCalendar () {
    * @returns {Date} Gregorian date
    */
   const toGregorian = (year, month, day) => {
-    const hijriMoment = moment().iYear(year).iMonth(month - 1).iDate(day)
+    const hijriMoment = moment()
+      .iYear(year)
+      .iMonth(month - 1)
+      .iDate(day)
     return hijriMoment.toDate()
   }
 
@@ -147,15 +149,15 @@ export function useIslamicCalendar () {
     return [
       'Muharram',
       'Safar',
-      'Rabi\' al-awwal',
-      'Rabi\' al-thani',
+      "Rabi' al-awwal",
+      "Rabi' al-thani",
       'Jumada al-awwal',
       'Jumada al-thani',
       'Rajab',
-      'Sha\'ban',
+      "Sha'ban",
       'Ramadan',
       'Shawwal',
-      'Dhu al-Qi\'dah',
+      "Dhu al-Qi'dah",
       'Dhu al-Hijjah'
     ]
   }

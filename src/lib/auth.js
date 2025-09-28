@@ -1,3 +1,4 @@
+import { ref, readonly } from 'vue'
 import { supabase } from './supabase.js'
 
 // Authentication helper functions
@@ -43,7 +44,10 @@ export const authAPI = {
 
   // Get current user
   async getCurrentUser () {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error
+    } = await supabase.auth.getUser()
     if (error) throw error
     return user
   },
@@ -103,7 +107,9 @@ export const useAuth = () => {
   // Initialize auth state
   const initAuth = async () => {
     try {
-      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      const {
+        data: { user: currentUser }
+      } = await supabase.auth.getUser()
       user.value = currentUser
     } catch (error) {
       console.error('Auth initialization error:', error)
@@ -113,12 +119,12 @@ export const useAuth = () => {
   }
 
   // Listen to auth changes
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    async (event, session) => {
-      user.value = session?.user ?? null
-      loading.value = false
-    }
-  )
+  const {
+    data: { subscription }
+  } = supabase.auth.onAuthStateChange(async (event, session) => {
+    user.value = session?.user ?? null
+    loading.value = false
+  })
 
   // Initialize on mount
   initAuth()

@@ -9,31 +9,31 @@ const authStore = useAuthStore()
 
 // Form data
 const form = reactive({
-  investment_type: '',
-  name: '',
-  purchase_amount: '',
-  current_value: '',
-  purchase_date: '',
-  last_valuation_date: '',
-  description: '',
-  // Real estate specific
-  delivery_date: '',
-  construction_status: '',
-  completion_date: '',
-  developer_owner: '',
-  location: '',
-  real_estate_status: 'planned',
-  // Precious metals specific
-  metal_type: '',
-  karat: '',
-  condition: '',
-  form: '',
-  purpose: '',
-  amount: '',
-  amount_unit: '',
-  // Common
-  document_links: []
-})
+    investment_type: '',
+    name: '',
+    purchase_amount: '',
+    current_value: '',
+    purchase_date: '',
+    last_valuation_date: '',
+    description: '',
+    // Real estate specific
+    delivery_date: '',
+    construction_status: '',
+    completion_date: '',
+    developer_owner: '',
+    location: '',
+    real_estate_status: 'planned',
+    // Precious metals specific
+    metal_type: '',
+    karat: '',
+    condition: '',
+    form: '',
+    purpose: '',
+    amount: '',
+    amount_unit: '',
+    // Common
+    document_links: []
+  })
 
 // State
 const loading = ref(false)
@@ -52,9 +52,9 @@ const amountUnitOptions = ref([])
 
 // Static options for construction status
 const constructionStatusOptions = [
-  { label: 'Under Construction', value: 'under_construction' },
-  { label: 'Finished', value: 'finished' }
-]
+    { label: 'Under Construction', value: 'under_construction' },
+    { label: 'Finished', value: 'finished' }
+  ]
 
 // Computed
 const hasErrors = computed(() => Object.keys(errors).length > 0)
@@ -85,7 +85,10 @@ const validateField = (field) => {
       }
       break
     case 'developer_owner':
-      if (form.investment_type === 'real_estate' && !form.developer_owner.trim()) {
+      if (
+        form.investment_type === 'real_estate' &&
+        !form.developer_owner.trim()
+      ) {
         errors[field] = 'Developer/owner is required for real estate'
       }
       break
@@ -95,7 +98,10 @@ const validateField = (field) => {
       }
       break
     case 'amount':
-      if (form.investment_type === 'precious_metals' && (!form.amount || parseFloat(form.amount) <= 0)) {
+      if (
+        form.investment_type === 'precious_metals' &&
+        (!form.amount || parseFloat(form.amount) <= 0)
+      ) {
         errors[field] = 'Valid amount is required for precious metals'
       }
       break
@@ -108,25 +114,25 @@ const validateField = (field) => {
 }
 
 const validateForm = () => {
-  // Clear all errors
-  Object.keys(errors).forEach(key => delete errors[key])
+    // Clear all errors
+    Object.keys(errors).forEach((key) => delete errors[key])
 
-  // Validate required fields
-  validateField('investment_type')
-  validateField('name')
-  validateField('purchase_amount')
+    // Validate required fields
+    validateField('investment_type')
+    validateField('name')
+    validateField('purchase_amount')
 
-  // Validate type-specific fields
-  if (form.investment_type === 'real_estate') {
-    validateField('delivery_date')
-    validateField('developer_owner')
-  } else if (form.investment_type === 'precious_metals') {
-    validateField('metal_type')
-    validateField('amount')
-    validateField('amount_unit')
-  }
+    // Validate type-specific fields
+    if (form.investment_type === 'real_estate') {
+      validateField('delivery_date')
+      validateField('developer_owner')
+    } else if (form.investment_type === 'precious_metals') {
+      validateField('metal_type')
+      validateField('amount')
+      validateField('amount_unit')
+    }
 
-  return Object.keys(errors).length === 0
+    return Object.keys(errors).length === 0
 }
 
 const onInvestmentTypeChange = () => {
@@ -150,20 +156,24 @@ const onInvestmentTypeChange = () => {
     form.amount_unit = ''
   }
 
-  // Clear type-specific errors
-  Object.keys(errors).forEach(key => {
-    if (key !== 'investment_type' && key !== 'name' && key !== 'purchase_amount') {
-      delete errors[key]
-    }
-  })
+    // Clear type-specific errors
+    Object.keys(errors).forEach((key) => {
+      if (
+        key !== 'investment_type' &&
+        key !== 'name' &&
+        key !== 'purchase_amount'
+      ) {
+        delete errors[key]
+      }
+    })
 }
 
 const addDocumentLink = () => {
-  form.document_links.push('')
+    form.document_links.push('')
 }
 
 const removeDocumentLink = (index) => {
-  form.document_links.splice(index, 1)
+    form.document_links.splice(index, 1)
 }
 
 const handleSubmit = async () => {
@@ -178,43 +188,45 @@ const handleSubmit = async () => {
   try {
     // Prepare the data for submission
     const investmentData = {
-      user_id: authStore.user.id,
-      investment_type: form.investment_type,
-      name: form.name.trim(),
-      purchase_amount: parseFloat(form.purchase_amount),
-      current_value: form.current_value ? parseFloat(form.current_value) : null,
-      purchase_date: form.purchase_date || null,
-      last_valuation_date: form.last_valuation_date || null,
-      description: form.description.trim() || null,
-      document_links: form.document_links.filter(link => link.trim()),
-      // Type-specific fields
-      ...(form.investment_type === 'real_estate' && {
-        delivery_date: form.delivery_date || null,
-        construction_status: form.construction_status || null,
-        completion_date: form.completion_date || null,
-        developer_owner: form.developer_owner.trim(),
-        location: form.location.trim() || null,
-        real_estate_status: form.real_estate_status
-      }),
-      ...(form.investment_type === 'precious_metals' && {
-        metal_type: form.metal_type,
-        karat: form.karat || null,
-        condition: form.condition || null,
-        form: form.form || null,
-        purpose: form.purpose || null,
-        amount: parseFloat(form.amount),
-        amount_unit: form.amount_unit
-      })
-    }
+        user_id: authStore.user.id,
+        investment_type: form.investment_type,
+        name: form.name.trim(),
+        purchase_amount: parseFloat(form.purchase_amount),
+        current_value: form.current_value
+          ? parseFloat(form.current_value)
+          : null,
+        purchase_date: form.purchase_date || null,
+        last_valuation_date: form.last_valuation_date || null,
+        description: form.description.trim() || null,
+        document_links: form.document_links.filter((link) => link.trim()),
+        // Type-specific fields
+        ...(form.investment_type === 'real_estate' && {
+          delivery_date: form.delivery_date || null,
+          construction_status: form.construction_status || null,
+          completion_date: form.completion_date || null,
+          developer_owner: form.developer_owner.trim(),
+          location: form.location.trim() || null,
+          real_estate_status: form.real_estate_status
+        }),
+        ...(form.investment_type === 'precious_metals' && {
+          metal_type: form.metal_type,
+          karat: form.karat || null,
+          condition: form.condition || null,
+          form: form.form || null,
+          purpose: form.purpose || null,
+          amount: parseFloat(form.amount),
+          amount_unit: form.amount_unit
+        })
+      }
 
-    const createdInvestment = await investmentAssetsAPI.createInvestmentAsset(investmentData)
+    const createdInvestment =
+      await investmentAssetsAPI.createInvestmentAsset(investmentData)
 
-    // Navigate to the investment details page
-    router.push(`/investments/${createdInvestment.id}`)
-
+      // Navigate to the investment details page
+      router.push(`/investments/${createdInvestment.id}`)
   } catch (err) {
-    console.error('Error creating investment:', err)
-    error.value = err.message || 'Failed to create investment'
+      console.error('Error creating investment:', err)
+      error.value = err.message || 'Failed to create investment'
   } finally {
     loading.value = false
   }
@@ -224,22 +236,24 @@ const handleSubmit = async () => {
 const loadDropdownOptions = async () => {
   try {
     investmentTypes.value = await investmentAssetsAPI.getInvestmentTypes()
-    realEstateStatuses.value = await investmentAssetsAPI.getRealEstateStatuses()
+    realEstateStatuses.value =
+      await investmentAssetsAPI.getRealEstateStatuses()
     metalTypes.value = await investmentAssetsAPI.getMetalTypes()
     karatOptions.value = await investmentAssetsAPI.getKaratOptions()
     conditionOptions.value = await investmentAssetsAPI.getConditionOptions()
     formOptions.value = await investmentAssetsAPI.getFormOptions()
     purposeOptions.value = await investmentAssetsAPI.getPurposeOptions()
-    amountUnitOptions.value = await investmentAssetsAPI.getAmountUnitOptions()
+    amountUnitOptions.value =
+      await investmentAssetsAPI.getAmountUnitOptions()
   } catch (err) {
-    console.error('Error loading dropdown options:', err)
-    error.value = 'Failed to load form options'
+      console.error('Error loading dropdown options:', err)
+      error.value = 'Failed to load form options'
   }
 }
 
-onMounted(() => {
-  loadDropdownOptions()
-})
+  onMounted(() => {
+    loadDropdownOptions()
+  })
 </script>
 
 <template>
@@ -247,7 +261,9 @@ onMounted(() => {
     <!-- Header -->
     <Card class="mb-6">
       <template #content>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
           <div>
             <h1 class="text-3xl font-bold">
               Create Investment
@@ -309,7 +325,9 @@ onMounted(() => {
             <small
               v-if="errors.investment_type"
               class="p-error"
-            >{{ errors.investment_type }}</small>
+            >{{
+              errors.investment_type
+            }}</small>
           </div>
 
           <!-- Basic Information -->
@@ -330,7 +348,9 @@ onMounted(() => {
               <small
                 v-if="errors.name"
                 class="p-error"
-              >{{ errors.name }}</small>
+              >{{
+                errors.name
+              }}</small>
             </div>
 
             <div>
@@ -351,7 +371,9 @@ onMounted(() => {
               <small
                 v-if="errors.purchase_amount"
                 class="p-error"
-              >{{ errors.purchase_amount }}</small>
+              >{{
+                errors.purchase_amount
+              }}</small>
             </div>
           </div>
 
@@ -382,7 +404,9 @@ onMounted(() => {
                 <small
                   v-if="errors.delivery_date"
                   class="p-error"
-                >{{ errors.delivery_date }}</small>
+                >{{
+                  errors.delivery_date
+                }}</small>
               </div>
 
               <div>
@@ -404,7 +428,9 @@ onMounted(() => {
                 <small
                   v-if="errors.construction_status"
                   class="p-error"
-                >{{ errors.construction_status }}</small>
+                >{{
+                  errors.construction_status
+                }}</small>
               </div>
 
               <div>
@@ -424,7 +450,9 @@ onMounted(() => {
                 <small
                   v-if="errors.completion_date"
                   class="p-error"
-                >{{ errors.completion_date }}</small>
+                >{{
+                  errors.completion_date
+                }}</small>
               </div>
 
               <div>
@@ -443,7 +471,9 @@ onMounted(() => {
                 <small
                   v-if="errors.developer_owner"
                   class="p-error"
-                >{{ errors.developer_owner }}</small>
+                >{{
+                  errors.developer_owner
+                }}</small>
               </div>
 
               <div class="md:col-span-2">
@@ -462,7 +492,9 @@ onMounted(() => {
                 <small
                   v-if="errors.location"
                   class="p-error"
-                >{{ errors.location }}</small>
+                >{{
+                  errors.location
+                }}</small>
               </div>
 
               <div class="md:col-span-2">
@@ -484,7 +516,9 @@ onMounted(() => {
                 <small
                   v-if="errors.real_estate_status"
                   class="p-error"
-                >{{ errors.real_estate_status }}</small>
+                >{{
+                  errors.real_estate_status
+                }}</small>
               </div>
 
               <div class="md:col-span-2">
@@ -504,7 +538,9 @@ onMounted(() => {
                 <small
                   v-if="errors.description"
                   class="p-error"
-                >{{ errors.description }}</small>
+                >{{
+                  errors.description
+                }}</small>
               </div>
             </div>
           </div>
@@ -538,7 +574,9 @@ onMounted(() => {
                 <small
                   v-if="errors.metal_type"
                   class="p-error"
-                >{{ errors.metal_type }}</small>
+                >{{
+                  errors.metal_type
+                }}</small>
               </div>
 
               <div>
@@ -560,7 +598,9 @@ onMounted(() => {
                 <small
                   v-if="errors.karat"
                   class="p-error"
-                >{{ errors.karat }}</small>
+                >{{
+                  errors.karat
+                }}</small>
               </div>
 
               <div>
@@ -582,7 +622,9 @@ onMounted(() => {
                 <small
                   v-if="errors.condition"
                   class="p-error"
-                >{{ errors.condition }}</small>
+                >{{
+                  errors.condition
+                }}</small>
               </div>
 
               <div>
@@ -604,7 +646,9 @@ onMounted(() => {
                 <small
                   v-if="errors.form"
                   class="p-error"
-                >{{ errors.form }}</small>
+                >{{
+                  errors.form
+                }}</small>
               </div>
 
               <div>
@@ -626,7 +670,9 @@ onMounted(() => {
                 <small
                   v-if="errors.purpose"
                   class="p-error"
-                >{{ errors.purpose }}</small>
+                >{{
+                  errors.purpose
+                }}</small>
               </div>
 
               <div>
@@ -648,7 +694,9 @@ onMounted(() => {
                 <small
                   v-if="errors.amount"
                   class="p-error"
-                >{{ errors.amount }}</small>
+                >{{
+                  errors.amount
+                }}</small>
               </div>
 
               <div>
@@ -670,7 +718,9 @@ onMounted(() => {
                 <small
                   v-if="errors.amount_unit"
                   class="p-error"
-                >{{ errors.amount_unit }}</small>
+                >{{
+                  errors.amount_unit
+                }}</small>
               </div>
             </div>
           </div>

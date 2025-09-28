@@ -11,15 +11,15 @@ import Message from 'primevue/message'
 import Button from 'primevue/button'
 
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    required: true
-  },
-  account: {
-    type: Object,
-    required: true
-  }
-})
+    isOpen: {
+      type: Boolean,
+      required: true
+    },
+    account: {
+      type: Object,
+      required: true
+    }
+  })
 
 const emit = defineEmits(['close', 'account-updated'])
 
@@ -29,44 +29,51 @@ const error = ref('')
 
 // Form data
 const formData = ref({
-  name: '',
-  type: 'checking',
-  credit_limit: 0,
-  is_default: false
-})
+    name: '',
+    type: 'checking',
+    credit_limit: 0,
+    is_default: false
+  })
 
 // Computed options for form fields
 const accountTypeOptions = [
-  { label: 'Checking', value: 'checking' },
-  { label: 'Savings', value: 'savings' },
-  { label: 'Credit Card', value: 'credit_card' },
-  { label: 'Cash', value: 'cash' }
-]
+    { label: 'Checking', value: 'checking' },
+    { label: 'Savings', value: 'savings' },
+    { label: 'Credit Card', value: 'credit_card' },
+    { label: 'Cash', value: 'cash' }
+  ]
 
-// Initialize form data when account changes
-watch(() => props.account, (newAccount) => {
-  if (newAccount) {
-    formData.value = {
-      name: newAccount.name || '',
-      type: newAccount.type || 'checking',
-      credit_limit: newAccount.credit_limit || 0,
-      is_default: newAccount.is_default || false
-    }
-  }
-}, { immediate: true })
+  // Initialize form data when account changes
+  watch(
+    () => props.account,
+    (newAccount) => {
+      if (newAccount) {
+        formData.value = {
+          name: newAccount.name || '',
+          type: newAccount.type || 'checking',
+          credit_limit: newAccount.credit_limit || 0,
+          is_default: newAccount.is_default || false
+        }
+      }
+    },
+    { immediate: true }
+  )
 
-// Reset form when modal opens/closes
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen && props.account) {
-    formData.value = {
-      name: props.account.name || '',
-      type: props.account.type || 'checking',
-      credit_limit: props.account.credit_limit || 0,
-      is_default: props.account.is_default || false
+  // Reset form when modal opens/closes
+  watch(
+    () => props.isOpen,
+    (isOpen) => {
+      if (isOpen && props.account) {
+        formData.value = {
+          name: props.account.name || '',
+          type: props.account.type || 'checking',
+          credit_limit: props.account.credit_limit || 0,
+          is_default: props.account.is_default || false
+        }
+        error.value = ''
+      }
     }
-    error.value = ''
-  }
-})
+  )
 
 const handleSubmit = async () => {
   if (!formData.value.name.trim()) {
@@ -74,7 +81,10 @@ const handleSubmit = async () => {
     return
   }
 
-  if (formData.value.type === 'credit_card' && (!formData.value.credit_limit || formData.value.credit_limit <= 0)) {
+  if (
+    formData.value.type === 'credit_card' &&
+    (!formData.value.credit_limit || formData.value.credit_limit <= 0)
+  ) {
     error.value = 'Credit limit must be greater than 0 for credit cards'
     return
   }
@@ -83,26 +93,35 @@ const handleSubmit = async () => {
   error.value = ''
 
   try {
-    console.log('Updating account:', props.account.id, 'with data:', {
-      name: formData.value.name.trim(),
-      type: formData.value.type,
-      credit_limit: formData.value.type === 'credit_card' ? formData.value.credit_limit : null,
-      is_default: formData.value.is_default
-    })
+      console.log('Updating account:', props.account.id, 'with data:', {
+        name: formData.value.name.trim(),
+        type: formData.value.type,
+        credit_limit:
+          formData.value.type === 'credit_card'
+            ? formData.value.credit_limit
+            : null,
+        is_default: formData.value.is_default
+      })
 
-    const updatedAccount = await accountsStore.updateAccount(props.account.id, {
-      name: formData.value.name.trim(),
-      type: formData.value.type,
-      credit_limit: formData.value.type === 'credit_card' ? formData.value.credit_limit : null,
-      is_default: formData.value.is_default
-    })
+      const updatedAccount = await accountsStore.updateAccount(
+        props.account.id,
+        {
+          name: formData.value.name.trim(),
+          type: formData.value.type,
+          credit_limit:
+            formData.value.type === 'credit_card'
+              ? formData.value.credit_limit
+              : null,
+          is_default: formData.value.is_default
+        }
+      )
 
-    console.log('Account updated successfully:', updatedAccount)
-    emit('account-updated', updatedAccount)
-    emit('close')
+      console.log('Account updated successfully:', updatedAccount)
+      emit('account-updated', updatedAccount)
+      emit('close')
   } catch (err) {
-    console.error('Error updating account:', err)
-    error.value = err.message || 'Failed to update account'
+      console.error('Error updating account:', err)
+      error.value = err.message || 'Failed to update account'
   } finally {
     loading.value = false
   }
@@ -111,9 +130,9 @@ const handleSubmit = async () => {
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '$0.00'
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
 }
 </script>
 
@@ -185,10 +204,10 @@ const formatCurrency = (amount) => {
 
       <!-- Current Balance (read-only for reference) -->
       <div>
-        <label class="block text-sm font-medium mb-2">
-          Current Balance
-        </label>
-        <div class="w-full px-3 py-2 bg-surface-50 border border-surface-300 rounded-md text-surface-700">
+        <label class="block text-sm font-medium mb-2"> Current Balance </label>
+        <div
+          class="w-full px-3 py-2 bg-surface-50 border border-surface-300 rounded-md text-surface-700"
+        >
           {{ formatCurrency(account.balance) }}
         </div>
         <p class="text-sm text-surface-500 mt-1">

@@ -11,5 +11,3 @@ export const currencyOptions = {
   // Optional: enable if you want typing "1234" to become "12.34"
   // autoDecimalDigits: true
 }
-
-

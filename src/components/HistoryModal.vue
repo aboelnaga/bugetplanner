@@ -7,11 +7,11 @@ import { formatCompactCurrency } from '@/utils/budgetUtils.js'
 
 // Props
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  }
-})
+    modelValue: {
+      type: Boolean,
+      default: false
+    }
+  })
 
 // Emits
 const emit = defineEmits(['update:modelValue'])
@@ -38,37 +38,39 @@ const historyStats = computed(() => getHistoryStats())
 
 // Group history items by budget item
 const groupedHistoryItems = computed(() => {
-  const grouped = {}
-  historyItems.value.forEach(change => {
-    if (!grouped[change.budget_item_id]) {
-      grouped[change.budget_item_id] = []
-    }
-    grouped[change.budget_item_id].push(change)
-  })
+    const grouped = {}
+    historyItems.value.forEach((change) => {
+      if (!grouped[change.budget_item_id]) {
+        grouped[change.budget_item_id] = []
+      }
+      grouped[change.budget_item_id].push(change)
+    })
 
-  // Sort each group by timestamp (newest first)
-  Object.keys(grouped).forEach(key => {
-    grouped[key].sort((a, b) => new Date(b.changed_at) - new Date(a.changed_at))
-  })
+    // Sort each group by timestamp (newest first)
+    Object.keys(grouped).forEach((key) => {
+      grouped[key].sort(
+        (a, b) => new Date(b.changed_at) - new Date(a.changed_at)
+      )
+    })
 
-  return grouped
-})
+    return grouped
+  })
 
 // Get change for specific month
 const getChangeForMonth = (changes, monthIndex) => {
-  return changes.find(change => change.month_index === monthIndex)
+  return changes.find((change) => change.month_index === monthIndex)
 }
 
 // Calculate total impact of all changes
 const calculateTotalImpact = () => {
   return historyItems.value.reduce((total, change) => {
-    return total + Math.abs(change.new_amount - change.old_amount)
-  }, 0)
+      return total + Math.abs(change.new_amount - change.old_amount)
+    }, 0)
 }
 
 // Close modal
 const closeModal = () => {
-  emit('update:modelValue', false)
+    emit('update:modelValue', false)
 }
 </script>
 
@@ -77,9 +79,13 @@ const closeModal = () => {
     v-if="modelValue"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
   >
-    <div class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+    <div
+      class="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col"
+    >
       <!-- Header -->
-      <div class="flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div
+        class="flex justify-between items-center p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50"
+      >
         <div class="flex items-center space-x-3">
           <div class="p-2 bg-blue-100 rounded-lg">
             <svg
@@ -135,7 +141,9 @@ const closeModal = () => {
         >
           <!-- Summary Stats -->
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200">
+            <div
+              class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-200"
+            >
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-green-600">
@@ -163,7 +171,9 @@ const closeModal = () => {
               </div>
             </div>
 
-            <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200">
+            <div
+              class="bg-gradient-to-r from-blue-50 to-cyan-50 p-4 rounded-lg border border-blue-200"
+            >
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-blue-600">
@@ -191,7 +201,9 @@ const closeModal = () => {
               </div>
             </div>
 
-            <div class="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200">
+            <div
+              class="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-lg border border-purple-200"
+            >
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-purple-600">
@@ -219,7 +231,9 @@ const closeModal = () => {
               </div>
             </div>
 
-            <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200">
+            <div
+              class="bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-lg border border-orange-200"
+            >
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm font-medium text-orange-600">
@@ -277,12 +291,17 @@ const closeModal = () => {
                     <h4 class="font-semibold text-gray-900">
                       {{ getBudgetItemName(budgetItemId) }}
                     </h4>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                      {{ itemChanges.length }} change{{ itemChanges.length !== 1 ? 's' : '' }}
+                    <span
+                      class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    >
+                      {{ itemChanges.length }} change{{
+                        itemChanges.length !== 1 ? "s" : ""
+                      }}
                     </span>
                   </div>
                   <div class="text-sm text-gray-500">
-                    Last modified: {{ formatTimestamp(itemChanges[0].changed_at) }}
+                    Last modified:
+                    {{ formatTimestamp(itemChanges[0].changed_at) }}
                   </div>
                 </div>
               </div>
@@ -314,9 +333,19 @@ const closeModal = () => {
                     >
                       <div
                         class="font-medium text-red-600"
-                        :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount)"
+                        :title="
+                          formatCurrency(
+                            getChangeForMonth(itemChanges, monthIndex)
+                              .old_amount,
+                          )
+                        "
                       >
-                        {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).old_amount) }}
+                        {{
+                          formatCompactCurrency(
+                            getChangeForMonth(itemChanges, monthIndex)
+                              .old_amount,
+                          )
+                        }}
                       </div>
                       <div class="flex items-center justify-center">
                         <svg
@@ -335,12 +364,27 @@ const closeModal = () => {
                       </div>
                       <div
                         class="font-medium text-green-600"
-                        :title="formatCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount)"
+                        :title="
+                          formatCurrency(
+                            getChangeForMonth(itemChanges, monthIndex)
+                              .new_amount,
+                          )
+                        "
                       >
-                        {{ formatCompactCurrency(getChangeForMonth(itemChanges, monthIndex).new_amount) }}
+                        {{
+                          formatCompactCurrency(
+                            getChangeForMonth(itemChanges, monthIndex)
+                              .new_amount,
+                          )
+                        }}
                       </div>
                       <div class="text-xs text-gray-500">
-                        {{ formatTimestamp(getChangeForMonth(itemChanges, monthIndex).changed_at) }}
+                        {{
+                          formatTimestamp(
+                            getChangeForMonth(itemChanges, monthIndex)
+                              .changed_at,
+                          )
+                        }}
                       </div>
                     </div>
 
@@ -364,7 +408,9 @@ const closeModal = () => {
           class="text-center py-12"
         >
           <div class="max-w-md mx-auto">
-            <div class="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
+            <div
+              class="p-4 bg-gray-100 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center"
+            >
               <svg
                 class="w-10 h-10 text-gray-400"
                 fill="none"
@@ -383,7 +429,8 @@ const closeModal = () => {
               No Changes Yet
             </h4>
             <p class="text-gray-600 mb-6">
-              Budget changes will appear here once you start modifying amounts in your budget planner.
+              Budget changes will appear here once you start modifying amounts
+              in your budget planner.
             </p>
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div class="flex items-start space-x-3">
@@ -419,9 +466,16 @@ const closeModal = () => {
       </div>
 
       <!-- Footer -->
-      <div class="flex justify-between items-center p-6 border-t border-gray-200 bg-gray-50">
+      <div
+        class="flex justify-between items-center p-6 border-t border-gray-200 bg-gray-50"
+      >
         <div class="text-sm text-gray-600">
-          Showing {{ historyItems.length }} change{{ historyItems.length !== 1 ? 's' : '' }} across {{ Object.keys(groupedHistoryItems).length }} budget item{{ Object.keys(groupedHistoryItems).length !== 1 ? 's' : '' }}
+          Showing {{ historyItems.length }} change{{
+            historyItems.length !== 1 ? "s" : ""
+          }}
+          across {{ Object.keys(groupedHistoryItems).length }} budget item{{
+            Object.keys(groupedHistoryItems).length !== 1 ? "s" : ""
+          }}
         </div>
         <button
           class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

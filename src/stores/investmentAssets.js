@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { investmentAssetsAPI, subscribeToInvestmentAssetChanges } from '@/lib/supabase.js'
+import {
+  investmentAssetsAPI,
+  subscribeToInvestmentAssetChanges
+} from '@/lib/supabase.js'
 import { useAuthStore } from './auth.js'
 
 export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
@@ -14,27 +17,28 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
 
   // Computed
   const activeAssets = computed(() =>
-    investmentAssets.value.filter(asset =>
-      asset.status === 'active' ||
-      asset.real_estate_status === 'owned' ||
-      asset.real_estate_status === 'finished_installments'
+    investmentAssets.value.filter(
+      (asset) =>
+        asset.status === 'active' ||
+        asset.real_estate_status === 'owned' ||
+        asset.real_estate_status === 'finished_installments'
     )
   )
 
   const plannedAssets = computed(() =>
-    investmentAssets.value.filter(asset =>
-      asset.status === 'planned' ||
-      asset.real_estate_status === 'planned'
+    investmentAssets.value.filter(
+      (asset) =>
+        asset.status === 'planned' || asset.real_estate_status === 'planned'
     )
   )
 
   const soldAssets = computed(() =>
-    investmentAssets.value.filter(asset => asset.status === 'sold')
+    investmentAssets.value.filter((asset) => asset.status === 'sold')
   )
 
   const assetsByType = computed(() => {
     const grouped = {}
-    investmentAssets.value.forEach(asset => {
+    investmentAssets.value.forEach((asset) => {
       const type = asset.investment_type || asset.type
       if (!grouped[type]) {
         grouped[type] = []
@@ -45,14 +49,16 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
   })
 
   const totalPortfolioValue = computed(() => {
-    return activeAssets.value.reduce((sum, asset) =>
-      sum + (parseFloat(asset.current_value) || 0), 0
+    return activeAssets.value.reduce(
+      (sum, asset) => sum + (parseFloat(asset.current_value) || 0),
+      0
     )
   })
 
   const totalPurchaseValue = computed(() => {
-    return activeAssets.value.reduce((sum, asset) =>
-      sum + (parseFloat(asset.purchase_amount) || 0), 0
+    return activeAssets.value.reduce(
+      (sum, asset) => sum + (parseFloat(asset.purchase_amount) || 0),
+      0
     )
   })
 
@@ -73,7 +79,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     error.value = null
 
     try {
-      const data = await investmentAssetsAPI.getInvestmentAssets(authStore.user.id)
+      const data = await investmentAssetsAPI.getInvestmentAssets(
+        authStore.user.id
+      )
       investmentAssets.value = data || []
     } catch (err) {
       console.error('Error fetching investment assets:', err)
@@ -127,10 +135,15 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     error.value = null
 
     try {
-      const data = await investmentAssetsAPI.updateInvestmentAsset(assetId, updates)
+      const data = await investmentAssetsAPI.updateInvestmentAsset(
+        assetId,
+        updates
+      )
 
       // Update the asset in the local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value[index] = data
       }
@@ -155,7 +168,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
       await investmentAssetsAPI.deleteInvestmentAsset(assetId)
 
       // Remove the asset from local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value.splice(index, 1)
       }
@@ -174,10 +189,15 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return null
 
     try {
-      const data = await investmentAssetsAPI.linkToBudgetItem(assetId, budgetItemId)
+      const data = await investmentAssetsAPI.linkToBudgetItem(
+        assetId,
+        budgetItemId
+      )
 
       // Update the asset in the local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value[index] = data
       }
@@ -197,7 +217,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
       const data = await investmentAssetsAPI.unlinkFromBudgetItem(assetId)
 
       // Update the asset in the local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value[index] = data
       }
@@ -214,7 +236,10 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return []
 
     try {
-      const data = await investmentAssetsAPI.getInvestmentAssetsByType(authStore.user.id, type)
+      const data = await investmentAssetsAPI.getInvestmentAssetsByType(
+        authStore.user.id,
+        type
+      )
       return data || []
     } catch (err) {
       console.error('Error fetching investment assets by type:', err)
@@ -227,7 +252,10 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return []
 
     try {
-      const data = await investmentAssetsAPI.getInvestmentAssetsByStatus(authStore.user.id, status)
+      const data = await investmentAssetsAPI.getInvestmentAssetsByStatus(
+        authStore.user.id,
+        status
+      )
       return data || []
     } catch (err) {
       console.error('Error fetching investment assets by status:', err)
@@ -240,7 +268,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return null
 
     try {
-      const data = await investmentAssetsAPI.getPortfolioValue(authStore.user.id)
+      const data = await investmentAssetsAPI.getPortfolioValue(
+        authStore.user.id
+      )
       return data
     } catch (err) {
       console.error('Error fetching portfolio value:', err)
@@ -251,20 +281,23 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
 
   // Type-specific computed properties
   const realEstateAssets = computed(() =>
-    investmentAssets.value.filter(asset =>
-      asset.investment_type === 'real_estate' || asset.type === 'real_estate'
+    investmentAssets.value.filter(
+      (asset) =>
+        asset.investment_type === 'real_estate' || asset.type === 'real_estate'
     )
   )
 
   const preciousMetalsAssets = computed(() =>
-    investmentAssets.value.filter(asset =>
-      asset.investment_type === 'precious_metals' || asset.type === 'precious_metals'
+    investmentAssets.value.filter(
+      (asset) =>
+        asset.investment_type === 'precious_metals' ||
+        asset.type === 'precious_metals'
     )
   )
 
   const assetsByStatus = computed(() => {
     const grouped = {}
-    investmentAssets.value.forEach(asset => {
+    investmentAssets.value.forEach((asset) => {
       const status = asset.real_estate_status || asset.status
       if (!grouped[status]) {
         grouped[status] = []
@@ -279,7 +312,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return []
 
     try {
-      const data = await investmentAssetsAPI.getRealEstateInvestments(authStore.user.id)
+      const data = await investmentAssetsAPI.getRealEstateInvestments(
+        authStore.user.id
+      )
       return data || []
     } catch (err) {
       console.error('Error fetching real estate investments:', err)
@@ -292,7 +327,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return []
 
     try {
-      const data = await investmentAssetsAPI.getPreciousMetalsInvestments(authStore.user.id)
+      const data = await investmentAssetsAPI.getPreciousMetalsInvestments(
+        authStore.user.id
+      )
       return data || []
     } catch (err) {
       console.error('Error fetching precious metals investments:', err)
@@ -305,7 +342,9 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return []
 
     try {
-      const data = await investmentAssetsAPI.getPreciousMetalsPortfolio(authStore.user.id)
+      const data = await investmentAssetsAPI.getPreciousMetalsPortfolio(
+        authStore.user.id
+      )
       return data || []
     } catch (err) {
       console.error('Error fetching precious metals portfolio:', err)
@@ -321,10 +360,15 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     error.value = null
 
     try {
-      const data = await investmentAssetsAPI.updateInvestmentStatus(assetId, status)
+      const data = await investmentAssetsAPI.updateInvestmentStatus(
+        assetId,
+        status
+      )
 
       // Update the asset in the local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value[index] = data
       }
@@ -343,10 +387,15 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return null
 
     try {
-      const data = await investmentAssetsAPI.addDocumentLink(assetId, documentLink)
+      const data = await investmentAssetsAPI.addDocumentLink(
+        assetId,
+        documentLink
+      )
 
       // Update the asset in the local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value[index] = data
       }
@@ -363,10 +412,15 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
     if (!authStore.user) return null
 
     try {
-      const data = await investmentAssetsAPI.removeDocumentLink(assetId, linkIndex)
+      const data = await investmentAssetsAPI.removeDocumentLink(
+        assetId,
+        linkIndex
+      )
 
       // Update the asset in the local state
-      const index = investmentAssets.value.findIndex(asset => asset.id === assetId)
+      const index = investmentAssets.value.findIndex(
+        (asset) => asset.id === assetId
+      )
       if (index !== -1) {
         investmentAssets.value[index] = data
       }
@@ -383,23 +437,30 @@ export const useInvestmentAssetsStore = defineStore('investmentAssets', () => {
   const setupSubscription = () => {
     if (!authStore.user || subscription.value) return
 
-    subscription.value = subscribeToInvestmentAssetChanges(authStore.user.id, (payload) => {
-      console.log('Investment asset change:', payload)
+    subscription.value = subscribeToInvestmentAssetChanges(
+      authStore.user.id,
+      (payload) => {
+        console.log('Investment asset change:', payload)
 
-      if (payload.eventType === 'INSERT') {
-        investmentAssets.value.unshift(payload.new)
-      } else if (payload.eventType === 'UPDATE') {
-        const index = investmentAssets.value.findIndex(asset => asset.id === payload.new.id)
-        if (index !== -1) {
-          investmentAssets.value[index] = payload.new
-        }
-      } else if (payload.eventType === 'DELETE') {
-        const index = investmentAssets.value.findIndex(asset => asset.id === payload.old.id)
-        if (index !== -1) {
-          investmentAssets.value.splice(index, 1)
+        if (payload.eventType === 'INSERT') {
+          investmentAssets.value.unshift(payload.new)
+        } else if (payload.eventType === 'UPDATE') {
+          const index = investmentAssets.value.findIndex(
+            (asset) => asset.id === payload.new.id
+          )
+          if (index !== -1) {
+            investmentAssets.value[index] = payload.new
+          }
+        } else if (payload.eventType === 'DELETE') {
+          const index = investmentAssets.value.findIndex(
+            (asset) => asset.id === payload.old.id
+          )
+          if (index !== -1) {
+            investmentAssets.value.splice(index, 1)
+          }
         }
       }
-    })
+    )
   }
 
   const cleanupSubscription = () => {

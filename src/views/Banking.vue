@@ -27,19 +27,19 @@ const accountMenu = ref()
 
 // Computed properties
 const recentTransactions = computed(() => {
-  return transactionStore.transactions
-    .slice(0, 5)
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-})
+    return transactionStore.transactions
+      .slice(0, 5)
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+  })
 
 // Methods
 const getAccountIcon = (type) => {
   const icons = {
-    checking: 'pi pi-credit-card',
-    savings: 'pi pi-wallet',
-    credit_card: 'pi pi-credit-card',
-    cash: 'pi pi-money-bill'
-  }
+      checking: 'pi pi-credit-card',
+      savings: 'pi pi-wallet',
+      credit_card: 'pi pi-credit-card',
+      cash: 'pi pi-money-bill'
+    }
   return icons[type] || 'pi pi-bank'
 }
 
@@ -55,36 +55,36 @@ const getTotalBalanceColor = (balance) => {
 
 const getTransactionTypeColor = (type) => {
   const colors = {
-    income: 'bg-green-500',
-    expense: 'bg-red-500',
-    investment: 'bg-blue-500'
-  }
+      income: 'bg-green-500',
+      expense: 'bg-red-500',
+      investment: 'bg-blue-500'
+    }
   return colors[type] || 'bg-gray-500'
 }
 
 const getTypeSeverity = (type) => {
   const severity = {
-    income: 'success',
-    expense: 'danger',
-    investment: 'info'
-  }
+      income: 'success',
+      expense: 'danger',
+      investment: 'info'
+    }
   return severity[type] || 'secondary'
 }
 
 const handleAccountClick = (account) => {
-  // Navigate to account details or transactions filtered by account
-  router.push({
-    name: 'Transactions',
-    query: {
-      account: account.id,
-      action: 'history'
-    }
-  })
+    // Navigate to account details or transactions filtered by account
+    router.push({
+      name: 'Transactions',
+      query: {
+        account: account.id,
+        action: 'history'
+      }
+    })
 }
 
 const showAccountMenu = (event, account) => {
   selectedAccountForMenu.value = account
-  accountMenu.value.toggle(event)
+    accountMenu.value.toggle(event)
 }
 
 const handleEditAccount = (account) => {
@@ -103,62 +103,67 @@ const handleTransfer = (account) => {
 }
 
 const handleAccountHistory = (account) => {
-  router.push({
-    name: 'Transactions',
-    query: {
-      account: account.id,
-      action: 'history'
-    }
-  })
+    router.push({
+      name: 'Transactions',
+      query: {
+        account: account.id,
+        action: 'history'
+      }
+    })
 }
 
 const handleSetDefault = async (account) => {
   try {
     await accountsStore.setDefaultAccount(account.id)
   } catch (error) {
-    console.error('Error setting default account:', error)
+      console.error('Error setting default account:', error)
   }
 }
 
 const handleAccountAdded = (account) => {
-  console.log('Account added:', account)
+    console.log('Account added:', account)
 }
 
 const handleAccountUpdated = (account) => {
-  console.log('Account updated:', account)
-  handleCloseEditModal()
+    console.log('Account updated:', account)
+    handleCloseEditModal()
 }
 
 const handleTransferCompleted = (transactions) => {
-  console.log('Transfer completed:', transactions)
-  accountsStore.fetchAccounts()
+    console.log('Transfer completed:', transactions)
+    accountsStore.fetchAccounts()
 }
 
 const handleDeleteAccount = async (account) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: async () => {
-      try {
-        await accountsStore.deleteAccount(account.id)
-        console.log('Account deleted:', account.name)
-      } catch (error) {
-        console.error('Error deleting account:', error)
-        toast.add({ severity: 'error', summary: 'Error deleting account', detail: error.message, life: 3000 })
+    confirm.require({
+      message: `Are you sure you want to delete "${account.name}"? This action cannot be undone.`,
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
+        try {
+          await accountsStore.deleteAccount(account.id)
+          console.log('Account deleted:', account.name)
+        } catch (error) {
+          console.error('Error deleting account:', error)
+          toast.add({
+            severity: 'error',
+            summary: 'Error deleting account',
+            detail: error.message,
+            life: 3000
+          })
+        }
+      },
+      reject: () => {
+        // User cancelled
       }
-    },
-    reject: () => {
-      // User cancelled
-    }
-  })
+    })
 }
 
-// Lifecycle
-onMounted(async () => {
-  await accountsStore.fetchAccounts()
-  await transactionStore.fetchTransactions()
-})
+  // Lifecycle
+  onMounted(async () => {
+    await accountsStore.fetchAccounts()
+    await transactionStore.fetchTransactions()
+  })
 </script>
 
 <template>
@@ -166,7 +171,9 @@ onMounted(async () => {
     <!-- Header -->
     <Card class="mb-6">
       <template #content>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
           <div>
             <h1 class="text-3xl font-bold">
               Banking
@@ -232,7 +239,9 @@ onMounted(async () => {
         <template #header>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+              <div
+                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"
+              >
                 <i
                   :class="getAccountIcon(account.type)"
                   class="text-blue-600 text-lg"
@@ -243,7 +252,7 @@ onMounted(async () => {
                   {{ account.name }}
                 </h3>
                 <p class="text-sm capitalize">
-                  {{ account.type.replace('_', ' ') }}
+                  {{ account.type.replace("_", " ") }}
                 </p>
               </div>
             </div>
@@ -287,15 +296,21 @@ onMounted(async () => {
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span>Account Number:</span>
-                <span class="font-medium">{{ account.account_number || 'N/A' }}</span>
+                <span class="font-medium">{{
+                  account.account_number || "N/A"
+                }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Routing Number:</span>
-                <span class="font-medium">{{ account.routing_number || 'N/A' }}</span>
+                <span class="font-medium">{{
+                  account.routing_number || "N/A"
+                }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Interest Rate:</span>
-                <span class="font-medium">{{ account.interest_rate ? `${account.interest_rate}%` : 'N/A' }}</span>
+                <span class="font-medium">{{
+                  account.interest_rate ? `${account.interest_rate}%` : "N/A"
+                }}</span>
               </div>
             </div>
 
@@ -383,7 +398,7 @@ onMounted(async () => {
               Default Account
             </p>
             <p class="text-xl font-semibold">
-              {{ accountsStore.defaultAccount?.name || 'None' }}
+              {{ accountsStore.defaultAccount?.name || "None" }}
             </p>
           </div>
         </div>
@@ -444,7 +459,9 @@ onMounted(async () => {
                   :class="getTransactionTypeColor(data.type)"
                   class="w-3 h-3 rounded-full flex-shrink-0"
                 />
-                <span class="font-medium">{{ data.description || 'Transaction' }}</span>
+                <span class="font-medium">{{
+                  data.description || "Transaction"
+                }}</span>
               </div>
             </template>
           </Column>
@@ -470,10 +487,22 @@ onMounted(async () => {
           >
             <template #body="{ data }">
               <span
-                :class="data.type === 'income' ? 'text-green-600' : data.type === 'expense' ? 'text-red-600' : 'text-blue-600'"
+                :class="
+                  data.type === 'income'
+                    ? 'text-green-600'
+                    : data.type === 'expense'
+                      ? 'text-red-600'
+                      : 'text-blue-600'
+                "
                 class="font-semibold"
               >
-                {{ data.type === 'income' ? '+' : data.type === 'expense' ? '-' : '' }}{{ formatCurrency(data.amount) }}
+                {{
+                  data.type === "income"
+                    ? "+"
+                    : data.type === "expense"
+                      ? "-"
+                      : ""
+                }}{{ formatCurrency(data.amount) }}
               </span>
             </template>
           </Column>
@@ -487,7 +516,9 @@ onMounted(async () => {
               <span
                 v-if="data.accounts?.name"
                 class="font-medium"
-              >{{ data.accounts.name }}</span>
+              >{{
+                data.accounts.name
+              }}</span>
               <span v-else>-</span>
             </template>
           </Column>
@@ -510,7 +541,11 @@ onMounted(async () => {
         />
         <Button
           icon="pi pi-star"
-          :label="selectedAccountForMenu?.is_default ? 'Remove Default' : 'Set as Default'"
+          :label="
+            selectedAccountForMenu?.is_default
+              ? 'Remove Default'
+              : 'Set as Default'
+          "
           text
           class="w-full justify-start mb-2"
           @click="handleSetDefault(selectedAccountForMenu)"

@@ -1,4 +1,7 @@
-import { subscribeToYearlySummaryChanges, yearlySummaryAPI } from '@/lib/supabase.js'
+import {
+  subscribeToYearlySummaryChanges,
+  yearlySummaryAPI
+} from '@/lib/supabase.js'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useAuthStore } from './auth.js'
@@ -18,7 +21,7 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
 
   // Get yearly summary for a specific year
   const getYearlySummary = (year) => {
-    return yearlySummaries.value.find(summary => summary.year === year)
+    return yearlySummaries.value.find((summary) => summary.year === year)
   }
 
   // Get previous year summary
@@ -42,12 +45,15 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
       return {
         income: parseFloat(summary.total_income_actual) || 0,
         expenses: parseFloat(summary.total_expenses_actual) || 0,
-        investmentIncoming: parseFloat(summary.total_investment_incoming_actual) || 0,
-        investmentOutgoing: parseFloat(summary.total_investment_outgoing_actual) || 0,
-        net: (parseFloat(summary.total_income_actual) || 0) +
-             (parseFloat(summary.total_investment_incoming_actual) || 0) -
-             (parseFloat(summary.total_expenses_actual) || 0) -
-             (parseFloat(summary.total_investment_outgoing_actual) || 0)
+        investmentIncoming:
+          parseFloat(summary.total_investment_incoming_actual) || 0,
+        investmentOutgoing:
+          parseFloat(summary.total_investment_outgoing_actual) || 0,
+        net:
+          (parseFloat(summary.total_income_actual) || 0) +
+          (parseFloat(summary.total_investment_incoming_actual) || 0) -
+          (parseFloat(summary.total_expenses_actual) || 0) -
+          (parseFloat(summary.total_investment_outgoing_actual) || 0)
       }
     }
 
@@ -55,12 +61,15 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
     return {
       income: parseFloat(summary.total_income_actual) || 0,
       expenses: parseFloat(summary.total_expenses_actual) || 0,
-      investmentIncoming: parseFloat(summary.total_investment_incoming_actual) || 0,
-      investmentOutgoing: parseFloat(summary.total_investment_outgoing_actual) || 0,
-      net: (parseFloat(summary.total_income_actual) || 0) +
-           (parseFloat(summary.total_investment_incoming_actual) || 0) -
-           (parseFloat(summary.total_expenses_actual) || 0) -
-           (parseFloat(summary.total_investment_outgoing_actual) || 0)
+      investmentIncoming:
+        parseFloat(summary.total_investment_incoming_actual) || 0,
+      investmentOutgoing:
+        parseFloat(summary.total_investment_outgoing_actual) || 0,
+      net:
+        (parseFloat(summary.total_income_actual) || 0) +
+        (parseFloat(summary.total_investment_incoming_actual) || 0) -
+        (parseFloat(summary.total_expenses_actual) || 0) -
+        (parseFloat(summary.total_investment_outgoing_actual) || 0)
     }
   }
 
@@ -75,12 +84,15 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
     return {
       income: parseFloat(summary.total_income_actual) || 0,
       expenses: parseFloat(summary.total_expenses_actual) || 0,
-      investmentIncoming: parseFloat(summary.total_investment_incoming_actual) || 0,
-      investmentOutgoing: parseFloat(summary.total_investment_outgoing_actual) || 0,
-      net: (parseFloat(summary.total_income_actual) || 0) +
-           (parseFloat(summary.total_investment_incoming_actual) || 0) -
-           (parseFloat(summary.total_expenses_actual) || 0) -
-           (parseFloat(summary.total_investment_outgoing_actual) || 0),
+      investmentIncoming:
+        parseFloat(summary.total_investment_incoming_actual) || 0,
+      investmentOutgoing:
+        parseFloat(summary.total_investment_outgoing_actual) || 0,
+      net:
+        (parseFloat(summary.total_income_actual) || 0) +
+        (parseFloat(summary.total_investment_incoming_actual) || 0) -
+        (parseFloat(summary.total_expenses_actual) || 0) -
+        (parseFloat(summary.total_investment_outgoing_actual) || 0),
       savings: parseFloat(summary.total_savings_actual) || 0
     }
   }
@@ -123,8 +135,15 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
       loading.value = true
       error.value = null
 
-      console.log('Store: Fetching yearly summaries for user:', authStore.userId)
-      const data = await yearlySummaryAPI.getYearlySummaries(authStore.userId, startYear, endYear)
+      console.log(
+        'Store: Fetching yearly summaries for user:',
+        authStore.userId
+      )
+      const data = await yearlySummaryAPI.getYearlySummaries(
+        authStore.userId,
+        startYear,
+        endYear
+      )
       console.log('Store: Fetched yearly summaries:', data)
 
       yearlySummaries.value = data
@@ -144,13 +163,23 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
     try {
       error.value = null
 
-      console.log('Store: Fetching yearly summary for user:', authStore.userId, 'year:', year)
-      const data = await yearlySummaryAPI.getYearlySummary(authStore.userId, year)
+      console.log(
+        'Store: Fetching yearly summary for user:',
+        authStore.userId,
+        'year:',
+        year
+      )
+      const data = await yearlySummaryAPI.getYearlySummary(
+        authStore.userId,
+        year
+      )
       console.log('Store: Fetched yearly summary:', data)
 
       // Update or add to local state
       if (data) {
-        const index = yearlySummaries.value.findIndex(summary => summary.year === year)
+        const index = yearlySummaries.value.findIndex(
+          (summary) => summary.year === year
+        )
         if (index !== -1) {
           yearlySummaries.value[index] = data
         } else {
@@ -173,7 +202,12 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
     try {
       error.value = null
 
-      console.log('Store: Recalculating yearly summary for user:', authStore.userId, 'year:', year)
+      console.log(
+        'Store: Recalculating yearly summary for user:',
+        authStore.userId,
+        'year:',
+        year
+      )
       await yearlySummaryAPI.recalculateYearlySummary(authStore.userId, year)
 
       // Refresh the summary
@@ -194,8 +228,13 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
     try {
       error.value = null
 
-      console.log('Store: Fetching yearly summary stats for user:', authStore.userId)
-      const data = await yearlySummaryAPI.getYearlySummaryStats(authStore.userId)
+      console.log(
+        'Store: Fetching yearly summary stats for user:',
+        authStore.userId
+      )
+      const data = await yearlySummaryAPI.getYearlySummaryStats(
+        authStore.userId
+      )
       console.log('Store: Fetched yearly summary stats:', data)
 
       return data
@@ -215,24 +254,34 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
       subscription.value.unsubscribe()
     }
 
-    console.log('Store: Setting up yearly summaries subscription for user:', authStore.userId)
-    subscription.value = subscribeToYearlySummaryChanges(authStore.userId, (payload) => {
-      console.log('Store: Yearly summary change received:', payload)
+    console.log(
+      'Store: Setting up yearly summaries subscription for user:',
+      authStore.userId
+    )
+    subscription.value = subscribeToYearlySummaryChanges(
+      authStore.userId,
+      (payload) => {
+        console.log('Store: Yearly summary change received:', payload)
 
-      if (payload.eventType === 'INSERT') {
-        // Add new summary
-        yearlySummaries.value.push(payload.new)
-      } else if (payload.eventType === 'UPDATE') {
-        // Update existing summary
-        const index = yearlySummaries.value.findIndex(summary => summary.id === payload.new.id)
-        if (index !== -1) {
-          yearlySummaries.value[index] = payload.new
+        if (payload.eventType === 'INSERT') {
+          // Add new summary
+          yearlySummaries.value.push(payload.new)
+        } else if (payload.eventType === 'UPDATE') {
+          // Update existing summary
+          const index = yearlySummaries.value.findIndex(
+            (summary) => summary.id === payload.new.id
+          )
+          if (index !== -1) {
+            yearlySummaries.value[index] = payload.new
+          }
+        } else if (payload.eventType === 'DELETE') {
+          // Remove deleted summary
+          yearlySummaries.value = yearlySummaries.value.filter(
+            (summary) => summary.id !== payload.old.id
+          )
         }
-      } else if (payload.eventType === 'DELETE') {
-        // Remove deleted summary
-        yearlySummaries.value = yearlySummaries.value.filter(summary => summary.id !== payload.old.id)
       }
-    })
+    )
   }
 
   // Clean up subscription
@@ -245,7 +294,12 @@ export const useYearlySummariesStore = defineStore('yearlySummaries', () => {
 
   // Initialize store
   const initialize = async () => {
-    console.log('Store: Initializing yearly summaries, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
+    console.log(
+      'Store: Initializing yearly summaries, auth status:',
+      authStore.isAuthenticated,
+      'userId:',
+      authStore.userId
+    )
     if (authStore.isAuthenticated && authStore.userId) {
       await fetchYearlySummaries()
       setupSubscription()

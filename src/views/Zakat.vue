@@ -31,7 +31,10 @@
               <!-- Step 1: Previous Zakat Payment Question -->
               <div
                 class="step"
-                :class="{ active: currentStep === 1, completed: currentStep > 1 }"
+                :class="{
+                  active: currentStep === 1,
+                  completed: currentStep > 1,
+                }"
               >
                 <div class="step-header">
                   <div class="step-number">
@@ -50,13 +53,17 @@
                   <div class="button-group">
                     <Button
                       label="Yes, I have paid Zakat before"
-                      :class="{ 'p-button-success': hasPaidZakatBefore === true }"
+                      :class="{
+                        'p-button-success': hasPaidZakatBefore === true,
+                      }"
                       class="mr-2"
                       @click="setHasPaidZakatBefore(true)"
                     />
                     <Button
                       label="No, this is my first time"
-                      :class="{ 'p-button-success': hasPaidZakatBefore === false }"
+                      :class="{
+                        'p-button-success': hasPaidZakatBefore === false,
+                      }"
                       outlined
                       @click="setHasPaidZakatBefore(false)"
                     />
@@ -68,7 +75,10 @@
               <div
                 v-if="hasPaidZakatBefore"
                 class="step"
-                :class="{ active: currentStep === 2, completed: currentStep > 2 }"
+                :class="{
+                  active: currentStep === 2,
+                  completed: currentStep > 2,
+                }"
               >
                 <div class="step-header">
                   <div class="step-number">
@@ -109,7 +119,12 @@
                     <div class="form-field">
                       <label>Calculated Asset Value</label>
                       <div class="calculated-value">
-                        {{ calculateAssetValueFromZakat(previousPaymentData.amount) }} EGP
+                        {{
+                          calculateAssetValueFromZakat(
+                            previousPaymentData.amount,
+                          )
+                        }}
+                        EGP
                         <small class="text-surface-500">(Calculated from Zakat amount: 2.5% of assets)</small>
                       </div>
                     </div>
@@ -129,11 +144,14 @@
               <!-- Step 3: Asset Continuity Check -->
               <div
                 class="step"
-                :class="{ active: currentStep === 3, completed: currentStep > 3 }"
+                :class="{
+                  active: currentStep === 3,
+                  completed: currentStep > 3,
+                }"
               >
                 <div class="step-header">
                   <div class="step-number">
-                    {{ hasPaidZakatBefore ? '3' : '2' }}
+                    {{ hasPaidZakatBefore ? "3" : "2" }}
                   </div>
                   <h3>Asset Continuity</h3>
                 </div>
@@ -143,9 +161,10 @@
                   class="step-content"
                 >
                   <p class="question">
-                    {{ hasPaidZakatBefore
-                      ? 'Have your assets been above the Nisab threshold continuously since your last payment?'
-                      : 'Are your current assets above the Nisab threshold?'
+                    {{
+                      hasPaidZakatBefore
+                        ? "Have your assets been above the Nisab threshold continuously since your last payment?"
+                        : "Are your current assets above the Nisab threshold?"
                     }}
                   </p>
 
@@ -155,9 +174,10 @@
                     class="continuity-explanation"
                   >
                     <p class="text-sm text-surface-600 mb-3">
-                      Since you don't have a specific payment date, we need to know if your assets have been above Nisab
-                      continuously.
-                      This helps us determine when your Hawl (Zakat year) should start according to Islamic law.
+                      Since you don't have a specific payment date, we need to
+                      know if your assets have been above Nisab continuously.
+                      This helps us determine when your Hawl (Zakat year) should
+                      start according to Islamic law.
                     </p>
                   </div>
 
@@ -165,8 +185,8 @@
                   <div class="price-input-section">
                     <h4>Set Gold & Silver Prices for Nisab Calculation</h4>
                     <p class="text-sm text-surface-600 mb-4">
-                      We need current gold and silver prices to calculate the Nisab threshold (minimum wealth required
-                      for Zakat).
+                      We need current gold and silver prices to calculate the
+                      Nisab threshold (minimum wealth required for Zakat).
                     </p>
 
                     <div class="price-inputs">
@@ -235,18 +255,25 @@
                   <div class="nisab-method-selection">
                     <h5>Choose Nisab Calculation Method</h5>
                     <p class="text-sm text-surface-600 mb-3">
-                      Choose how to calculate the Nisab threshold. This determines the minimum wealth required for Zakat
+                      Choose how to calculate the Nisab threshold. This
+                      determines the minimum wealth required for Zakat
                       eligibility:
                     </p>
 
                     <div class="nisab-method-options">
                       <div
                         class="nisab-method-option"
-                        :class="{ selected: nisabCalculationMethod === 'silver' }"
+                        :class="{
+                          selected: nisabCalculationMethod === 'silver',
+                        }"
                       >
                         <Button
                           :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
-                          :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
+                          :severity="
+                            nisabCalculationMethod === 'silver'
+                              ? 'primary'
+                              : 'secondary'
+                          "
                           :outlined="nisabCalculationMethod !== 'silver'"
                           class="w-full"
                           @click="setNisabCalculationMethod('silver')"
@@ -262,7 +289,11 @@
                       >
                         <Button
                           :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
-                          :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
+                          :severity="
+                            nisabCalculationMethod === 'gold'
+                              ? 'primary'
+                              : 'secondary'
+                          "
                           :outlined="nisabCalculationMethod !== 'gold'"
                           class="w-full"
                           @click="setNisabCalculationMethod('gold')"
@@ -292,28 +323,51 @@
                     <!-- Eligibility Status -->
                     <div
                       class="eligibility-card"
-                      :class="nisabStatus.isEligible ? 'eligible' : 'not-eligible'"
+                      :class="
+                        nisabStatus.isEligible ? 'eligible' : 'not-eligible'
+                      "
                     >
                       <div class="eligibility-header">
                         <h4>Zakat Eligibility Status</h4>
                         <Tag
-                          :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
-                          :severity="nisabStatus.isEligible ? 'success' : 'danger'"
+                          :value="
+                            nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'
+                          "
+                          :severity="
+                            nisabStatus.isEligible ? 'success' : 'danger'
+                          "
                         />
                       </div>
                       <div class="eligibility-details">
                         <div class="eligibility-item">
                           <span>Your Assets:</span>
-                          <span class="asset-amount">{{ nisabStatus.totalAssets.toLocaleString() }} EGP</span>
+                          <span class="asset-amount">{{
+                            nisabStatus.totalAssets.toLocaleString()
+                          }}
+                            EGP</span>
                         </div>
                         <div class="eligibility-item">
                           <span>Nisab Threshold:</span>
-                          <span class="nisab-amount">{{ hawlStore.currentNisab.toLocaleString() }} EGP</span>
+                          <span class="nisab-amount">{{
+                            hawlStore.currentNisab.toLocaleString()
+                          }}
+                            EGP</span>
                         </div>
                         <div class="eligibility-item difference">
                           <span>Difference:</span>
-                          <span :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'">
-                            {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
+                          <span
+                            :class="
+                              nisabStatus.isEligible
+                                ? 'text-green-600'
+                                : 'text-red-600'
+                            "
+                          >
+                            {{
+                              (
+                                nisabStatus.totalAssets - hawlStore.currentNisab
+                              ).toLocaleString()
+                            }}
+                            EGP
                           </span>
                         </div>
                       </div>
@@ -339,14 +393,15 @@
                     />
                     <Button
                       label="No, assets fell below Nisab"
-                      :class="{ 'p-button-success': assetsAboveNisab === false }"
+                      :class="{
+                        'p-button-success': assetsAboveNisab === false,
+                      }"
                       outlined
                       @click="setAssetsAboveNisab(false)"
                     />
                   </div>
                 </div>
               </div>
-
 
               <!-- Step 4: Current Status & Confirmation -->
               <div
@@ -355,7 +410,7 @@
               >
                 <div class="step-header">
                   <div class="step-number">
-                    {{ hasPaidZakatBefore ? '4' : '3' }}
+                    {{ hasPaidZakatBefore ? "4" : "3" }}
                   </div>
                   <h3>Setup Complete</h3>
                 </div>
@@ -412,8 +467,12 @@
               <h3>Hawl Status</h3>
               <div class="header-actions">
                 <Tag
-                  :value="hawlStore.getStatusLabel(hawlStore.currentHawl?.status)"
-                  :severity="getHawlStatusSeverity(hawlStore.currentHawl?.status)"
+                  :value="
+                    hawlStore.getStatusLabel(hawlStore.currentHawl?.status)
+                  "
+                  :severity="
+                    getHawlStatusSeverity(hawlStore.currentHawl?.status)
+                  "
                 />
                 <Button
                   label="Edit Settings"
@@ -433,25 +492,33 @@
               <div class="hawl-dates">
                 <div class="date-item">
                   <label>Start Date:</label>
-                  <span>{{ formatDateDisplay(hawlStore.currentHawl?.startDate) }}</span>
+                  <span>{{
+                    formatDateDisplay(hawlStore.currentHawl?.startDate)
+                  }}</span>
                 </div>
                 <div class="date-item">
                   <label>End Date:</label>
-                  <span>{{ formatDateDisplay(hawlStore.currentHawl?.endDate) }}</span>
+                  <span>{{
+                    formatDateDisplay(hawlStore.currentHawl?.endDate)
+                  }}</span>
                 </div>
                 <div
                   v-if="hawlStore.currentHawl?.hijriStartDate"
                   class="date-item"
                 >
                   <label>Hijri Start:</label>
-                  <span>{{ hawlStore.currentHawl.hijriStartDate.formatted }}</span>
+                  <span>{{
+                    hawlStore.currentHawl.hijriStartDate.formatted
+                  }}</span>
                 </div>
                 <div
                   v-if="hawlStore.currentHawl?.hijriEndDate"
                   class="date-item"
                 >
                   <label>Hijri End:</label>
-                  <span>{{ hawlStore.currentHawl.hijriEndDate.formatted }}</span>
+                  <span>{{
+                    hawlStore.currentHawl.hijriEndDate.formatted
+                  }}</span>
                 </div>
               </div>
 
@@ -475,7 +542,10 @@
             <div class="card-header">
               <h3>Islamic School of Thought (Informational)</h3>
               <Tag
-                :value="selectedSchool.charAt(0).toUpperCase() + selectedSchool.slice(1)"
+                :value="
+                  selectedSchool.charAt(0).toUpperCase() +
+                    selectedSchool.slice(1)
+                "
                 severity="info"
               />
             </div>
@@ -500,7 +570,9 @@
                   v-for="school in schoolOptions"
                   :key="school.value"
                   :label="school.label"
-                  :severity="selectedSchool === school.value ? 'primary' : 'secondary'"
+                  :severity="
+                    selectedSchool === school.value ? 'primary' : 'secondary'
+                  "
                   :outlined="selectedSchool !== school.value"
                   class="school-button"
                   @click="setSchool(school.value)"
@@ -510,8 +582,8 @@
               <div class="school-note">
                 <p class="text-sm text-surface-600 text-center">
                   <i class="pi pi-info-circle mr-1" />
-                  School selection is for informational purposes only. Nisab calculation method is set independently
-                  above.
+                  School selection is for informational purposes only. Nisab
+                  calculation method is set independently above.
                 </p>
               </div>
             </div>
@@ -527,12 +599,24 @@
                 <h3>Nisab</h3>
                 <div class="header-actions">
                   <Tag
-                    :value="nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'"
+                    :value="
+                      nisabStatus.isEligible ? 'Eligible' : 'Not Eligible'
+                    "
                     :severity="nisabStatus.isEligible ? 'success' : 'danger'"
                   />
                   <Tag
-                    :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
-                    :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'"
+                    :value="
+                      hawlStore.nisabDetails.source === 'gold'
+                        ? 'Based on Gold'
+                        : hawlStore.nisabDetails.source === 'silver'
+                          ? 'Based on Silver'
+                          : 'Manual Input'
+                    "
+                    :severity="
+                      hawlStore.nisabDetails.source === 'fallback'
+                        ? 'warning'
+                        : 'info'
+                    "
                   />
                 </div>
               </div>
@@ -541,46 +625,71 @@
             <template #content>
               <div class="flex flex-col gap-4">
                 <!-- Nisab Status Summary -->
-                <div class="p-4 bg-surface-50 border border-surface-200 rounded-lg">
-                  <div class="grid grid-cols-3 gap-4 md:grid-cols-3 sm:grid-cols-1">
+                <div
+                  class="p-4 bg-surface-50 border border-surface-200 rounded-lg"
+                >
+                  <div
+                    class="grid grid-cols-3 gap-4 md:grid-cols-3 sm:grid-cols-1"
+                  >
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Current Nisab:</label>
-                      <span class="text-lg font-semibold text-surface-900">{{ hawlStore.currentNisab.toLocaleString() }}
-                        EGP</span>
+                      <span class="text-lg font-semibold text-surface-900">{{ hawlStore.currentNisab.toLocaleString() }} EGP</span>
                     </div>
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Your Assets:</label>
-                      <span class="text-lg font-semibold text-surface-900">{{ nisabStatus.totalAssets.toLocaleString()
-                      }} EGP</span>
+                      <span class="text-lg font-semibold text-surface-900">{{
+                        nisabStatus.totalAssets.toLocaleString()
+                      }}
+                        EGP</span>
                     </div>
                     <div class="flex flex-col gap-1 text-center">
                       <label class="text-sm font-medium text-surface-600">Difference:</label>
                       <span
-                        :class="nisabStatus.isEligible ? 'text-green-600' : 'text-red-600'"
+                        :class="
+                          nisabStatus.isEligible
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        "
                         class="text-lg font-semibold"
                       >
-                        {{ (nisabStatus.totalAssets - hawlStore.currentNisab).toLocaleString() }} EGP
+                        {{
+                          (
+                            nisabStatus.totalAssets - hawlStore.currentNisab
+                          ).toLocaleString()
+                        }}
+                        EGP
                       </span>
                     </div>
                   </div>
                 </div>
 
                 <!-- Current Nisab Threshold (Prominent) -->
-                <div class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center">
+                <div
+                  class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center"
+                >
                   <div class="flex justify-center items-center gap-2 mb-2">
                     <h4 class="text-lg font-semibold text-primary-700 m-0">
                       Nisab Threshold
                     </h4>
                     <Tag
-                      :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
-                      :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'"
+                      :value="
+                        hawlStore.nisabDetails.source === 'gold'
+                          ? 'Based on Gold'
+                          : hawlStore.nisabDetails.source === 'silver'
+                            ? 'Based on Silver'
+                            : 'Manual Input'
+                      "
+                      :severity="
+                        hawlStore.nisabDetails.source === 'fallback'
+                          ? 'warning'
+                          : 'info'
+                      "
                     />
                   </div>
                   <div class="text-2xl font-bold text-primary-700">
                     {{ hawlStore.nisabDetails.current.toLocaleString() }} EGP
                   </div>
                 </div>
-
 
                 <!-- Settings Button -->
                 <div class="flex justify-center">
@@ -660,8 +769,13 @@
                   <div class="message-content">
                     <h4>Not Eligible for Zakat</h4>
                     <p>
-                      Your total assets ({{ nisabStatus.totalAssets.toLocaleString() }} EGP) are below the Nisab
-                      threshold ({{ hawlStore.currentNisab.toLocaleString() }} EGP).
+                      Your total assets ({{
+                        nisabStatus.totalAssets.toLocaleString()
+                      }}
+                      EGP) are below the Nisab threshold ({{
+                        hawlStore.currentNisab.toLocaleString()
+                      }}
+                      EGP).
                     </p>
                     <p>Zakat is not required when assets are below Nisab.</p>
                   </div>
@@ -677,11 +791,17 @@
                   </div>
                   <div class="calculation-item">
                     <label>Deductions:</label>
-                    <span>{{ zakatCalculation.deductions.toLocaleString() }} EGP</span>
+                    <span>{{
+                      zakatCalculation.deductions.toLocaleString()
+                    }}
+                      EGP</span>
                   </div>
                   <div class="calculation-item total">
                     <label>Net Zakatable Assets:</label>
-                    <span>{{ zakatCalculation.netAssets.toLocaleString() }} EGP</span>
+                    <span>{{
+                      zakatCalculation.netAssets.toLocaleString()
+                    }}
+                      EGP</span>
                   </div>
                   <div class="calculation-item zakat-amount">
                     <label>Zakat Amount ({{ zakatRate }}%):</label>
@@ -715,7 +835,10 @@
                   </div>
                   <div class="message-content">
                     <h4>No Zakat Budget Required</h4>
-                    <p>Since your assets are below Nisab, no Zakat budget items are needed.</p>
+                    <p>
+                      Since your assets are below Nisab, no Zakat budget items
+                      are needed.
+                    </p>
                   </div>
                 </div>
 
@@ -731,7 +854,13 @@
                     </div>
                     <div class="budget-item">
                       <label>Remaining:</label>
-                      <span :class="zakatBudgetStatus.remaining >= 0 ? 'text-green-600' : 'text-red-600'">
+                      <span
+                        :class="
+                          zakatBudgetStatus.remaining >= 0
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        "
+                      >
                         {{ zakatBudgetStatus.remaining.toLocaleString() }} EGP
                       </span>
                     </div>
@@ -782,7 +911,9 @@
   >
     <div class="flex flex-col gap-6">
       <!-- Current Prices Display -->
-      <div class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center">
+      <div
+        class="p-4 bg-primary-50 border border-primary-200 rounded-lg text-center"
+      >
         <h4 class="text-lg font-semibold text-primary-700 mb-2">
           Current Nisab Threshold
         </h4>
@@ -791,8 +922,16 @@
         </div>
         <div class="mt-2">
           <Tag
-            :value="hawlStore.nisabDetails.source === 'gold' ? 'Based on Gold' : hawlStore.nisabDetails.source === 'silver' ? 'Based on Silver' : 'Manual Input'"
-            :severity="hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'"
+            :value="
+              hawlStore.nisabDetails.source === 'gold'
+                ? 'Based on Gold'
+                : hawlStore.nisabDetails.source === 'silver'
+                  ? 'Based on Silver'
+                  : 'Manual Input'
+            "
+            :severity="
+              hawlStore.nisabDetails.source === 'fallback' ? 'warning' : 'info'
+            "
           />
         </div>
       </div>
@@ -808,21 +947,26 @@
         <div class="flex gap-3">
           <Button
             :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
-            :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
+            :severity="
+              nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'
+            "
             :outlined="nisabCalculationMethod !== 'silver'"
             class="flex-1"
             @click="setNisabCalculationMethod('silver')"
           />
           <Button
             :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
-            :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
+            :severity="
+              nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'
+            "
             :outlined="nisabCalculationMethod !== 'gold'"
             class="flex-1"
             @click="setNisabCalculationMethod('gold')"
           />
         </div>
         <p class="text-xs text-surface-600 text-center mt-2">
-          Silver standard has a lower threshold (more people eligible), while gold standard has a higher threshold.
+          Silver standard has a lower threshold (more people eligible), while
+          gold standard has a higher threshold.
         </p>
       </div>
 
@@ -855,7 +999,9 @@
               @click="saveGoldPrice"
             />
           </div>
-          <div class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm">
+          <div
+            class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm"
+          >
             <span class="font-medium text-surface-600">Nisab (85g):</span>
             <span class="font-semibold text-surface-900">
               {{ hawlStore.nisabDetails.gold.nisabValue.toLocaleString() }} EGP
@@ -890,10 +1036,15 @@
               @click="saveSilverPrice"
             />
           </div>
-          <div class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm">
+          <div
+            class="flex justify-between items-center p-2 bg-surface-100 rounded text-sm"
+          >
             <span class="font-medium text-surface-600">Nisab (595g):</span>
             <span class="font-semibold text-surface-900">
-              {{ hawlStore.nisabDetails.silver.nisabValue.toLocaleString() }} EGP
+              {{
+                hawlStore.nisabDetails.silver.nisabValue.toLocaleString()
+              }}
+              EGP
             </span>
           </div>
         </div>
@@ -950,7 +1101,8 @@
         class="text-center p-3 bg-surface-100 rounded"
       >
         <small class="text-surface-600 text-sm">
-          Last updated: {{ new Date(hawlStore.nisabDetails.lastUpdated).toLocaleString() }}
+          Last updated:
+          {{ new Date(hawlStore.nisabDetails.lastUpdated).toLocaleString() }}
         </small>
       </div>
     </div>
@@ -986,8 +1138,9 @@
               Important Notice
             </h4>
             <p class="text-sm text-amber-700">
-              Editing these settings will reset your current Hawl and require you to go through the setup process again.
-              This is only recommended if you need to correct previous payment information.
+              Editing these settings will reset your current Hawl and require
+              you to go through the setup process again. This is only
+              recommended if you need to correct previous payment information.
             </p>
           </div>
         </div>
@@ -1039,7 +1192,8 @@
           Asset Continuity
         </h4>
         <p class="text-sm text-surface-600 mb-3">
-          Have your assets been above the Nisab threshold continuously since your last payment?
+          Have your assets been above the Nisab threshold continuously since
+          your last payment?
         </p>
         <div class="flex gap-3">
           <Button
@@ -1098,21 +1252,26 @@
         <div class="flex gap-3">
           <Button
             :label="`Silver Standard (${hawlStore.nisabDetails.silver?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
-            :severity="nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'"
+            :severity="
+              nisabCalculationMethod === 'silver' ? 'primary' : 'secondary'
+            "
             :outlined="nisabCalculationMethod !== 'silver'"
             class="flex-1"
             @click="setNisabCalculationMethod('silver')"
           />
           <Button
             :label="`Gold Standard (${hawlStore.nisabDetails.gold?.nisabValue?.toLocaleString() || 'N/A'} EGP)`"
-            :severity="nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'"
+            :severity="
+              nisabCalculationMethod === 'gold' ? 'primary' : 'secondary'
+            "
             :outlined="nisabCalculationMethod !== 'gold'"
             class="flex-1"
             @click="setNisabCalculationMethod('gold')"
           />
         </div>
         <p class="text-xs text-surface-600 text-center mt-2">
-          Silver standard has a lower threshold (more people eligible), while gold standard has a higher threshold.
+          Silver standard has a lower threshold (more people eligible), while
+          gold standard has a higher threshold.
         </p>
       </div>
     </div>
@@ -1171,8 +1330,8 @@ const {
 // Hawl store
 const hawlStore = useHawlStore()
 
-// Set the external Nisab calculation method in hawlStore
-hawlStore.setExternalNisabMethod(nisabCalculationMethod)
+  // Set the external Nisab calculation method in hawlStore
+  hawlStore.setExternalNisabMethod(nisabCalculationMethod)
 
 // Zakat assets composable
 const {
@@ -1240,131 +1399,131 @@ const showEditSettingsModal = ref(false)
 
 // Edit settings data
 const editPaymentData = ref({
-  date: null,
-  amount: 0
-})
+    date: null,
+    amount: 0
+  })
 const editAssetsAboveNisab = ref(null)
 const editGoldPrice = ref(0)
 const editSilverPrice = ref(0)
 
 // Previous payment data
 const previousPaymentData = ref({
-  date: null,
-  amount: null,
-  assetValue: null
-})
+    date: null,
+    amount: null,
+    assetValue: null
+  })
 
 // Nisab and calculation data
 const zakatRate = 2.5
 
 // Computed properties
 const isPreviousPaymentDataValid = computed(() => {
-  return previousPaymentData.value.date &&
-    previousPaymentData.value.amount
-})
+    return previousPaymentData.value.date && previousPaymentData.value.amount
+  })
 
 const nisabStatus = computed(() => {
-  const totalAssets = totalZakatableAssets.value.total
-  return {
-    totalAssets,
-    isEligible: totalAssets >= hawlStore.currentNisab,
-    breakdown: assetSummary.value.categories
-  }
-})
-
-const zakatCalculation = computed(() => {
-  const totalAssets = nisabStatus.value.totalAssets
-  const isEligible = nisabStatus.value.isEligible
-
-  // If not eligible (assets below Nisab), return zero amounts
-  if (!isEligible) {
+    const totalAssets = totalZakatableAssets.value.total
     return {
       totalAssets,
-      deductions: 0,
-      netAssets: 0,
-      amount: 0,
-      isEligible: false
+      isEligible: totalAssets >= hawlStore.currentNisab,
+      breakdown: assetSummary.value.categories
     }
-  }
+  })
 
-  const deductions = 0 // Placeholder - will calculate real deductions
-  const netAssets = totalAssets - deductions
-  const amount = netAssets * (zakatRate / 100)
+const zakatCalculation = computed(() => {
+    const totalAssets = nisabStatus.value.totalAssets
+    const isEligible = nisabStatus.value.isEligible
 
-  return {
-    totalAssets,
-    deductions,
-    netAssets,
-    amount,
-    isEligible: true
-  }
-})
+    // If not eligible (assets below Nisab), return zero amounts
+    if (!isEligible) {
+      return {
+        totalAssets,
+        deductions: 0,
+        netAssets: 0,
+        amount: 0,
+        isEligible: false
+      }
+    }
+
+    const deductions = 0 // Placeholder - will calculate real deductions
+    const netAssets = totalAssets - deductions
+    const amount = netAssets * (zakatRate / 100)
+
+    return {
+      totalAssets,
+      deductions,
+      netAssets,
+      amount,
+      isEligible: true
+    }
+  })
 
 const hawlProgress = computed(() => {
-  return hawlStore.hawlProgress
-})
+    return hawlStore.hawlProgress
+  })
 
 const daysRemaining = computed(() => {
-  return hawlStore.daysRemaining
-})
+    return hawlStore.daysRemaining
+  })
 
 const hawlStatus = computed(() => {
-  if (!hawlStore.currentHawl) {
-    return {
-      class: 'status-new',
-      icon: 'pi pi-plus-circle',
-      title: 'Start New Hawl',
-      description: 'Your assets are above Nisab threshold. Start your Zakat year.',
-      details: null
-    }
-  }
-
-  const currentStatus = hawlStore.currentHawlStatus
-  if (!currentStatus) return null
-
-  switch (currentStatus.status) {
-    case hawlStore.HAWL_STATES.ACTIVE:
+    if (!hawlStore.currentHawl) {
       return {
-        class: 'status-active',
-        icon: 'pi pi-clock',
-        title: 'Hawl in Progress',
-        description: 'Your Zakat year is ongoing.',
-        details: `${currentStatus.daysRemaining} days remaining`
-      }
-    case hawlStore.HAWL_STATES.DUE:
-      return {
-        class: 'status-due',
-        icon: 'pi pi-exclamation-triangle',
-        title: 'Zakat Due',
-        description: 'Your Hawl is complete. Zakat is now due.',
-        details: 'Please pay your Zakat obligation'
-      }
-    case hawlStore.HAWL_STATES.INTERRUPTED:
-      return {
-        class: 'status-interrupted',
-        icon: 'pi pi-times-circle',
-        title: 'Hawl Interrupted',
-        description: 'Your Hawl was interrupted. Assets fell below Nisab.',
-        details: 'Start a new Hawl when assets are above Nisab again'
-      }
-    case hawlStore.HAWL_STATES.PAID:
-      return {
-        class: 'status-paid',
-        icon: 'pi pi-check-circle',
-        title: 'Zakat Paid',
-        description: 'Your Zakat has been paid for this Hawl.',
-        details: 'Start a new Hawl for the next year'
-      }
-    default:
-      return {
-        class: 'status-unknown',
-        icon: 'pi pi-question-circle',
-        title: 'Unknown Status',
-        description: 'Hawl status is unclear.',
+        class: 'status-new',
+        icon: 'pi pi-plus-circle',
+        title: 'Start New Hawl',
+        description:
+          'Your assets are above Nisab threshold. Start your Zakat year.',
         details: null
       }
-  }
-})
+    }
+
+    const currentStatus = hawlStore.currentHawlStatus
+    if (!currentStatus) return null
+
+    switch (currentStatus.status) {
+      case hawlStore.HAWL_STATES.ACTIVE:
+        return {
+          class: 'status-active',
+          icon: 'pi pi-clock',
+          title: 'Hawl in Progress',
+          description: 'Your Zakat year is ongoing.',
+          details: `${currentStatus.daysRemaining} days remaining`
+        }
+      case hawlStore.HAWL_STATES.DUE:
+        return {
+          class: 'status-due',
+          icon: 'pi pi-exclamation-triangle',
+          title: 'Zakat Due',
+          description: 'Your Hawl is complete. Zakat is now due.',
+          details: 'Please pay your Zakat obligation'
+        }
+      case hawlStore.HAWL_STATES.INTERRUPTED:
+        return {
+          class: 'status-interrupted',
+          icon: 'pi pi-times-circle',
+          title: 'Hawl Interrupted',
+          description: 'Your Hawl was interrupted. Assets fell below Nisab.',
+          details: 'Start a new Hawl when assets are above Nisab again'
+        }
+      case hawlStore.HAWL_STATES.PAID:
+        return {
+          class: 'status-paid',
+          icon: 'pi pi-check-circle',
+          title: 'Zakat Paid',
+          description: 'Your Zakat has been paid for this Hawl.',
+          details: 'Start a new Hawl for the next year'
+        }
+      default:
+        return {
+          class: 'status-unknown',
+          icon: 'pi pi-question-circle',
+          title: 'Unknown Status',
+          description: 'Hawl status is unclear.',
+          details: null
+        }
+    }
+  })
 
 // Methods
 const setHasPaidZakatBefore = (value) => {
@@ -1389,28 +1548,27 @@ const proceedToStep = (step) => {
 // Price update methods
 const updateGoldPrice = (price) => {
   if (price && price > 0) {
-    hawlStore.updateGoldPrice(price)
+      hawlStore.updateGoldPrice(price)
   }
 }
 
 const updateSilverPrice = (price) => {
   if (price && price > 0) {
-    hawlStore.updateSilverPrice(price)
+      hawlStore.updateSilverPrice(price)
   }
 }
 
 const saveGoldPrice = () => {
   if (goldPriceInput.value && goldPriceInput.value > 0) {
-    hawlStore.updateGoldPrice(goldPriceInput.value)
+      hawlStore.updateGoldPrice(goldPriceInput.value)
   }
 }
 
 const saveSilverPrice = () => {
   if (silverPriceInput.value && silverPriceInput.value > 0) {
-    hawlStore.updateSilverPrice(silverPriceInput.value)
+      hawlStore.updateSilverPrice(silverPriceInput.value)
   }
 }
-
 
 // Calculate asset value from Zakat amount (reverse calculation)
 const calculateAssetValueFromZakat = (zakatAmount) => {
@@ -1421,117 +1579,132 @@ const calculateAssetValueFromZakat = (zakatAmount) => {
 
 // Edit settings validation
 const isEditDataValid = computed(() => {
-  if (hawlStore.currentHawl?.previousPaymentData) {
-    return editPaymentData.value.date && editPaymentData.value.amount && editAssetsAboveNisab.value !== null
-  }
-  return editAssetsAboveNisab.value !== null
-})
+    if (hawlStore.currentHawl?.previousPaymentData) {
+      return (
+        editPaymentData.value.date &&
+        editPaymentData.value.amount &&
+        editAssetsAboveNisab.value !== null
+      )
+    }
+    return editAssetsAboveNisab.value !== null
+  })
 
 // Initialize edit data when modal opens
 const initializeEditData = () => {
   if (hawlStore.currentHawl?.previousPaymentData) {
     editPaymentData.value = { ...hawlStore.currentHawl.previousPaymentData }
   }
-  editAssetsAboveNisab.value = hawlStore.currentHawl?.continuousAboveNisab ?? null
+  editAssetsAboveNisab.value =
+    hawlStore.currentHawl?.continuousAboveNisab ?? null
 
   // Get prices from the correct nested structure with fallbacks
   const goldPrice = hawlStore.nisabDetails?.gold?.pricePerGram || 0
   const silverPrice = hawlStore.nisabDetails?.silver?.pricePerGram || 0
 
-  // Debug logging
-  console.log('Initializing edit data:', {
-    nisabDetails: hawlStore.nisabDetails,
-    goldPrice,
-    silverPrice,
-    goldPriceType: typeof goldPrice,
-    silverPriceType: typeof silverPrice,
-    currentNisabMethod: nisabCalculationMethod.value
-  })
+    // Debug logging
+    console.log('Initializing edit data:', {
+      nisabDetails: hawlStore.nisabDetails,
+      goldPrice,
+      silverPrice,
+      goldPriceType: typeof goldPrice,
+      silverPriceType: typeof silverPrice,
+      currentNisabMethod: nisabCalculationMethod.value
+    })
 
   // Ensure we have valid numbers (not NaN or undefined)
-  editGoldPrice.value = (isNaN(goldPrice) || goldPrice === undefined) ? 0 : goldPrice
-  editSilverPrice.value = (isNaN(silverPrice) || silverPrice === undefined) ? 0 : silverPrice
+  editGoldPrice.value =
+      isNaN(goldPrice) || goldPrice === undefined ? 0 : goldPrice
+  editSilverPrice.value =
+      isNaN(silverPrice) || silverPrice === undefined ? 0 : silverPrice
 
-  console.log('Final edit prices:', {
-    editGoldPrice: editGoldPrice.value,
-    editSilverPrice: editSilverPrice.value,
-    nisabMethod: nisabCalculationMethod.value
-  })
+    console.log('Final edit prices:', {
+      editGoldPrice: editGoldPrice.value,
+      editSilverPrice: editSilverPrice.value,
+      nisabMethod: nisabCalculationMethod.value
+    })
 }
 
 // Reset and restart setup
 const resetAndRestartSetup = async () => {
-  // Clear current Hawl
-  hawlStore.clearAllData()
+    // Clear current Hawl
+    hawlStore.clearAllData()
 
-  // Update prices if provided
-  if (editGoldPrice.value > 0) {
-    hawlStore.updateGoldPrice(editGoldPrice.value)
-  }
-  if (editSilverPrice.value > 0) {
-    hawlStore.updateSilverPrice(editSilverPrice.value)
-  }
+    // Update prices if provided
+    if (editGoldPrice.value > 0) {
+      hawlStore.updateGoldPrice(editGoldPrice.value)
+    }
+    if (editSilverPrice.value > 0) {
+      hawlStore.updateSilverPrice(editSilverPrice.value)
+    }
 
-  // Close modal and reset onboarding
-  showEditSettingsModal.value = false
-  currentStep.value = 1
-  hasPaidZakatBefore.value = null
-  assetsAboveNisab.value = null
+    // Close modal and reset onboarding
+    showEditSettingsModal.value = false
+    currentStep.value = 1
+    hasPaidZakatBefore.value = null
+    assetsAboveNisab.value = null
 
-  // Pre-populate with edit data if available
-  if (editPaymentData.value.date && editPaymentData.value.amount) {
-    hasPaidZakatBefore.value = true
-    previousPaymentData.value = { ...editPaymentData.value }
-    assetsAboveNisab.value = editAssetsAboveNisab.value
-  }
+    // Pre-populate with edit data if available
+    if (editPaymentData.value.date && editPaymentData.value.amount) {
+      hasPaidZakatBefore.value = true
+      previousPaymentData.value = { ...editPaymentData.value }
+      assetsAboveNisab.value = editAssetsAboveNisab.value
+    }
 }
 
 const completeSetup = async () => {
   // Refresh asset data before creating Hawl
   await refreshAssets()
 
-  // Save the Nisab calculation method selection from onboarding
-  setNisabCalculationMethod(nisabCalculationMethod.value)
+    // Save the Nisab calculation method selection from onboarding
+    setNisabCalculationMethod(nisabCalculationMethod.value)
 
   // Prepare previous payment data with calculated asset value
   let paymentDataWithCalculatedAssets = null
   if (hasPaidZakatBefore.value && previousPaymentData.value) {
     paymentDataWithCalculatedAssets = {
-      ...previousPaymentData.value,
-      assetValue: calculateAssetValueFromZakat(previousPaymentData.value.amount)
-    }
+        ...previousPaymentData.value,
+        assetValue: calculateAssetValueFromZakat(
+          previousPaymentData.value.amount
+        )
+      }
   }
 
   // Create new Hawl using the store with real asset data
   // Pass the assetsAboveNisab value to determine Hawl start date
   const newHawl = hawlStore.createNewHawl(
-    nisabStatus.value.totalAssets,
-    paymentDataWithCalculatedAssets,
-    assetsAboveNisab.value
-  )
+      nisabStatus.value.totalAssets,
+      paymentDataWithCalculatedAssets,
+      assetsAboveNisab.value
+    )
 
   // Only create budget items if eligible for Zakat
   if (nisabStatus.value.isEligible) {
     // Create Zakat budget item for current Hawl
     try {
       await createZakatBudgetForCurrentHawl()
-      console.log('Zakat budget item created for current Hawl')
+        console.log('Zakat budget item created for current Hawl')
     } catch (error) {
-      console.warn('Could not create Zakat budget item:', error.message)
+        console.warn('Could not create Zakat budget item:', error.message)
     }
 
     // Create Zakat budget items for upcoming years
     try {
       await createZakatBudgetForUpcomingYears(3)
-      console.log('Zakat budget items created for upcoming years')
+        console.log('Zakat budget items created for upcoming years')
     } catch (error) {
-      console.warn('Could not create Zakat budget items for upcoming years:', error.message)
+        console.warn(
+          'Could not create Zakat budget items for upcoming years:',
+          error.message
+        )
     }
   } else {
-    console.log('Assets below Nisab - no Zakat budget items created')
+      console.log('Assets below Nisab - no Zakat budget items created')
   }
 
-  console.log('New Hawl created with real assets and budget integration:', newHawl)
+    console.log(
+      'New Hawl created with real assets and budget integration:',
+      newHawl
+    )
 }
 
 const getHawlStatusSeverity = (status) => {
@@ -1542,949 +1715,951 @@ const formatDateDisplay = (dateString) => {
   return new Date(dateString).toLocaleDateString()
 }
 
-// Watch for edit modal opening to initialize data
-watch(showEditSettingsModal, (isOpen) => {
-  if (isOpen) {
-    initializeEditData()
-  }
-})
-
-// Watch for Nisab calculation method changes and update hawlStore
-watch(nisabCalculationMethod, (newMethod) => {
-  hawlStore.setExternalNisabMethod(newMethod)
-})
-
-// Initialize stores and assets on mount
-onMounted(async () => {
-  try {
-    console.log('Initializing Zakat page...')
-
-    // Load Nisab calculation method from localStorage
-    loadNisabMethodFromStorage()
-
-    // Initialize the hawl store first
-    if (hawlStore && typeof hawlStore.initializeHawlStore === 'function') {
-      await hawlStore.initializeHawlStore()
-      console.log('Hawl store initialized')
-    } else {
-      console.error('Hawl store not properly initialized')
-      return
+  // Watch for edit modal opening to initialize data
+  watch(showEditSettingsModal, (isOpen) => {
+    if (isOpen) {
+      initializeEditData()
     }
+  })
 
-    // Update hawl status
-    if (hawlStore.ensureHawlStatusUpdated) {
-      hawlStore.ensureHawlStatusUpdated()
+  // Watch for Nisab calculation method changes and update hawlStore
+  watch(nisabCalculationMethod, (newMethod) => {
+    hawlStore.setExternalNisabMethod(newMethod)
+  })
+
+  // Initialize stores and assets on mount
+  onMounted(async () => {
+    try {
+      console.log('Initializing Zakat page...')
+
+      // Load Nisab calculation method from localStorage
+      loadNisabMethodFromStorage()
+
+      // Initialize the hawl store first
+      if (hawlStore && typeof hawlStore.initializeHawlStore === 'function') {
+        await hawlStore.initializeHawlStore()
+        console.log('Hawl store initialized')
+      } else {
+        console.error('Hawl store not properly initialized')
+        return
+      }
+
+      // Update hawl status
+      if (hawlStore.ensureHawlStatusUpdated) {
+        hawlStore.ensureHawlStatusUpdated()
+      }
+
+      // Initialize other components
+      await initializeAssets()
+      await initializeBudgetIntegration()
+
+      // Initialize price inputs with current values
+      goldPriceInput.value = hawlStore.nisabDetails.gold.pricePerGram
+      silverPriceInput.value = hawlStore.nisabDetails.silver.pricePerGram
+
+      console.log('Zakat page initialization complete')
+    } catch (error) {
+      console.error('Error initializing Zakat page:', error)
     }
-
-    // Initialize other components
-    await initializeAssets()
-    await initializeBudgetIntegration()
-
-    // Initialize price inputs with current values
-    goldPriceInput.value = hawlStore.nisabDetails.gold.pricePerGram
-    silverPriceInput.value = hawlStore.nisabDetails.silver.pricePerGram
-
-    console.log('Zakat page initialization complete')
-  } catch (error) {
-    console.error('Error initializing Zakat page:', error)
-  }
-})
+  })
 </script>
 
 <style scoped>
-.zakat-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.page-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: var(--text-color);
-  margin-bottom: 0.5rem;
-}
-
-.page-subtitle {
-  font-size: 1.1rem;
-  color: var(--text-color-secondary);
-  margin: 0;
-}
-
-.onboarding-section {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.onboarding-card {
-  margin-bottom: 2rem;
-}
-
-.card-header {
-  text-align: center;
-  padding: 1rem;
-}
-
-.card-header h2 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-}
-
-.card-header p {
-  margin: 0;
-  color: var(--text-color-secondary);
-}
-
-.onboarding-steps {
-  padding: 1rem;
-}
-
-.step {
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 2px solid var(--surface-border);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.step.active {
-  border-color: var(--primary-color);
-  background-color: var(--primary-50);
-}
-
-.step.completed {
-  border-color: var(--green-500);
-  background-color: var(--green-50);
-}
-
-.step-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.step-number {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  margin-right: 1rem;
-}
-
-.step h3 {
-  margin: 0;
-  color: var(--text-color);
-}
-
-.step-content {
-  margin-left: 3rem;
-}
-
-.question {
-  font-size: 1.1rem;
-  font-weight: 500;
-  margin-bottom: 1.5rem;
-  color: var(--text-color);
-}
-
-.button-group {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.form-field label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.step-actions {
-  text-align: center;
-  margin-top: 2rem;
-}
-
-.nisab-info {
-  margin: 1.5rem 0;
-}
-
-.nisab-card {
-  background-color: var(--surface-100);
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  border: 2px solid var(--primary-200);
-}
-
-.nisab-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-}
-
-.nisab-value {
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-.nisab-description {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-}
-
-.islamic-date-card {
-  background-color: var(--surface-100);
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  border: 2px solid var(--green-200);
-  margin-top: 1rem;
-}
-
-.islamic-date-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-}
-
-.hijri-date {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--green-600);
-  margin-bottom: 0.5rem;
-}
-
-.hijri-description {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-}
-
-/* Eligibility Card */
-.eligibility-card {
-  background-color: var(--surface-100);
-  padding: 1.5rem;
-  border-radius: 8px;
-  text-align: center;
-  border: 2px solid var(--surface-200);
-  margin-top: 1rem;
-}
-
-.eligibility-card.eligible {
-  border-color: var(--green-200);
-  background-color: var(--green-50);
-}
-
-.eligibility-card.not-eligible {
-  border-color: var(--red-200);
-  background-color: var(--red-50);
-}
-
-.eligibility-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.eligibility-header h4 {
-  margin: 0;
-  color: var(--text-color);
-}
-
-.eligibility-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.eligibility-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  background-color: var(--surface-0);
-  border-radius: 4px;
-}
-
-.eligibility-item.difference {
-  font-weight: 600;
-  background-color: var(--surface-100);
-}
-
-.asset-amount,
-.nisab-amount {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.status-summary {
-  text-align: center;
-}
-
-.status-card {
-  display: flex;
-  align-items: center;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-  background-color: var(--surface-100);
-}
-
-.status-icon {
-  font-size: 2rem;
-  margin-right: 1rem;
-  color: var(--primary-color);
-}
-
-.status-content h5 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-}
-
-.status-content p {
-  margin: 0;
-  color: var(--text-color-secondary);
-}
-
-.status-details {
-  margin-top: 0.5rem;
-}
-
-.status-details p {
-  font-weight: 500;
-  color: var(--primary-color);
-}
-
-/* Dashboard Styles */
-.zakat-dashboard {
-  margin-top: 2rem;
-}
-
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
-}
-
-.hawl-status-card,
-.nisab-status-card,
-.zakat-calculation-card {
-  height: 100%;
-}
-
-.hawl-info,
-.nisab-info,
-.zakat-calculation {
-  padding: 1rem 0;
-}
-
-.hawl-dates {
-  margin-bottom: 1.5rem;
-}
-
-.date-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-}
-
-.date-item label {
-  font-weight: 500;
-  color: var(--text-color-secondary);
-}
-
-.hawl-progress {
-  margin-top: 1rem;
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--text-color-secondary);
-}
-
-.hawl-progress-bar {
-  height: 8px;
-}
-
-.nisab-threshold,
-.user-assets,
-.nisab-difference {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.nisab-threshold label,
-.user-assets label,
-.nisab-difference label {
-  font-weight: 500;
-  color: var(--text-color-secondary);
-}
-
-.nisab-value,
-.asset-value {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-
-.calculation-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-  padding: 0.5rem 0;
-}
-
-.calculation-item.total {
-  border-top: 1px solid var(--surface-border);
-  border-bottom: 1px solid var(--surface-border);
-  font-weight: 600;
-}
-
-.calculation-item.zakat-amount {
-  background-color: var(--primary-50);
-  padding: 1rem;
-  border-radius: 6px;
-  font-weight: 600;
-}
-
-.zakat-total {
-  font-size: 1.2rem;
-  color: var(--primary-color);
-}
-
-/* Not Eligible Message Styles */
-.not-eligible-message {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
-  background-color: var(--blue-50);
-  border: 1px solid var(--blue-200);
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-.message-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.message-content h4 {
-  margin: 0 0 0.5rem 0;
-  color: var(--blue-700);
-  font-weight: 600;
-}
-
-.message-content p {
-  margin: 0 0 0.5rem 0;
-  color: var(--blue-600);
-  line-height: 1.5;
-}
-
-.message-content p:last-child {
-  margin-bottom: 0;
-  font-weight: 500;
-}
-
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.metal-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: var(--surface-50);
-  border-radius: 8px;
-  border: 1px solid var(--surface-200);
-}
-
-.metal-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.metal-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.metal-info h4 {
-  margin: 0 0 0.25rem 0;
-  color: var(--text-color);
-  font-weight: 600;
-}
-
-.metal-price {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-}
-
-.nisab-calculation {
-  text-align: right;
-}
-
-.calculation-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.calculation-row span:first-child {
-  font-size: 0.85rem;
-  color: var(--text-color-secondary);
-}
-
-.nisab-value {
-  font-weight: 600;
-  color: var(--text-color);
-  font-size: 1.1rem;
-}
-
-.current-nisab {
-  padding: 1.5rem;
-  background-color: var(--primary-50);
-  border: 1px solid var(--primary-200);
-  border-radius: 8px;
-  text-align: center;
-}
-
-.nisab-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.nisab-header h4 {
-  margin: 0;
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
-.nisab-amount {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
-}
-
-.nisab-explanation {
-  margin: 0;
-  color: var(--primary-600);
-  font-size: 0.9rem;
-  font-style: italic;
-}
-
-.last-updated {
-  text-align: center;
-  padding: 0.5rem;
-  background-color: var(--surface-100);
-  border-radius: 4px;
-}
-
-.last-updated small {
-  color: var(--text-color-secondary);
-}
-
-.error-message {
-  text-align: center;
-  padding: 0.5rem;
-  background-color: var(--orange-50);
-  border: 1px solid var(--orange-200);
-  border-radius: 4px;
-}
-
-/* Asset Breakdown Styles */
-.asset-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.asset-category {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background-color: var(--surface-50);
-  border-radius: 6px;
-  border-left: 4px solid var(--primary-color);
-}
-
-.category-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.category-name {
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.category-percentage {
-  font-size: 0.875rem;
-  color: var(--text-color-secondary);
-}
-
-.category-value {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.asset-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: var(--primary-50);
-  border-radius: 6px;
-  border: 1px solid var(--primary-200);
-  margin-top: 0.5rem;
-}
-
-.total-label {
-  font-weight: 600;
-  color: var(--primary-color);
-}
-
-.total-value {
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--primary-color);
-}
-
-/* Price Settings Styles */
-.price-settings {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.price-inputs {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.price-field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.price-field label {
-  font-weight: 500;
-  color: var(--text-color);
-}
-
-.price-sources {
-  background-color: var(--surface-50);
-  padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid var(--surface-200);
-}
-
-.price-sources h4 {
-  margin: 0 0 0.75rem 0;
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
-.source-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.source-link {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  background-color: var(--primary-50);
-  color: var(--primary-color);
-  text-decoration: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-}
-
-.source-link:hover {
-  background-color: var(--primary-100);
-  color: var(--primary-700);
-}
-
-.continuity-explanation {
-  background-color: var(--blue-50);
-  padding: 1rem;
-  border-radius: 6px;
-  border: 1px solid var(--blue-200);
-  margin-bottom: 1rem;
-}
-
-.calculated-value {
-  padding: 0.75rem;
-  background-color: var(--green-50);
-  border: 1px solid var(--green-200);
-  border-radius: 6px;
-  font-weight: 600;
-  color: var(--green-700);
-  text-align: center;
-}
-
-.price-input-section {
-  background-color: var(--surface-50);
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid var(--surface-200);
-  margin-bottom: 1.5rem;
-}
-
-.price-input-section h4 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-  font-size: 1.1rem;
-}
-
-.price-input-section h5 {
-  margin: 0 0 0.75rem 0;
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
-/* Budget Integration Styles */
-.budget-integration {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.budget-summary {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.budget-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  background-color: var(--surface-50);
-  border-radius: 4px;
-}
-
-.budget-item label {
-  font-size: 0.875rem;
-  color: var(--text-color-secondary);
-}
-
-.budget-item span {
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.budget-progress {
-  margin: 0.5rem 0;
-}
-
-.budget-progress-bar {
-  height: 8px;
-}
-
-.budget-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-}
-
-/* Not Eligible Budget Message */
-.not-eligible-budget {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: var(--surface-50);
-  border: 1px solid var(--surface-200);
-  border-radius: 6px;
-  margin: 0.5rem 0;
-}
-
-.not-eligible-budget .message-icon {
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.not-eligible-budget .message-content h4 {
-  margin: 0 0 0.25rem 0;
-  color: var(--text-color);
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.not-eligible-budget .message-content p {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-/* School Information Card */
-.school-info-card {
-  background: linear-gradient(135deg, var(--surface-0) 0%, var(--surface-50) 100%);
-  border: 1px solid var(--surface-200);
-}
-
-.school-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.school-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.school-description {
-  margin: 0;
-  color: var(--text-color-secondary);
-  font-size: 0.9rem;
-  line-height: 1.5;
-  padding: 0.5rem;
-  background-color: var(--surface-100);
-  border-radius: 4px;
-  border-left: 3px solid var(--primary-color);
-}
-
-.school-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.school-button {
-  min-width: 100px;
-  transition: all 0.2s ease;
-}
-
-.school-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.school-note {
-  padding: 0.75rem;
-  background-color: var(--blue-50);
-  border: 1px solid var(--blue-200);
-  border-radius: 6px;
-}
-
-/* Nisab Method Selection */
-.nisab-method-selection {
-  margin: 1.5rem 0;
-  padding: 1rem;
-  background-color: var(--surface-50);
-  border: 1px solid var(--surface-200);
-  border-radius: 8px;
-}
-
-.nisab-method-selection h5 {
-  margin: 0 0 0.5rem 0;
-  color: var(--text-color);
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.nisab-method-options {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.nisab-method-option {
-  padding: 0.75rem;
-  border: 2px solid var(--surface-200);
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  background-color: var(--surface-0);
-}
-
-.nisab-method-option.selected {
-  border-color: var(--primary-color);
-  background-color: var(--primary-50);
-}
-
-.nisab-method-option:hover {
-  border-color: var(--primary-300);
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
   .zakat-page {
-    padding: 1rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 2rem;
   }
 
   .page-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
   }
 
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+  .page-subtitle {
+    font-size: 1.1rem;
+    color: var(--text-color-secondary);
+    margin: 0;
   }
 
-  .button-group {
-    flex-direction: column;
+  .onboarding-section {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .onboarding-card {
+    margin-bottom: 2rem;
+  }
+
+  .card-header {
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .card-header h2 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  .card-header p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+
+  .onboarding-steps {
+    padding: 1rem;
+  }
+
+  .step {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 2px solid var(--surface-border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .step.active {
+    border-color: var(--primary-color);
+    background-color: var(--primary-50);
+  }
+
+  .step.completed {
+    border-color: var(--green-500);
+    background-color: var(--green-50);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 1rem;
+  }
+
+  .step h3 {
+    margin: 0;
+    color: var(--text-color);
   }
 
   .step-content {
-    margin-left: 0;
+    margin-left: 3rem;
   }
 
-  .status-card {
+  .question {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+    color: var(--text-color);
+  }
+
+  .button-group {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-field label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  .step-actions {
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  .nisab-info {
+    margin: 1.5rem 0;
+  }
+
+  .nisab-card {
+    background-color: var(--surface-100);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid var(--primary-200);
+  }
+
+  .nisab-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  .nisab-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .nisab-description {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+
+  .islamic-date-card {
+    background-color: var(--surface-100);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid var(--green-200);
+    margin-top: 1rem;
+  }
+
+  .islamic-date-card h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  .hijri-date {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--green-600);
+    margin-bottom: 0.5rem;
+  }
+
+  .hijri-description {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+
+  /* Eligibility Card */
+  .eligibility-card {
+    background-color: var(--surface-100);
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid var(--surface-200);
+    margin-top: 1rem;
+  }
+
+  .eligibility-card.eligible {
+    border-color: var(--green-200);
+    background-color: var(--green-50);
+  }
+
+  .eligibility-card.not-eligible {
+    border-color: var(--red-200);
+    background-color: var(--red-50);
+  }
+
+  .eligibility-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .eligibility-header h4 {
+    margin: 0;
+    color: var(--text-color);
+  }
+
+  .eligibility-details {
+    display: flex;
     flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .eligibility-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--surface-0);
+    border-radius: 4px;
+  }
+
+  .eligibility-item.difference {
+    font-weight: 600;
+    background-color: var(--surface-100);
+  }
+
+  .asset-amount,
+  .nisab-amount {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .status-summary {
     text-align: center;
   }
 
+  .status-card {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    background-color: var(--surface-100);
+  }
+
   .status-icon {
-    margin-right: 0;
+    font-size: 2rem;
+    margin-right: 1rem;
+    color: var(--primary-color);
+  }
+
+  .status-content h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+  }
+
+  .status-content p {
+    margin: 0;
+    color: var(--text-color-secondary);
+  }
+
+  .status-details {
+    margin-top: 0.5rem;
+  }
+
+  .status-details p {
+    font-weight: 500;
+    color: var(--primary-color);
+  }
+
+  /* Dashboard Styles */
+  .zakat-dashboard {
+    margin-top: 2rem;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .hawl-status-card,
+  .nisab-status-card,
+  .zakat-calculation-card {
+    height: 100%;
+  }
+
+  .hawl-info,
+  .nisab-info,
+  .zakat-calculation {
+    padding: 1rem 0;
+  }
+
+  .hawl-dates {
+    margin-bottom: 1.5rem;
+  }
+
+  .date-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+  }
+
+  .date-item label {
+    font-weight: 500;
+    color: var(--text-color-secondary);
+  }
+
+  .hawl-progress {
+    margin-top: 1rem;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-color-secondary);
+  }
+
+  .hawl-progress-bar {
+    height: 8px;
+  }
+
+  .nisab-threshold,
+  .user-assets,
+  .nisab-difference {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .nisab-threshold label,
+  .user-assets label,
+  .nisab-difference label {
+    font-weight: 500;
+    color: var(--text-color-secondary);
+  }
+
+  .nisab-value,
+  .asset-value {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .calculation-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem 0;
+  }
+
+  .calculation-item.total {
+    border-top: 1px solid var(--surface-border);
+    border-bottom: 1px solid var(--surface-border);
+    font-weight: 600;
+  }
+
+  .calculation-item.zakat-amount {
+    background-color: var(--primary-50);
+    padding: 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  .zakat-total {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+  }
+
+  /* Not Eligible Message Styles */
+  .not-eligible-message {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background-color: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    border-radius: 8px;
+    margin: 1rem 0;
+  }
+
+  .message-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .message-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--blue-700);
+    font-weight: 600;
+  }
+
+  .message-content p {
+    margin: 0 0 0.5rem 0;
+    color: var(--blue-600);
+    line-height: 1.5;
+  }
+
+  .message-content p:last-child {
+    margin-bottom: 0;
+    font-weight: 500;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .metal-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--surface-50);
+    border-radius: 8px;
+    border: 1px solid var(--surface-200);
+  }
+
+  .metal-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .metal-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+  }
+
+  .metal-info h4 {
+    margin: 0 0 0.25rem 0;
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  .metal-price {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+  }
+
+  .nisab-calculation {
+    text-align: right;
+  }
+
+  .calculation-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .calculation-row span:first-child {
+    font-size: 0.85rem;
+    color: var(--text-color-secondary);
+  }
+
+  .nisab-value {
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 1.1rem;
+  }
+
+  .current-nisab {
+    padding: 1.5rem;
+    background-color: var(--primary-50);
+    border: 1px solid var(--primary-200);
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .nisab-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
     margin-bottom: 1rem;
   }
-}
+
+  .nisab-header h4 {
+    margin: 0;
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+
+  .nisab-amount {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .nisab-explanation {
+    margin: 0;
+    color: var(--primary-600);
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+
+  .last-updated {
+    text-align: center;
+    padding: 0.5rem;
+    background-color: var(--surface-100);
+    border-radius: 4px;
+  }
+
+  .last-updated small {
+    color: var(--text-color-secondary);
+  }
+
+  .error-message {
+    text-align: center;
+    padding: 0.5rem;
+    background-color: var(--orange-50);
+    border: 1px solid var(--orange-200);
+    border-radius: 4px;
+  }
+
+  /* Asset Breakdown Styles */
+  .asset-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .asset-category {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: var(--surface-50);
+    border-radius: 6px;
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .category-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .category-name {
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  .category-percentage {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+
+  .category-value {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .asset-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--primary-50);
+    border-radius: 6px;
+    border: 1px solid var(--primary-200);
+    margin-top: 0.5rem;
+  }
+
+  .total-label {
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  .total-value {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-color);
+  }
+
+  /* Price Settings Styles */
+  .price-settings {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .price-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .price-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .price-field label {
+    font-weight: 500;
+    color: var(--text-color);
+  }
+
+  .price-sources {
+    background-color: var(--surface-50);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--surface-200);
+  }
+
+  .price-sources h4 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+
+  .source-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .source-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    background-color: var(--primary-50);
+    color: var(--primary-color);
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+  }
+
+  .source-link:hover {
+    background-color: var(--primary-100);
+    color: var(--primary-700);
+  }
+
+  .continuity-explanation {
+    background-color: var(--blue-50);
+    padding: 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--blue-200);
+    margin-bottom: 1rem;
+  }
+
+  .calculated-value {
+    padding: 0.75rem;
+    background-color: var(--green-50);
+    border: 1px solid var(--green-200);
+    border-radius: 6px;
+    font-weight: 600;
+    color: var(--green-700);
+    text-align: center;
+  }
+
+  .price-input-section {
+    background-color: var(--surface-50);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--surface-200);
+    margin-bottom: 1.5rem;
+  }
+
+  .price-input-section h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+  }
+
+  .price-input-section h5 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+
+  /* Budget Integration Styles */
+  .budget-integration {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .budget-summary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+
+  .budget-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: var(--surface-50);
+    border-radius: 4px;
+  }
+
+  .budget-item label {
+    font-size: 0.875rem;
+    color: var(--text-color-secondary);
+  }
+
+  .budget-item span {
+    font-weight: 600;
+    color: var(--text-color);
+  }
+
+  .budget-progress {
+    margin: 0.5rem 0;
+  }
+
+  .budget-progress-bar {
+    height: 8px;
+  }
+
+  .budget-actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  /* Not Eligible Budget Message */
+  .not-eligible-budget {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--surface-50);
+    border: 1px solid var(--surface-200);
+    border-radius: 6px;
+    margin: 0.5rem 0;
+  }
+
+  .not-eligible-budget .message-icon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .not-eligible-budget .message-content h4 {
+    margin: 0 0 0.25rem 0;
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .not-eligible-budget .message-content p {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+
+  /* School Information Card */
+  .school-info-card {
+    background: linear-gradient(
+      135deg,
+      var(--surface-0) 0%,
+      var(--surface-50) 100%
+    );
+    border: 1px solid var(--surface-200);
+  }
+
+  .school-info-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .school-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .school-description {
+    margin: 0;
+    color: var(--text-color-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    padding: 0.5rem;
+    background-color: var(--surface-100);
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-color);
+  }
+
+  .school-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  .school-button {
+    min-width: 100px;
+    transition: all 0.2s ease;
+  }
+
+  .school-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .school-note {
+    padding: 0.75rem;
+    background-color: var(--blue-50);
+    border: 1px solid var(--blue-200);
+    border-radius: 6px;
+  }
+
+  /* Nisab Method Selection */
+  .nisab-method-selection {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: var(--surface-50);
+    border: 1px solid var(--surface-200);
+    border-radius: 8px;
+  }
+
+  .nisab-method-selection h5 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .nisab-method-options {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nisab-method-option {
+    padding: 0.75rem;
+    border: 2px solid var(--surface-200);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background-color: var(--surface-0);
+  }
+
+  .nisab-method-option.selected {
+    border-color: var(--primary-color);
+    background-color: var(--primary-50);
+  }
+
+  .nisab-method-option:hover {
+    border-color: var(--primary-300);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .zakat-page {
+      padding: 1rem;
+    }
+
+    .page-title {
+      font-size: 2rem;
+    }
+
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .step-content {
+      margin-left: 0;
+    }
+
+    .status-card {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .status-icon {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
+  }
 </style>

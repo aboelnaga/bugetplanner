@@ -13,27 +13,29 @@ const profilePanel = ref()
 const profileBtnRef = ref()
 const popoverWidth = ref(0)
 
-const displayName = computed(() => authStore.user?.user_metadata?.full_name || 'User')
+const displayName = computed(
+    () => authStore.user?.user_metadata?.full_name || 'User'
+  )
 const email = computed(() => authStore.user?.email || '')
 const displayNameShort = computed(() => {
-  const name = displayName.value || ''
-  return name.length > 18 ? `${name.slice(0, 18)  }…` : name
-})
+    const name = displayName.value || ''
+    return name.length > 18 ? `${name.slice(0, 18)}…` : name
+  })
 const userInitials = computed(() => {
-  const fullName = authStore.user?.user_metadata?.full_name || ''
-  const initials = fullName
-    .trim()
-    .split(' ')
-    .filter(Boolean)
-    .map((n) => n[0]?.toUpperCase())
-    .slice(0, 2)
-    .join('')
-  return initials || 'U'
-})
+    const fullName = authStore.user?.user_metadata?.full_name || ''
+    const initials = fullName
+      .trim()
+      .split(' ')
+      .filter(Boolean)
+      .map((n) => n[0]?.toUpperCase())
+      .slice(0, 2)
+      .join('')
+    return initials || 'U'
+  })
 
 const toggleProfile = (event) => {
-  profilePanel.value?.toggle(event)
-  isProfileOpen.value = !isProfileOpen.value
+    profilePanel.value?.toggle(event)
+    isProfileOpen.value = !isProfileOpen.value
 }
 
 const isProfileOpen = ref(false)
@@ -50,10 +52,9 @@ const onPopoverHide = () => {
 const onSignOut = async () => {
   try {
     await authStore.signOut()
-    router.push('/auth')
+      router.push('/auth')
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('Sign out error:', err)
+      console.error('Sign out error:', err)
   }
 }
 </script>
@@ -82,7 +83,9 @@ const onSignOut = async () => {
           class="layout-topbar-action"
           @click="toggleDarkMode"
         >
-          <i :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]" />
+          <i
+            :class="['pi', { 'pi-moon': isDarkTheme, 'pi-sun': !isDarkTheme }]"
+          />
         </button>
       </div>
 
@@ -97,7 +100,9 @@ const onSignOut = async () => {
           class="bg-primary-500 text-white"
           shape="circle"
         />
-        <span class="font-medium hidden md:inline truncate">{{ displayNameShort }}</span>
+        <span class="font-medium hidden md:inline truncate">{{
+          displayNameShort
+        }}</span>
         <i
           class="hidden md:inline"
           :class="['pi', isProfileOpen ? 'pi-chevron-up' : 'pi-chevron-down']"
@@ -106,12 +111,14 @@ const onSignOut = async () => {
       <Popover
         ref="profilePanel"
         append-to="self"
-        class=" w-[160px]"
+        class="w-[160px]"
         @show="onPopoverShow"
         @hide="onPopoverHide"
       >
         <ul class="list-none p-0 m-0 flex flex-col">
-          <li class="flex items-center gap-2 px-2 py-3 hover:surface-200 cursor-pointer rounded-border layout-topbar-menu-item">
+          <li
+            class="flex items-center gap-2 px-2 py-3 hover:surface-200 cursor-pointer rounded-border layout-topbar-menu-item"
+          >
             <i class="pi pi-user" />
             <span>Profile</span>
           </li>

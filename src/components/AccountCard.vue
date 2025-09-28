@@ -4,31 +4,38 @@ import { useAccountsStore } from '../stores/accounts'
 import { useTransactionStore } from '../stores/transactions'
 
 const props = defineProps({
-  account: {
-    type: Object,
-    required: true
-  }
-})
+    account: {
+      type: Object,
+      required: true
+    }
+  })
 
-const emit = defineEmits(['edit', 'set-default', 'delete', 'transfer', 'history'])
+const emit = defineEmits([
+    'edit',
+    'set-default',
+    'delete',
+    'transfer',
+    'history'
+  ])
 
 const accountsStore = useAccountsStore()
 const transactionStore = useTransactionStore()
 
 const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
-const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)
+const getAvailableCredit = (accountId) =>
+    accountsStore.getAvailableCredit(accountId)
 
 // Get recent transactions for this account
 const recentTransactions = computed(() =>
-  transactionStore.getRecentTransactionsByAccount(props.account.id, 3)
-)
+    transactionStore.getRecentTransactionsByAccount(props.account.id, 3)
+  )
 
 const formatCurrency = (amount) => {
   if (amount === null || amount === undefined) return '$0.00'
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD'
-  }).format(amount)
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
 }
 
 const getBalanceColor = (balance) => {
@@ -38,14 +45,16 @@ const getBalanceColor = (balance) => {
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric'
-  })
+      month: 'short',
+      day: 'numeric'
+    })
 }
 </script>
 
 <template>
-  <div class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow">
+  <div
+    class="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow"
+  >
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center space-x-3">
         <div class="text-2xl">
@@ -56,7 +65,7 @@ const formatDate = (date) => {
             {{ account.name }}
           </h3>
           <p class="text-sm text-gray-500 capitalize">
-            {{ account.type.replace('_', ' ') }}
+            {{ account.type.replace("_", " ") }}
           </p>
         </div>
       </div>
@@ -165,7 +174,9 @@ const formatDate = (date) => {
             </div>
             <span
               class="font-medium ml-2"
-              :class="transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'"
+              :class="
+                transaction.amount >= 0 ? 'text-green-600' : 'text-red-600'
+              "
             >
               {{ formatCurrency(transaction.amount) }}
             </span>

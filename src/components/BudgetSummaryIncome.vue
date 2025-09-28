@@ -7,137 +7,169 @@ import BudgetSummaryRowHelper from './BudgetSummaryRowHelper.vue'
 
 // Props
 const props = defineProps({
-  months: {
-    type: Array,
-    required: true
-  },
-  selectedYear: {
-    type: Number,
-    required: true
-  },
-  currentYear: {
-    type: Number,
-    required: true
-  },
-  currentMonth: {
-    type: Number,
-    required: true
-  },
-  selectedTypeFilter: {
-    type: String,
-    required: true
-  },
+    months: {
+      type: Array,
+      required: true
+    },
+    selectedYear: {
+      type: Number,
+      required: true
+    },
+    currentYear: {
+      type: Number,
+      required: true
+    },
+    currentMonth: {
+      type: Number,
+      required: true
+    },
+    selectedTypeFilter: {
+      type: String,
+      required: true
+    },
 
-  // Computed properties
-  hasIncomeData: {
-    type: Boolean,
-    required: true
-  },
-  hasInvestmentIncomingData: {
-    type: Boolean,
-    required: true
-  },
+    // Computed properties
+    hasIncomeData: {
+      type: Boolean,
+      required: true
+    },
+    hasInvestmentIncomingData: {
+      type: Boolean,
+      required: true
+    },
 
-  // Functions
-  calculateMonthlyIncome: {
-    type: Function,
-    required: true
-  },
-  calculateMonthlyActualIncome: {
-    type: Function,
-    required: false,
-    default: null
-  },
-  calculateMonthlyInvestmentIncoming: {
-    type: Function,
-    required: true
-  },
-  calculateMonthlyActualInvestmentIncoming: {
-    type: Function,
-    required: false,
-    default: null
-  },
-  calculateGrandTotalIncome: {
-    type: Function,
-    required: true
-  },
-  calculateGrandTotalActualIncome: {
-    type: Function,
-    required: false,
-    default: null
-  },
-  calculateGrandTotalInvestmentIncoming: {
-    type: Function,
-    required: true
-  },
-  calculateGrandTotalActualInvestmentIncoming: {
-    type: Function,
-    required: false,
-    default: null
-  },
-  formatCurrency: {
-    type: Function,
-    required: true
-  },
+    // Functions
+    calculateMonthlyIncome: {
+      type: Function,
+      required: true
+    },
+    calculateMonthlyActualIncome: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    calculateMonthlyInvestmentIncoming: {
+      type: Function,
+      required: true
+    },
+    calculateMonthlyActualInvestmentIncoming: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    calculateGrandTotalIncome: {
+      type: Function,
+      required: true
+    },
+    calculateGrandTotalActualIncome: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    calculateGrandTotalInvestmentIncoming: {
+      type: Function,
+      required: true
+    },
+    calculateGrandTotalActualInvestmentIncoming: {
+      type: Function,
+      required: false,
+      default: null
+    },
+    formatCurrency: {
+      type: Function,
+      required: true
+    },
 
-  // Planned calculation props for tooltips
-  calculateMonthlyPlannedIncome: {
-    type: Function,
-    default: null
-  },
-  calculateMonthlyPlannedInvestmentIncoming: {
-    type: Function,
-    default: null
-  },
-  calculateGrandTotalPlannedIncome: {
-    type: Function,
-    default: null
-  },
-  calculateGrandTotalPlannedInvestmentIncoming: {
-    type: Function,
-    default: null
-  },
+    // Planned calculation props for tooltips
+    calculateMonthlyPlannedIncome: {
+      type: Function,
+      default: null
+    },
+    calculateMonthlyPlannedInvestmentIncoming: {
+      type: Function,
+      default: null
+    },
+    calculateGrandTotalPlannedIncome: {
+      type: Function,
+      default: null
+    },
+    calculateGrandTotalPlannedInvestmentIncoming: {
+      type: Function,
+      default: null
+    },
 
-  // Previous year calculations
-  calculatePreviousYearIncomeTotal: {
-    type: Function,
-    default: null
-  },
-  calculatePreviousYearInvestmentIncomingTotal: {
-    type: Function,
-    default: null
-  }
-})
-
-
+    // Previous year calculations
+    calculatePreviousYearIncomeTotal: {
+      type: Function,
+      default: null
+    },
+    calculatePreviousYearInvestmentIncomingTotal: {
+      type: Function,
+      default: null
+    }
+  })
 
 // Tooltip functions
-const { buildTooltip, actualColorFor } = useTooltipBuilder(props.formatCurrency)
+const { buildTooltip, actualColorFor } = useTooltipBuilder(
+    props.formatCurrency
+  )
 
 const getIncomeTooltip = (monthIndex) => {
   if (!props.calculateMonthlyPlannedIncome) return ''
   const plannedAmount = props.calculateMonthlyPlannedIncome(monthIndex)
-  const actualAmount = props.calculateMonthlyActualIncome ? props.calculateMonthlyActualIncome(monthIndex) : 0
-  return buildTooltip(plannedAmount, actualAmount, 'income', actualColorFor(actualAmount, 'income'))
+  const actualAmount = props.calculateMonthlyActualIncome
+    ? props.calculateMonthlyActualIncome(monthIndex)
+    : 0
+  return buildTooltip(
+      plannedAmount,
+      actualAmount,
+      'income',
+      actualColorFor(actualAmount, 'income')
+    )
 }
 
 const getInvestmentIncomingTooltip = (monthIndex) => {
-  const planned = props.calculateMonthlyPlannedInvestmentIncoming ? props.calculateMonthlyPlannedInvestmentIncoming(monthIndex) : 0
-  const actual = props.calculateMonthlyActualInvestmentIncoming ? props.calculateMonthlyActualInvestmentIncoming(monthIndex) : 0
-  return buildTooltip(planned, actual, 'income', actualColorFor(actual, 'income'))
+  const planned = props.calculateMonthlyPlannedInvestmentIncoming
+    ? props.calculateMonthlyPlannedInvestmentIncoming(monthIndex)
+    : 0
+  const actual = props.calculateMonthlyActualInvestmentIncoming
+    ? props.calculateMonthlyActualInvestmentIncoming(monthIndex)
+    : 0
+  return buildTooltip(
+      planned,
+      actual,
+      'income',
+      actualColorFor(actual, 'income')
+    )
 }
 
 const getIncomeYearlyTooltip = () => {
   if (!props.calculateGrandTotalPlannedIncome) return ''
   const plannedAmount = props.calculateGrandTotalPlannedIncome()
-  const actualAmount = props.calculateGrandTotalActualIncome ? props.calculateGrandTotalActualIncome() : 0
-  return buildTooltip(plannedAmount, actualAmount, 'income', actualColorFor(actualAmount, 'income'))
+  const actualAmount = props.calculateGrandTotalActualIncome
+    ? props.calculateGrandTotalActualIncome()
+    : 0
+  return buildTooltip(
+      plannedAmount,
+      actualAmount,
+      'income',
+      actualColorFor(actualAmount, 'income')
+    )
 }
 
 const getInvestmentIncomingYearlyTooltip = () => {
-  const planned = props.calculateGrandTotalPlannedInvestmentIncoming ? props.calculateGrandTotalPlannedInvestmentIncoming() : 0
-  const actual = props.calculateGrandTotalActualInvestmentIncoming ? props.calculateGrandTotalActualInvestmentIncoming() : 0
-  return buildTooltip(planned, actual, 'income', actualColorFor(actual, 'income'))
+  const planned = props.calculateGrandTotalPlannedInvestmentIncoming
+    ? props.calculateGrandTotalPlannedInvestmentIncoming()
+    : 0
+  const actual = props.calculateGrandTotalActualInvestmentIncoming
+    ? props.calculateGrandTotalActualInvestmentIncoming()
+    : 0
+  return buildTooltip(
+      planned,
+      actual,
+      'income',
+      actualColorFor(actual, 'income')
+    )
 }
 
 // Previous year functions
@@ -157,19 +189,25 @@ const getPreviousYearIncomeTooltip = () => {
 
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
-  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
+  const detailedValues =
+      yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
 
   if (detailedValues) {
     const incomePlanned = detailedValues.income.planned
     const incomeActual = detailedValues.income.actual
     const variance = incomeActual - incomePlanned
     const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
-    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    const varianceText =
+      variance >= 0
+        ? `+${props.formatCurrency(variance)}`
+        : props.formatCurrency(variance)
 
-    return `PY ${previousYear} Income<br>` +
+    return (
+      `PY ${previousYear} Income<br>` +
       `Planned: <span class="text-blue-300">${props.formatCurrency(incomePlanned)}</span><br>` +
       `Actual: <span class="text-green-300">${props.formatCurrency(incomeActual)}</span><br>` +
       `Variance: <span class="${varianceColor}">${varianceText}</span>`
+    )
   }
 
   // Fallback to simple display
@@ -182,19 +220,25 @@ const getPreviousYearInvestmentIncomingTooltip = () => {
 
   // Try to get detailed values from yearly summaries store
   const yearlySummariesStore = useYearlySummariesStore()
-  const detailedValues = yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
+  const detailedValues =
+      yearlySummariesStore.getDetailedPreviousYearValues(previousYear)
 
   if (detailedValues) {
     const incomingPlanned = detailedValues.investmentIncoming.planned
     const incomingActual = detailedValues.investmentIncoming.actual
     const variance = incomingActual - incomingPlanned
     const varianceColor = variance >= 0 ? 'text-green-300' : 'text-red-300'
-    const varianceText = variance >= 0 ? `+${props.formatCurrency(variance)}` : props.formatCurrency(variance)
+    const varianceText =
+      variance >= 0
+        ? `+${props.formatCurrency(variance)}`
+        : props.formatCurrency(variance)
 
-    return `PY ${previousYear} Investment Returns<br>` +
+    return (
+      `PY ${previousYear} Investment Returns<br>` +
       `Planned: <span class="text-blue-300">${props.formatCurrency(incomingPlanned)}</span><br>` +
       `Actual: <span class="text-green-300">${props.formatCurrency(incomingActual)}</span><br>` +
       `Variance: <span class="${varianceColor}">${varianceText}</span>`
+    )
   }
 
   // Fallback to simple display

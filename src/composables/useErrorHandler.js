@@ -10,7 +10,12 @@ export function useErrorHandler (toastFunction = null) {
       toastFunction({ severity, summary, detail, life })
     } else if (window.$toaster) {
       // Fallback to old toaster for backward compatibility
-      const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
+      const method =
+        severity === 'error'
+          ? 'error'
+          : severity === 'warn'
+            ? 'warning'
+            : severity
       window.$toaster[method](summary, detail)
     }
   }
@@ -39,42 +44,48 @@ export function useErrorHandler (toastFunction = null) {
     if (!error) return ERROR_TYPES.UNKNOWN
 
     // Network errors
-    if (error.code === 'NETWORK_ERROR' ||
-        error.message?.includes('network') ||
-        error.message?.includes('fetch')) {
+    if (
+      error.code === 'NETWORK_ERROR' ||
+      error.message?.includes('network') ||
+      error.message?.includes('fetch')
+    ) {
       return ERROR_TYPES.NETWORK
     }
 
     // Authentication errors
-    if (error.code === 'PGRST301' ||
-        error.message?.includes('auth') ||
-        error.message?.includes('unauthorized')) {
+    if (
+      error.code === 'PGRST301' ||
+      error.message?.includes('auth') ||
+      error.message?.includes('unauthorized')
+    ) {
       return ERROR_TYPES.AUTHENTICATION
     }
 
     // Validation errors
-    if (error.code === 'PGRST400' ||
-        error.message?.includes('validation') ||
-        error.message?.includes('invalid')) {
+    if (
+      error.code === 'PGRST400' ||
+      error.message?.includes('validation') ||
+      error.message?.includes('invalid')
+    ) {
       return ERROR_TYPES.VALIDATION
     }
 
     // Permission errors
-    if (error.code === 'PGRST403' ||
-        error.message?.includes('permission') ||
-        error.message?.includes('forbidden')) {
+    if (
+      error.code === 'PGRST403' ||
+      error.message?.includes('permission') ||
+      error.message?.includes('forbidden')
+    ) {
       return ERROR_TYPES.PERMISSION
     }
 
     // Not found errors
-    if (error.code === 'PGRST404' ||
-        error.message?.includes('not found')) {
+    if (error.code === 'PGRST404' || error.message?.includes('not found')) {
       return ERROR_TYPES.NOT_FOUND
     }
 
     // Server errors
-    if (error.code === 'PGRST500' ||
-        error.status >= 500) {
+    if (error.code === 'PGRST500' || error.status >= 500) {
       return ERROR_TYPES.SERVER
     }
 
@@ -112,7 +123,7 @@ export function useErrorHandler (toastFunction = null) {
       case ERROR_TYPES.VALIDATION:
         return error.message || 'Please check your input and try again.'
       case ERROR_TYPES.PERMISSION:
-        return 'You don\'t have permission to perform this action.'
+        return "You don't have permission to perform this action."
       case ERROR_TYPES.NOT_FOUND:
         return 'The requested resource was not found.'
       case ERROR_TYPES.SERVER:
@@ -213,7 +224,8 @@ export function useErrorHandler (toastFunction = null) {
 
       // Show notification
       if (showNotification) {
-        const notificationType = severity === ERROR_SEVERITY.CRITICAL ? 'error' : 'warn'
+        const notificationType =
+          severity === ERROR_SEVERITY.CRITICAL ? 'error' : 'warn'
         showToast(notificationType, `Error in ${context}`, message)
       }
 
@@ -240,15 +252,17 @@ export function useErrorHandler (toastFunction = null) {
         const errorType = classifyError(error)
 
         // Don't retry certain error types
-        if (errorType === ERROR_TYPES.AUTHENTICATION ||
-            errorType === ERROR_TYPES.PERMISSION ||
-            errorType === ERROR_TYPES.VALIDATION) {
+        if (
+          errorType === ERROR_TYPES.AUTHENTICATION ||
+          errorType === ERROR_TYPES.PERMISSION ||
+          errorType === ERROR_TYPES.VALIDATION
+        ) {
           throw error
         }
 
         if (attempt < maxRetries) {
           const delay = baseDelay * Math.pow(2, attempt)
-          await new Promise(resolve => setTimeout(resolve, delay))
+          await new Promise((resolve) => setTimeout(resolve, delay))
         }
       }
     }
@@ -263,7 +277,7 @@ export function useErrorHandler (toastFunction = null) {
 
   // Remove specific error
   const removeError = (errorId) => {
-    const index = errors.value.findIndex(error => error.id === errorId)
+    const index = errors.value.findIndex((error) => error.id === errorId)
     if (index > -1) {
       errors.value.splice(index, 1)
     }
@@ -271,12 +285,12 @@ export function useErrorHandler (toastFunction = null) {
 
   // Get errors by type
   const getErrorsByType = (type) => {
-    return errors.value.filter(error => error.type === type)
+    return errors.value.filter((error) => error.type === type)
   }
 
   // Get errors by severity
   const getErrorsBySeverity = (severity) => {
-    return errors.value.filter(error => error.severity === severity)
+    return errors.value.filter((error) => error.severity === severity)
   }
 
   return {

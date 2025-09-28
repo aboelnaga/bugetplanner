@@ -13,12 +13,12 @@ export const useAccountsStore = defineStore('accounts', () => {
 
   // Getters
   const defaultAccount = computed(() =>
-    accounts.value.find(account => account.is_default)
+    accounts.value.find((account) => account.is_default)
   )
 
   const accountsByType = computed(() => {
     const grouped = {}
-    accounts.value.forEach(account => {
+    accounts.value.forEach((account) => {
       if (!grouped[account.type]) {
         grouped[account.type] = []
       }
@@ -37,12 +37,12 @@ export const useAccountsStore = defineStore('accounts', () => {
     }, 0)
   )
 
-  const getAccountById = computed(() => (id) =>
-    accounts.value.find(account => account.id === id)
+  const getAccountById = computed(
+    () => (id) => accounts.value.find((account) => account.id === id)
   )
 
-  const getAccountByName = computed(() => (name) =>
-    accounts.value.find(account => account.name === name)
+  const getAccountByName = computed(
+    () => (name) => accounts.value.find((account) => account.name === name)
   )
 
   // Actions
@@ -100,9 +100,14 @@ export const useAccountsStore = defineStore('accounts', () => {
           if (account.is_default && account.id !== id) {
             await accountAPI.updateAccount(account.id, { is_default: false })
             // Update local state
-            const index = accounts.value.findIndex(acc => acc.id === account.id)
+            const index = accounts.value.findIndex(
+              (acc) => acc.id === account.id
+            )
             if (index !== -1) {
-              accounts.value[index] = { ...accounts.value[index], is_default: false }
+              accounts.value[index] = {
+                ...accounts.value[index],
+                is_default: false
+              }
             }
           }
         }
@@ -110,7 +115,7 @@ export const useAccountsStore = defineStore('accounts', () => {
 
       const data = await accountAPI.updateAccount(id, updates)
 
-      const index = accounts.value.findIndex(account => account.id === id)
+      const index = accounts.value.findIndex((account) => account.id === id)
       if (index !== -1) {
         accounts.value[index] = data
       }
@@ -131,7 +136,8 @@ export const useAccountsStore = defineStore('accounts', () => {
 
     try {
       // Check if account has transactions
-      const { data: transactions, error: checkError } = await accountAPI.checkAccountTransactions(id)
+      const { data: transactions, error: checkError } =
+        await accountAPI.checkAccountTransactions(id)
 
       if (checkError) throw checkError
 
@@ -140,7 +146,7 @@ export const useAccountsStore = defineStore('accounts', () => {
       }
 
       await accountAPI.deleteAccount(id)
-      accounts.value = accounts.value.filter(account => account.id !== id)
+      accounts.value = accounts.value.filter((account) => account.id !== id)
     } catch (err) {
       error.value = err.message
       console.error('Error deleting account:', err)
@@ -157,9 +163,14 @@ export const useAccountsStore = defineStore('accounts', () => {
         if (account.is_default && account.id !== id) {
           await accountAPI.updateAccount(account.id, { is_default: false })
           // Update local state
-          const index = accounts.value.findIndex(acc => acc.id === account.id)
+          const index = accounts.value.findIndex(
+            (acc) => acc.id === account.id
+          )
           if (index !== -1) {
-            accounts.value[index] = { ...accounts.value[index], is_default: false }
+            accounts.value[index] = {
+              ...accounts.value[index],
+              is_default: false
+            }
           }
         }
       }

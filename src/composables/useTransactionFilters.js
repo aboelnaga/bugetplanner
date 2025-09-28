@@ -2,9 +2,16 @@
 // Filter state management, search functionality, date range filtering
 
 import { ref, computed, watch } from 'vue'
-import { TRANSACTION_TYPES, TRANSACTION_CATEGORIES } from '@/constants/budgetConstants.js'
+import {
+  TRANSACTION_TYPES,
+  TRANSACTION_CATEGORIES
+} from '@/constants/budgetConstants.js'
 
-export function useTransactionFilters (transactions, selectedYear, selectedMonth) {
+export function useTransactionFilters (
+  transactions,
+  selectedYear,
+  selectedMonth
+) {
   // Filter state
   const searchQuery = ref('')
   const selectedTypeFilter = ref('all')
@@ -19,18 +26,20 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
 
   // Available filter options
   const availableTypes = computed(() => {
-    const types = new Set((transactions.value || []).map(t => t.type))
+    const types = new Set((transactions.value || []).map((t) => t.type))
     return Array.from(types).sort()
   })
 
   const availableCategories = computed(() => {
-    const categories = new Set((transactions.value || []).map(t => t.category))
+    const categories = new Set(
+      (transactions.value || []).map((t) => t.category)
+    )
     return Array.from(categories).sort()
   })
 
   const availableBudgetItems = computed(() => {
-    const budgetItems = new Set()
-    ;(transactions.value || []).forEach(t => {
+    const budgetItems = new Set();
+    (transactions.value || []).forEach((t) => {
       if (t.budget_items) {
         budgetItems.add(t.budget_items.name)
       }
@@ -39,7 +48,9 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
   })
 
   const availableAccounts = computed(() => {
-    const accounts = new Set((transactions.value || []).map(t => t.account_name).filter(Boolean))
+    const accounts = new Set(
+      (transactions.value || []).map((t) => t.account_name).filter(Boolean)
+    )
     return Array.from(accounts).sort()
   })
 
@@ -60,23 +71,28 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
     // Search filter
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.toLowerCase()
-      filtered = filtered.filter(transaction =>
-        transaction.description.toLowerCase().includes(query) ||
-        transaction.category.toLowerCase().includes(query) ||
-        transaction.account_name?.toLowerCase().includes(query) ||
-        transaction.notes?.toLowerCase().includes(query) ||
-        transaction.tags?.some(tag => tag.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        (transaction) =>
+          transaction.description.toLowerCase().includes(query) ||
+          transaction.category.toLowerCase().includes(query) ||
+          transaction.account_name?.toLowerCase().includes(query) ||
+          transaction.notes?.toLowerCase().includes(query) ||
+          transaction.tags?.some((tag) => tag.toLowerCase().includes(query))
       )
     }
 
     // Type filter
     if (selectedTypeFilter.value !== 'all') {
-      filtered = filtered.filter(transaction => transaction.type === selectedTypeFilter.value)
+      filtered = filtered.filter(
+        (transaction) => transaction.type === selectedTypeFilter.value
+      )
     }
 
     // Category filter
     if (selectedCategoryFilter.value !== 'all') {
-      filtered = filtered.filter(transaction => transaction.category === selectedCategoryFilter.value)
+      filtered = filtered.filter(
+        (transaction) => transaction.category === selectedCategoryFilter.value
+      )
     }
 
     // Date range filter
@@ -87,29 +103,35 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
 
       switch (selectedDateRange.value) {
         case 'this-month':
-          filtered = filtered.filter(transaction => {
+          filtered = filtered.filter((transaction) => {
             const transactionDate = new Date(transaction.date)
-            return transactionDate.getFullYear() === currentYear &&
-                   transactionDate.getMonth() === currentMonth
+            return (
+              transactionDate.getFullYear() === currentYear &&
+              transactionDate.getMonth() === currentMonth
+            )
           })
           break
-        case 'last-month':
+        case 'last-month': {
           const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1
-          const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear
-          filtered = filtered.filter(transaction => {
+          const lastMonthYear =
+            currentMonth === 0 ? currentYear - 1 : currentYear
+          filtered = filtered.filter((transaction) => {
             const transactionDate = new Date(transaction.date)
-            return transactionDate.getFullYear() === lastMonthYear &&
-                   transactionDate.getMonth() === lastMonth
+            return (
+              transactionDate.getFullYear() === lastMonthYear &&
+              transactionDate.getMonth() === lastMonth
+            )
           })
           break
+        }
         case 'this-year':
-          filtered = filtered.filter(transaction => {
+          filtered = filtered.filter((transaction) => {
             const transactionDate = new Date(transaction.date)
             return transactionDate.getFullYear() === currentYear
           })
           break
         case 'last-year':
-          filtered = filtered.filter(transaction => {
+          filtered = filtered.filter((transaction) => {
             const transactionDate = new Date(transaction.date)
             return transactionDate.getFullYear() === currentYear - 1
           })
@@ -118,7 +140,7 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
           if (customDateStart.value && customDateEnd.value) {
             const startDate = new Date(customDateStart.value)
             const endDate = new Date(customDateEnd.value)
-            filtered = filtered.filter(transaction => {
+            filtered = filtered.filter((transaction) => {
               const transactionDate = new Date(transaction.date)
               return transactionDate >= startDate && transactionDate <= endDate
             })
@@ -129,23 +151,29 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
 
     // Budget item filter
     if (selectedBudgetItemFilter.value !== 'all') {
-      filtered = filtered.filter(transaction =>
-        transaction.budget_items?.name === selectedBudgetItemFilter.value
+      filtered = filtered.filter(
+        (transaction) =>
+          transaction.budget_items?.name === selectedBudgetItemFilter.value
       )
     }
 
     // Account filter
     if (selectedAccountFilter.value !== 'all') {
-      filtered = filtered.filter(transaction =>
-        transaction.account_name === selectedAccountFilter.value
+      filtered = filtered.filter(
+        (transaction) =>
+          transaction.account_name === selectedAccountFilter.value
       )
     }
 
     // Linked/Unlinked filter
     if (showLinkedOnly.value) {
-      filtered = filtered.filter(transaction => transaction.budget_item_id !== null)
+      filtered = filtered.filter(
+        (transaction) => transaction.budget_item_id !== null
+      )
     } else if (showUnlinkedOnly.value) {
-      filtered = filtered.filter(transaction => transaction.budget_item_id === null)
+      filtered = filtered.filter(
+        (transaction) => transaction.budget_item_id === null
+      )
     }
 
     return filtered
@@ -163,7 +191,7 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
       typeBreakdown: {}
     }
 
-    filteredTransactions.value.forEach(transaction => {
+    filteredTransactions.value.forEach((transaction) => {
       const amount = parseFloat(transaction.amount) || 0
 
       // Type breakdown
@@ -247,7 +275,10 @@ export function useTransactionFilters (transactions, selectedYear, selectedMonth
 
   // Watch for year/month changes and adjust date filters
   watch([selectedYear, selectedMonth], ([year, month]) => {
-    if (selectedDateRange.value === 'this-month' || selectedDateRange.value === 'last-month') {
+    if (
+      selectedDateRange.value === 'this-month' ||
+      selectedDateRange.value === 'last-month'
+    ) {
       // Keep the filter but it will now apply to the new year/month context
     }
   })

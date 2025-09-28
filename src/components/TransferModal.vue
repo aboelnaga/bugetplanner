@@ -15,15 +15,15 @@ import Message from 'primevue/message'
 
 // Props
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  fromAccount: {
-    type: Object,
-    default: null
-  }
-})
+    modelValue: {
+      type: Boolean,
+      default: false
+    },
+    fromAccount: {
+      type: Object,
+      default: null
+    }
+  })
 
 // Emits
 const emit = defineEmits(['update:modelValue', 'transfer-completed'])
@@ -38,87 +38,92 @@ const error = ref('')
 
 // Form data
 const formData = ref({
-  transferType: 'account_to_account',
-  fromAccountId: '',
-  toAccountId: '',
-  amount: 0,
-  date: new Date().toISOString().split('T')[0],
-  description: '',
-  notes: ''
-})
+    transferType: 'account_to_account',
+    fromAccountId: '',
+    toAccountId: '',
+    amount: 0,
+    date: new Date().toISOString().split('T')[0],
+    description: '',
+    notes: ''
+  })
 
 // Computed properties
 const availableFromAccounts = computed(() => {
-  return accountsStore.accounts.filter(account =>
-    account.type !== 'credit_card' || account.balance < 0
-  )
-})
+    return accountsStore.accounts.filter(
+      (account) => account.type !== 'credit_card' || account.balance < 0
+    )
+  })
 
 const availableToAccounts = computed(() => {
-  return accountsStore.accounts
-})
+    return accountsStore.accounts
+  })
 
 const selectedFromAccount = computed(() => {
-  return accountsStore.getAccountById(formData.value.fromAccountId)
-})
+    return accountsStore.getAccountById(formData.value.fromAccountId)
+  })
 
 const selectedToAccount = computed(() => {
-  return accountsStore.getAccountById(formData.value.toAccountId)
-})
+    return accountsStore.getAccountById(formData.value.toAccountId)
+  })
 
 const maxTransferAmount = computed(() => {
-  if (!selectedFromAccount.value) return 0
+    if (!selectedFromAccount.value) return 0
 
-  if (selectedFromAccount.value.type === 'credit_card') {
-    return accountsStore.getAvailableCredit(selectedFromAccount.value.id) || 0
-  }
+    if (selectedFromAccount.value.type === 'credit_card') {
+      return (
+        accountsStore.getAvailableCredit(selectedFromAccount.value.id) || 0
+      )
+    }
 
-  return selectedFromAccount.value.balance
-})
+    return selectedFromAccount.value.balance
+  })
 
 const isFormValid = computed(() => {
-  if (!formData.value.amount || formData.value.amount <= 0) return false
+    if (!formData.value.amount || formData.value.amount <= 0) return false
 
-  if (formData.value.transferType === 'account_to_account') {
-    return formData.value.fromAccountId && formData.value.toAccountId &&
-      formData.value.fromAccountId !== formData.value.toAccountId
-  }
+    if (formData.value.transferType === 'account_to_account') {
+      return (
+        formData.value.fromAccountId &&
+        formData.value.toAccountId &&
+        formData.value.fromAccountId !== formData.value.toAccountId
+      )
+    }
 
-  if (formData.value.transferType === 'account_to_cash') {
-    return formData.value.fromAccountId
-  }
+    if (formData.value.transferType === 'account_to_cash') {
+      return formData.value.fromAccountId
+    }
 
-  if (formData.value.transferType === 'cash_to_account') {
-    return formData.value.toAccountId
-  }
+    if (formData.value.transferType === 'cash_to_account') {
+      return formData.value.toAccountId
+    }
 
-  return false
-})
+    return false
+  })
 
 // Computed options for form fields
 const transferTypeOptions = [
-  { label: 'Account to Account', value: 'account_to_account' },
-  { label: 'Withdraw Cash', value: 'account_to_cash' },
-  { label: 'Deposit Cash', value: 'cash_to_account' }
-]
+    { label: 'Account to Account', value: 'account_to_account' },
+    { label: 'Withdraw Cash', value: 'account_to_cash' },
+    { label: 'Deposit Cash', value: 'cash_to_account' }
+  ]
 
 const fromAccountOptions = computed(() => [
-  { label: 'Select account', value: '' },
-  ...availableFromAccounts.value.map(account => ({
-    label: `${account.name} (${formatCurrency(account.balance)})`,
-    value: account.id,
-    disabled: account.id === formData.value.toAccountId
-  }))
-])
+    { label: 'Select account', value: '' },
+    ...availableFromAccounts.value.map((account) => ({
+      label: `${account.name} (${formatCurrency(account.balance)})`,
+      value: account.id,
+      disabled: account.id === formData.value.toAccountId
+    }))
+  ])
 
 const toAccountOptions = computed(() => [
-  { label: 'Select account', value: '' },
-  ...availableToAccounts.value.map(account => ({
-    label: `${account.name} (${formatCurrency(account.balance)})`,
-    value: account.id,
-    disabled: account.id === formData.value.fromAccountId
-  }))
-])
+    { label: 'Select account', value: '' },
+    ...availableToAccounts.value.map((account) => ({
+      label: `${account.name} (${formatCurrency(account.balance)})`,
+      value: account.id,
+      disabled: account.id === formData.value.fromAccountId
+    }))
+  ])
 
 // Methods
 const updateFormBasedOnType = () => {
@@ -166,20 +171,20 @@ const handleAmountInput = (event) => {
 }
 
 const closeModal = () => {
-  emit('update:modelValue', false)
-  resetForm()
+    emit('update:modelValue', false)
+    resetForm()
 }
 
 const resetForm = () => {
   formData.value = {
-    transferType: 'account_to_account',
-    fromAccountId: '',
-    toAccountId: '',
-    amount: 0,
-    date: new Date().toISOString().split('T')[0],
-    description: '',
-    notes: ''
-  }
+      transferType: 'account_to_account',
+      fromAccountId: '',
+      toAccountId: '',
+      amount: 0,
+      date: new Date().toISOString().split('T')[0],
+      description: '',
+      notes: ''
+    }
   error.value = ''
 }
 
@@ -203,53 +208,53 @@ const handleSubmit = async () => {
 
     switch (formData.value.transferType) {
       case 'account_to_account':
-        // Create two transactions: one negative, one positive
-        transactions.push({
-          account_id: formData.value.fromAccountId,
-          type: 'expense',
-          category: 'Transfer',
-          amount: -formData.value.amount,
-          date: formData.value.date,
-          description: `Transfer to ${selectedToAccount.value?.name}`,
-          notes: formData.value.notes
-        })
+          // Create two transactions: one negative, one positive
+          transactions.push({
+            account_id: formData.value.fromAccountId,
+            type: 'expense',
+            category: 'Transfer',
+            amount: -formData.value.amount,
+            date: formData.value.date,
+            description: `Transfer to ${selectedToAccount.value?.name}`,
+            notes: formData.value.notes
+          })
 
-        transactions.push({
-          account_id: formData.value.toAccountId,
-          type: 'income',
-          category: 'Transfer',
-          amount: formData.value.amount,
-          date: formData.value.date,
-          description: `Transfer from ${selectedFromAccount.value?.name}`,
-          notes: formData.value.notes
-        })
-        break
+          transactions.push({
+            account_id: formData.value.toAccountId,
+            type: 'income',
+            category: 'Transfer',
+            amount: formData.value.amount,
+            date: formData.value.date,
+            description: `Transfer from ${selectedFromAccount.value?.name}`,
+            notes: formData.value.notes
+          })
+          break
 
       case 'account_to_cash':
-        // Create one negative transaction
-        transactions.push({
-          account_id: formData.value.fromAccountId,
-          type: 'expense',
-          category: 'Cash Withdrawal',
-          amount: -formData.value.amount,
-          date: formData.value.date,
-          description: formData.value.description || 'Cash withdrawal',
-          notes: formData.value.notes
-        })
-        break
+          // Create one negative transaction
+          transactions.push({
+            account_id: formData.value.fromAccountId,
+            type: 'expense',
+            category: 'Cash Withdrawal',
+            amount: -formData.value.amount,
+            date: formData.value.date,
+            description: formData.value.description || 'Cash withdrawal',
+            notes: formData.value.notes
+          })
+          break
 
       case 'cash_to_account':
-        // Create one positive transaction
-        transactions.push({
-          account_id: formData.value.toAccountId,
-          type: 'income',
-          category: 'Cash Deposit',
-          amount: formData.value.amount,
-          date: formData.value.date,
-          description: formData.value.description || 'Cash deposit',
-          notes: formData.value.notes
-        })
-        break
+          // Create one positive transaction
+          transactions.push({
+            account_id: formData.value.toAccountId,
+            type: 'income',
+            category: 'Cash Deposit',
+            amount: formData.value.amount,
+            date: formData.value.date,
+            description: formData.value.description || 'Cash deposit',
+            notes: formData.value.notes
+          })
+          break
     }
 
     // Add all transactions
@@ -257,9 +262,8 @@ const handleSubmit = async () => {
       await transactionStore.addTransaction(transaction)
     }
 
-    emit('transfer-completed', transactions)
-    closeModal()
-
+      emit('transfer-completed', transactions)
+      closeModal()
   } catch (err) {
     error.value = err.message || 'Failed to complete transfer'
   } finally {
@@ -267,23 +271,26 @@ const handleSubmit = async () => {
   }
 }
 
-// Initialize accounts when component mounts
-onMounted(async () => {
-  await accountsStore.fetchAccounts()
-})
+  // Initialize accounts when component mounts
+  onMounted(async () => {
+    await accountsStore.fetchAccounts()
+  })
 
-// Watch for modal opening to initialize form
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    resetForm()
+  // Watch for modal opening to initialize form
+  watch(
+    () => props.modelValue,
+    (isOpen) => {
+      if (isOpen) {
+        resetForm()
 
-    // Pre-fill from account if provided
-    if (props.fromAccount) {
-      formData.value.fromAccountId = props.fromAccount.id
-      formData.value.transferType = 'account_to_account'
+        // Pre-fill from account if provided
+        if (props.fromAccount) {
+          formData.value.fromAccountId = props.fromAccount.id
+          formData.value.transferType = 'account_to_account'
+        }
+      }
     }
-  }
-})
+  )
 </script>
 
 <template>
@@ -331,7 +338,8 @@ watch(() => props.modelValue, (isOpen) => {
           v-if="selectedFromAccount"
           class="text-sm text-surface-500 mt-1"
         >
-          Available: {{ formatCurrency(getAvailableBalance(selectedFromAccount)) }}
+          Available:
+          {{ formatCurrency(getAvailableBalance(selectedFromAccount)) }}
         </p>
       </div>
 

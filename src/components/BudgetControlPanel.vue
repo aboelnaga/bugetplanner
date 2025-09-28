@@ -8,49 +8,49 @@ import { computed } from 'vue'
 
 // Props
 const props = defineProps({
-  selectedYear: {
-    type: Number,
-    required: true
-  },
-  availableYears: {
-    type: Array,
-    required: true
-  },
-  canCopyFromPreviousYear: {
-    type: Boolean,
-    default: false
-  },
-  budgetItems: {
-    type: Array,
-    required: true
-  }
-})
+    selectedYear: {
+      type: Number,
+      required: true
+    },
+    availableYears: {
+      type: Array,
+      required: true
+    },
+    canCopyFromPreviousYear: {
+      type: Boolean,
+      default: false
+    },
+    budgetItems: {
+      type: Array,
+      required: true
+    }
+  })
 
 // Emits
 const emit = defineEmits([
-  'update:selectedYear',
-  'add-year',
-  'copy-from-previous-year',
-  'add-budget'
-])
+    'update:selectedYear',
+    'add-year',
+    'copy-from-previous-year',
+    'add-budget'
+  ])
 
 // Computed properties for navigation
 const canGoToPreviousYear = computed(() => {
-  const currentIndex = props.availableYears.indexOf(props.selectedYear)
-  return currentIndex > 0
-})
+    const currentIndex = props.availableYears.indexOf(props.selectedYear)
+    return currentIndex > 0
+  })
 
 const canGoToNextYear = computed(() => {
-  const currentIndex = props.availableYears.indexOf(props.selectedYear)
-  return currentIndex < props.availableYears.length - 1
-})
+    const currentIndex = props.availableYears.indexOf(props.selectedYear)
+    return currentIndex < props.availableYears.length - 1
+  })
 
 // Methods for navigation
 const goToPreviousYear = () => {
   if (canGoToPreviousYear.value) {
     const currentIndex = props.availableYears.indexOf(props.selectedYear)
     const previousYear = props.availableYears[currentIndex - 1]
-    emit('update:selectedYear', previousYear)
+      emit('update:selectedYear', previousYear)
   }
 }
 
@@ -58,22 +58,25 @@ const goToNextYear = () => {
   if (canGoToNextYear.value) {
     const currentIndex = props.availableYears.indexOf(props.selectedYear)
     const nextYear = props.availableYears[currentIndex + 1]
-    emit('update:selectedYear', nextYear)
+      emit('update:selectedYear', nextYear)
   }
 }
 
 // Computed properties for quick stats
 const incomeCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === 'income').length
-})
+    return (props.budgetItems || []).filter((b) => b && b.type === 'income')
+      .length
+  })
 
 const expenseCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === 'expense').length
-})
+    return (props.budgetItems || []).filter((b) => b && b.type === 'expense')
+      .length
+  })
 
 const investmentCount = computed(() => {
-  return (props.budgetItems || []).filter(b => b && b.type === 'investment').length
-})
+    return (props.budgetItems || []).filter((b) => b && b.type === 'investment')
+      .length
+  })
 </script>
 
 <template>

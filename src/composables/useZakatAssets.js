@@ -25,15 +25,18 @@ export function useZakatAssets () {
   // Computed properties for asset aggregation
   const cashAssets = computed(() => {
     // Cash accounts (checking, savings, cash)
-    const cashAccounts = accountsStore.accounts.filter(account =>
+    const cashAccounts = accountsStore.accounts.filter((account) =>
       ['checking', 'savings', 'cash'].includes(account.type)
     )
 
     return {
       type: ZAKATABLE_ASSET_TYPES.CASH,
       name: 'Cash & Bank Accounts',
-      value: cashAccounts.reduce((sum, account) => sum + (account.balance || 0), 0),
-      details: cashAccounts.map(account => ({
+      value: cashAccounts.reduce(
+        (sum, account) => sum + (account.balance || 0),
+        0
+      ),
+      details: cashAccounts.map((account) => ({
         name: account.name,
         type: account.type,
         balance: account.balance || 0
@@ -48,8 +51,11 @@ export function useZakatAssets () {
     return {
       type: ZAKATABLE_ASSET_TYPES.INVESTMENTS,
       name: 'Investment Assets',
-      value: activeInvestments.reduce((sum, asset) => sum + (parseFloat(asset.current_value) || 0), 0),
-      details: activeInvestments.map(asset => ({
+      value: activeInvestments.reduce(
+        (sum, asset) => sum + (parseFloat(asset.current_value) || 0),
+        0
+      ),
+      details: activeInvestments.map((asset) => ({
         name: asset.name || asset.investment_name,
         type: asset.investment_type || asset.type,
         currentValue: parseFloat(asset.current_value) || 0,
@@ -60,20 +66,23 @@ export function useZakatAssets () {
 
   const businessInventory = computed(() => {
     // Business-related budget items (inventory, receivables, etc.)
-    const businessItems = budgetStore.budgetItems.filter(item =>
-      item.category && (
-        item.category.toLowerCase().includes('business') ||
-        item.category.toLowerCase().includes('inventory') ||
-        item.category.toLowerCase().includes('receivable') ||
-        item.category.toLowerCase().includes('merchandise')
-      )
+    const businessItems = budgetStore.budgetItems.filter(
+      (item) =>
+        item.category &&
+        (item.category.toLowerCase().includes('business') ||
+          item.category.toLowerCase().includes('inventory') ||
+          item.category.toLowerCase().includes('receivable') ||
+          item.category.toLowerCase().includes('merchandise'))
     )
 
     // Calculate current value based on actual amounts
     const totalValue = businessItems.reduce((sum, item) => {
       const actualAmounts = item.actual_amounts || []
       const currentMonth = new Date().getMonth()
-      const currentValue = actualAmounts[currentMonth] || actualAmounts[actualAmounts.length - 1] || 0
+      const currentValue =
+        actualAmounts[currentMonth] ||
+        actualAmounts[actualAmounts.length - 1] ||
+        0
       return sum + (parseFloat(currentValue) || 0)
     }, 0)
 
@@ -81,7 +90,7 @@ export function useZakatAssets () {
       type: ZAKATABLE_ASSET_TYPES.BUSINESS_INVENTORY,
       name: 'Business Inventory & Receivables',
       value: totalValue,
-      details: businessItems.map(item => ({
+      details: businessItems.map((item) => ({
         name: item.name,
         category: item.category,
         currentValue: (item.actual_amounts || [])[new Date().getMonth()] || 0
@@ -91,19 +100,22 @@ export function useZakatAssets () {
 
   const goldSilverAssets = computed(() => {
     // Gold and silver related assets
-    const goldSilverItems = budgetStore.budgetItems.filter(item =>
-      item.category && (
-        item.category.toLowerCase().includes('gold') ||
-        item.category.toLowerCase().includes('silver') ||
-        item.category.toLowerCase().includes('jewelry') ||
-        item.category.toLowerCase().includes('precious')
-      )
+    const goldSilverItems = budgetStore.budgetItems.filter(
+      (item) =>
+        item.category &&
+        (item.category.toLowerCase().includes('gold') ||
+          item.category.toLowerCase().includes('silver') ||
+          item.category.toLowerCase().includes('jewelry') ||
+          item.category.toLowerCase().includes('precious'))
     )
 
     const totalValue = goldSilverItems.reduce((sum, item) => {
       const actualAmounts = item.actual_amounts || []
       const currentMonth = new Date().getMonth()
-      const currentValue = actualAmounts[currentMonth] || actualAmounts[actualAmounts.length - 1] || 0
+      const currentValue =
+        actualAmounts[currentMonth] ||
+        actualAmounts[actualAmounts.length - 1] ||
+        0
       return sum + (parseFloat(currentValue) || 0)
     }, 0)
 
@@ -111,7 +123,7 @@ export function useZakatAssets () {
       type: ZAKATABLE_ASSET_TYPES.GOLD_SILVER,
       name: 'Gold & Silver Assets',
       value: totalValue,
-      details: goldSilverItems.map(item => ({
+      details: goldSilverItems.map((item) => ({
         name: item.name,
         category: item.category,
         currentValue: (item.actual_amounts || [])[new Date().getMonth()] || 0
@@ -121,16 +133,19 @@ export function useZakatAssets () {
 
   const realEstateAssets = computed(() => {
     // Real estate investments
-    const realEstateInvestments = investmentAssetsStore.activeAssets.filter(asset =>
-      asset.investment_type === 'real_estate' ||
-      asset.type === 'real_estate'
+    const realEstateInvestments = investmentAssetsStore.activeAssets.filter(
+      (asset) =>
+        asset.investment_type === 'real_estate' || asset.type === 'real_estate'
     )
 
     return {
       type: ZAKATABLE_ASSET_TYPES.REAL_ESTATE,
       name: 'Real Estate Investments',
-      value: realEstateInvestments.reduce((sum, asset) => sum + (parseFloat(asset.current_value) || 0), 0),
-      details: realEstateInvestments.map(asset => ({
+      value: realEstateInvestments.reduce(
+        (sum, asset) => sum + (parseFloat(asset.current_value) || 0),
+        0
+      ),
+      details: realEstateInvestments.map((asset) => ({
         name: asset.name || asset.investment_name,
         type: asset.investment_type || asset.type,
         currentValue: parseFloat(asset.current_value) || 0,
@@ -141,18 +156,22 @@ export function useZakatAssets () {
 
   const otherAssets = computed(() => {
     // Other assets that might be Zakatable
-    const otherItems = budgetStore.budgetItems.filter(item =>
-      item.type === 'investment' &&
-      item.investment_direction === 'incoming' &&
-      !item.category?.toLowerCase().includes('business') &&
-      !item.category?.toLowerCase().includes('gold') &&
-      !item.category?.toLowerCase().includes('silver')
+    const otherItems = budgetStore.budgetItems.filter(
+      (item) =>
+        item.type === 'investment' &&
+        item.investment_direction === 'incoming' &&
+        !item.category?.toLowerCase().includes('business') &&
+        !item.category?.toLowerCase().includes('gold') &&
+        !item.category?.toLowerCase().includes('silver')
     )
 
     const totalValue = otherItems.reduce((sum, item) => {
       const actualAmounts = item.actual_amounts || []
       const currentMonth = new Date().getMonth()
-      const currentValue = actualAmounts[currentMonth] || actualAmounts[actualAmounts.length - 1] || 0
+      const currentValue =
+        actualAmounts[currentMonth] ||
+        actualAmounts[actualAmounts.length - 1] ||
+        0
       return sum + (parseFloat(currentValue) || 0)
     }, 0)
 
@@ -160,7 +179,7 @@ export function useZakatAssets () {
       type: ZAKATABLE_ASSET_TYPES.OTHER,
       name: 'Other Investment Assets',
       value: totalValue,
-      details: otherItems.map(item => ({
+      details: otherItems.map((item) => ({
         name: item.name,
         category: item.category,
         currentValue: (item.actual_amounts || [])[new Date().getMonth()] || 0
@@ -181,7 +200,7 @@ export function useZakatAssets () {
 
     return {
       total: assets.reduce((sum, asset) => sum + asset.value, 0),
-      breakdown: assets.filter(asset => asset.value > 0),
+      breakdown: assets.filter((asset) => asset.value > 0),
       details: assets
     }
   })
@@ -193,7 +212,7 @@ export function useZakatAssets () {
     return {
       total,
       count: breakdown.length,
-      categories: breakdown.map(asset => ({
+      categories: breakdown.map((asset) => ({
         name: asset.name,
         value: asset.value,
         percentage: total > 0 ? (asset.value / total) * 100 : 0

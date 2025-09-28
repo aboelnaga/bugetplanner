@@ -105,7 +105,6 @@ export const migrateBudgetData = async (userId) => {
         })
 
         console.log(`Created amounts for: ${item.name}`)
-
       } catch (error) {
         console.error(`Error migrating ${item.name}:`, error)
       }
@@ -113,7 +112,6 @@ export const migrateBudgetData = async (userId) => {
 
     console.log(`Migration completed. ${migratedItems.length} items migrated.`)
     return migratedItems
-
   } catch (error) {
     console.error('Migration failed:', error)
     throw error
@@ -131,24 +129,33 @@ const generateMonthlyAmounts = (budgetItem) => {
         amounts[month] = budgetItem.default_amount
       }
       break
-    case 'quarterly':
+    case 'quarterly': {
       const quarters = [0, 3, 6, 9]
-      quarters.filter(quarter => quarter >= startMonth).forEach(month => {
-        amounts[month] = budgetItem.default_amount
-      })
+      quarters
+        .filter((quarter) => quarter >= startMonth)
+        .forEach((month) => {
+          amounts[month] = budgetItem.default_amount
+        })
       break
-    case 'bi-annual':
+    }
+    case 'bi-annual': {
       const biAnnual = [0, 6]
-      biAnnual.filter(month => month >= startMonth).forEach(month => {
-        amounts[month] = budgetItem.default_amount
-      })
+      biAnnual
+        .filter((month) => month >= startMonth)
+        .forEach((month) => {
+          amounts[month] = budgetItem.default_amount
+        })
       break
-    case 'school-terms':
+    }
+    case 'school-terms': {
       const schoolTerms = [0, 8]
-      schoolTerms.filter(month => month >= startMonth).forEach(month => {
-        amounts[month] = budgetItem.default_amount
-      })
+      schoolTerms
+        .filter((month) => month >= startMonth)
+        .forEach((month) => {
+          amounts[month] = budgetItem.default_amount
+        })
       break
+    }
     case 'one-time':
       amounts[startMonth] = budgetItem.default_amount
       break

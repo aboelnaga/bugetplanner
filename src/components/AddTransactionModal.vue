@@ -27,22 +27,26 @@ import Message from 'primevue/message'
 
 // Props
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  budgetItem: {
-    type: Object,
-    default: null
-  },
-  selectedAccount: {
-    type: Object,
-    default: null
-  }
-})
+    modelValue: {
+      type: Boolean,
+      default: false
+    },
+    budgetItem: {
+      type: Object,
+      default: null
+    },
+    selectedAccount: {
+      type: Object,
+      default: null
+    }
+  })
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'transaction-added', 'transaction-updated'])
+const emit = defineEmits([
+    'update:modelValue',
+    'transaction-added',
+    'transaction-updated'
+  ])
 
 // Stores
 const transactionStore = useTransactionStore()
@@ -58,8 +62,10 @@ const selectedYear = computed(() => budgetStore.selectedYear)
 
 // Available budget items for linking
 const availableBudgetItems = computed(() => {
-  return budgetStore.budgetItems.filter(item => item.year === selectedYear.value)
-})
+    return budgetStore.budgetItems.filter(
+      (item) => item.year === selectedYear.value
+    )
+  })
 
 // Tag input
 const tagInput = ref('')
@@ -79,62 +85,77 @@ const {
   handleAddSubmit,
   handleEditSubmit,
   initializeFormDataFromTransaction
-} = useTransactionModals(transactionStore, selectedYear, currentYear, currentMonth, toast, confirm)
+} = useTransactionModals(
+    transactionStore,
+    selectedYear,
+    currentYear,
+    currentMonth,
+    toast,
+    confirm
+  )
 
 // Computed options for form fields
 const typeOptions = computed(() =>
-  Object.entries(TRANSACTION_TYPE_LABELS).map(([value, label]) => ({
-    value,
-    label: `${TRANSACTION_TYPE_ICONS[value]} ${label}`
-  }))
-)
+    Object.entries(TRANSACTION_TYPE_LABELS).map(([value, label]) => ({
+      value,
+      label: `${TRANSACTION_TYPE_ICONS[value]} ${label}`
+    }))
+  )
 
 const categoryOptions = computed(() =>
-  getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
-)
+    getCategoriesByType(formData.value.type).map((cat) => ({
+      value: cat,
+      label: cat
+    }))
+  )
 
 const investmentDirectionOptions = computed(() =>
-  Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
-)
+    Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({
+      value,
+      label
+    }))
+  )
 
 const budgetItemOptions = computed(() => [
-  { label: 'No budget item linked', value: '' },
-  ...availableBudgetItems.value.map(item => ({
-    label: `${item.name} (${item.type} - ${item.category})`,
-    value: item.id
-  }))
-])
+    { label: 'No budget item linked', value: '' },
+    ...availableBudgetItems.value.map((item) => ({
+      label: `${item.name} (${item.type} - ${item.category})`,
+      value: item.id
+    }))
+  ])
 
 const accountOptions = computed(() => [
-  { label: 'Select an account', value: '' },
-  ...accountsStore.accounts.map(account => ({
-    label: `${getAccountIcon(account.type)} ${account.name} - ${formatCurrency(account.balance)}`,
-    value: account.id
-  }))
-])
+    { label: 'Select an account', value: '' },
+    ...accountsStore.accounts.map((account) => ({
+      label: `${getAccountIcon(account.type)} ${account.name} - ${formatCurrency(account.balance)}`,
+      value: account.id
+    }))
+  ])
 
 // Tag management
 const addTag = () => {
   const tag = tagInput.value.trim()
   if (tag && !formData.value.tags.includes(tag)) {
-    formData.value.tags.push(tag)
-    tagInput.value = ''
+      formData.value.tags.push(tag)
+      tagInput.value = ''
   }
 }
 
 const removeTag = (index) => {
-  formData.value.tags.splice(index, 1)
+    formData.value.tags.splice(index, 1)
 }
 
 // Close modal
 const closeModal = () => {
-  emit('update:modelValue', false)
+    emit('update:modelValue', false)
 }
 
 // Computed for edit mode - check if it's actually a transaction (has account_id)
 const isEditMode = computed(() => {
-  return !!props.budgetItem && props.budgetItem.id && props.budgetItem.account_id
-})
+    return (
+      !!props.budgetItem && props.budgetItem.id && props.budgetItem.account_id
+    )
+  })
 
 // Handle form submission
 const handleSubmit = async () => {
@@ -142,14 +163,14 @@ const handleSubmit = async () => {
   if (isEditMode.value) {
     result = await handleEditSubmit(props.budgetItem.id)
     if (result) {
-      closeModal()
-      emit('transaction-updated', result)
+        closeModal()
+        emit('transaction-updated', result)
     }
   } else {
     result = await handleAddSubmit()
     if (result) {
-      closeModal()
-      emit('transaction-added', result)
+        closeModal()
+        emit('transaction-added', result)
     }
   }
 }
@@ -157,42 +178,45 @@ const handleSubmit = async () => {
 // Helper functions
 const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
 
-// Initialize accounts when component mounts
-onMounted(async () => {
-  await accountsStore.fetchAccounts()
-})
+  // Initialize accounts when component mounts
+  onMounted(async () => {
+    await accountsStore.fetchAccounts()
+  })
 
-// Watch for modal opening to initialize form
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    if (isEditMode.value) {
-      // Initialize form with transaction data for editing
-      initializeFormDataFromTransaction(props.budgetItem)
-    } else {
-      // Initialize form for new transaction
-      initializeFormData()
+  // Watch for modal opening to initialize form
+  watch(
+    () => props.modelValue,
+    (isOpen) => {
+      if (isOpen) {
+        if (isEditMode.value) {
+          // Initialize form with transaction data for editing
+          initializeFormDataFromTransaction(props.budgetItem)
+        } else {
+          // Initialize form for new transaction
+          initializeFormData()
 
-      // Pre-fill form if budget item is provided (for new transactions from budget items)
-      if (props.budgetItem && !props.budgetItem.account_id) {
-        formData.value.budget_item_id = props.budgetItem.id
-        formData.value.type = props.budgetItem.type
-        formData.value.category = props.budgetItem.category
-        formData.value.amount = props.budgetItem.amount
-        formData.value.description = props.budgetItem.name
-        formData.value.date = new Date().toISOString().split('T')[0] // Today's date
-      }
+          // Pre-fill form if budget item is provided (for new transactions from budget items)
+          if (props.budgetItem && !props.budgetItem.account_id) {
+            formData.value.budget_item_id = props.budgetItem.id
+            formData.value.type = props.budgetItem.type
+            formData.value.category = props.budgetItem.category
+            formData.value.amount = props.budgetItem.amount
+            formData.value.description = props.budgetItem.name
+            formData.value.date = new Date().toISOString().split('T')[0] // Today's date
+          }
 
-      // Set account based on priority: selectedAccount > defaultAccount
-      if (!formData.value.account_id) {
-        if (props.selectedAccount) {
-          formData.value.account_id = props.selectedAccount.id
-        } else if (accountsStore.defaultAccount) {
-          formData.value.account_id = accountsStore.defaultAccount.id
+          // Set account based on priority: selectedAccount > defaultAccount
+          if (!formData.value.account_id) {
+            if (props.selectedAccount) {
+              formData.value.account_id = props.selectedAccount.id
+            } else if (accountsStore.defaultAccount) {
+              formData.value.account_id = accountsStore.defaultAccount.id
+            }
+          }
         }
       }
     }
-  }
-})
+  )
 </script>
 
 <template>
@@ -342,9 +366,7 @@ watch(() => props.modelValue, (isOpen) => {
 
             <!-- Tax Amount -->
             <div>
-              <label class="block text-sm font-medium mb-2">
-                Tax Amount
-              </label>
+              <label class="block text-sm font-medium mb-2"> Tax Amount </label>
               <CurrencyInput
                 v-model="formData.tax_amount"
                 :options="currencyOptions"
@@ -356,9 +378,7 @@ watch(() => props.modelValue, (isOpen) => {
 
             <!-- Net Amount -->
             <div>
-              <label class="block text-sm font-medium mb-2">
-                Net Amount
-              </label>
+              <label class="block text-sm font-medium mb-2"> Net Amount </label>
               <CurrencyInput
                 v-model="formData.net_amount"
                 :options="currencyOptions"
@@ -429,9 +449,7 @@ watch(() => props.modelValue, (isOpen) => {
         <div class="space-y-4">
           <!-- Tags -->
           <div>
-            <label class="block text-sm font-medium mb-2">
-              Tags
-            </label>
+            <label class="block text-sm font-medium mb-2"> Tags </label>
             <InputText
               v-model="tagInput"
               placeholder="Type a tag and press Enter"
@@ -461,9 +479,7 @@ watch(() => props.modelValue, (isOpen) => {
 
           <!-- Notes -->
           <div>
-            <label class="block text-sm font-medium mb-2">
-              Notes
-            </label>
+            <label class="block text-sm font-medium mb-2"> Notes </label>
             <Textarea
               v-model="formData.notes"
               rows="3"

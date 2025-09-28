@@ -23,130 +23,130 @@ const globalFilter = ref('')
 
 // Filters
 const filters = ref({
-  type: '',
-  category: '',
-  dateRange: '',
-  account: ''
-})
+    type: '',
+    category: '',
+    dateRange: '',
+    account: ''
+  })
 
 // DataTable filters
 const dtFilters = ref({
-  global: { value: null, matchMode: 'contains' }
-})
+    global: { value: null, matchMode: 'contains' }
+  })
 
 // Filter options
 const typeOptions = [
-  { label: 'Income', value: 'income' },
-  { label: 'Expense', value: 'expense' },
-  { label: 'Investment', value: 'investment' }
-]
+    { label: 'Income', value: 'income' },
+    { label: 'Expense', value: 'expense' },
+    { label: 'Investment', value: 'investment' }
+  ]
 
 const dateRangeOptions = [
-  { label: 'Today', value: 'today' },
-  { label: 'This Week', value: 'week' },
-  { label: 'This Month', value: 'month' },
-  { label: 'This Quarter', value: 'quarter' },
-  { label: 'This Year', value: 'year' }
-]
+    { label: 'Today', value: 'today' },
+    { label: 'This Week', value: 'week' },
+    { label: 'This Month', value: 'month' },
+    { label: 'This Quarter', value: 'quarter' },
+    { label: 'This Year', value: 'year' }
+  ]
 
 // Computed properties
 const transactions = computed(() => transactionStore.transactions)
 
 const totalIncome = computed(() => {
-  return transactions.value
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0)
-})
+    return transactions.value
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0)
+  })
 
 const totalExpenses = computed(() => {
-  return transactions.value
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0)
-})
+    return transactions.value
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0)
+  })
 
 const netBalance = computed(() => {
-  return totalIncome.value - totalExpenses.value
-})
+    return totalIncome.value - totalExpenses.value
+  })
 
 const selectedAccountName = computed(() => {
-  if (filters.value.account) {
-    const account = accountsStore.getAccountById(filters.value.account)
-    return account ? account.name : null
-  }
-  return null
-})
+    if (filters.value.account) {
+      const account = accountsStore.getAccountById(filters.value.account)
+      return account ? account.name : null
+    }
+    return null
+  })
 
 const availableCategories = computed(() => {
-  const categories = new Set()
-  transactions.value.forEach(t => {
-    if (t.category) {
-      categories.add(t.category)
-    }
+    const categories = new Set()
+    transactions.value.forEach((t) => {
+      if (t.category) {
+        categories.add(t.category)
+      }
+    })
+    return Array.from(categories).sort()
   })
-  return Array.from(categories).sort()
-})
 
 const categoryOptions = computed(() => {
-  return availableCategories.value.map(cat => ({ label: cat, value: cat }))
-})
+    return availableCategories.value.map((cat) => ({ label: cat, value: cat }))
+  })
 
 const accountOptions = computed(() => {
-  return [
-    { label: 'All Accounts', value: '' },
-    ...accountsStore.accounts.map(acc => ({
-      label: `${acc.name} - ${formatCurrency(acc.balance)}`,
-      value: acc.id
-    }))
-  ]
-})
+    return [
+      { label: 'All Accounts', value: '' },
+      ...accountsStore.accounts.map((acc) => ({
+        label: `${acc.name} - ${formatCurrency(acc.balance)}`,
+        value: acc.id
+      }))
+    ]
+  })
 
 const filteredTransactions = computed(() => {
-  let items = transactions.value
+    let items = transactions.value
 
-  if (filters.value.type) {
-    items = items.filter(t => t.type === filters.value.type)
-  }
-
-  if (filters.value.category) {
-    items = items.filter(t => t.category === filters.value.category)
-  }
-
-  if (filters.value.account) {
-    items = items.filter(t => t.account_id === filters.value.account)
-  }
-
-  if (filters.value.dateRange) {
-    const now = new Date()
-    const startDate = new Date()
-
-    switch (filters.value.dateRange) {
-      case 'today':
-        startDate.setHours(0, 0, 0, 0)
-        break
-      case 'week':
-        startDate.setDate(now.getDate() - 7)
-        break
-      case 'month':
-        startDate.setMonth(now.getMonth() - 1)
-        break
-      case 'quarter':
-        startDate.setMonth(now.getMonth() - 3)
-        break
-      case 'year':
-        startDate.setFullYear(now.getFullYear() - 1)
-        break
+    if (filters.value.type) {
+      items = items.filter((t) => t.type === filters.value.type)
     }
 
-    items = items.filter(t => new Date(t.date) >= startDate)
-  }
+    if (filters.value.category) {
+      items = items.filter((t) => t.category === filters.value.category)
+    }
 
-  return items.sort((a, b) => new Date(b.date) - new Date(a.date))
-})
+    if (filters.value.account) {
+      items = items.filter((t) => t.account_id === filters.value.account)
+    }
 
-// Watch global filter
-watch(globalFilter, (newValue) => {
-  dtFilters.value.global.value = newValue
-})
+    if (filters.value.dateRange) {
+      const now = new Date()
+      const startDate = new Date()
+
+      switch (filters.value.dateRange) {
+        case 'today':
+          startDate.setHours(0, 0, 0, 0)
+          break
+        case 'week':
+          startDate.setDate(now.getDate() - 7)
+          break
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1)
+          break
+        case 'quarter':
+          startDate.setMonth(now.getMonth() - 3)
+          break
+        case 'year':
+          startDate.setFullYear(now.getFullYear() - 1)
+          break
+      }
+
+      items = items.filter((t) => new Date(t.date) >= startDate)
+    }
+
+    return items.sort((a, b) => new Date(b.date) - new Date(a.date))
+  })
+
+  // Watch global filter
+  watch(globalFilter, (newValue) => {
+    dtFilters.value.global.value = newValue
+  })
 
 // Methods
 const loadData = async () => {
@@ -154,7 +154,7 @@ const loadData = async () => {
   try {
     await transactionStore.fetchTransactions()
   } catch (error) {
-    console.error('Error loading transactions:', error)
+      console.error('Error loading transactions:', error)
   } finally {
     isLoading.value = false
   }
@@ -162,34 +162,34 @@ const loadData = async () => {
 
 const clearFilters = () => {
   filters.value = {
-    type: '',
-    category: '',
-    dateRange: '',
-    account: ''
-  }
+      type: '',
+      category: '',
+      dateRange: '',
+      account: ''
+    }
   globalFilter.value = ''
 }
 
 const clearAccountFilter = () => {
   filters.value.account = ''
-  router.push({ name: 'Transactions' })
+    router.push({ name: 'Transactions' })
 }
 
 const getTransactionTypeColor = (type) => {
   const colors = {
-    income: 'bg-green-500',
-    expense: 'bg-red-500',
-    investment: 'bg-blue-500'
-  }
+      income: 'bg-green-500',
+      expense: 'bg-red-500',
+      investment: 'bg-blue-500'
+    }
   return colors[type] || 'bg-gray-500'
 }
 
 const getTypeSeverity = (type) => {
   const severity = {
-    income: 'success',
-    expense: 'danger',
-    investment: 'info'
-  }
+      income: 'success',
+      expense: 'danger',
+      investment: 'info'
+    }
   return severity[type] || 'secondary'
 }
 
@@ -199,21 +199,21 @@ const editTransaction = (transaction) => {
 }
 
 const deleteTransaction = async (transaction) => {
-  confirm.require({
-    message: 'Are you sure you want to delete this transaction?',
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: () => {
-      try {
-        transactionStore.deleteTransaction(transaction.id)
-      } catch (error) {
-        console.error('Error deleting transaction:', error)
+    confirm.require({
+      message: 'Are you sure you want to delete this transaction?',
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        try {
+          transactionStore.deleteTransaction(transaction.id)
+        } catch (error) {
+          console.error('Error deleting transaction:', error)
+        }
+      },
+      reject: () => {
+        // User cancelled
       }
-    },
-    reject: () => {
-      // User cancelled
-    }
-  })
+    })
 }
 
 const onTransactionAdded = async () => {
@@ -227,31 +227,35 @@ const onTransactionUpdated = async () => {
   await loadData()
 }
 
-// Watch for route changes to handle query parameters
-watch(() => route.query, (query) => {
-  if (query.action === 'add' && query.account) {
-    const accountId = query.account
-    const account = accountsStore.getAccountById(accountId)
-    if (account) {
-      selectedAccount.value = account
-      filters.value.account = account.id
-      showAddTransactionModal.value = true
-    }
-  } else if (query.action === 'history' && query.account) {
-    const accountId = query.account
-    const account = accountsStore.getAccountById(accountId)
-    if (account) {
-      filters.value.account = account.id
-      document.title = `Transactions - ${account.name}`
-    }
-  }
-}, { immediate: true })
+  // Watch for route changes to handle query parameters
+  watch(
+    () => route.query,
+    (query) => {
+      if (query.action === 'add' && query.account) {
+        const accountId = query.account
+        const account = accountsStore.getAccountById(accountId)
+        if (account) {
+          selectedAccount.value = account
+          filters.value.account = account.id
+          showAddTransactionModal.value = true
+        }
+      } else if (query.action === 'history' && query.account) {
+        const accountId = query.account
+        const account = accountsStore.getAccountById(accountId)
+        if (account) {
+          filters.value.account = account.id
+          document.title = `Transactions - ${account.name}`
+        }
+      }
+    },
+    { immediate: true }
+  )
 
-// Lifecycle
-onMounted(async () => {
-  await loadData()
-  await accountsStore.fetchAccounts()
-})
+  // Lifecycle
+  onMounted(async () => {
+    await loadData()
+    await accountsStore.fetchAccounts()
+  })
 </script>
 
 <template>
@@ -259,14 +263,26 @@ onMounted(async () => {
     <!-- Header -->
     <Card class="mb-6">
       <template #content>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+          >
             <div>
               <h1 class="text-2xl font-bold">
-                {{ selectedAccountName ? `${selectedAccountName} Transactions` : 'Transactions' }}
+                {{
+                  selectedAccountName
+                    ? `${selectedAccountName} Transactions`
+                    : "Transactions"
+                }}
               </h1>
               <p class="text-sm mt-1">
-                {{ selectedAccountName ? `Transaction history for ${selectedAccountName}` : 'Track all your income, expenses, and transfers' }}
+                {{
+                  selectedAccountName
+                    ? `Transaction history for ${selectedAccountName}`
+                    : "Track all your income, expenses, and transfers"
+                }}
               </p>
             </div>
 
@@ -295,7 +311,9 @@ onMounted(async () => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-list text-blue-600 text-lg" />
             </div>
             <div>
@@ -313,7 +331,9 @@ onMounted(async () => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-arrow-up text-green-600 text-lg" />
             </div>
             <div>
@@ -331,7 +351,9 @@ onMounted(async () => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-arrow-down text-red-600 text-lg" />
             </div>
             <div>
@@ -349,7 +371,9 @@ onMounted(async () => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-chart-line text-purple-600 text-lg" />
             </div>
             <div>
@@ -471,7 +495,11 @@ onMounted(async () => {
             No transactions found
           </h3>
           <p class="mb-6">
-            {{ transactions.length === 0 ? 'Get started by adding your first transaction.' : 'No transactions match your current filters.' }}
+            {{
+              transactions.length === 0
+                ? "Get started by adding your first transaction."
+                : "No transactions match your current filters."
+            }}
           </p>
           <Button
             icon="pi pi-plus"
@@ -528,7 +556,9 @@ onMounted(async () => {
                   :class="getTransactionTypeColor(data.type)"
                   class="w-3 h-3 rounded-full flex-shrink-0"
                 />
-                <span class="font-medium">{{ data.description || 'Transaction' }}</span>
+                <span class="font-medium">{{
+                  data.description || "Transaction"
+                }}</span>
               </div>
             </template>
           </Column>
@@ -558,7 +588,9 @@ onMounted(async () => {
               <span
                 v-if="data.category"
                 class="font-medium"
-              >{{ data.category }}</span>
+              >{{
+                data.category
+              }}</span>
               <span v-else>-</span>
             </template>
           </Column>
@@ -571,10 +603,22 @@ onMounted(async () => {
           >
             <template #body="{ data }">
               <span
-                :class="data.type === 'income' ? 'text-green-600' : data.type === 'expense' ? 'text-red-600' : 'text-blue-600'"
+                :class="
+                  data.type === 'income'
+                    ? 'text-green-600'
+                    : data.type === 'expense'
+                      ? 'text-red-600'
+                      : 'text-blue-600'
+                "
                 class="font-semibold text-lg"
               >
-                {{ data.type === 'income' ? '+' : data.type === 'expense' ? '-' : '' }}{{ formatCurrency(data.amount) }}
+                {{
+                  data.type === "income"
+                    ? "+"
+                    : data.type === "expense"
+                      ? "-"
+                      : ""
+                }}{{ formatCurrency(data.amount) }}
               </span>
             </template>
           </Column>
@@ -589,7 +633,9 @@ onMounted(async () => {
               <span
                 v-if="data.accounts?.name"
                 class="font-medium"
-              >{{ data.accounts.name }}</span>
+              >{{
+                data.accounts.name
+              }}</span>
               <span v-else>-</span>
             </template>
           </Column>

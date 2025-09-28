@@ -13,7 +13,6 @@ import Tooltip from 'primevue/tooltip'
 
 import '@/assets/styles.scss'
 
-
 const pinia = createPinia()
 const app = createApp(App)
 const MyPreset = definePreset(Aura, {

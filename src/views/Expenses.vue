@@ -7,57 +7,70 @@ const { currentMonth, totalFamilyExpenses, totalInvestments } = store
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount))
+      style: 'currency',
+      currency: 'EGP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.abs(amount))
 }
 
 const expenseCategories = computed(() => {
-  const total = currentMonth?.monthlySpending || 0
-  if (total === 0) return []
+    const total = currentMonth?.monthlySpending || 0
+    if (total === 0) return []
 
-  const categories = [
-    {
-      name: 'Family Budget',
-      description: 'Personal allowances and household',
-      amount: totalFamilyExpenses || 0,
-      color: 'bg-blue-500',
-      percentage: (((totalFamilyExpenses || 0) / total) * 100).toFixed(1)
-    },
-    {
-      name: 'Investments',
-      description: 'Real estate and asset investments',
-      amount: totalInvestments || 0,
-      color: 'bg-green-500',
-      percentage: (((totalInvestments || 0) / total) * 100).toFixed(1)
-    },
-    {
-      name: 'Extra Expenses',
-      description: 'Miscellaneous and unexpected costs',
-      amount: currentMonth?.expenses?.extra || 0,
-      color: 'bg-red-500',
-      percentage: (((currentMonth?.expenses?.extra || 0) / total) * 100).toFixed(1)
-    },
-    {
-      name: 'Gam3iat',
-      description: 'Savings group contributions',
-      amount: currentMonth?.expenses?.gam3iat || 0,
-      color: 'bg-yellow-500',
-      percentage: (((currentMonth?.expenses?.gam3iat || 0) / total) * 100).toFixed(1)
-    },
-    {
-      name: 'Charity & Zakat',
-      description: 'Religious obligations and donations',
-      amount: (currentMonth?.expenses?.charity || 0) + (currentMonth?.expenses?.zakat || 0),
-      color: 'bg-purple-500',
-      percentage: ((((currentMonth?.expenses?.charity || 0) + (currentMonth?.expenses?.zakat || 0)) / total) * 100).toFixed(1)
-    }
-  ].filter(cat => cat.amount > 0)
+    const categories = [
+      {
+        name: 'Family Budget',
+        description: 'Personal allowances and household',
+        amount: totalFamilyExpenses || 0,
+        color: 'bg-blue-500',
+        percentage: (((totalFamilyExpenses || 0) / total) * 100).toFixed(1)
+      },
+      {
+        name: 'Investments',
+        description: 'Real estate and asset investments',
+        amount: totalInvestments || 0,
+        color: 'bg-green-500',
+        percentage: (((totalInvestments || 0) / total) * 100).toFixed(1)
+      },
+      {
+        name: 'Extra Expenses',
+        description: 'Miscellaneous and unexpected costs',
+        amount: currentMonth?.expenses?.extra || 0,
+        color: 'bg-red-500',
+        percentage: (
+          ((currentMonth?.expenses?.extra || 0) / total) *
+          100
+        ).toFixed(1)
+      },
+      {
+        name: 'Gam3iat',
+        description: 'Savings group contributions',
+        amount: currentMonth?.expenses?.gam3iat || 0,
+        color: 'bg-yellow-500',
+        percentage: (
+          ((currentMonth?.expenses?.gam3iat || 0) / total) *
+          100
+        ).toFixed(1)
+      },
+      {
+        name: 'Charity & Zakat',
+        description: 'Religious obligations and donations',
+        amount:
+          (currentMonth?.expenses?.charity || 0) +
+          (currentMonth?.expenses?.zakat || 0),
+        color: 'bg-purple-500',
+        percentage: (
+          (((currentMonth?.expenses?.charity || 0) +
+            (currentMonth?.expenses?.zakat || 0)) /
+            total) *
+          100
+        ).toFixed(1)
+      }
+    ].filter((cat) => cat.amount > 0)
 
-  return categories
-})
+    return categories
+  })
 </script>
 
 <template>
@@ -105,7 +118,12 @@ const expenseCategories = computed(() => {
           Charity & Zakat
         </h3>
         <p class="text-3xl font-bold text-purple-600">
-          {{ formatCurrency((currentMonth?.expenses?.charity || 0) + (currentMonth?.expenses?.zakat || 0)) }}
+          {{
+            formatCurrency(
+              (currentMonth?.expenses?.charity || 0) +
+                (currentMonth?.expenses?.zakat || 0),
+            )
+          }}
         </p>
       </div>
     </div>

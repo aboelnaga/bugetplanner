@@ -2,7 +2,10 @@
 // Summary row logic, display conditions, and styling
 
 import { computed } from 'vue'
-import { SUMMARY_ROWS, SUMMARY_VALUE_STYLES } from '@/constants/budgetConstants.js'
+import {
+  SUMMARY_ROWS,
+  SUMMARY_VALUE_STYLES
+} from '@/constants/budgetConstants.js'
 import { summaryUtils } from '@/utils/budgetUtils.js'
 
 export function useBudgetSummaries (
@@ -31,7 +34,10 @@ export function useBudgetSummaries (
     const rowConfig = SUMMARY_ROWS[rowKey]
     if (!rowConfig) return false
 
-    return summaryUtils.shouldShowSummaryRow(rowConfig, summaryConditions.value)
+    return summaryUtils.shouldShowSummaryRow(
+      rowConfig,
+      summaryConditions.value
+    )
   }
 
   // Get summary row configuration
@@ -40,9 +46,23 @@ export function useBudgetSummaries (
   }
 
   // Get summary cell classes
-  const getSummaryCellClasses = (value, selectedYear, currentYear, currentMonth, monthIndex, rowKey = null) => {
+  const getSummaryCellClasses = (
+    value,
+    selectedYear,
+    currentYear,
+    currentMonth,
+    monthIndex,
+    rowKey = null
+  ) => {
     const summaryRowStyling = rowKey ? getSummaryRowStyling(rowKey) : null
-    return summaryUtils.getSummaryCellClasses(value, selectedYear, currentYear, currentMonth, monthIndex, summaryRowStyling)
+    return summaryUtils.getSummaryCellClasses(
+      value,
+      selectedYear,
+      currentYear,
+      currentMonth,
+      monthIndex,
+      summaryRowStyling
+    )
   }
 
   // Get summary total cell classes
@@ -69,7 +89,9 @@ export function useBudgetSummaries (
 
   // Get all visible summary rows
   const getVisibleSummaryRows = () => {
-    return Object.keys(SUMMARY_ROWS).filter(rowKey => shouldShowSummaryRow(rowKey))
+    return Object.keys(SUMMARY_ROWS).filter((rowKey) =>
+      shouldShowSummaryRow(rowKey)
+    )
   }
 
   // Get summary row order for display
@@ -83,7 +105,7 @@ export function useBudgetSummaries (
       'NET_BALANCE'
     ]
 
-    return order.filter(rowKey => shouldShowSummaryRow(rowKey))
+    return order.filter((rowKey) => shouldShowSummaryRow(rowKey))
   }
 
   return {

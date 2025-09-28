@@ -1,8 +1,12 @@
 import { computed } from 'vue'
 import { MONTHS } from '@/constants/budgetConstants.js'
 
-export function useBudgetDataTable (budgetItems, selectedYear, currentYear, currentMonth) {
-
+export function useBudgetDataTable (
+  budgetItems,
+  selectedYear,
+  currentYear,
+  currentMonth
+) {
   /**
    * Transform nested budget data into flat structure for DataTable
    */
@@ -11,7 +15,7 @@ export function useBudgetDataTable (budgetItems, selectedYear, currentYear, curr
       return []
     }
 
-    return budgetItems.value.map(budget => {
+    return budgetItems.value.map((budget) => {
       const flattened = {
         // Keep ALL original budget properties for modal compatibility
         ...budget,
@@ -89,9 +93,11 @@ export function useBudgetDataTable (budgetItems, selectedYear, currentYear, curr
         width: '100px',
         bodyTemplate: (data) => data[month.toLowerCase()] || 0,
         // Add special styling for current month
-        class: selectedYear.value === currentYear.value && index === currentMonth.value
-          ? 'current-month'
-          : ''
+        class:
+          selectedYear.value === currentYear.value &&
+          index === currentMonth.value
+            ? 'current-month'
+            : ''
       })
     })
 
@@ -134,9 +140,7 @@ export function useBudgetDataTable (budgetItems, selectedYear, currentYear, curr
             ]
           },
           {
-            cells: [
-              ...MONTHS.map(month => ({ header: month }))
-            ]
+            cells: [...MONTHS.map((month) => ({ header: month }))]
           }
         ]
       }
@@ -153,7 +157,11 @@ export function useBudgetDataTable (budgetItems, selectedYear, currentYear, curr
         rows: [
           {
             cells: [
-              { footer: 'Income Total:', colspan: 2, footerStyle: 'text-align:right;font-weight:bold' },
+              {
+                footer: 'Income Total:',
+                colspan: 2,
+                footerStyle: 'text-align:right;font-weight:bold'
+              },
               ...MONTHS.map(() => ({ footer: '' })),
               { footer: '', footerStyle: 'font-weight:bold' },
               { footer: '' }
@@ -161,7 +169,11 @@ export function useBudgetDataTable (budgetItems, selectedYear, currentYear, curr
           },
           {
             cells: [
-              { footer: 'Expenses Total:', colspan: 2, footerStyle: 'text-align:right;font-weight:bold' },
+              {
+                footer: 'Expenses Total:',
+                colspan: 2,
+                footerStyle: 'text-align:right;font-weight:bold'
+              },
               ...MONTHS.map(() => ({ footer: '' })),
               { footer: '', footerStyle: 'font-weight:bold' },
               { footer: '' }
@@ -169,7 +181,11 @@ export function useBudgetDataTable (budgetItems, selectedYear, currentYear, curr
           },
           {
             cells: [
-              { footer: 'Net Balance:', colspan: 2, footerStyle: 'text-align:right;font-weight:bold' },
+              {
+                footer: 'Net Balance:',
+                colspan: 2,
+                footerStyle: 'text-align:right;font-weight:bold'
+              },
               ...MONTHS.map(() => ({ footer: '' })),
               { footer: '', footerStyle: 'font-weight:bold' },
               { footer: '' }
