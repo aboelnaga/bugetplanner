@@ -1,0 +1,358 @@
+openapi: 3.0.0
+info:
+  title: Cleanup Tasks Management API
+  description: API for managing ESLint warning cleanup tasks
+  version: 1.0.0
+  contact:
+    name: Budget Planning Application
+    email: dev@budgrt.app
+
+paths:
+  /api/cleanup/tasks:
+    get:
+      summary: Get all cleanup tasks
+      description: Returns all cleanup tasks with optional filtering
+      operationId: getCleanupTasks
+      parameters:
+        - name: status
+          in: query
+          description: Filter tasks by status
+          schema:
+            type: string
+            enum: [pending, in-progress, complete, blocked]
+        - name: fileType
+          in: query
+          description: Filter tasks by file type
+          schema:
+            type: string
+            enum: [component, composable, store, view, utility, layout]
+        - name: priority
+          in: query
+          description: Filter tasks by priority
+          schema:
+            type: integer
+            enum: [1, 2, 3]
+      responses:
+        "200":
+          description: List of cleanup tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CleanupTask"
+                  totalCount:
+                    type: integer
+                    description: Total number of tasks
+                  summary:
+                    type: object
+                    properties:
+                      pending:
+                        type: integer
+                        description: Number of pending tasks
+                      inProgress:
+                        type: integer
+                        description: Number of in-progress tasks
+                      complete:
+                        type: integer
+                        description: Number of completed tasks
+                      blocked:
+                        type: integer
+                        description: Number of blocked tasks
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    post:
+      summary: Create cleanup tasks
+      description: Creates cleanup tasks for specified files or warning types
+      operationId: createCleanupTasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filePaths:
+                  type: array
+                  items:
+                    type: string
+                  description: Files to create tasks for
+                warningTypes:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      [unused-vars, prop-validation, security, import, other]
+                  description: Warning types to create tasks for
+                priority:
+                  type: integer
+                  enum: [1, 2, 3]
+                  description: Priority for created tasks
+                  default: 2
+      responses:
+        "201":
+          description: Tasks created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  createdTasks:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CleanupTask"
+                  count:
+                    type: integer
+                    description: Number of tasks created
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/cleanup/tasks/{taskId}:
+    get:
+      summary: Get specific cleanup task
+      description: Returns details of a specific cleanup task
+      operationId: getCleanupTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of the cleanup task
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Cleanup task details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CleanupTask"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      summary: Update cleanup task
+      description: Updates the status or details of a cleanup task
+      operationId: updateCleanupTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of the cleanup task
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [pending, in-progress, complete, blocked]
+                  description: New status for the task
+                assignedTo:
+                  type: string
+                  description: Person or tool assigned to the task
+                notes:
+                  type: string
+                  description: Additional notes about the task
+      responses:
+        "200":
+          description: Task updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CleanupTask"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      summary: Delete cleanup task
+      description: Deletes a cleanup task
+      operationId: deleteCleanupTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          description: ID of the cleanup task
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Task deleted successfully
+        "404":
+          description: Task not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/cleanup/progress:
+    get:
+      summary: Get cleanup progress
+      description: Returns overall progress of the cleanup process
+      operationId: getCleanupProgress
+      responses:
+        "200":
+          description: Cleanup progress information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  overallProgress:
+                    type: number
+                    description: Overall progress percentage (0-100)
+                  filesProcessed:
+                    type: integer
+                    description: Number of files processed
+                  totalFiles:
+                    type: integer
+                    description: Total number of files to process
+                  warningsFixed:
+                    type: integer
+                    description: Number of warnings fixed
+                  totalWarnings:
+                    type: integer
+                    description: Total number of warnings
+                  estimatedCompletion:
+                    type: string
+                    format: date-time
+                    description: Estimated completion time
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    CleanupTask:
+      type: object
+      required:
+        - id
+        - filePath
+        - warningType
+        - priority
+        - status
+      properties:
+        id:
+          type: string
+          description: Unique task identifier
+          example: "task-001"
+        filePath:
+          type: string
+          description: Target file for cleanup
+          example: "src/components/AccountCard.vue"
+        warningType:
+          type: string
+          enum: [unused-vars, prop-validation, security, import, other]
+          description: Type of warnings to address
+          example: "unused-vars"
+        priority:
+          type: integer
+          enum: [1, 2, 3]
+          description: Task priority (1=high, 2=medium, 3=low)
+          example: 1
+        estimatedEffort:
+          type: string
+          description: Estimated time to complete
+          example: "15 minutes"
+        dependencies:
+          type: array
+          items:
+            type: string
+          description: IDs of prerequisite tasks
+          example: ["task-002", "task-003"]
+        status:
+          type: string
+          enum: [pending, in-progress, complete, blocked]
+          description: Current task status
+          example: "pending"
+        assignedTo:
+          type: string
+          description: Person or tool assigned to task
+          example: "AI Assistant"
+        createdAt:
+          type: string
+          format: date-time
+          description: Task creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Task last update timestamp
+        notes:
+          type: string
+          description: Additional task notes
+          example: "Focus on unused imports first"
+
+    Error:
+      type: object
+      required:
+        - message
+        - code
+      properties:
+        message:
+          type: string
+          description: Error message
+          example: "Task not found"
+        code:
+          type: string
+          description: Error code
+          example: "TASK_NOT_FOUND"
+        details:
+          type: object
+          description: Additional error details
+          additionalProperties: true
