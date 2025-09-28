@@ -5,109 +5,114 @@ import BaseTooltip from '@/components/BaseTooltip.vue'
 
 // Props
 const props = defineProps({
-  // Row configuration
-  rowType: {
-    type: String,
-    required: true,
-    validator: (value) => [
-      'TOTAL_INCOME', 'INVESTMENT_RETURNS',
-      'TOTAL_EXPENSES', 'INVESTMENT_PURCHASES',
-      'NET_BALANCE', 'NET_INVESTMENT', 'SAVINGS'
-    ].includes(value)
-  },
+    // Row configuration
+    rowType: {
+      type: String,
+      required: true,
+      validator: (value) =>
+        [
+          'TOTAL_INCOME',
+          'INVESTMENT_RETURNS',
+          'TOTAL_EXPENSES',
+          'INVESTMENT_PURCHASES',
+          'NET_BALANCE',
+          'NET_INVESTMENT',
+          'SAVINGS'
+        ].includes(value)
+    },
 
-  // Data
-  months: {
-    type: Array,
-    required: true
-  },
-  selectedYear: {
-    type: Number,
-    required: true
-  },
-  currentYear: {
-    type: Number,
-    required: true
-  },
-  currentMonth: {
-    type: Number,
-    required: true
-  },
-  selectedTypeFilter: {
-    type: String,
-    required: true
-  },
+    // Data
+    months: {
+      type: Array,
+      required: true
+    },
+    selectedYear: {
+      type: Number,
+      required: true
+    },
+    currentYear: {
+      type: Number,
+      required: true
+    },
+    currentMonth: {
+      type: Number,
+      required: true
+    },
+    selectedTypeFilter: {
+      type: String,
+      required: true
+    },
 
-  // Computed properties
-  hasIncomeData: {
-    type: Boolean,
-    required: true
-  },
-  hasExpenseData: {
-    type: Boolean,
-    required: true
-  },
-  hasInvestmentData: {
-    type: Boolean,
-    required: true
-  },
-  hasInvestmentIncomingData: {
-    type: Boolean,
-    required: true
-  },
-  hasInvestmentOutgoingData: {
-    type: Boolean,
-    required: true
-  },
-  hasAnyData: {
-    type: Boolean,
-    required: true
-  },
+    // Computed properties
+    hasIncomeData: {
+      type: Boolean,
+      required: true
+    },
+    hasExpenseData: {
+      type: Boolean,
+      required: true
+    },
+    hasInvestmentData: {
+      type: Boolean,
+      required: true
+    },
+    hasInvestmentIncomingData: {
+      type: Boolean,
+      required: true
+    },
+    hasInvestmentOutgoingData: {
+      type: Boolean,
+      required: true
+    },
+    hasAnyData: {
+      type: Boolean,
+      required: true
+    },
 
-  // Values
-  previousYearValue: {
-    type: Number,
-    required: true
-  },
-  monthlyValues: {
-    type: Array,
-    required: true
-  },
-  grandTotalValue: {
-    type: Number,
-    required: true
-  },
+    // Values
+    previousYearValue: {
+      type: Number,
+      required: true
+    },
+    monthlyValues: {
+      type: Array,
+      required: true
+    },
+    grandTotalValue: {
+      type: Number,
+      required: true
+    },
 
-  // Tooltips
-  previousYearTooltip: {
-    type: String,
-    required: true
-  },
-  monthlyTooltips: {
-    type: Array,
-    required: true
-  },
-  grandTotalTooltip: {
-    type: String,
-    required: true
-  },
+    // Tooltips
+    previousYearTooltip: {
+      type: String,
+      required: true
+    },
+    monthlyTooltips: {
+      type: Array,
+      required: true
+    },
+    grandTotalTooltip: {
+      type: String,
+      required: true
+    },
 
-  // Functions
-  formatCurrency: {
-    type: Function,
-    required: true
-  },
+    // Functions
+    formatCurrency: {
+      type: Function,
+      required: true
+    },
 
-  // Styling
-  borderTopClass: {
-    type: String,
-    default: 'border-t-2'
-  },
-  useValueBasedStyling: {
-    type: Boolean,
-    default: false
-  }
-})
+    // Styling
+    borderTopClass: {
+      type: String,
+      default: 'border-t-2'
+    },
+    useValueBasedStyling: {
+      type: Boolean,
+      default: false
+    }
+  })
 
 // Use budget summaries composable
 const {
@@ -118,15 +123,15 @@ const {
   getSummaryTotalClasses,
   formatSummaryValue
 } = useBudgetSummaries(
-  null, // budgetItems not needed for this component
-  computed(() => props.selectedTypeFilter),
-  computed(() => props.hasIncomeData),
-  computed(() => props.hasExpenseData),
-  computed(() => props.hasInvestmentData),
-  computed(() => props.hasInvestmentIncomingData),
-  computed(() => props.hasInvestmentOutgoingData),
-  computed(() => props.hasAnyData)
-)
+    null, // budgetItems not needed for this component
+    computed(() => props.selectedTypeFilter),
+    computed(() => props.hasIncomeData),
+    computed(() => props.hasExpenseData),
+    computed(() => props.hasInvestmentData),
+    computed(() => props.hasInvestmentIncomingData),
+    computed(() => props.hasInvestmentOutgoingData),
+    computed(() => props.hasAnyData)
+  )
 
 // Get row configuration and styling
 const rowConfig = computed(() => getSummaryRowConfig(props.rowType))
@@ -139,9 +144,13 @@ const rowStyling = computed(() => getSummaryRowStyling(props.rowType))
     v-if="shouldShowSummaryRow(rowType)"
     :class="`${rowStyling.bgColor} ${borderTopClass}`"
   >
-    <td :class="`px-6 py-3 ${rowConfig.fontSize} ${rowConfig.fontWeight} ${rowStyling.textColor} sticky left-0 ${rowStyling.stickyBgColor} z-20 border-r ${borderTopClass} border-gray-200`">
+    <td
+      :class="`px-6 py-3 ${rowConfig.fontSize} ${rowConfig.fontWeight} ${rowStyling.textColor} sticky left-0 ${rowStyling.stickyBgColor} z-20 border-r ${borderTopClass} border-gray-200`"
+    >
       <div class="flex items-center truncate">
-        <span :class="`text-lg font-bold ${rowStyling.textColor} mr-2`">{{ rowConfig.symbol }}</span>
+        <span :class="`text-lg font-bold ${rowStyling.textColor} mr-2`">{{
+          rowConfig.symbol
+        }}</span>
         {{ rowConfig.label }}
       </div>
       <div
@@ -154,9 +163,23 @@ const rowStyling = computed(() => getSummaryRowStyling(props.rowType))
 
     <!-- Previous Year Column -->
     <td
-      :class="`${useValueBasedStyling
-        ? getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1)
-        : getSummaryCellClasses(previousYearValue, selectedYear, currentYear, currentMonth, -1, rowType)
+      :class="`${
+        useValueBasedStyling
+          ? getSummaryCellClasses(
+            previousYearValue,
+            selectedYear,
+            currentYear,
+            currentMonth,
+            -1,
+          )
+          : getSummaryCellClasses(
+            previousYearValue,
+            selectedYear,
+            currentYear,
+            currentMonth,
+            -1,
+            rowType,
+          )
       } ${borderTopClass} border-gray-200`"
     >
       <BaseTooltip
@@ -182,9 +205,23 @@ const rowStyling = computed(() => getSummaryRowStyling(props.rowType))
     <td
       v-for="(month, index) in months"
       :key="`${rowType}-${month}`"
-      :class="`${useValueBasedStyling
-        ? getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index)
-        : getSummaryCellClasses(monthlyValues[index], selectedYear, currentYear, currentMonth, index, rowType)
+      :class="`${
+        useValueBasedStyling
+          ? getSummaryCellClasses(
+            monthlyValues[index],
+            selectedYear,
+            currentYear,
+            currentMonth,
+            index,
+          )
+          : getSummaryCellClasses(
+            monthlyValues[index],
+            selectedYear,
+            currentYear,
+            currentMonth,
+            index,
+            rowType,
+          )
       } ${borderTopClass} border-gray-200`"
     >
       <BaseTooltip
@@ -198,7 +235,9 @@ const rowStyling = computed(() => getSummaryRowStyling(props.rowType))
     </td>
 
     <!-- Total Column -->
-    <td :class="`${getSummaryTotalClasses(grandTotalValue)} ${borderTopClass} border-l-2 border-gray-200 sticky right-32 ${rowStyling.stickyBgColor} z-20`">
+    <td
+      :class="`${getSummaryTotalClasses(grandTotalValue)} ${borderTopClass} border-l-2 border-gray-200 sticky right-32 ${rowStyling.stickyBgColor} z-20`"
+    >
       <BaseTooltip
         :content="grandTotalTooltip"
         position="top"
@@ -211,6 +250,8 @@ const rowStyling = computed(() => getSummaryRowStyling(props.rowType))
     </td>
 
     <!-- Action Column -->
-    <td :class="`px-4 py-3 sticky right-0 ${rowStyling.stickyBgColor} border-l border-gray-200 ${borderTopClass}`" />
+    <td
+      :class="`px-4 py-3 sticky right-0 ${rowStyling.stickyBgColor} border-l border-gray-200 ${borderTopClass}`"
+    />
   </tr>
 </template>

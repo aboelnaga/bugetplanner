@@ -12,10 +12,10 @@
       <template v-if="cellData.template === 'both'">
         <div class="actual-expected-display">
           <div class="actual">
-            {{ cellData.actual || '—' }}
+            {{ cellData.actual || "—" }}
           </div>
           <div class="expected">
-            {{ cellData.expected || '—' }}
+            {{ cellData.expected || "—" }}
           </div>
         </div>
       </template>
@@ -26,7 +26,7 @@
           class="single-mode-display"
           :class="cellData.classes || ''"
         >
-          {{ cellData.value || '—' }}
+          {{ cellData.value || "—" }}
           <span
             v-if="cellData.closed"
             class="text-xs ml-1 text-green-600 dark:text-green-400 cursor-help"
@@ -49,51 +49,51 @@ import { computed } from 'vue'
 
 // Props
 const props = defineProps({
-  data: {
-    type: Object,
-    required: true
-  },
-  month: {
-    type: String,
-    default: null
-  },
-  isTotal: {
-    type: Boolean,
-    default: false
-  },
-  // Functions passed from parent
-  renderCellTemplate: {
-    type: Function,
-    required: true
-  },
-  getCellTextColorClass: {
-    type: Function,
-    required: true
-  }
-})
+    data: {
+      type: Object,
+      required: true
+    },
+    month: {
+      type: String,
+      default: null
+    },
+    isTotal: {
+      type: Boolean,
+      default: false
+    },
+    // Functions passed from parent
+    renderCellTemplate: {
+      type: Function,
+      required: true
+    },
+    getCellTextColorClass: {
+      type: Function,
+      required: true
+    }
+  })
 
 // Computed
 const cellData = computed(() => {
-  return props.renderCellTemplate(props.data, props.month, props.isTotal)
-})
+    return props.renderCellTemplate(props.data, props.month, props.isTotal)
+  })
 </script>
 
 <style scoped>
-/* dual data display styling */
-.actual-expected-display {
+  /* dual data display styling */
+  .actual-expected-display {
     line-height: 1.2;
     font-size: 0.875em;
-}
+  }
 
-.actual-expected-display .actual {
+  .actual-expected-display .actual {
     border-bottom: 1px solid;
     margin-bottom: 2px;
     padding-bottom: 2px;
     font-weight: 500;
-}
+  }
 
-/* single mode display styling */
-.single-mode-display {
+  /* single mode display styling */
+  .single-mode-display {
     line-height: 1.2;
-}
+  }
 </style>

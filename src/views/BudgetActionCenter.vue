@@ -30,79 +30,102 @@ const selectedMonth = computed(() => selectedDate.value.getMonth())
 const selectedYear = computed(() => selectedDate.value.getFullYear())
 
 const isCurrentMonthSelected = computed(() => {
-  const now = new Date()
-  return selectedYear.value === now.getFullYear() && selectedMonth.value === now.getMonth()
-})
+    const now = new Date()
+    return (
+      selectedYear.value === now.getFullYear() &&
+      selectedMonth.value === now.getMonth()
+    )
+  })
 
 const budgetItems = ref([])
 
 // Remove filteredItems and compute tableItems from budgetItems directly
 const tableItems = computed(() =>
-  budgetItems.value.map((item) => ({ ...item, statusLabel: getItemStatus(item) }))
-)
+    budgetItems.value.map((item) => ({
+      ...item,
+      statusLabel: getItemStatus(item)
+    }))
+  )
 
 const expandedRows = ref([])
 
 // Ensure expandedRows is always an array
 const getExpandedRows = computed(() => {
-  return Array.isArray(expandedRows.value) ? expandedRows.value : []
-})
+    return Array.isArray(expandedRows.value) ? expandedRows.value : []
+  })
 
 // Methods
 const loadData = async () => {
-  console.log('loadData called')
-  await loadDataForYear()
+    console.log('loadData called')
+    await loadDataForYear()
 }
 
 const loadDataForYear = async () => {
-  console.log('Loading data for year:', selectedYear.value)
-  isLoading.value = true
-  try {
-    // Fetch budget items for the year (they're stored per year)
-    await budgetStore.fetchBudgetItems(selectedYear.value)
+    console.log('Loading data for year:', selectedYear.value)
+    isLoading.value = true
+    try {
+      // Fetch budget items for the year (they're stored per year)
+      await budgetStore.fetchBudgetItems(selectedYear.value)
 
-    // Fetch transactions for the current month of the year
-    await transactionStore.fetchTransactions(selectedYear.value, selectedMonth.value)
+      // Fetch transactions for the current month of the year
+      await transactionStore.fetchTransactions(
+        selectedYear.value,
+        selectedMonth.value
+      )
 
-    // Load budget items with transactions for the current month
-    budgetItems.value = await budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
+      // Load budget items with transactions for the current month
+      budgetItems.value = await budgetStore.getBudgetItemsForMonth(
+        selectedMonth.value,
+        selectedYear.value
+      )
 
-    // Fetch closed months
-    await fetchClosedMonths()
-  } catch (error) {
-    console.error('Error loading data for year:', error)
-    budgetItems.value = []
-  } finally {
-    isLoading.value = false
-  }
+      // Fetch closed months
+      await fetchClosedMonths()
+    } catch (error) {
+      console.error('Error loading data for year:', error)
+      budgetItems.value = []
+    } finally {
+      isLoading.value = false
+    }
 }
 
 const loadDataForMonth = async () => {
-  console.log('Loading data for month:', selectedMonth.value, 'year:', selectedYear.value)
-  isLoading.value = true
-  try {
-    // Only fetch transactions for the specific month (budget items are already loaded for the year)
-    await transactionStore.fetchTransactions(selectedYear.value, selectedMonth.value)
+    console.log(
+      'Loading data for month:',
+      selectedMonth.value,
+      'year:',
+      selectedYear.value
+    )
+    isLoading.value = true
+    try {
+      // Only fetch transactions for the specific month (budget items are already loaded for the year)
+      await transactionStore.fetchTransactions(
+        selectedYear.value,
+        selectedMonth.value
+      )
 
-    // Reload budget items to get updated transactions for the current month
-    budgetItems.value = await budgetStore.getBudgetItemsForMonth(selectedMonth.value, selectedYear.value)
-  } catch (error) {
-    console.error('Error loading data for month:', error)
-    budgetItems.value = []
-  } finally {
-    isLoading.value = false
-  }
+      // Reload budget items to get updated transactions for the current month
+      budgetItems.value = await budgetStore.getBudgetItemsForMonth(
+        selectedMonth.value,
+        selectedYear.value
+      )
+    } catch (error) {
+      console.error('Error loading data for month:', error)
+      budgetItems.value = []
+    } finally {
+      isLoading.value = false
+    }
 }
 
 const previousMonth = () => {
   const newDate = new Date(selectedDate.value)
-  newDate.setMonth(newDate.getMonth() - 1)
+    newDate.setMonth(newDate.getMonth() - 1)
   selectedDate.value = newDate
 }
 
 const nextMonth = () => {
   const newDate = new Date(selectedDate.value)
-  newDate.setMonth(newDate.getMonth() + 1)
+    newDate.setMonth(newDate.getMonth() + 1)
   selectedDate.value = newDate
 }
 
@@ -148,47 +171,49 @@ const getItemStatus = (item) => {
 
 const getStatusLabel = (status) => {
   const labels = {
-    pending: 'Pending',
-    completed: 'Completed',
-    overdue: 'Overdue',
-    skipped: 'Skipped',
-    partial: 'Partial',
-    full: 'Full',
-    exceeds: 'Exceeds Budget'
-  }
+      pending: 'Pending',
+      completed: 'Completed',
+      overdue: 'Overdue',
+      skipped: 'Skipped',
+      partial: 'Partial',
+      full: 'Full',
+      exceeds: 'Exceeds Budget'
+    }
   return labels[status] || 'Unknown'
 }
 
 const getStatusColor = (item) => {
   const status = getItemStatus(item)
   const colors = {
-    pending: { bg: 'bg-yellow-400' },
-    completed: { bg: 'bg-green-400' },
-    overdue: { bg: 'bg-red-400' },
-    skipped: { bg: 'bg-gray-400' },
-    partial: { bg: 'bg-blue-400' },
-    full: { bg: 'bg-green-400' },
-    exceeds: { bg: 'bg-red-500' }
-  }
+      pending: { bg: 'bg-yellow-400' },
+      completed: { bg: 'bg-green-400' },
+      overdue: { bg: 'bg-red-400' },
+      skipped: { bg: 'bg-gray-400' },
+      partial: { bg: 'bg-blue-400' },
+      full: { bg: 'bg-green-400' },
+      exceeds: { bg: 'bg-red-500' }
+    }
   return colors[status] || { bg: 'bg-gray-400' }
 }
 
 const getStatusSeverity = (status) => {
   const map = {
-    pending: 'warning',
-    completed: 'success',
-    overdue: 'danger',
-    skipped: 'secondary',
-    partial: 'info',
-    full: 'success',
-    exceeds: 'danger'
-  }
+      pending: 'warning',
+      completed: 'success',
+      overdue: 'danger',
+      skipped: 'secondary',
+      partial: 'info',
+      full: 'success',
+      exceeds: 'danger'
+    }
   return map[status] || 'secondary'
 }
 
-const getTypeSeverity = (item) => ((item.type === 'income' || (item.type === 'investment' && item.investment_direction === 'incoming')) ? 'success' : 'danger')
-
-
+const getTypeSeverity = (item) =>
+  item.type === 'income' ||
+  (item.type === 'investment' && item.investment_direction === 'incoming')
+    ? 'success'
+    : 'danger'
 
 const getActualAmount = (item) => {
   if (!item.actual_amounts || !Array.isArray(item.actual_amounts)) return 0
@@ -204,42 +229,52 @@ const getBudgetAmount = (item) => {
 const closedMonths = ref([])
 
 const isMonthClosed = computed(() => {
-  return closedMonths.value.some(closedMonth =>
-    closedMonth.month === selectedMonth.value && closedMonth.year === selectedYear.value
-  )
-})
+    return closedMonths.value.some(
+      (closedMonth) =>
+        closedMonth.month === selectedMonth.value &&
+        closedMonth.year === selectedYear.value
+    )
+  })
 
 const canCloseMonth = computed(() => {
-  // Can only close months that are not current or future
-  const currentDate = new Date()
-  const currentYear = currentDate.getFullYear()
-  const currentMonth = currentDate.getMonth()
+    // Can only close months that are not current or future
+    const currentDate = new Date()
+    const currentYear = currentDate.getFullYear()
+    const currentMonth = currentDate.getMonth()
 
-  if (selectedYear.value === currentYear && selectedMonth.value >= currentMonth) {
+    if (
+      selectedYear.value === currentYear &&
+      selectedMonth.value >= currentMonth
+    ) {
+      return false
+    }
+
+    // Can only close months that are not already closed
+    if (isMonthClosed.value) {
+      return false
+    }
+
+    // Can only close months that are at least 7 days old
+    const currentDay = currentDate.getDate()
+
+    // If we're in the same year and month, check if it's been 7+ days
+    if (
+      selectedYear.value === currentYear &&
+      selectedMonth.value === currentMonth
+    ) {
+      return currentDay >= 7
+    }
+
+    // If it's a previous month, it can be closed
+    if (
+      selectedYear.value < currentYear ||
+      (selectedYear.value === currentYear && selectedMonth.value < currentMonth)
+    ) {
+      return true
+    }
+
     return false
-  }
-
-  // Can only close months that are not already closed
-  if (isMonthClosed.value) {
-    return false
-  }
-
-  // Can only close months that are at least 7 days old
-  const currentDay = currentDate.getDate()
-
-  // If we're in the same year and month, check if it's been 7+ days
-  if (selectedYear.value === currentYear && selectedMonth.value === currentMonth) {
-    return currentDay >= 7
-  }
-
-  // If it's a previous month, it can be closed
-  if (selectedYear.value < currentYear ||
-    (selectedYear.value === currentYear && selectedMonth.value < currentMonth)) {
-    return true
-  }
-
-  return false
-})
+  })
 
 const fetchClosedMonths = async () => {
   if (!authStore.isAuthenticated || !authStore.userId) return
@@ -248,8 +283,8 @@ const fetchClosedMonths = async () => {
     const data = await budgetStore.getClosedMonths(selectedYear.value)
     closedMonths.value = data || []
   } catch (error) {
-    console.error('Error fetching closed months:', error)
-    closedMonths.value = []
+      console.error('Error fetching closed months:', error)
+      closedMonths.value = []
   } finally {
     // loadingClosedMonths.value = false // This line is removed
   }
@@ -259,29 +294,32 @@ const handleCloseMonth = async () => {
   if (!authStore.isAuthenticated || !authStore.userId) return
 
   try {
-    const success = await budgetStore.closeMonth(selectedYear.value, selectedMonth.value)
+    const success = await budgetStore.closeMonth(
+        selectedYear.value,
+        selectedMonth.value
+      )
     if (success) {
       // Refresh closed months
       await fetchClosedMonths()
 
-      // Show success notification
-      toast.add({
-        severity: 'success',
-        summary: 'Month Closed Successfully',
-        detail: `Month ${selectedMonth.value + 1} ${selectedYear.value} has been closed and actual amounts are now displayed.`,
-        life: 5000
-      })
+        // Show success notification
+        toast.add({
+          severity: 'success',
+          summary: 'Month Closed Successfully',
+          detail: `Month ${selectedMonth.value + 1} ${selectedYear.value} has been closed and actual amounts are now displayed.`,
+          life: 5000
+        })
     }
   } catch (error) {
-    console.error('Error closing month:', error)
+      console.error('Error closing month:', error)
 
-    // Show error notification
-    toast.add({
-      severity: 'error',
-      summary: 'Error Closing Month',
-      detail: 'There was an error closing the month. Please try again.',
-      life: 7000
-    })
+      // Show error notification
+      toast.add({
+        severity: 'error',
+        summary: 'Error Closing Month',
+        detail: 'There was an error closing the month. Please try again.',
+        life: 7000
+      })
   }
 }
 
@@ -377,7 +415,11 @@ const calculateDueDate = (item) => {
       // Due on the specific day of the current month
       if (item.due_date && item.due_date >= 1 && item.due_date <= 31) {
         // Get the last day of the current month
-        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
+        const lastDayOfMonth = new Date(
+            currentYear,
+            currentMonth + 1,
+            0
+          ).getDate()
         // Use the minimum of due_date or last day of month
         const dueDay = Math.min(item.due_date, lastDayOfMonth)
         return new Date(currentYear, currentMonth, dueDay)
@@ -394,9 +436,9 @@ const calculateDueDate = (item) => {
 const toggleHistory = (item) => {
   const index = expandedRows.value.indexOf(item.id)
   if (index > -1) {
-    expandedRows.value.splice(index, 1)
+      expandedRows.value.splice(index, 1)
   } else {
-    expandedRows.value.push(item.id)
+      expandedRows.value.push(item.id)
   }
 }
 
@@ -417,17 +459,16 @@ const skipItem = (item) => {
 }
 
 const editTransaction = (transaction) => {
-  // TODO: Implement transaction editing
-  console.log('Edit transaction:', transaction)
+    // TODO: Implement transaction editing
+    console.log('Edit transaction:', transaction)
 // This could open a modal or navigate to transaction edit page
 }
 
 const deleteTransaction = (transaction) => {
-  // TODO: Implement transaction deletion with confirmation
-  console.log('Delete transaction:', transaction)
+    // TODO: Implement transaction deletion with confirmation
+    console.log('Delete transaction:', transaction)
 // This should show a confirmation dialog before deleting
 }
-
 
 const closeSkipModal = () => {
   showSkipModal.value = false
@@ -439,52 +480,55 @@ const confirmSkip = async () => {
   if (!selectedBudgetItem.value) return
 
   try {
-    // For now, we'll just close the modal
-    // TODO: Implement skip functionality
-    console.log('Skipping item:', selectedBudgetItem.value.name, 'Reason:', skipReason.value)
-    closeSkipModal()
+      // For now, we'll just close the modal
+      // TODO: Implement skip functionality
+      console.log(
+        'Skipping item:',
+        selectedBudgetItem.value.name,
+        'Reason:',
+        skipReason.value
+      )
+      closeSkipModal()
   } catch (error) {
-    console.error('Error skipping item:', error)
+      console.error('Error skipping item:', error)
   }
 }
 
 const onTransactionAdded = async () => {
-  await loadBudgetItems()
+  await budgetStore.fetchBudgetItems(selectedYear.value)
   selectedBudgetItem.value = null
 }
 
 const onTransactionUpdated = async () => {
-  await loadBudgetItems()
+  await budgetStore.fetchBudgetItems(selectedYear.value)
   selectedBudgetItem.value = null
 }
 
-// Lifecycle
-onMounted(() => {
-  // Ensure expandedRows is properly initialized
-  if (!Array.isArray(expandedRows.value)) {
-    expandedRows.value = []
-  }
-  loadData()
-})
+  // Lifecycle
+  onMounted(() => {
+    // Ensure expandedRows is properly initialized
+    if (!Array.isArray(expandedRows.value)) {
+      expandedRows.value = []
+    }
+    loadData()
+  })
 
-watch(selectedDate, async (newDate, oldDate) => {
-  if (!oldDate) return // Skip on initial mount
+  watch(selectedDate, async (newDate, oldDate) => {
+    if (!oldDate) return // Skip on initial mount
 
-  const newYear = newDate.getFullYear()
-  const newMonth = newDate.getMonth()
-  const oldYear = oldDate.getFullYear()
-  const oldMonth = oldDate.getMonth()
+    const newYear = newDate.getFullYear()
+    const newMonth = newDate.getMonth()
+    const oldYear = oldDate.getFullYear()
+    const oldMonth = oldDate.getMonth()
 
-  // If year changed, fetch budget items for the new year
-  if (newYear !== oldYear) {
-    await loadDataForYear()
-  } else {
-    // If only month changed, just fetch transactions for the new month
-    await loadDataForMonth()
-  }
-})
-
-
+    // If year changed, fetch budget items for the new year
+    if (newYear !== oldYear) {
+      await loadDataForYear()
+    } else {
+      // If only month changed, just fetch transactions for the new month
+      await loadDataForMonth()
+    }
+  })
 </script>
 
 <template>
@@ -502,7 +546,9 @@ watch(selectedDate, async (newDate, oldDate) => {
   <!-- Month Navigation -->
   <Card class="mb-3">
     <template #content>
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div
+        class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+      >
         <!-- Month Navigation Controls -->
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="flex items-center gap-2">
@@ -575,7 +621,9 @@ watch(selectedDate, async (newDate, oldDate) => {
         v-if="isLoading"
         class="flex items-center justify-center py-12"
       >
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"
+        />
         <span class="ml-3 text-gray-600">Loading budget items...</span>
       </div>
 
@@ -590,7 +638,11 @@ watch(selectedDate, async (newDate, oldDate) => {
             No budget items found
           </h3>
           <p class="mt-1 text-sm text-gray-500">
-            {{ budgetItems.length === 0 ? 'No budget items for this month. Add some in the Budget Planner.' : 'No items match your current filters.' }}
+            {{
+              budgetItems.length === 0
+                ? "No budget items for this month. Add some in the Budget Planner."
+                : "No items match your current filters."
+            }}
           </p>
         </div>
 
@@ -605,7 +657,9 @@ watch(selectedDate, async (newDate, oldDate) => {
             class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-10 flex items-center justify-center rounded-lg"
           >
             <div class="flex flex-col items-center gap-2">
-              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
+              <div
+                class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"
+              />
               <span class="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
             </div>
           </div>
@@ -645,7 +699,8 @@ watch(selectedDate, async (newDate, oldDate) => {
                 v-if="getActualAmount(item) > 0"
                 class="text-xs mb-3"
               >
-                {{ formatCurrency(getActualAmount(item)) }} / {{ formatCurrency(getBudgetAmount(item)) }}
+                {{ formatCurrency(getActualAmount(item)) }} /
+                {{ formatCurrency(getBudgetAmount(item)) }}
               </div>
               <!-- Progress Bar -->
               <div
@@ -768,13 +823,20 @@ watch(selectedDate, async (newDate, oldDate) => {
                     class="flex items-center gap-2 p-2 rounded text-xs"
                   >
                     <div class="flex items-center gap-2">
-                      <span class="truncate">{{ transaction.description || 'Transaction' }}</span>
+                      <span class="truncate">{{
+                        transaction.description || "Transaction"
+                      }}</span>
                     </div>
                     <span
-                      :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                      :class="
+                        transaction.type === 'income'
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                      "
                       class="font-medium"
                     >
-                      {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                      {{ transaction.type === "income" ? "+" : "-"
+                      }}{{ formatCurrency(transaction.amount) }}
                     </span>
                   </div>
                 </div>
@@ -841,10 +903,15 @@ watch(selectedDate, async (newDate, oldDate) => {
                   >
                     <template #body="{ data: transaction }">
                       <span
-                        :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                        :class="
+                          transaction.type === 'income'
+                            ? 'text-green-600'
+                            : 'text-red-600'
+                        "
                         class="font-medium"
                       >
-                        {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                        {{ transaction.type === "income" ? "+" : "-"
+                        }}{{ formatCurrency(transaction.amount) }}
                       </span>
                     </template>
                   </Column>
@@ -857,7 +924,9 @@ watch(selectedDate, async (newDate, oldDate) => {
                     <template #body="{ data: transaction }">
                       <Tag
                         :value="transaction.type"
-                        :severity="transaction.type === 'income' ? 'success' : 'danger'"
+                        :severity="
+                          transaction.type === 'income' ? 'success' : 'danger'
+                        "
                       />
                     </template>
                   </Column>
@@ -868,7 +937,9 @@ watch(selectedDate, async (newDate, oldDate) => {
                     sortable
                   >
                     <template #body="{ data: transaction }">
-                      <span v-if="transaction.accounts?.name">{{ transaction.accounts?.name }}</span>
+                      <span v-if="transaction.accounts?.name">{{
+                        transaction.accounts?.name
+                      }}</span>
                       <span
                         v-else
                         class="text-gray-400"
@@ -882,7 +953,9 @@ watch(selectedDate, async (newDate, oldDate) => {
                     sortable
                   >
                     <template #body="{ data: transaction }">
-                      <span v-if="transaction.category">{{ transaction.category }}</span>
+                      <span v-if="transaction.category">{{
+                        transaction.category
+                      }}</span>
                       <span
                         v-else
                         class="text-gray-400"
@@ -897,7 +970,9 @@ watch(selectedDate, async (newDate, oldDate) => {
                   >
                     <template #body="{ data: transaction }">
                       <div class="flex items-center gap-2">
-                        <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
+                        <span class="font-medium">{{
+                          transaction.description || "Transaction"
+                        }}</span>
                       </div>
                     </template>
                   </Column>
@@ -987,12 +1062,13 @@ watch(selectedDate, async (newDate, oldDate) => {
               <template #body="{ data }">
                 <div class="space-y-2">
                   <div class="font-medium text-center">
-                    {{ formatCurrency(getActualAmount(data)) }} / {{ formatCurrency(getBudgetAmount(data)) }}
+                    {{ formatCurrency(getActualAmount(data)) }} /
+                    {{ formatCurrency(getBudgetAmount(data)) }}
                   </div>
                   <ProgressBar
                     :value="getProgressPercentage(data)"
                     :class="getProgressBarColor(data).replace('bg-', '')"
-                    style="height: 4px;"
+                    style="height: 4px"
                     :show-value="false"
                   />
                 </div>
@@ -1089,7 +1165,8 @@ watch(selectedDate, async (newDate, oldDate) => {
   >
     <div class="space-y-4">
       <p>
-        Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This will mark it as skipped for this month.
+        Are you sure you want to skip "{{ selectedBudgetItem?.name }}"? This
+        will mark it as skipped for this month.
       </p>
 
       <div>

@@ -10,7 +10,14 @@ import {
 } from '@/constants/budgetConstants.js'
 import { formatCurrency } from '@/utils/budgetUtils.js'
 
-export function useTransactionModals (transactionStore, selectedYear, currentYear, currentMonth, toastFunction = null, confirmFunction = null) {
+export function useTransactionModals (
+  transactionStore,
+  selectedYear,
+  currentYear,
+  currentMonth,
+  toastFunction = null,
+  confirmFunction = null
+) {
   // Modal state
   const showAddTransactionModal = ref(false)
   const showEditTransactionModal = ref(false)
@@ -29,13 +36,22 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
       toastFunction.add({ severity, summary, detail, life })
     } else if (window.$toaster) {
       // Fallback to old toaster for backward compatibility
-      const method = severity === 'error' ? 'error' : severity === 'warn' ? 'warning' : severity
+      const method =
+        severity === 'error'
+          ? 'error'
+          : severity === 'warn'
+            ? 'warning'
+            : severity
       window.$toaster[method](summary, detail)
     }
   }
 
   // Helper function to show confirmation dialog if available
-  const showConfirm = (message, header = 'Confirmation', icon = 'pi pi-exclamation-triangle') => {
+  const showConfirm = (
+    message,
+    header = 'Confirmation',
+    icon = 'pi pi-exclamation-triangle'
+  ) => {
     return new Promise((resolve) => {
       if (confirmFunction && typeof confirmFunction === 'function') {
         confirmFunction.require({
@@ -97,7 +113,10 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
   // Get categories by type
   const getCategoriesByType = (type) => {
-    return TRANSACTION_CATEGORIES[type] || TRANSACTION_CATEGORIES[TRANSACTION_TYPES.EXPENSE]
+    return (
+      TRANSACTION_CATEGORIES[type] ||
+      TRANSACTION_CATEGORIES[TRANSACTION_TYPES.EXPENSE]
+    )
   }
 
   // Update category when type changes
@@ -123,13 +142,15 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    let cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+    let cleanValue = parts[0] + (parts.length > 1 ? `.${parts[1]}` : '')
 
     // Check if the integer part exceeds the maximum length
     const maxLength = DATABASE_LIMITS.MAX_AMOUNT.toString().length // 10 digits
     if (parts[0].length > maxLength) {
       // Trim the integer part to max length
-      cleanValue = parts[0].substring(0, maxLength) + (parts.length > 1 ? `.${  parts[1]}` : '')
+      cleanValue =
+        parts[0].substring(0, maxLength) +
+        (parts.length > 1 ? `.${parts[1]}` : '')
     }
 
     // Convert to number
@@ -140,7 +161,11 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
       numberValue = DATABASE_LIMITS.MAX_AMOUNT
       // Show warning to user
       if (!window.amountLimitWarningShown) {
-        showToast('warn', 'Amount Limit', `Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`)
+        showToast(
+          'warn',
+          'Amount Limit',
+          `Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations.`
+        )
         window.amountLimitWarningShown = true
       }
     }
@@ -162,7 +187,7 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    const cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+    const cleanValue = parts[0] + (parts.length > 1 ? `.${parts[1]}` : '')
 
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
@@ -194,7 +219,7 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    const cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+    const cleanValue = parts[0] + (parts.length > 1 ? `.${parts[1]}` : '')
 
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
@@ -226,7 +251,7 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
     // Ensure only one decimal point
     const parts = numericValue.split('.')
-    const cleanValue = parts[0] + (parts.length > 1 ? `.${  parts[1]}` : '')
+    const cleanValue = parts[0] + (parts.length > 1 ? `.${parts[1]}` : '')
 
     // Convert to number
     let numberValue = parseFloat(cleanValue) || 0
@@ -262,12 +287,19 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
     // Check for database limits
     if (formData.value.amount > DATABASE_LIMITS.MAX_AMOUNT) {
-      errors.push(`Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations`)
+      errors.push(
+        `Amount cannot exceed ${DATABASE_LIMITS.MAX_AMOUNT_FORMATTED} due to database limitations`
+      )
     }
 
     // Validate investment direction for investment transactions
-    if (formData.value.type === 'investment' && !formData.value.investment_direction) {
-      errors.push('Investment direction is required for investment transactions')
+    if (
+      formData.value.type === 'investment' &&
+      !formData.value.investment_direction
+    ) {
+      errors.push(
+        'Investment direction is required for investment transactions'
+      )
     }
 
     if (!formData.value.date) {
@@ -279,10 +311,17 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
     }
 
     // Validate tax amounts consistency
-    if (formData.value.gross_amount && formData.value.net_amount && formData.value.tax_amount) {
-      const expectedGross = formData.value.net_amount + formData.value.tax_amount
+    if (
+      formData.value.gross_amount &&
+      formData.value.net_amount &&
+      formData.value.tax_amount
+    ) {
+      const expectedGross =
+        formData.value.net_amount + formData.value.tax_amount
       if (Math.abs(formData.value.gross_amount - expectedGross) > 0.01) {
-        errors.push('Tax amounts are inconsistent: gross amount must equal net amount + tax amount')
+        errors.push(
+          'Tax amounts are inconsistent: gross amount must equal net amount + tax amount'
+        )
       }
     }
 
@@ -304,7 +343,10 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
       gross_amount: formData.value.gross_amount,
       tax_amount: formData.value.tax_amount,
       net_amount: formData.value.net_amount,
-      investment_direction: formData.value.type === 'investment' ? formData.value.investment_direction : null
+      investment_direction:
+        formData.value.type === 'investment'
+          ? formData.value.investment_direction
+          : null
     }
   }
 
@@ -315,7 +357,11 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
       const errors = validateFormData()
       if (errors.length > 0) {
-        showToast('error', 'Validation Error', `Please fix the following errors:\n${  errors.join('\n')}`)
+        showToast(
+          'error',
+          'Validation Error',
+          `Please fix the following errors:\n${errors.join('\n')}`
+        )
         return false
       }
 
@@ -329,12 +375,20 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
         resetFormData()
         return result
       } else {
-        showToast('error', 'Add Transaction Failed', 'Failed to add transaction. Please try again.')
+        showToast(
+          'error',
+          'Add Transaction Failed',
+          'Failed to add transaction. Please try again.'
+        )
         return false
       }
     } catch (error) {
       console.error('Error adding transaction:', error)
-      showToast('error', 'Add Transaction Failed', `Error adding transaction: ${  error.message || 'Unknown error'}`)
+      showToast(
+        'error',
+        'Add Transaction Failed',
+        `Error adding transaction: ${error.message || 'Unknown error'}`
+      )
       return false
     } finally {
       isLoading.value = false
@@ -348,25 +402,40 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
 
       const errors = validateFormData()
       if (errors.length > 0) {
-        showToast('error', 'Validation Error', `Please fix the following errors:\n${  errors.join('\n')}`)
+        showToast(
+          'error',
+          'Validation Error',
+          `Please fix the following errors:\n${errors.join('\n')}`
+        )
         return false
       }
 
       const updateData = createTransactionData()
 
       console.log('Updating transaction with data:', updateData)
-      const result = await transactionStore.updateTransaction(transactionId, updateData)
+      const result = await transactionStore.updateTransaction(
+        transactionId,
+        updateData
+      )
       console.log('Store result:', result)
 
       if (result) {
         return result
       } else {
-        showToast('error', 'Update Transaction Failed', 'Failed to update transaction. Please try again.')
+        showToast(
+          'error',
+          'Update Transaction Failed',
+          'Failed to update transaction. Please try again.'
+        )
         return false
       }
     } catch (error) {
       console.error('Error updating transaction:', error)
-      showToast('error', 'Update Transaction Failed', `Error updating transaction: ${  error.message || 'Unknown error'}`)
+      showToast(
+        'error',
+        'Update Transaction Failed',
+        `Error updating transaction: ${error.message || 'Unknown error'}`
+      )
       return false
     } finally {
       isLoading.value = false
@@ -379,7 +448,9 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
       formData.value = {
         ...transaction,
         // Ensure date is in YYYY-MM-DD format
-        date: transaction.date ? new Date(transaction.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        date: transaction.date
+          ? new Date(transaction.date).toISOString().split('T')[0]
+          : new Date().toISOString().split('T')[0],
         // Ensure tags is an array
         tags: Array.isArray(transaction.tags) ? [...transaction.tags] : []
       }
@@ -425,21 +496,30 @@ export function useTransactionModals (transactionStore, selectedYear, currentYea
   }
 
   const deleteTransaction = async (transactionId) => {
-    const confirmed = await showConfirm('Are you sure you want to delete this transaction?')
+    const confirmed = await showConfirm(
+      'Are you sure you want to delete this transaction?'
+    )
     if (confirmed) {
       const result = await transactionStore.deleteTransaction(transactionId)
       if (!result) {
-        showToast('error', 'Delete Transaction Failed', 'Failed to delete transaction. Please try again.')
+        showToast(
+          'error',
+          'Delete Transaction Failed',
+          'Failed to delete transaction. Please try again.'
+        )
       }
     }
   }
 
   // Watch for modal opening to initialize form
-  watch(() => showAddTransactionModal.value, (isOpen) => {
-    if (isOpen) {
-      initializeFormData()
+  watch(
+    () => showAddTransactionModal.value,
+    (isOpen) => {
+      if (isOpen) {
+        initializeFormData()
+      }
     }
-  })
+  )
 
   return {
     // Modal state

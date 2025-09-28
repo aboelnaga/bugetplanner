@@ -27,75 +27,78 @@ const expandedBudgetItems = ref([])
 
 // Edit form
 const editForm = reactive({
-  name: '',
-  current_value: '',
-  purchase_date: '',
-  last_valuation_date: '',
-  description: '',
-  real_estate_status: '',
-  // Real estate specific
-  delivery_date: '',
-  construction_status: '',
-  completion_date: '',
-  developer_owner: '',
-  location: '',
-  // Precious metals specific
-  metal_type: '',
-  karat: '',
-  condition: '',
-  form: '',
-  purpose: '',
-  amount: '',
-  amount_unit: ''
-})
+    name: '',
+    current_value: '',
+    purchase_date: '',
+    last_valuation_date: '',
+    description: '',
+    real_estate_status: '',
+    // Real estate specific
+    delivery_date: '',
+    construction_status: '',
+    completion_date: '',
+    developer_owner: '',
+    location: '',
+    // Precious metals specific
+    metal_type: '',
+    karat: '',
+    condition: '',
+    form: '',
+    purpose: '',
+    amount: '',
+    amount_unit: ''
+  })
 
 // Options for dropdowns
 const constructionStatusOptions = [
-  { label: 'Under Construction', value: 'under_construction' },
-  { label: 'Finished', value: 'finished' }
-]
+    { label: 'Under Construction', value: 'under_construction' },
+    { label: 'Finished', value: 'finished' }
+  ]
 
 const metalTypeOptions = [
-  { label: 'Gold', value: 'gold' },
-  { label: 'Silver', value: 'silver' },
-  { label: 'Platinum', value: 'platinum' },
-  { label: 'Palladium', value: 'palladium' },
-  { label: 'Rhodium', value: 'rhodium' }
-]
+    { label: 'Gold', value: 'gold' },
+    { label: 'Silver', value: 'silver' },
+    { label: 'Platinum', value: 'platinum' },
+    { label: 'Palladium', value: 'palladium' },
+    { label: 'Rhodium', value: 'rhodium' }
+  ]
 
 const karatOptions = [
-  { label: '24 Karat', value: '24K' },
-  { label: '22 Karat', value: '22K' },
-  { label: '21 Karat', value: '21K' },
-  { label: '18 Karat', value: '18K' },
-  { label: '14 Karat', value: '14K' },
-  { label: '10 Karat', value: '10K' },
-  { label: '9 Karat', value: '9K' }
-]
+    { label: '24 Karat', value: '24K' },
+    { label: '22 Karat', value: '22K' },
+    { label: '21 Karat', value: '21K' },
+    { label: '18 Karat', value: '18K' },
+    { label: '14 Karat', value: '14K' },
+    { label: '10 Karat', value: '10K' },
+    { label: '9 Karat', value: '9K' }
+  ]
 
 const conditionOptions = [
-  { label: 'New', value: 'new' },
-  { label: 'Used', value: 'used' }
-]
+    { label: 'New', value: 'new' },
+    { label: 'Used', value: 'used' }
+  ]
 
 const formOptions = [
-  { label: 'Bars', value: 'bars' },
-  { label: 'Jewelry', value: 'jewelry' },
-  { label: 'Coins', value: 'coins' },
-  { label: 'Other', value: 'other' }
-]
+    { label: 'Bars', value: 'bars' },
+    { label: 'Jewelry', value: 'jewelry' },
+    { label: 'Coins', value: 'coins' },
+    { label: 'Other', value: 'other' }
+  ]
 
 const purposeOptions = [
-  { label: 'Investment', value: 'investment' },
-  { label: 'Personal Use (Zakat Calculation)', value: 'personal_use_for_zakat' }
-]
+    { label: 'Investment', value: 'investment' },
+    {
+      label: 'Personal Use (Zakat Calculation)',
+      value: 'personal_use_for_zakat'
+    }
+  ]
 
 const amountUnitOptions = [
-  { label: 'Grams', value: 'grams' },
-  { label: 'Kilograms', value: 'kilograms' },
-  { label: 'Ounces', value: 'ounces' },
-  { label: 'Pounds', value: 'pounds' }
-]
+    { label: 'Grams', value: 'grams' },
+    { label: 'Kilograms', value: 'kilograms' },
+    { label: 'Ounces', value: 'ounces' },
+    { label: 'Pounds', value: 'pounds' }
+  ]
 
 // Computed
 const investmentId = computed(() => route.params.id)
@@ -103,11 +106,11 @@ const investmentId = computed(() => route.params.id)
 // Methods
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount))
+      style: 'currency',
+      currency: 'EGP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.abs(amount))
 }
 
 const formatDate = (date) => {
@@ -117,17 +120,17 @@ const formatDate = (date) => {
 
 const formatInvestmentType = (type) => {
   if (!type) return 'Unknown'
-  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  return type.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 const formatStatus = (status) => {
   if (!status) return 'Unknown'
-  return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  return status.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 const formatConstructionStatus = (status) => {
   if (!status) return 'N/A'
-  return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  return status.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 const formatMetalType = (type) => {
@@ -211,20 +214,30 @@ const loadInvestment = async () => {
   error.value = ''
 
   try {
-    const data = await investmentAssetsAPI.getInvestmentAsset(investmentId.value)
+    const data = await investmentAssetsAPI.getInvestmentAsset(
+        investmentId.value
+      )
     investment.value = data
 
     // Initialize edit form
     editForm.name = data.name || ''
     editForm.current_value = data.current_value || ''
-    editForm.purchase_date = data.purchase_date ? new Date(data.purchase_date) : null
-    editForm.last_valuation_date = data.last_valuation_date ? new Date(data.last_valuation_date) : null
+    editForm.purchase_date = data.purchase_date
+      ? new Date(data.purchase_date)
+      : null
+    editForm.last_valuation_date = data.last_valuation_date
+      ? new Date(data.last_valuation_date)
+      : null
     editForm.description = data.description || ''
     editForm.real_estate_status = data.real_estate_status || ''
     // Real estate specific
-    editForm.delivery_date = data.delivery_date ? new Date(data.delivery_date) : null
+    editForm.delivery_date = data.delivery_date
+      ? new Date(data.delivery_date)
+      : null
     editForm.construction_status = data.construction_status || ''
-    editForm.completion_date = data.completion_date ? new Date(data.completion_date) : null
+    editForm.completion_date = data.completion_date
+      ? new Date(data.completion_date)
+      : null
     editForm.developer_owner = data.developer_owner || ''
     editForm.location = data.location || ''
     // Precious metals specific
@@ -238,15 +251,17 @@ const loadInvestment = async () => {
 
     // Load linked budget items
     if (data.budget_items) {
-      linkedBudgetItems.value = Array.isArray(data.budget_items) ? data.budget_items : [data.budget_items]
+      linkedBudgetItems.value = Array.isArray(data.budget_items)
+          ? data.budget_items
+      : [data.budget_items]
     }
 
     // Load real estate statuses
-    realEstateStatuses.value = await investmentAssetsAPI.getRealEstateStatuses()
-
+    realEstateStatuses.value =
+      await investmentAssetsAPI.getRealEstateStatuses()
   } catch (err) {
-    console.error('Error loading investment:', err)
-    error.value = err.message || 'Failed to load investment'
+      console.error('Error loading investment:', err)
+      error.value = err.message || 'Failed to load investment'
   } finally {
     loading.value = false
   }
@@ -258,69 +273,73 @@ const saveChanges = async () => {
 
   try {
     const updates = {
-      name: editForm.name,
-      current_value: editForm.current_value ? parseFloat(editForm.current_value) : null,
-      purchase_date: editForm.purchase_date || null,
-      last_valuation_date: editForm.last_valuation_date || null,
-      description: editForm.description,
-      ...(investment.value.investment_type === 'real_estate' && {
-        real_estate_status: editForm.real_estate_status,
-        delivery_date: editForm.delivery_date || null,
-        construction_status: editForm.construction_status || null,
-        completion_date: editForm.completion_date || null,
-        developer_owner: editForm.developer_owner,
-        location: editForm.location
-      }),
-      ...(investment.value.investment_type === 'precious_metals' && {
-        metal_type: editForm.metal_type,
-        karat: editForm.karat || null,
-        condition: editForm.condition || null,
-        form: editForm.form || null,
-        purpose: editForm.purpose || null,
-        amount: editForm.amount ? parseFloat(editForm.amount) : null,
-        amount_unit: editForm.amount_unit
-      })
-    }
+        name: editForm.name,
+        current_value: editForm.current_value
+          ? parseFloat(editForm.current_value)
+          : null,
+        purchase_date: editForm.purchase_date || null,
+        last_valuation_date: editForm.last_valuation_date || null,
+        description: editForm.description,
+        ...(investment.value.investment_type === 'real_estate' && {
+          real_estate_status: editForm.real_estate_status,
+          delivery_date: editForm.delivery_date || null,
+          construction_status: editForm.construction_status || null,
+          completion_date: editForm.completion_date || null,
+          developer_owner: editForm.developer_owner,
+          location: editForm.location
+        }),
+        ...(investment.value.investment_type === 'precious_metals' && {
+          metal_type: editForm.metal_type,
+          karat: editForm.karat || null,
+          condition: editForm.condition || null,
+          form: editForm.form || null,
+          purpose: editForm.purpose || null,
+          amount: editForm.amount ? parseFloat(editForm.amount) : null,
+          amount_unit: editForm.amount_unit
+        })
+      }
 
-    await investmentAssetsAPI.updateInvestmentAsset(investmentId.value, updates)
+    await investmentAssetsAPI.updateInvestmentAsset(
+        investmentId.value,
+        updates
+      )
 
     // Reload investment data
     await loadInvestment()
 
     editMode.value = false
-
   } catch (err) {
-    console.error('Error saving changes:', err)
-    error.value = err.message || 'Failed to save changes'
+      console.error('Error saving changes:', err)
+      error.value = err.message || 'Failed to save changes'
   } finally {
     saving.value = false
   }
 }
 
 const deleteInvestment = () => {
-  console.log('deleteInvestment called, confirm object:', confirm)
-  confirm.require({
-    message: `Are you sure you want to delete Investment item: ${investment.value?.name}?`,
-    header: 'Delete Investment?',
-    icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
-      try {
-        deleting.value = true
-        await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
-        router.push('/investments')
-      } catch (err) {
-        console.error('Error deleting investment:', err)
-        error.value = err.message || 'Failed to delete investment'
-      } finally {
-        deleting.value = false
+    console.log('deleteInvestment called, confirm object:', confirm)
+    confirm.require({
+      message: `Are you sure you want to delete Investment item: ${investment.value?.name}?`,
+      header: 'Delete Investment?',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClass: 'p-button-danger',
+      accept: async () => {
+        try {
+          deleting.value = true
+          await investmentAssetsAPI.deleteInvestmentAsset(investmentId.value)
+          router.push('/investments')
+        } catch (err) {
+          console.error('Error deleting investment:', err)
+          error.value = err.message || 'Failed to delete investment'
+        } finally {
+          deleting.value = false
+        }
       }
-    }
-  })
+    })
 }
 
 const goToBudgetItems = () => {
-  router.push('/')
+    router.push('/')
 }
 
 const editBudgetItem = (budgetItem) => {
@@ -329,74 +348,86 @@ const editBudgetItem = (budgetItem) => {
 }
 
 const unlinkBudgetItem = async (budgetItem) => {
-  confirm.require({
-    message: `Are you sure you want to unlink "${budgetItem.name}" from this investment?`,
-    header: 'Confirm Unlink?',
-    icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
-      try {
-        await investmentAssetsAPI.unlinkBudgetItemFromInvestment(budgetItem.id)
+    confirm.require({
+      message: `Are you sure you want to unlink "${budgetItem.name}" from this investment?`,
+      header: 'Confirm Unlink?',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClass: 'p-button-danger',
+      accept: async () => {
+        try {
+          await investmentAssetsAPI.unlinkBudgetItemFromInvestment(
+            budgetItem.id
+          )
 
-        // Reload the investment data to update the linked budget items
-        await loadInvestment()
+          // Reload the investment data to update the linked budget items
+          await loadInvestment()
 
-        console.log('Budget item unlinked successfully')
-      } catch (err) {
-        console.error('Error unlinking budget item:', err)
-        error.value = err.message || 'Failed to unlink budget item'
+          console.log('Budget item unlinked successfully')
+        } catch (err) {
+          console.error('Error unlinking budget item:', err)
+          error.value = err.message || 'Failed to unlink budget item'
+        }
       }
-    }
-  })
+    })
 }
 
 const deleteBudgetItem = async (budgetItem) => {
-  confirm.require({
-    message: `Are you sure you want to delete budget item: ${budgetItem.name}?`,
-    header: 'Confirm Delete?',
-    icon: 'pi pi-exclamation-triangle',
-    acceptClass: 'p-button-danger',
-    accept: async () => {
-      try {
-        await budgetAPI.deleteBudgetItem(budgetItem.id)
+    confirm.require({
+      message: `Are you sure you want to delete budget item: ${budgetItem.name}?`,
+      header: 'Confirm Delete?',
+      icon: 'pi pi-exclamation-triangle',
+      acceptClass: 'p-button-danger',
+      accept: async () => {
+        try {
+          await budgetAPI.deleteBudgetItem(budgetItem.id)
 
-        // Reload the investment data to update the linked budget items
-        await loadInvestment()
+          // Reload the investment data to update the linked budget items
+          await loadInvestment()
 
-        console.log('Budget item deleted successfully')
-      } catch (err) {
-        console.error('Error deleting budget item:', err)
-        error.value = err.message || 'Failed to delete budget item'
+          console.log('Budget item deleted successfully')
+        } catch (err) {
+          console.error('Error deleting budget item:', err)
+          error.value = err.message || 'Failed to delete budget item'
+        }
       }
-    }
-  })
+    })
 }
 
 const handleBudgetItemCreated = async (budgetItem) => {
   try {
     // Handle both single-year and multi-year budget items
     if (Array.isArray(budgetItem)) {
-      // Multi-year budget - link all budget items to the investment
-      console.log('Linking multi-year budget items to investment:', budgetItem.length, 'items')
+        // Multi-year budget - link all budget items to the investment
+        console.log(
+          'Linking multi-year budget items to investment:',
+          budgetItem.length,
+          'items'
+        )
 
-      for (const item of budgetItem) {
-        await investmentAssetsAPI.linkToBudgetItem(investmentId.value, item.id)
-      }
+        for (const item of budgetItem) {
+          await investmentAssetsAPI.linkToBudgetItem(
+            investmentId.value,
+            item.id
+          )
+        }
 
-      console.log('All multi-year budget items linked successfully')
+        console.log('All multi-year budget items linked successfully')
     } else {
-      // Single-year budget - link the single budget item
-      console.log('Linking single budget item to investment:', budgetItem.id)
-      await investmentAssetsAPI.linkToBudgetItem(investmentId.value, budgetItem.id)
+        // Single-year budget - link the single budget item
+        console.log('Linking single budget item to investment:', budgetItem.id)
+        await investmentAssetsAPI.linkToBudgetItem(
+          investmentId.value,
+          budgetItem.id
+        )
     }
 
     // Reload the investment data to show the linked budget items
     await loadInvestment()
 
-    console.log('Budget item(s) created and linked successfully')
+      console.log('Budget item(s) created and linked successfully')
   } catch (err) {
-    console.error('Error linking budget item to investment:', err)
-    error.value = err.message || 'Failed to link budget item to investment'
+      console.error('Error linking budget item to investment:', err)
+      error.value = err.message || 'Failed to link budget item to investment'
   }
 }
 
@@ -405,10 +436,10 @@ const handleBudgetItemUpdated = async (budgetItem) => {
     // Reload the investment data to show updated budget item
     await loadInvestment()
 
-    console.log('Budget item updated successfully')
+      console.log('Budget item updated successfully')
   } catch (err) {
-    console.error('Error updating budget item:', err)
-    error.value = err.message || 'Failed to update budget item'
+      console.error('Error updating budget item:', err)
+      error.value = err.message || 'Failed to update budget item'
   }
 }
 
@@ -416,7 +447,7 @@ const addDocumentLink = () => {
   if (!investment.value.document_links) {
     investment.value.document_links = []
   }
-  investment.value.document_links.push('')
+    investment.value.document_links.push('')
 }
 
 const removeDocumentLink = async (index) => {
@@ -424,26 +455,26 @@ const removeDocumentLink = async (index) => {
     await investmentAssetsAPI.removeDocumentLink(investmentId.value, index)
     await loadInvestment()
   } catch (err) {
-    console.error('Error removing document link:', err)
-    error.value = err.message || 'Failed to remove document link'
+      console.error('Error removing document link:', err)
+      error.value = err.message || 'Failed to remove document link'
   }
 }
 
 const getTransactionTypeColor = (type) => {
   const colors = {
-    income: 'bg-green-500',
-    expense: 'bg-red-500',
-    investment: 'bg-blue-500'
-  }
+      income: 'bg-green-500',
+      expense: 'bg-red-500',
+      investment: 'bg-blue-500'
+    }
   return colors[type] || 'bg-gray-500'
 }
 
 const getTypeSeverity = (type) => {
   const severity = {
-    income: 'success',
-    expense: 'danger',
-    investment: 'info'
-  }
+      income: 'success',
+      expense: 'danger',
+      investment: 'info'
+    }
   return severity[type] || 'secondary'
 }
 
@@ -493,38 +524,41 @@ const getBudgetItemStatus = (item) => {
 
 const getBudgetItemStatusSeverity = (status) => {
   const map = {
-    'Completed': 'success',
-    'Exceeds Budget': 'danger',
-    'Partial': 'info',
-    'Pending': 'warning'
-  }
+      Completed: 'success',
+      'Exceeds Budget': 'danger',
+      Partial: 'info',
+      Pending: 'warning'
+    }
   return map[status] || 'secondary'
 }
 
 const editTransaction = (transaction) => {
-  // TODO: Implement transaction editing
-  console.log('Edit transaction:', transaction)
-  // This could open a modal or navigate to transaction edit page
+    // TODO: Implement transaction editing
+    console.log('Edit transaction:', transaction)
+// This could open a modal or navigate to transaction edit page
 }
 
 const deleteTransaction = (transaction) => {
-  // TODO: Implement transaction deletion with confirmation
-  console.log('Delete transaction:', transaction)
-  // This should show a confirmation dialog before deleting
+    // TODO: Implement transaction deletion with confirmation
+    console.log('Delete transaction:', transaction)
+// This should show a confirmation dialog before deleting
 }
 
-// Lifecycle
-onMounted(() => {
-  if (authStore.isAuthenticated && investmentId.value) {
-    loadInvestment()
-  }
-})
+  // Lifecycle
+  onMounted(() => {
+    if (authStore.isAuthenticated && investmentId.value) {
+      loadInvestment()
+    }
+  })
 
-watch(() => route.params.id, (newId) => {
-  if (newId && authStore.isAuthenticated) {
-    loadInvestment()
-  }
-})
+  watch(
+    () => route.params.id,
+    (newId) => {
+      if (newId && authStore.isAuthenticated) {
+        loadInvestment()
+      }
+    }
+  )
 </script>
 
 <template>
@@ -532,8 +566,12 @@ watch(() => route.params.id, (newId) => {
     <!-- Header -->
     <Card class="mb-6">
       <template #content>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
+          <div
+            class="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+          >
             <Button
               icon="pi pi-arrow-left"
               label="Back to Investments"
@@ -544,7 +582,7 @@ watch(() => route.params.id, (newId) => {
 
             <div>
               <h1 class="text-3xl font-bold">
-                {{ investment?.name || 'Investment Details' }}
+                {{ investment?.name || "Investment Details" }}
               </h1>
               <p class="mt-1">
                 {{ formatInvestmentType(investment?.investment_type) }}
@@ -662,8 +700,14 @@ watch(() => route.params.id, (newId) => {
               Status
             </h3>
             <Tag
-              :value="formatStatus(investment.real_estate_status || investment.status)"
-              :severity="getStatusSeverity(investment.real_estate_status || investment.status)"
+              :value="
+                formatStatus(investment.real_estate_status || investment.status)
+              "
+              :severity="
+                getStatusSeverity(
+                  investment.real_estate_status || investment.status,
+                )
+              "
               rounded
             />
           </div>
@@ -982,7 +1026,7 @@ watch(() => route.params.id, (newId) => {
                   Developer/Owner
                 </h3>
                 <p class="text-sm">
-                  {{ investment.developer_owner || 'N/A' }}
+                  {{ investment.developer_owner || "N/A" }}
                 </p>
               </div>
 
@@ -991,7 +1035,7 @@ watch(() => route.params.id, (newId) => {
                   Location
                 </h3>
                 <p class="text-sm">
-                  {{ investment.location || 'N/A' }}
+                  {{ investment.location || "N/A" }}
                 </p>
               </div>
 
@@ -1000,7 +1044,11 @@ watch(() => route.params.id, (newId) => {
                   Delivery Date
                 </h3>
                 <p class="text-sm">
-                  {{ investment.delivery_date ? formatDate(investment.delivery_date) : 'N/A' }}
+                  {{
+                    investment.delivery_date
+                      ? formatDate(investment.delivery_date)
+                      : "N/A"
+                  }}
                 </p>
               </div>
 
@@ -1009,7 +1057,11 @@ watch(() => route.params.id, (newId) => {
                   Construction Status
                 </h3>
                 <p class="text-sm">
-                  {{ investment.construction_status ? formatConstructionStatus(investment.construction_status) : 'N/A' }}
+                  {{
+                    investment.construction_status
+                      ? formatConstructionStatus(investment.construction_status)
+                      : "N/A"
+                  }}
                 </p>
               </div>
 
@@ -1018,7 +1070,11 @@ watch(() => route.params.id, (newId) => {
                   Completion Date
                 </h3>
                 <p class="text-sm">
-                  {{ investment.completion_date ? formatDate(investment.completion_date) : 'N/A' }}
+                  {{
+                    investment.completion_date
+                      ? formatDate(investment.completion_date)
+                      : "N/A"
+                  }}
                 </p>
               </div>
 
@@ -1046,7 +1102,7 @@ watch(() => route.params.id, (newId) => {
                   Karat/Purity
                 </h3>
                 <p class="text-sm">
-                  {{ investment.karat || 'N/A' }}
+                  {{ investment.karat || "N/A" }}
                 </p>
               </div>
 
@@ -1055,7 +1111,11 @@ watch(() => route.params.id, (newId) => {
                   Condition
                 </h3>
                 <p class="text-sm">
-                  {{ investment.condition ? formatCondition(investment.condition) : 'N/A' }}
+                  {{
+                    investment.condition
+                      ? formatCondition(investment.condition)
+                      : "N/A"
+                  }}
                 </p>
               </div>
 
@@ -1064,7 +1124,7 @@ watch(() => route.params.id, (newId) => {
                   Form
                 </h3>
                 <p class="text-sm">
-                  {{ investment.form ? formatForm(investment.form) : 'N/A' }}
+                  {{ investment.form ? formatForm(investment.form) : "N/A" }}
                 </p>
               </div>
 
@@ -1073,7 +1133,11 @@ watch(() => route.params.id, (newId) => {
                   Purpose
                 </h3>
                 <p class="text-sm">
-                  {{ investment.purpose ? formatPurpose(investment.purpose) : 'N/A' }}
+                  {{
+                    investment.purpose
+                      ? formatPurpose(investment.purpose)
+                      : "N/A"
+                  }}
                 </p>
               </div>
 
@@ -1082,7 +1146,11 @@ watch(() => route.params.id, (newId) => {
                   Amount
                 </h3>
                 <p class="text-sm">
-                  {{ investment.amount ? `${investment.amount} ${investment.amount_unit}` : 'N/A' }}
+                  {{
+                    investment.amount
+                      ? `${investment.amount} ${investment.amount_unit}`
+                      : "N/A"
+                  }}
                 </p>
               </div>
             </div>
@@ -1091,7 +1159,9 @@ watch(() => route.params.id, (newId) => {
       </Card>
 
       <!-- Document Links -->
-      <Card v-if="investment.document_links && investment.document_links.length > 0">
+      <Card
+        v-if="investment.document_links && investment.document_links.length > 0"
+      >
         <template #header>
           <h2 class="text-xl font-semibold">
             Documents
@@ -1218,7 +1288,9 @@ watch(() => route.params.id, (newId) => {
                       style="width: 120px"
                     >
                       <template #body="{ data: transaction }">
-                        <span class="font-medium">{{ formatDate(transaction.date) }}</span>
+                        <span class="font-medium">{{
+                          formatDate(transaction.date)
+                        }}</span>
                       </template>
                     </Column>
 
@@ -1234,7 +1306,9 @@ watch(() => route.params.id, (newId) => {
                             :class="getTransactionTypeColor(transaction.type)"
                             class="w-3 h-3 rounded-full flex-shrink-0"
                           />
-                          <span class="font-medium">{{ transaction.description || 'Transaction' }}</span>
+                          <span class="font-medium">{{
+                            transaction.description || "Transaction"
+                          }}</span>
                         </div>
                       </template>
                     </Column>
@@ -1262,10 +1336,15 @@ watch(() => route.params.id, (newId) => {
                     >
                       <template #body="{ data: transaction }">
                         <span
-                          :class="transaction.type === 'income' ? 'text-green-600' : 'text-red-600'"
+                          :class="
+                            transaction.type === 'income'
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          "
                           class="font-semibold text-lg"
                         >
-                          {{ transaction.type === 'income' ? '+' : '-' }}{{ formatCurrency(transaction.amount) }}
+                          {{ transaction.type === "income" ? "+" : "-"
+                          }}{{ formatCurrency(transaction.amount) }}
                         </span>
                       </template>
                     </Column>
@@ -1295,7 +1374,9 @@ watch(() => route.params.id, (newId) => {
                         <span
                           v-if="transaction.category"
                           class="font-medium"
-                        >{{ transaction.category }}</span>
+                        >{{
+                          transaction.category
+                        }}</span>
                         <span v-else>-</span>
                       </template>
                     </Column>
@@ -1404,12 +1485,17 @@ watch(() => route.params.id, (newId) => {
                 <template #body="{ data }">
                   <div class="space-y-2">
                     <div class="font-medium text-center text-sm">
-                      {{ formatCurrency(calculateTotalAmount(data.actual_amounts)) }} / {{ formatCurrency(calculateTotalAmount(data.amounts)) }}
+                      {{
+                        formatCurrency(
+                          calculateTotalAmount(data.actual_amounts),
+                        )
+                      }}
+                      / {{ formatCurrency(calculateTotalAmount(data.amounts)) }}
                     </div>
                     <ProgressBar
                       :value="getProgressPercentage(data)"
                       :class="getProgressBarColor(data).replace('bg-', '')"
-                      style="height: 4px;"
+                      style="height: 4px"
                       :show-value="false"
                     />
                   </div>

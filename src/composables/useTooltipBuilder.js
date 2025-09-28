@@ -56,7 +56,11 @@ export function useTooltipBuilder (formatCurrency) {
   }
 
   const buildTooltip = (planned, actual, category, actualColorClass) => {
-    const { label, colorClass, amountText, percentText } = buildStatus(planned, actual, category)
+    const { label, colorClass, amountText, percentText } = buildStatus(
+      planned,
+      actual,
+      category
+    )
 
     if (label === 'OnPlan') {
       return `<span class="font-bold">Planned:</span> <span class="${BLUE_PLANNED} font-bold">${formatCurrency(planned)}</span>
@@ -78,20 +82,27 @@ export function useTooltipBuilder (formatCurrency) {
     return value >= 0 ? GREEN : RED
   }
 
-  const buildNetBreakdownTooltip = (plannedIncome, actualIncome, plannedExpense, actualExpense) => {
+  const buildNetBreakdownTooltip = (
+    plannedIncome,
+    actualIncome,
+    plannedExpense,
+    actualExpense
+  ) => {
     const incomeStatus = buildStatus(plannedIncome, actualIncome, 'income')
     const expenseStatus = buildStatus(plannedExpense, actualExpense, 'expense')
 
     const incomeActualClass = actualColorFor(actualIncome, 'income')
     const expenseActualClass = actualColorFor(actualExpense, 'expense')
 
-    const incomeStatusText = incomeStatus.label === 'OnPlan'
-      ? 'OnPlan'
-      : `${incomeStatus.label}: ${incomeStatus.amountText} (${incomeStatus.percentText})`
+    const incomeStatusText =
+      incomeStatus.label === 'OnPlan'
+        ? 'OnPlan'
+        : `${incomeStatus.label}: ${incomeStatus.amountText} (${incomeStatus.percentText})`
 
-    const expenseStatusText = expenseStatus.label === 'OnPlan'
-      ? 'OnPlan'
-      : `${expenseStatus.label}: ${expenseStatus.amountText} (${expenseStatus.percentText})`
+    const expenseStatusText =
+      expenseStatus.label === 'OnPlan'
+        ? 'OnPlan'
+        : `${expenseStatus.label}: ${expenseStatus.amountText} (${expenseStatus.percentText})`
 
     // Render as compact table with white borders for clarity
     return `<table class="text-sm border border-white border-collapse">
@@ -129,5 +140,3 @@ export function useTooltipBuilder (formatCurrency) {
     buildNetBreakdownTooltip
   }
 }
-
-

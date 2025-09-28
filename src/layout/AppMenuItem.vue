@@ -5,62 +5,76 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
-const { layoutState, setActiveMenuItem, toggleMenu, isSidebarCollapsed } = useLayout()
+const { layoutState, setActiveMenuItem, toggleMenu, isSidebarCollapsed } =
+    useLayout()
 
 const props = defineProps({
-  item: {
-    type: Object,
-    default: () => ({})
-  },
-  index: {
-    type: Number,
-    default: 0
-  },
-  root: {
-    type: Boolean,
-    default: true
-  },
-  parentItemKey: {
-    type: String,
-    default: null
-  }
-})
+    item: {
+      type: Object,
+      default: () => ({})
+    },
+    index: {
+      type: Number,
+      default: 0
+    },
+    root: {
+      type: Boolean,
+      default: true
+    },
+    parentItemKey: {
+      type: String,
+      default: null
+    }
+  })
 
 const isActiveMenu = ref(false)
 const itemKey = ref(null)
 
-onBeforeMount(() => {
-  itemKey.value = props.parentItemKey ? `${props.parentItemKey  }-${  props.index}` : String(props.index)
+  onBeforeMount(() => {
+    itemKey.value = props.parentItemKey
+      ? `${props.parentItemKey}-${props.index}`
+      : String(props.index)
 
-  const activeItem = layoutState.activeMenuItem
+    const activeItem = layoutState.activeMenuItem
 
-  isActiveMenu.value = activeItem === itemKey.value || activeItem ? activeItem.startsWith(`${itemKey.value  }-`) : false
-})
+    isActiveMenu.value =
+      activeItem === itemKey.value || activeItem
+        ? activeItem.startsWith(`${itemKey.value}-`)
+        : false
+  })
 
-watch(
-  () => layoutState.activeMenuItem,
-  (newVal) => {
-    isActiveMenu.value = newVal === itemKey.value || newVal.startsWith(`${itemKey.value  }-`)
-  }
-)
+  watch(
+    () => layoutState.activeMenuItem,
+    (newVal) => {
+      isActiveMenu.value =
+        newVal === itemKey.value || newVal.startsWith(`${itemKey.value}-`)
+    }
+  )
 
 function itemClick (event, item) {
   if (item.disabled) {
-    event.preventDefault()
-    return
+      event.preventDefault()
+      return
   }
 
-  if ((item.to || item.url) && (layoutState.staticMenuMobileActive || layoutState.overlayMenuActive)) {
-    toggleMenu()
+  if (
+    (item.to || item.url) &&
+    (layoutState.staticMenuMobileActive || layoutState.overlayMenuActive)
+  ) {
+      toggleMenu()
   }
 
   if (item.command) {
-    item.command({ originalEvent: event, item })
+      item.command({ originalEvent: event, item })
   }
 
-  const foundItemKey = item.items ? (isActiveMenu.value ? props.parentItemKey : itemKey) : itemKey.value
+  const foundItemKey = item.items
+    ? isActiveMenu.value
+      ? props.parentItemKey
+      : itemKey
+    : itemKey.value
 
-  setActiveMenuItem(foundItemKey)
+    setActiveMenuItem(foundItemKey)
 }
 
 function checkActiveRoute (item) {
@@ -69,7 +83,9 @@ function checkActiveRoute (item) {
 </script>
 
 <template>
-  <li :class="{ 'layout-root-menuitem': root, 'active-menuitem': isActiveMenu }">
+  <li
+    :class="{ 'layout-root-menuitem': root, 'active-menuitem': isActiveMenu }"
+  >
     <div
       v-if="root && item.visible !== false"
       class="layout-menuitem-root-text"

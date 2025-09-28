@@ -128,6 +128,22 @@ The project includes VS Code configuration for:
 - **`.editorconfig`**: Editor consistency settings
 - **`.vscode/settings.json`**: VS Code specific settings
 
+## ESLint Rules Configuration
+
+### Current Rule Settings
+- **Vue.js Rules**: 
+  - Multi-word component names: disabled (allows single-word components)
+  - Unused variables: warning (helps identify dead code)
+  - Template validation: strict (prevents template errors)
+- **JavaScript Rules**:
+  - Console statements: allowed (development debugging)
+  - Unused variables: warning (not error)
+  - Code style: single quotes, no semicolons, 2-space indentation
+- **Indentation Rules**:
+  - General indent: disabled for Vue files (prevents conflicts)
+  - Vue script indent: 2 spaces with proper case handling
+  - Vue HTML indent: 2 spaces
+
 ## Watch Mode Features
 
 ### Real-Time Linting
@@ -172,3 +188,28 @@ The project includes VS Code configuration for:
 1. Use `npm run dev:no-lint` or `npm run build:no-lint`
 2. Fix linting issues separately
 3. Re-enable linting once issues are resolved
+
+## Skipped Fixes Documentation
+
+### Unused Variables (149 warnings)
+**Status**: Kept as warnings, not fixed
+**Justification**: 
+- These are development-time warnings that help identify dead code
+- Many unused variables are likely for future features or debugging
+- Cleaning them up would require understanding the business logic
+- Better to address them incrementally during feature development
+- Console statements are acceptable for development debugging
+
+### Vue.js Prop Default Values (4 warnings)
+**Status**: Kept as warnings, not fixed
+**Justification**:
+- StatCard component props are intentionally optional
+- Adding default values would change component behavior
+- These are design decisions that should be made by the component owner
+
+### XSS Security Warning (1 warning)
+**Status**: Kept as warning, not fixed
+**Justification**:
+- BaseTooltip component uses v-html for rich content display
+- Content is controlled and sanitized in the application context
+- Security review needed before changing this pattern

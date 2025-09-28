@@ -37,10 +37,10 @@ export const useHawlStore = defineStore('hawl', () => {
 
   // Hawl States
   const HAWL_STATES = {
-    NEW: 'new',           // First time meeting Nisab
-    ACTIVE: 'active',     // Hawl in progress
-    DUE: 'due',          // Hawl completed, Zakat due
-    PAID: 'paid',        // Zakat paid, new Hawl started
+    NEW: 'new', // First time meeting Nisab
+    ACTIVE: 'active', // Hawl in progress
+    DUE: 'due', // Hawl completed, Zakat due
+    PAID: 'paid', // Zakat paid, new Hawl started
     INTERRUPTED: 'interrupted' // Hawl broke, need to restart
   }
 
@@ -54,7 +54,9 @@ export const useHawlStore = defineStore('hawl', () => {
   })
 
   const isHawlInterrupted = computed(() => {
-    return currentHawl.value && currentHawl.value.status === HAWL_STATES.INTERRUPTED
+    return (
+      currentHawl.value && currentHawl.value.status === HAWL_STATES.INTERRUPTED
+    )
   })
 
   const currentHawlStatus = computed(() => {
@@ -112,15 +114,25 @@ export const useHawlStore = defineStore('hawl', () => {
   const saveHawlData = () => {
     try {
       if (currentHawl.value) {
-        localStorage.setItem('zakat-hawl-data', JSON.stringify(currentHawl.value))
+        localStorage.setItem(
+          'zakat-hawl-data',
+          JSON.stringify(currentHawl.value)
+        )
       }
-      localStorage.setItem('zakat-hawl-history', JSON.stringify(hawlHistory.value))
+      localStorage.setItem(
+        'zakat-hawl-history',
+        JSON.stringify(hawlHistory.value)
+      )
     } catch (error) {
       console.error('Error saving Hawl data:', error)
     }
   }
 
-  const createNewHawl = (initialAssets, previousPaymentData = null, assetsMaintainedAboveNisab = true) => {
+  const createNewHawl = (
+    initialAssets,
+    previousPaymentData = null,
+    assetsMaintainedAboveNisab = true
+  ) => {
     const now = new Date()
 
     // Determine Hawl start date based on Islamic law
@@ -134,8 +146,15 @@ export const useHawlStore = defineStore('hawl', () => {
       hijriStart = toHijri(startDate)
       hijriEnd = toHijri(endDate)
 
-      console.log('Creating Hawl from last payment date:', startDate.toISOString().split('T')[0])
-    } else if (previousPaymentData && !previousPaymentData.date && assetsMaintainedAboveNisab) {
+      console.log(
+        'Creating Hawl from last payment date:',
+        startDate.toISOString().split('T')[0]
+      )
+    } else if (
+      previousPaymentData &&
+      !previousPaymentData.date &&
+      assetsMaintainedAboveNisab
+    ) {
       // User has no specific payment date but assets maintained above Nisab
       // Ask user to estimate when they first exceeded Nisab
       // For now, start from a reasonable estimate (1 year ago)
@@ -146,7 +165,10 @@ export const useHawlStore = defineStore('hawl', () => {
       hijriStart = toHijri(startDate)
       hijriEnd = toHijri(endDate)
 
-      console.log('Creating Hawl from estimated date (no payment data, assets maintained):', startDate.toISOString().split('T')[0])
+      console.log(
+        'Creating Hawl from estimated date (no payment data, assets maintained):',
+        startDate.toISOString().split('T')[0]
+      )
     } else {
       // First time payer or assets fell below Nisab - start from today
       startDate = now
@@ -154,7 +176,9 @@ export const useHawlStore = defineStore('hawl', () => {
       hijriStart = toHijri(now)
       hijriEnd = toHijri(endDate)
 
-      console.log('Creating new Hawl from today (first time payer or broken continuity)')
+      console.log(
+        'Creating new Hawl from today (first time payer or broken continuity)'
+      )
     }
 
     const newHawl = {
@@ -215,13 +239,14 @@ export const useHawlStore = defineStore('hawl', () => {
     }
 
     // Check asset snapshots for continuity
-    const relevantSnapshots = assetSnapshots.value.filter(snapshot =>
-      new Date(snapshot.date) >= new Date(currentHawl.value.startDate)
+    const relevantSnapshots = assetSnapshots.value.filter(
+      (snapshot) =>
+        new Date(snapshot.date) >= new Date(currentHawl.value.startDate)
     )
 
     // If any snapshot shows assets below Nisab, Hawl is interrupted
-    return relevantSnapshots.some(snapshot =>
-      snapshot.totalAssets < currentNisab.value
+    return relevantSnapshots.some(
+      (snapshot) => snapshot.totalAssets < currentNisab.value
     )
   }
 
@@ -257,8 +282,8 @@ export const useHawlStore = defineStore('hawl', () => {
     const twelveMonthsAgo = new Date()
     twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12)
 
-    assetSnapshots.value = assetSnapshots.value.filter(snapshot =>
-      new Date(snapshot.date) >= twelveMonthsAgo
+    assetSnapshots.value = assetSnapshots.value.filter(
+      (snapshot) => new Date(snapshot.date) >= twelveMonthsAgo
     )
 
     saveAssetSnapshots()
@@ -266,7 +291,10 @@ export const useHawlStore = defineStore('hawl', () => {
 
   const saveAssetSnapshots = () => {
     try {
-      localStorage.setItem('zakat-asset-snapshots', JSON.stringify(assetSnapshots.value))
+      localStorage.setItem(
+        'zakat-asset-snapshots',
+        JSON.stringify(assetSnapshots.value)
+      )
     } catch (error) {
       console.error('Error saving asset snapshots:', error)
     }
@@ -312,20 +340,21 @@ export const useHawlStore = defineStore('hawl', () => {
   }
 
   const getHawlHistory = () => {
-    return hawlHistory.value.sort((a, b) =>
-      new Date(b.startDate) - new Date(a.startDate)
+    return hawlHistory.value.sort(
+      (a, b) => new Date(b.startDate) - new Date(a.startDate)
     )
   }
 
   const getAssetContinuity = () => {
     if (!currentHawl.value) return { continuous: true, breakDate: null }
 
-    const relevantSnapshots = assetSnapshots.value.filter(snapshot =>
-      new Date(snapshot.date) >= new Date(currentHawl.value.startDate)
+    const relevantSnapshots = assetSnapshots.value.filter(
+      (snapshot) =>
+        new Date(snapshot.date) >= new Date(currentHawl.value.startDate)
     )
 
-    const breakSnapshot = relevantSnapshots.find(snapshot =>
-      snapshot.totalAssets < currentNisab.value
+    const breakSnapshot = relevantSnapshots.find(
+      (snapshot) => snapshot.totalAssets < currentNisab.value
     )
 
     return {
@@ -362,23 +391,35 @@ export const useHawlStore = defineStore('hawl', () => {
 
   const getStatusSeverity = (status) => {
     switch (status) {
-      case HAWL_STATES.ACTIVE: return 'info'
-      case HAWL_STATES.DUE: return 'warning'
-      case HAWL_STATES.PAID: return 'success'
-      case HAWL_STATES.INTERRUPTED: return 'danger'
-      case HAWL_STATES.NEW: return 'secondary'
-      default: return 'secondary'
+      case HAWL_STATES.ACTIVE:
+        return 'info'
+      case HAWL_STATES.DUE:
+        return 'warning'
+      case HAWL_STATES.PAID:
+        return 'success'
+      case HAWL_STATES.INTERRUPTED:
+        return 'danger'
+      case HAWL_STATES.NEW:
+        return 'secondary'
+      default:
+        return 'secondary'
     }
   }
 
   const getStatusLabel = (status) => {
     switch (status) {
-      case HAWL_STATES.ACTIVE: return 'Active'
-      case HAWL_STATES.DUE: return 'Due'
-      case HAWL_STATES.PAID: return 'Paid'
-      case HAWL_STATES.INTERRUPTED: return 'Interrupted'
-      case HAWL_STATES.NEW: return 'New'
-      default: return 'Unknown'
+      case HAWL_STATES.ACTIVE:
+        return 'Active'
+      case HAWL_STATES.DUE:
+        return 'Due'
+      case HAWL_STATES.PAID:
+        return 'Paid'
+      case HAWL_STATES.INTERRUPTED:
+        return 'Interrupted'
+      case HAWL_STATES.NEW:
+        return 'New'
+      default:
+        return 'Unknown'
     }
   }
 

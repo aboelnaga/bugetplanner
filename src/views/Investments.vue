@@ -19,46 +19,51 @@ const selectedType = ref('')
 
 // Filter options
 const typeOptions = [
-  { label: 'Real Estate', value: 'real_estate' },
-  { label: 'Precious Metals', value: 'precious_metals' },
-  { label: 'Other', value: 'other' }
-]
+    { label: 'Real Estate', value: 'real_estate' },
+    { label: 'Precious Metals', value: 'precious_metals' },
+    { label: 'Other', value: 'other' }
+  ]
 
 // Computed
-const investmentAssets = computed(() => investmentAssetsStore.investmentAssets)
+const investmentAssets = computed(
+    () => investmentAssetsStore.investmentAssets
+  )
 const portfolioValue = computed(() => ({
-  totalCurrentValue: investmentAssetsStore.totalPortfolioValue,
-  totalPurchaseValue: investmentAssetsStore.totalPurchaseValue,
-  totalROI: investmentAssetsStore.totalROI,
-  totalROIPercentage: investmentAssetsStore.totalROIPercentage
-}))
+    totalCurrentValue: investmentAssetsStore.totalPortfolioValue,
+    totalPurchaseValue: investmentAssetsStore.totalPurchaseValue,
+    totalROI: investmentAssetsStore.totalROI,
+    totalROIPercentage: investmentAssetsStore.totalROIPercentage
+  }))
 
 const filteredInvestments = computed(() => {
-  let filtered = investmentAssets.value || []
+    let filtered = investmentAssets.value || []
 
-  if (selectedType.value) {
-    filtered = filtered.filter(inv => inv.investment_type === selectedType.value)
-  }
+    if (selectedType.value) {
+      filtered = filtered.filter(
+        (inv) => inv.investment_type === selectedType.value
+      )
+    }
 
-  if (searchTerm.value) {
-    const term = searchTerm.value.toLowerCase()
-    filtered = filtered.filter(inv =>
-      inv.name.toLowerCase().includes(term) ||
-      inv.description?.toLowerCase().includes(term)
-    )
-  }
+    if (searchTerm.value) {
+      const term = searchTerm.value.toLowerCase()
+      filtered = filtered.filter(
+        (inv) =>
+          inv.name.toLowerCase().includes(term) ||
+          inv.description?.toLowerCase().includes(term)
+      )
+    }
 
-  return filtered
-})
+    return filtered
+  })
 
 // Methods
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount))
+      style: 'currency',
+      currency: 'EGP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.abs(amount))
 }
 
 const formatPercentage = (percentage) => {
@@ -68,12 +73,12 @@ const formatPercentage = (percentage) => {
 
 const formatInvestmentType = (type) => {
   if (!type) return 'Unknown'
-  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  return type.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 const formatStatus = (status) => {
   if (!status) return 'Unknown'
-  return status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  return status.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 const getStatusSeverity = (status) => {
@@ -123,32 +128,46 @@ const getROIColor = (investment) => {
 }
 
 const viewInvestment = (investmentId) => {
-  router.push(`/investments/${investmentId}`)
+    router.push(`/investments/${investmentId}`)
 }
 
 const deleteInvestment = async (investment) => {
-  confirm.require({
-    message: `Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`,
-    header: 'Confirm Deletion',
-    icon: 'pi pi-exclamation-triangle',
-    accept: async () => {
-      try {
-        const success = await investmentAssetsStore.deleteInvestmentAsset(investment.id)
-        if (success) {
-          console.log('Investment deleted successfully')
-          toast.add({ severity: 'success', summary: 'Investment Deleted', detail: `Investment "${investment.name}" deleted.` })
-        } else {
-          toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+    confirm.require({
+      message: `Are you sure you want to delete "${investment.name}"? This action cannot be undone and will also remove any linked budget items and transactions.`,
+      header: 'Confirm Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
+        try {
+          const success = await investmentAssetsStore.deleteInvestmentAsset(
+            investment.id
+          )
+          if (success) {
+            console.log('Investment deleted successfully')
+            toast.add({
+              severity: 'success',
+              summary: 'Investment Deleted',
+              detail: `Investment "${investment.name}" deleted.`
+            })
+          } else {
+            toast.add({
+              severity: 'error',
+              summary: 'Error deleting investment',
+              detail: 'Failed to delete investment. Please try again.'
+            })
+          }
+        } catch (error) {
+          console.error('Error deleting investment:', error)
+          toast.add({
+            severity: 'error',
+            summary: 'Error deleting investment',
+            detail: 'Failed to delete investment. Please try again.'
+          })
         }
-      } catch (error) {
-        console.error('Error deleting investment:', error)
-        toast.add({ severity: 'error', summary: 'Error deleting investment', detail: 'Failed to delete investment. Please try again.' })
+      },
+      reject: () => {
+        // User cancelled the deletion
       }
-    },
-    reject: () => {
-      // User cancelled the deletion
-    }
-  })
+    })
 }
 
 // Load data
@@ -157,18 +176,18 @@ const loadData = async () => {
   try {
     await investmentAssetsStore.fetchInvestmentAssets()
   } catch (error) {
-    console.error('Error loading investment data:', error)
+      console.error('Error loading investment data:', error)
   } finally {
     loading.value = false
   }
 }
 
-// Lifecycle
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    loadData()
-  }
-})
+  // Lifecycle
+  onMounted(() => {
+    if (authStore.isAuthenticated) {
+      loadData()
+    }
+  })
 </script>
 
 <template>
@@ -176,7 +195,9 @@ onMounted(() => {
     <!-- Header -->
     <Card class="mb-6">
       <template #content>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
           <div>
             <h1 class="text-3xl font-bold">
               Investment Portfolio
@@ -201,7 +222,9 @@ onMounted(() => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-chart-line text-green-600 text-lg" />
             </div>
             <div>
@@ -219,7 +242,9 @@ onMounted(() => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-briefcase text-blue-600 text-lg" />
             </div>
             <div>
@@ -237,7 +262,9 @@ onMounted(() => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-percentage text-purple-600 text-lg" />
             </div>
             <div>
@@ -255,7 +282,9 @@ onMounted(() => {
       <Card>
         <template #content>
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+            <div
+              class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center"
+            >
               <i class="pi pi-chart-pie text-orange-600 text-lg" />
             </div>
             <div>
@@ -274,7 +303,9 @@ onMounted(() => {
     <!-- Investment DataTable -->
     <Card>
       <template #header>
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div
+          class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"
+        >
           <h3 class="text-xl font-semibold">
             Investment Portfolio
           </h3>
@@ -322,7 +353,11 @@ onMounted(() => {
             No investments found
           </h3>
           <p class="mb-6">
-            {{ investmentAssets?.length === 0 ? 'Get started by creating your first investment.' : 'No investments match your current filters.' }}
+            {{
+              investmentAssets?.length === 0
+                ? "Get started by creating your first investment."
+                : "No investments match your current filters."
+            }}
           </p>
           <Button
             icon="pi pi-plus"
@@ -361,7 +396,9 @@ onMounted(() => {
           >
             <template #body="{ data }">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <div
+                  class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"
+                >
                   <i class="pi pi-briefcase text-blue-600 text-sm" />
                 </div>
                 <div>
@@ -383,7 +420,9 @@ onMounted(() => {
             <template #body="{ data }">
               <Tag
                 :value="formatStatus(data.real_estate_status || data.status)"
-                :severity="getStatusSeverity(data.real_estate_status || data.status)"
+                :severity="
+                  getStatusSeverity(data.real_estate_status || data.status)
+                "
                 rounded
               />
             </template>
@@ -396,7 +435,9 @@ onMounted(() => {
             style="width: 140px"
           >
             <template #body="{ data }">
-              <span class="font-semibold">{{ formatCurrency(data.purchase_amount) }}</span>
+              <span class="font-semibold">{{
+                formatCurrency(data.purchase_amount)
+              }}</span>
             </template>
           </Column>
 
@@ -407,7 +448,9 @@ onMounted(() => {
             style="width: 140px"
           >
             <template #body="{ data }">
-              <span class="font-semibold">{{ formatCurrency(data.current_value || 0) }}</span>
+              <span class="font-semibold">{{
+                formatCurrency(data.current_value || 0)
+              }}</span>
             </template>
           </Column>
 
@@ -486,7 +529,9 @@ onMounted(() => {
               Portfolio Overview
             </h4>
             <p class="text-sm">
-              Your current portfolio includes {{ investmentAssets?.length || 0 }} investments with a total value of {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}.
+              Your current portfolio includes
+              {{ investmentAssets?.length || 0 }} investments with a total value
+              of {{ formatCurrency(portfolioValue?.totalCurrentValue || 0) }}.
             </p>
           </div>
           <div>
@@ -494,7 +539,8 @@ onMounted(() => {
               Diversification Opportunity
             </h4>
             <p class="text-sm">
-              Consider diversifying with different investment types to balance your portfolio and reduce risk.
+              Consider diversifying with different investment types to balance
+              your portfolio and reduce risk.
             </p>
           </div>
         </div>

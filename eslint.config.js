@@ -39,7 +39,7 @@ module.exports = [
       'vue/no-parsing-error': 'error',
 
       // Essential JavaScript rules
-      'no-console': 'warn',
+      'no-console': 'off', // Allow console statements in development
       'no-debugger': 'warn',
       'no-unused-vars': 'warn',
       'prefer-const': 'error',

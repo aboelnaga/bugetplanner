@@ -4,7 +4,9 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.')
+  throw new Error(
+    'Missing Supabase environment variables. Please check your .env file.'
+  )
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -21,8 +23,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     }
   }
 })
-
-
 
 // Helper functions for budget operations
 export const budgetAPI = {
@@ -195,9 +195,15 @@ export const budgetAPI = {
         }
 
         // Check if the previous month should be auto-closed
-        const isClosed = await this.isMonthClosed(userId, previousYear, previousMonth)
+        const isClosed = await this.isMonthClosed(
+          userId,
+          previousYear,
+          previousMonth
+        )
         if (!isClosed) {
-          console.log(`API: Auto-closing month ${previousMonth}/${previousYear} for user ${userId}`)
+          console.log(
+            `API: Auto-closing month ${previousMonth}/${previousYear} for user ${userId}`
+          )
           await this.autoCloseMonth(userId, previousYear, previousMonth)
 
           // Return info about the auto-closed month for notification
@@ -219,10 +225,7 @@ export const budgetAPI = {
 
   // Delete a budget item
   async deleteBudgetItem (id) {
-    const { error } = await supabase
-      .from('budget_items')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('budget_items').delete().eq('id', id)
 
     if (error) throw error
   },
@@ -249,8 +252,6 @@ export const budgetAPI = {
     if (error) throw error
   },
 
-
-
   // Get budget history
   // async getBudgetHistory(userId, year) {
   //   const { data, error } = await supabase
@@ -262,8 +263,6 @@ export const budgetAPI = {
   //   if (error) throw error
   //   return data
   // },
-
-
 
   // Create budget history entry
   // async createBudgetHistory(userId, historyData) {
@@ -325,7 +324,8 @@ export const budgetAPI = {
 export const subscribeToBudgetChanges = (userId, year, callback) => {
   return supabase
     .channel('budget_changes')
-    .on('postgres_changes',
+    .on(
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
@@ -341,11 +341,21 @@ export const subscribeToBudgetChanges = (userId, year, callback) => {
 export const transactionAPI = {
   // Get all transactions for a user and year
   async getTransactions (userId, year, month = null, investmentId = null) {
-    console.log('API: Getting transactions for user:', userId, 'year:', year, 'month:', month, 'investmentId:', investmentId)
+    console.log(
+      'API: Getting transactions for user:',
+      userId,
+      'year:',
+      year,
+      'month:',
+      month,
+      'investmentId:',
+      investmentId
+    )
 
     let query = supabase
       .from('transactions')
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -371,7 +381,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('year', year)
       .order('date', { ascending: false })
@@ -397,7 +408,8 @@ export const transactionAPI = {
     const { data, error } = await supabase
       .from('transactions')
       .insert(transaction)
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -423,7 +435,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .single()
 
     console.log('API: Supabase response:', { data, error })
@@ -437,7 +450,8 @@ export const transactionAPI = {
       .from('transactions')
       .update(updates)
       .eq('id', id)
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -463,7 +477,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .single()
 
     if (error) throw error
@@ -472,10 +487,7 @@ export const transactionAPI = {
 
   // Delete a transaction
   async deleteTransaction (id) {
-    const { error } = await supabase
-      .from('transactions')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('transactions').delete().eq('id', id)
 
     if (error) throw error
   },
@@ -506,7 +518,7 @@ export const transactionAPI = {
       typeBreakdown: {}
     }
 
-    data.forEach(transaction => {
+    data.forEach((transaction) => {
       const amount = parseFloat(transaction.amount) || 0
 
       // Type breakdown
@@ -544,7 +556,8 @@ export const transactionAPI = {
   async getTransactionsByBudgetItem (userId, budgetItemId, year = null) {
     let query = supabase
       .from('transactions')
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -570,7 +583,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('budget_item_id', budgetItemId)
       .order('date', { ascending: false })
@@ -589,7 +603,8 @@ export const transactionAPI = {
   async getTransactionsByInvestment (userId, investmentId, year = null) {
     let query = supabase
       .from('transactions')
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -615,7 +630,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('linked_investment_id', investmentId)
       .order('date', { ascending: false })
@@ -636,7 +652,8 @@ export const transactionAPI = {
       .from('transactions')
       .update({ linked_investment_id: investmentId })
       .eq('id', transactionId)
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -662,7 +679,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .single()
 
     if (error) throw error
@@ -675,7 +693,8 @@ export const transactionAPI = {
       .from('transactions')
       .update({ linked_investment_id: null })
       .eq('id', transactionId)
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -701,7 +720,8 @@ export const transactionAPI = {
           purchase_amount,
           current_value
         )
-      `)
+      `
+      )
       .single()
 
     if (error) throw error
@@ -751,10 +771,7 @@ export const accountAPI = {
 
   // Delete an account
   async deleteAccount (id) {
-    const { error } = await supabase
-      .from('accounts')
-      .delete()
-      .eq('id', id)
+    const { error } = await supabase.from('accounts').delete().eq('id', id)
 
     if (error) throw error
   },
@@ -787,7 +804,8 @@ export const accountAPI = {
 export const subscribeToTransactionChanges = (userId, year, callback) => {
   return supabase
     .channel('transaction_changes')
-    .on('postgres_changes',
+    .on(
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
@@ -838,8 +856,10 @@ export const yearlySummaryAPI = {
 
   // Manually recalculate and update yearly summary for a specific year
   async recalculateYearlySummary (userId, year) {
-    const { data, error } = await supabase
-      .rpc('update_yearly_summary', { user_uuid: userId, target_year: year })
+    const { data, error } = await supabase.rpc('update_yearly_summary', {
+      user_uuid: userId,
+      target_year: year
+    })
 
     if (error) throw error
     return data
@@ -849,13 +869,15 @@ export const yearlySummaryAPI = {
   async getYearlySummaryStats (userId) {
     const { data, error } = await supabase
       .from('yearly_summaries')
-      .select(`
+      .select(
+        `
         year, 
         total_income_actual, total_expenses_actual, 
         total_investment_incoming_actual, total_investment_outgoing_actual,
         total_income_planned, total_expenses_planned,
         total_investment_incoming_planned, total_investment_outgoing_planned
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('year', { ascending: false })
 
@@ -868,7 +890,8 @@ export const yearlySummaryAPI = {
 export const subscribeToAccountChanges = (userId, callback) => {
   return supabase
     .channel('account_changes')
-    .on('postgres_changes',
+    .on(
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
@@ -884,7 +907,8 @@ export const subscribeToAccountChanges = (userId, callback) => {
 export const subscribeToYearlySummaryChanges = (userId, callback) => {
   return supabase
     .channel('yearly_summary_changes')
-    .on('postgres_changes',
+    .on(
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',
@@ -902,7 +926,8 @@ export const investmentAssetsAPI = {
   async getInvestmentAssets (userId) {
     const { data, error } = await supabase
       .from('investment_assets')
-      .select(`
+      .select(
+        `
         *,
         budget_items (
           id,
@@ -913,7 +938,8 @@ export const investmentAssetsAPI = {
           amounts,
           actual_amounts
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -925,7 +951,8 @@ export const investmentAssetsAPI = {
   async getInvestmentAsset (assetId) {
     const { data, error } = await supabase
       .from('investment_assets')
-      .select(`
+      .select(
+        `
         *,
         budget_items!linked_investment_id (
           id,
@@ -960,7 +987,8 @@ export const investmentAssetsAPI = {
             account_id
           )
         )
-      `)
+      `
+      )
       .eq('id', assetId)
       .single()
 
@@ -1093,14 +1121,24 @@ export const investmentAssetsAPI = {
 
     if (error) throw error
 
-    const totalCurrentValue = data.reduce((sum, asset) => sum + (parseFloat(asset.current_value) || 0), 0)
-    const totalPurchaseValue = data.reduce((sum, asset) => sum + (parseFloat(asset.purchase_amount) || 0), 0)
+    const totalCurrentValue = data.reduce(
+      (sum, asset) => sum + (parseFloat(asset.current_value) || 0),
+      0
+    )
+    const totalPurchaseValue = data.reduce(
+      (sum, asset) => sum + (parseFloat(asset.purchase_amount) || 0),
+      0
+    )
 
     return {
       totalCurrentValue,
       totalPurchaseValue,
       totalROI: totalCurrentValue - totalPurchaseValue,
-      totalROIPercentage: totalPurchaseValue > 0 ? ((totalCurrentValue - totalPurchaseValue) / totalPurchaseValue) * 100 : 0
+      totalROIPercentage:
+        totalPurchaseValue > 0
+          ? ((totalCurrentValue - totalPurchaseValue) / totalPurchaseValue) *
+            100
+          : 0
     }
   },
 
@@ -1108,7 +1146,8 @@ export const investmentAssetsAPI = {
   async getInvestmentAssetsWithDetails (userId) {
     const { data, error } = await supabase
       .from('investment_assets')
-      .select(`
+      .select(
+        `
         *,
         budget_items!linked_investment_id (
           id,
@@ -1132,7 +1171,8 @@ export const investmentAssetsAPI = {
           linked_investment_id,
           year
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
 
@@ -1144,7 +1184,8 @@ export const investmentAssetsAPI = {
   async getRealEstateInvestments (userId) {
     const { data, error } = await supabase
       .from('investment_assets')
-      .select(`
+      .select(
+        `
         *,
         budget_items!linked_investment_id (
           id,
@@ -1168,7 +1209,8 @@ export const investmentAssetsAPI = {
           linked_investment_id,
           year
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('investment_type', 'real_estate')
       .order('created_at', { ascending: false })
@@ -1181,7 +1223,8 @@ export const investmentAssetsAPI = {
   async getPreciousMetalsInvestments (userId) {
     const { data, error } = await supabase
       .from('investment_assets')
-      .select(`
+      .select(
+        `
         *,
         budget_items!linked_investment_id (
           id,
@@ -1205,7 +1248,8 @@ export const investmentAssetsAPI = {
           linked_investment_id,
           year
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('investment_type', 'precious_metals')
       .order('created_at', { ascending: false })
@@ -1218,7 +1262,9 @@ export const investmentAssetsAPI = {
   async getPreciousMetalsPortfolio (userId) {
     const { data, error } = await supabase
       .from('investment_assets')
-      .select('metal_type, karat, amount, amount_unit, purchase_amount, current_value, status')
+      .select(
+        'metal_type, karat, amount, amount_unit, purchase_amount, current_value, status'
+      )
       .eq('user_id', userId)
       .eq('investment_type', 'precious_metals')
       .in('status', ['active', 'owned'])
@@ -1227,7 +1273,7 @@ export const investmentAssetsAPI = {
 
     // Group by metal type and karat
     const portfolio = {}
-    data.forEach(asset => {
+    data.forEach((asset) => {
       const key = `${asset.metal_type}_${asset.karat}`
       if (!portfolio[key]) {
         portfolio[key] = {
@@ -1241,8 +1287,10 @@ export const investmentAssetsAPI = {
       }
 
       portfolio[key].total_amount += parseFloat(asset.amount) || 0
-      portfolio[key].total_purchase_value += parseFloat(asset.purchase_amount) || 0
-      portfolio[key].total_current_value += parseFloat(asset.current_value) || 0
+      portfolio[key].total_purchase_value +=
+        parseFloat(asset.purchase_amount) || 0
+      portfolio[key].total_current_value +=
+        parseFloat(asset.current_value) || 0
     })
 
     return Object.values(portfolio)
@@ -1380,7 +1428,10 @@ export const investmentAssetsAPI = {
   async getPurposeOptions () {
     return [
       { value: 'investment', label: 'Investment' },
-      { value: 'personal_use_for_zakat', label: 'Personal Use (Zakat Calculation)' }
+      {
+        value: 'personal_use_for_zakat',
+        label: 'Personal Use (Zakat Calculation)'
+      }
     ]
   },
 
@@ -1398,7 +1449,8 @@ export const investmentAssetsAPI = {
 export const subscribeToInvestmentAssetChanges = (userId, callback) => {
   return supabase
     .channel('investment_assets_changes')
-    .on('postgres_changes',
+    .on(
+      'postgres_changes',
       {
         event: '*',
         schema: 'public',

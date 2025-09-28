@@ -5,7 +5,14 @@ import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
 import { useTransactionStore } from '@/stores/transactions.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 
-export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = [], currentYear = null, currentMonth = null, selectedYear = null) {
+export function useBudgetCalculations (
+  budgetItems,
+  budgetStore,
+  closedMonths = [],
+  currentYear = null,
+  currentMonth = null,
+  selectedYear = null
+) {
   const yearlySummariesStore = useYearlySummariesStore()
   const transactionStore = useTransactionStore()
   // Basic budget amount calculations
@@ -20,7 +27,12 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   }
 
   const getActualAmount = (budget, monthIndex) => {
-    if (!budget || !budget.actual_amounts || !Array.isArray(budget.actual_amounts)) return 0
+    if (
+      !budget ||
+      !budget.actual_amounts ||
+      !Array.isArray(budget.actual_amounts)
+    )
+      return 0
     return parseFloat(budget.actual_amounts[monthIndex]) || 0
   }
 
@@ -28,7 +40,7 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   const isMonthClosed = (monthIndex) => {
     // Handle both ref and direct array
     const monthsArray = closedMonths?.value || closedMonths || []
-    return monthsArray.some(closedMonth => closedMonth.month === monthIndex)
+    return monthsArray.some((closedMonth) => closedMonth.month === monthIndex)
   }
 
   console.log('selectedYear', selectedYear.value)
@@ -55,8 +67,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     }
 
     // Future months: Show planned amounts (not max)
-    if (selectedYear.value > currentYear ||
-        (selectedYear.value === currentYear && monthIndex > currentMonth)) {
+    if (
+      selectedYear.value > currentYear ||
+      (selectedYear.value === currentYear && monthIndex > currentMonth)
+    ) {
       return plannedAmount
     }
 
@@ -78,7 +92,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   // Yearly total calculations
   const calculateYearlyTotal = (budget) => {
     if (!budget || !budget.amounts) return 0
-    const total = budget.amounts.reduce((sum, amount) => sum + (parseFloat(amount) || 0), 0)
+    const total = budget.amounts.reduce(
+      (sum, amount) => sum + (parseFloat(amount) || 0),
+      0
+    )
     return budget.type === BUDGET_TYPES.INCOME ? total : total
   }
 
@@ -88,7 +105,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
       if (budget.type === BUDGET_TYPES.INCOME) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
       }
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'incoming'
+      ) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
@@ -98,7 +118,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
       if (budget.type === BUDGET_TYPES.EXPENSE) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
       }
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'outgoing'
+      ) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
@@ -127,7 +150,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyInvestmentIncoming = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'incoming'
+      ) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
@@ -136,7 +162,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyInvestmentOutgoing = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'outgoing'
+      ) {
         return sum + getSmartDefaultAmount(budget, monthIndex)
       }
       return sum
@@ -144,7 +173,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   }
 
   const calculateMonthlyInvestmentNet = (monthIndex) => {
-    return calculateMonthlyInvestmentIncoming(monthIndex) - calculateMonthlyInvestmentOutgoing(monthIndex)
+    return (
+      calculateMonthlyInvestmentIncoming(monthIndex) -
+      calculateMonthlyInvestmentOutgoing(monthIndex)
+    )
   }
 
   // Actual-only monthly calculations
@@ -168,7 +200,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyActualInvestmentIncoming = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'incoming'
+      ) {
         return sum + getActualAmount(budget, monthIndex)
       }
       return sum
@@ -177,7 +212,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyActualInvestmentOutgoing = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'outgoing'
+      ) {
         return sum + getActualAmount(budget, monthIndex)
       }
       return sum
@@ -185,20 +223,30 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   }
 
   const calculateMonthlyActualInvestmentNet = (monthIndex) => {
-    return calculateMonthlyActualInvestmentIncoming(monthIndex) - calculateMonthlyActualInvestmentOutgoing(monthIndex)
+    return (
+      calculateMonthlyActualInvestmentIncoming(monthIndex) -
+      calculateMonthlyActualInvestmentOutgoing(monthIndex)
+    )
   }
 
   const calculateMonthlyActualTotal = (monthIndex) => {
-    const income = calculateMonthlyActualIncome(monthIndex) + calculateMonthlyActualInvestmentIncoming(monthIndex)
-    const expenses = calculateMonthlyActualExpenses(monthIndex) + calculateMonthlyActualInvestmentOutgoing(monthIndex)
+    const income =
+      calculateMonthlyActualIncome(monthIndex) +
+      calculateMonthlyActualInvestmentIncoming(monthIndex)
+    const expenses =
+      calculateMonthlyActualExpenses(monthIndex) +
+      calculateMonthlyActualInvestmentOutgoing(monthIndex)
     return income - expenses
   }
 
-
-
   // Grand total calculations - these now work with the reactive budgetItems and use smart defaults
   const calculateGrandTotal = () => {
-    return calculateGrandTotalIncome() + calculateGrandTotalInvestmentIncoming() - calculateGrandTotalExpenses() - calculateGrandTotalInvestmentOutgoing()
+    return (
+      calculateGrandTotalIncome() +
+      calculateGrandTotalInvestmentIncoming() -
+      calculateGrandTotalExpenses() -
+      calculateGrandTotalInvestmentOutgoing()
+    )
   }
 
   const calculateGrandTotalIncome = () => {
@@ -238,7 +286,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   }
 
   const calculateGrandTotalInvestmentNet = () => {
-    return calculateGrandTotalInvestmentIncoming() - calculateGrandTotalInvestmentOutgoing()
+    return (
+      calculateGrandTotalInvestmentIncoming() -
+      calculateGrandTotalInvestmentOutgoing()
+    )
   }
 
   // Actual-only grand total calculations
@@ -275,11 +326,19 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   }
 
   const calculateGrandTotalActualInvestmentNet = () => {
-    return calculateGrandTotalActualInvestmentIncoming() - calculateGrandTotalActualInvestmentOutgoing()
+    return (
+      calculateGrandTotalActualInvestmentIncoming() -
+      calculateGrandTotalActualInvestmentOutgoing()
+    )
   }
 
   const calculateGrandTotalActual = () => {
-    return calculateGrandTotalActualIncome() + calculateGrandTotalActualInvestmentIncoming() - calculateGrandTotalActualExpenses() - calculateGrandTotalActualInvestmentOutgoing()
+    return (
+      calculateGrandTotalActualIncome() +
+      calculateGrandTotalActualInvestmentIncoming() -
+      calculateGrandTotalActualExpenses() -
+      calculateGrandTotalActualInvestmentOutgoing()
+    )
   }
 
   // Savings calculations
@@ -301,7 +360,8 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculatePreviousYearSavings = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.net : 0
   }
 
@@ -326,7 +386,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyPlannedInvestmentIncoming = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'incoming') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'incoming'
+      ) {
         return sum + getBudgetAmount(budget, monthIndex)
       }
       return sum
@@ -335,7 +398,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyPlannedInvestmentOutgoing = (monthIndex) => {
     return budgetItems.value.reduce((sum, budget) => {
-      if (budget.type === BUDGET_TYPES.INVESTMENT && budget.investment_direction === 'outgoing') {
+      if (
+        budget.type === BUDGET_TYPES.INVESTMENT &&
+        budget.investment_direction === 'outgoing'
+      ) {
         return sum + getBudgetAmount(budget, monthIndex)
       }
       return sum
@@ -344,11 +410,17 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
 
   const calculateMonthlyPlannedTotal = (monthIndex) => {
     const plannedIncome = calculateMonthlyPlannedIncome(monthIndex)
-    const plannedInvestmentIncoming = calculateMonthlyPlannedInvestmentIncoming(monthIndex)
+    const plannedInvestmentIncoming =
+      calculateMonthlyPlannedInvestmentIncoming(monthIndex)
     const plannedExpenses = calculateMonthlyPlannedExpenses(monthIndex)
-    const plannedInvestmentOutgoing = calculateMonthlyPlannedInvestmentOutgoing(monthIndex)
+    const plannedInvestmentOutgoing =
+      calculateMonthlyPlannedInvestmentOutgoing(monthIndex)
 
-    return (plannedIncome + plannedInvestmentIncoming) - (plannedExpenses + plannedInvestmentOutgoing)
+    return (
+      plannedIncome +
+      plannedInvestmentIncoming -
+      (plannedExpenses + plannedInvestmentOutgoing)
+    )
   }
 
   // Grand total planned calculations for tooltips
@@ -385,7 +457,12 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   }
 
   const calculateGrandTotalPlanned = () => {
-    return calculateGrandTotalPlannedIncome() + calculateGrandTotalPlannedInvestmentIncoming() - calculateGrandTotalPlannedExpenses() - calculateGrandTotalPlannedInvestmentOutgoing()
+    return (
+      calculateGrandTotalPlannedIncome() +
+      calculateGrandTotalPlannedInvestmentIncoming() -
+      calculateGrandTotalPlannedExpenses() -
+      calculateGrandTotalPlannedInvestmentOutgoing()
+    )
   }
 
   // Category calculations
@@ -404,38 +481,46 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
   // Previous year calculations - use yearly summaries with smart defaults
   const calculatePreviousYearIncomeTotal = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.income : 0
   }
 
   const calculatePreviousYearExpensesTotal = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.expenses : 0
   }
 
   const calculatePreviousYearInvestmentIncomingTotal = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentIncoming : 0
   }
 
   const calculatePreviousYearInvestmentOutgoingTotal = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.investmentOutgoing : 0
   }
 
   const calculatePreviousYearNetTotal = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
     return smartValues ? smartValues.net : 0
   }
 
   const calculatePreviousYearInvestmentNetTotal = () => {
     const previousYear = selectedYear.value ? selectedYear.value - 1 : null
-    const smartValues = yearlySummariesStore.getSmartPreviousYearValues(previousYear)
-    return smartValues ? smartValues.investmentIncoming - smartValues.investmentOutgoing : 0
+    const smartValues =
+      yearlySummariesStore.getSmartPreviousYearValues(previousYear)
+    return smartValues
+      ? smartValues.investmentIncoming - smartValues.investmentOutgoing
+      : 0
   }
 
   // Previous year dual calculations - return both expected and actual values
@@ -528,8 +613,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     for (let year = 2020; year < currentYear; year++) {
       const summary = yearlySummariesStore.getYearlySummary(year)
       if (summary) {
-        totalExpected += parseFloat(summary.total_investment_incoming_planned) || 0
-        totalActual += parseFloat(summary.total_investment_incoming_actual) || 0
+        totalExpected +=
+          parseFloat(summary.total_investment_incoming_planned) || 0
+        totalActual +=
+          parseFloat(summary.total_investment_incoming_actual) || 0
       }
     }
 
@@ -561,8 +648,10 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     for (let year = 2020; year < currentYear; year++) {
       const summary = yearlySummariesStore.getYearlySummary(year)
       if (summary) {
-        totalExpected += parseFloat(summary.total_investment_outgoing_planned) || 0
-        totalActual += parseFloat(summary.total_investment_outgoing_actual) || 0
+        totalExpected +=
+          parseFloat(summary.total_investment_outgoing_planned) || 0
+        totalActual +=
+          parseFloat(summary.total_investment_outgoing_actual) || 0
       }
     }
 
@@ -577,15 +666,17 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     const summary = yearlySummariesStore.getYearlySummary(previousYear)
     if (!summary) return { expected: 0, actual: 0 }
 
-    const expectedNet = (parseFloat(summary.total_income_planned) || 0) +
-                       (parseFloat(summary.total_investment_incoming_planned) || 0) -
-                       (parseFloat(summary.total_expenses_planned) || 0) -
-                       (parseFloat(summary.total_investment_outgoing_planned) || 0)
+    const expectedNet =
+      (parseFloat(summary.total_income_planned) || 0) +
+      (parseFloat(summary.total_investment_incoming_planned) || 0) -
+      (parseFloat(summary.total_expenses_planned) || 0) -
+      (parseFloat(summary.total_investment_outgoing_planned) || 0)
 
-    const actualNet = (parseFloat(summary.total_income_actual) || 0) +
-                     (parseFloat(summary.total_investment_incoming_actual) || 0) -
-                     (parseFloat(summary.total_expenses_actual) || 0) -
-                     (parseFloat(summary.total_investment_outgoing_actual) || 0)
+    const actualNet =
+      (parseFloat(summary.total_income_actual) || 0) +
+      (parseFloat(summary.total_investment_incoming_actual) || 0) -
+      (parseFloat(summary.total_expenses_actual) || 0) -
+      (parseFloat(summary.total_investment_outgoing_actual) || 0)
 
     return { expected: expectedNet, actual: actualNet }
   }
@@ -601,15 +692,17 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     for (let year = 2020; year < currentYear; year++) {
       const summary = yearlySummariesStore.getYearlySummary(year)
       if (summary) {
-        const expectedNet = (parseFloat(summary.total_income_planned) || 0) +
-                           (parseFloat(summary.total_investment_incoming_planned) || 0) -
-                           (parseFloat(summary.total_expenses_planned) || 0) -
-                           (parseFloat(summary.total_investment_outgoing_planned) || 0)
+        const expectedNet =
+          (parseFloat(summary.total_income_planned) || 0) +
+          (parseFloat(summary.total_investment_incoming_planned) || 0) -
+          (parseFloat(summary.total_expenses_planned) || 0) -
+          (parseFloat(summary.total_investment_outgoing_planned) || 0)
 
-        const actualNet = (parseFloat(summary.total_income_actual) || 0) +
-                         (parseFloat(summary.total_investment_incoming_actual) || 0) -
-                         (parseFloat(summary.total_expenses_actual) || 0) -
-                         (parseFloat(summary.total_investment_outgoing_actual) || 0)
+        const actualNet =
+          (parseFloat(summary.total_income_actual) || 0) +
+          (parseFloat(summary.total_investment_incoming_actual) || 0) -
+          (parseFloat(summary.total_expenses_actual) || 0) -
+          (parseFloat(summary.total_investment_outgoing_actual) || 0)
 
         totalExpected += expectedNet
         totalActual += actualNet
@@ -627,11 +720,13 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     const summary = yearlySummariesStore.getYearlySummary(previousYear)
     if (!summary) return { expected: 0, actual: 0 }
 
-    const expectedNet = (parseFloat(summary.total_investment_incoming_planned) || 0) -
-                       (parseFloat(summary.total_investment_outgoing_planned) || 0)
+    const expectedNet =
+      (parseFloat(summary.total_investment_incoming_planned) || 0) -
+      (parseFloat(summary.total_investment_outgoing_planned) || 0)
 
-    const actualNet = (parseFloat(summary.total_investment_incoming_actual) || 0) -
-                     (parseFloat(summary.total_investment_outgoing_actual) || 0)
+    const actualNet =
+      (parseFloat(summary.total_investment_incoming_actual) || 0) -
+      (parseFloat(summary.total_investment_outgoing_actual) || 0)
 
     return { expected: expectedNet, actual: actualNet }
   }
@@ -647,11 +742,13 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     for (let year = 2020; year < currentYear; year++) {
       const summary = yearlySummariesStore.getYearlySummary(year)
       if (summary) {
-        const expectedNet = (parseFloat(summary.total_investment_incoming_planned) || 0) -
-                           (parseFloat(summary.total_investment_outgoing_planned) || 0)
+        const expectedNet =
+          (parseFloat(summary.total_investment_incoming_planned) || 0) -
+          (parseFloat(summary.total_investment_outgoing_planned) || 0)
 
-        const actualNet = (parseFloat(summary.total_investment_incoming_actual) || 0) -
-                         (parseFloat(summary.total_investment_outgoing_actual) || 0)
+        const actualNet =
+          (parseFloat(summary.total_investment_incoming_actual) || 0) -
+          (parseFloat(summary.total_investment_outgoing_actual) || 0)
 
         totalExpected += expectedNet
         totalActual += actualNet
@@ -675,10 +772,9 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     }
   }
 
-
   // Budget amount updates
   const updateBudgetAmount = async (budgetId, monthIndex, newValue) => {
-    const budget = budgetItems.value.find(b => b.id === budgetId)
+    const budget = budgetItems.value.find((b) => b.id === budgetId)
     if (!budget) return
 
     const oldValue = budget.amounts[monthIndex]
@@ -688,7 +784,11 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     // Only proceed if the values are actually different
     if (numericOldValue !== numericNewValue) {
       // Update via store
-      await budgetStore.updateMonthlyAmount(budgetId, monthIndex, numericNewValue)
+      await budgetStore.updateMonthlyAmount(
+        budgetId,
+        monthIndex,
+        numericNewValue
+      )
     }
   }
 
@@ -715,7 +815,6 @@ export function useBudgetCalculations (budgetItems, budgetStore, closedMonths = 
     calculateMonthlyActualInvestmentOutgoing,
     calculateMonthlyActualInvestmentNet,
     calculateMonthlyActualTotal,
-
 
     // Grand total calculations
     calculateGrandTotal,

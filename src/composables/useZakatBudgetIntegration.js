@@ -34,18 +34,21 @@ export function useZakatBudgetIntegration () {
   // Computed properties
   const currentYearZakatItems = computed(() => {
     const currentYear = new Date().getFullYear()
-    return zakatBudgetItems.value.filter(item => item.year === currentYear)
+    return zakatBudgetItems.value.filter((item) => item.year === currentYear)
   })
 
   const upcomingZakatItems = computed(() => {
     const currentYear = new Date().getFullYear()
-    return zakatBudgetItems.value.filter(item => item.year > currentYear)
+    return zakatBudgetItems.value.filter((item) => item.year > currentYear)
   })
 
   const totalZakatBudgeted = computed(() => {
     return zakatBudgetItems.value.reduce((sum, item) => {
       const amounts = item.amounts || []
-      const yearlyTotal = amounts.reduce((itemSum, amount) => itemSum + (parseFloat(amount) || 0), 0)
+      const yearlyTotal = amounts.reduce(
+        (itemSum, amount) => itemSum + (parseFloat(amount) || 0),
+        0
+      )
       return sum + yearlyTotal
     }, 0)
   })
@@ -74,13 +77,16 @@ export function useZakatBudgetIntegration () {
 
     try {
       // Check if Zakat budget item already exists for this year
-      const existingItem = zakatBudgetItems.value.find(item => item.year === year)
+      const existingItem = zakatBudgetItems.value.find(
+        (item) => item.year === year
+      )
       if (existingItem) {
         throw new Error(`Zakat budget item already exists for year ${year}`)
       }
 
       // Calculate Hawl end date for the year
-      const hawlEndDate = hawlData?.endDate || calculateHawlEndDateForYear(year)
+      const hawlEndDate =
+        hawlData?.endDate || calculateHawlEndDateForYear(year)
 
       // Create budget item data
       const budgetItemData = {
@@ -89,11 +95,13 @@ export function useZakatBudgetIntegration () {
         year,
         default_amount: amount,
         amounts: [amount], // Single yearly amount
-        schedule: [{
-          month: 11, // December (Hawl typically ends in December)
-          year,
-          amount
-        }],
+        schedule: [
+          {
+            month: 11, // December (Hawl typically ends in December)
+            year,
+            amount
+          }
+        ],
         start_month: 11,
         start_year: year,
         end_month: 11,
@@ -133,7 +141,9 @@ export function useZakatBudgetIntegration () {
     error.value = null
 
     try {
-      const itemIndex = zakatBudgetItems.value.findIndex(item => item.id === itemId)
+      const itemIndex = zakatBudgetItems.value.findIndex(
+        (item) => item.id === itemId
+      )
       if (itemIndex === -1) {
         throw new Error('Zakat budget item not found')
       }
@@ -165,7 +175,9 @@ export function useZakatBudgetIntegration () {
       await budgetStore.deleteBudgetItem(itemId)
 
       // Remove from local array
-      const itemIndex = zakatBudgetItems.value.findIndex(item => item.id === itemId)
+      const itemIndex = zakatBudgetItems.value.findIndex(
+        (item) => item.id === itemId
+      )
       if (itemIndex !== -1) {
         zakatBudgetItems.value.splice(itemIndex, 1)
         saveZakatBudgetItems()
@@ -206,7 +218,9 @@ export function useZakatBudgetIntegration () {
     // Check if current assets are above Nisab
     const currentAssets = hawlStore.currentHawl?.currentAssets || 0
     if (currentAssets < hawlStore.currentNisab) {
-      throw new Error('Current assets below Nisab threshold - no Zakat budget items needed')
+      throw new Error(
+        'Current assets below Nisab threshold - no Zakat budget items needed'
+      )
     }
 
     for (let i = 1; i <= years; i++) {
@@ -217,7 +231,10 @@ export function useZakatBudgetIntegration () {
         const item = await createZakatBudgetItem(year, estimatedAmount)
         results.push(item)
       } catch (err) {
-        console.warn(`Could not create Zakat budget for year ${year}:`, err.message)
+        console.warn(
+          `Could not create Zakat budget for year ${year}:`,
+          err.message
+        )
       }
     }
 
@@ -228,11 +245,13 @@ export function useZakatBudgetIntegration () {
     const updates = {
       default_amount: newAmount,
       amounts: [newAmount],
-      schedule: [{
-        month: 11,
-        year: zakatBudgetItems.value.find(item => item.id === itemId)?.year,
-        amount: newAmount
-      }]
+      schedule: [
+        {
+          month: 11,
+          year: zakatBudgetItems.value.find((item) => item.id === itemId)?.year,
+          amount: newAmount
+        }
+      ]
     }
 
     return await updateZakatBudgetItem(itemId, updates)
@@ -242,12 +261,14 @@ export function useZakatBudgetIntegration () {
     // Update actual amounts in budget item
     const updates = {
       actual_amounts: [paymentData.amount],
-      actual_schedule: [{
-        month: 11,
-        year: zakatBudgetItems.value.find(item => item.id === itemId)?.year,
-        amount: paymentData.amount,
-        date: paymentData.paymentDate
-      }]
+      actual_schedule: [
+        {
+          month: 11,
+          year: zakatBudgetItems.value.find((item) => item.id === itemId)?.year,
+          amount: paymentData.amount,
+          date: paymentData.paymentDate
+        }
+      ]
     }
 
     await updateZakatBudgetItem(itemId, updates)
@@ -269,7 +290,8 @@ export function useZakatBudgetIntegration () {
     const currentAssets = hawlStore.currentHawl?.currentAssets || 0
     const inflationRate = 0.05 // 5% annual inflation estimate
     const yearsFromNow = year - new Date().getFullYear()
-    const estimatedAssets = currentAssets * Math.pow(1 + inflationRate, yearsFromNow)
+    const estimatedAssets =
+      currentAssets * Math.pow(1 + inflationRate, yearsFromNow)
 
     return calculateZakatAmount(estimatedAssets)
   }
@@ -287,10 +309,12 @@ export function useZakatBudgetIntegration () {
       await budgetStore.fetchBudgetItems()
 
       const allBudgetItems = budgetStore.budgetItems || []
-      zakatBudgetItems.value = allBudgetItems.filter(item =>
-        item.zakat_metadata?.isZakatItem ||
-        (item.category === 'Zakat' && item.name.includes('Zakat')) ||
-        (item.category === 'Religious Obligations' && item.name.includes('Zakat'))
+      zakatBudgetItems.value = allBudgetItems.filter(
+        (item) =>
+          item.zakat_metadata?.isZakatItem ||
+          (item.category === 'Zakat' && item.name.includes('Zakat')) ||
+          (item.category === 'Religious Obligations' &&
+            item.name.includes('Zakat'))
       )
 
       saveZakatBudgetItems()
@@ -302,7 +326,10 @@ export function useZakatBudgetIntegration () {
 
   const saveZakatBudgetItems = () => {
     try {
-      localStorage.setItem('zakat-budget-items', JSON.stringify(zakatBudgetItems.value))
+      localStorage.setItem(
+        'zakat-budget-items',
+        JSON.stringify(zakatBudgetItems.value)
+      )
     } catch (err) {
       console.error('Error saving Zakat budget items:', err)
     }

@@ -20,16 +20,16 @@ const {
 } = store
 
 const savingsChangeText = computed(() => {
-  return `${currentSavingsRate?.value || 0}%`
-})
+    return `${currentSavingsRate?.value || 0}%`
+  })
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount))
+      style: 'currency',
+      currency: 'EGP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.abs(amount))
 }
 </script>
 
@@ -42,7 +42,8 @@ const formatCurrency = (amount) => {
           Dashboard
         </h1>
         <p class="text-gray-600 mt-1">
-          {{ currentMonthData?.month || 'Current' }} {{ currentMonthData?.year || new Date().getFullYear() }} Overview
+          {{ currentMonthData?.month || "Current" }}
+          {{ currentMonthData?.year || new Date().getFullYear() }} Overview
         </p>
       </div>
       <div class="flex items-center space-x-4">

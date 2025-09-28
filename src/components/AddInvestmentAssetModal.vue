@@ -15,11 +15,11 @@ import Message from 'primevue/message'
 
 // Props
 const props = defineProps({
-  asset: {
-    type: Object,
-    default: null
-  }
-})
+    asset: {
+      type: Object,
+      default: null
+    }
+  })
 
 // Emits
 const emit = defineEmits(['close', 'saved'])
@@ -40,91 +40,95 @@ const budgetItemErrors = ref({})
 
 // Form data
 const form = ref({
-  name: '',
-  type: '',
-  status: 'active',
-  description: '',
-  purchase_amount: null,
-  down_payment: null,
-  monthly_payment: null,
-  purchase_date: '',
-  current_value: null,
-  last_valuation_date: '',
-  location: '',
-  details: {},
-  budget_item_id: null
-})
+    name: '',
+    type: '',
+    status: 'active',
+    description: '',
+    purchase_amount: null,
+    down_payment: null,
+    monthly_payment: null,
+    purchase_date: '',
+    current_value: null,
+    last_valuation_date: '',
+    location: '',
+    details: {},
+    budget_item_id: null
+  })
 
 // Budget item form
 const budgetItemForm = ref({
-  name: '',
-  category: 'Investment',
-  type: 'investment',
-  investment_direction: 'outgoing',
-  amounts: new Array(12).fill(0)
-})
+    name: '',
+    category: 'Investment',
+    type: 'investment',
+    investment_direction: 'outgoing',
+    amounts: new Array(12).fill(0)
+  })
 
 // Computed
 const availableBudgetItems = computed(() => {
-  if (!budgetStore.budgetItems) return []
-  return budgetStore.budgetItems.filter(item =>
-    item.type === 'investment' && !item.investment_asset_id
-  )
-})
+    if (!budgetStore.budgetItems) return []
+    return budgetStore.budgetItems.filter(
+      (item) => item.type === 'investment' && !item.investment_asset_id
+    )
+  })
 
 const linkedBudgetItem = computed(() => {
-  if (!form.value.budget_item_id) return null
-  return budgetStore.budgetItems?.find(item => item.id === form.value.budget_item_id)
-})
+    if (!form.value.budget_item_id) return null
+    return budgetStore.budgetItems?.find(
+      (item) => item.id === form.value.budget_item_id
+    )
+  })
 
 const detailsText = computed({
-  get () {
-    return form.value.details ? JSON.stringify(form.value.details, null, 2) : ''
-  },
-  set (value) {
-    try {
-      form.value.details = value ? JSON.parse(value) : {}
-    } catch (e) {
-      // Keep as string if invalid JSON
-      form.value.details = { raw: value }
+    get () {
+      return form.value.details
+        ? JSON.stringify(form.value.details, null, 2)
+        : ''
+    },
+    set (value) {
+      try {
+        form.value.details = value ? JSON.parse(value) : {}
+      } catch (e) {
+        // Keep as string if invalid JSON
+        form.value.details = { raw: value }
+      }
     }
-  }
-})
+  })
 
 // Options for Select components
 const assetTypeOptions = [
-  { label: 'Select type', value: '' },
-  { label: 'Real Estate', value: 'real_estate' },
-  { label: 'Precious Metals', value: 'precious_metals' },
-  { label: 'Stocks', value: 'stocks' },
-  { label: 'Other', value: 'other' }
-]
+    { label: 'Select type', value: '' },
+    { label: 'Real Estate', value: 'real_estate' },
+    { label: 'Precious Metals', value: 'precious_metals' },
+    { label: 'Stocks', value: 'stocks' },
+    { label: 'Other', value: 'other' }
+  ]
 
 const statusOptions = [
-  { label: 'Active', value: 'active' },
-  { label: 'Planned', value: 'planned' },
-  { label: 'Sold', value: 'sold' }
-]
+    { label: 'Active', value: 'active' },
+    { label: 'Planned', value: 'planned' },
+    { label: 'Sold', value: 'sold' }
+  ]
 
 const budgetItemOptions = computed(() => [
-  { label: 'Select budget item', value: '' },
-  ...availableBudgetItems.value.map(item => ({
-    label: `${item.name} (${item.category})`,
-    value: item.id
-  }))
-])
+    { label: 'Select budget item', value: '' },
+    ...availableBudgetItems.value.map((item) => ({
+      label: `${item.name} (${item.category})`,
+      value: item.id
+    }))
+  ])
 
 const budgetCategoryOptions = [
-  { label: 'Select category', value: '' },
-  { label: 'Housing', value: 'Housing' },
-  { label: 'Transportation', value: 'Transportation' },
-  { label: 'Food', value: 'Food' },
-  { label: 'Utilities', value: 'Utilities' },
-  { label: 'Healthcare', value: 'Healthcare' },
-  { label: 'Entertainment', value: 'Entertainment' },
-  { label: 'Investment', value: 'Investment' },
-  { label: 'Other', value: 'Other' }
-]
+    { label: 'Select category', value: '' },
+    { label: 'Housing', value: 'Housing' },
+    { label: 'Transportation', value: 'Transportation' },
+    { label: 'Food', value: 'Food' },
+    { label: 'Utilities', value: 'Utilities' },
+    { label: 'Healthcare', value: 'Healthcare' },
+    { label: 'Entertainment', value: 'Entertainment' },
+    { label: 'Investment', value: 'Investment' },
+    { label: 'Other', value: 'Other' }
+  ]
 
 // Validation methods
 const validateField = (fieldName) => {
@@ -161,10 +165,14 @@ const validateBudgetItemField = (fieldName) => {
 
   switch (fieldName) {
     case 'name':
-      if (!budgetItemForm.value.name || budgetItemForm.value.name.trim() === '') {
+      if (
+        !budgetItemForm.value.name ||
+          budgetItemForm.value.name.trim() === ''
+      ) {
         budgetItemErrors.value.name = 'Budget item name is required'
       } else if (budgetItemForm.value.name.length < 2) {
-        budgetItemErrors.value.name = 'Budget item name must be at least 2 characters'
+        budgetItemErrors.value.name =
+          'Budget item name must be at least 2 characters'
       }
       break
     case 'category':
@@ -180,21 +188,25 @@ const validateForm = () => {
   errors.value = {}
   budgetItemErrors.value = {}
 
-  // Validate main form
-  validateField('name')
-  validateField('type')
-  validateField('purchase_amount')
-  validateField('current_value')
+    // Validate main form
+    validateField('name')
+    validateField('type')
+    validateField('purchase_amount')
+    validateField('current_value')
 
   // Validate budget item form if creating one
   if (createBudgetItem.value) {
-    validateBudgetItemField('name')
-    validateBudgetItemField('category')
+      validateBudgetItemField('name')
+      validateBudgetItemField('category')
   }
 
   // Check if there are any errors
-  const hasMainErrors = Object.keys(errors.value).some(key => errors.value[key])
-  const hasBudgetItemErrors = Object.keys(budgetItemErrors.value).some(key => budgetItemErrors.value[key])
+  const hasMainErrors = Object.keys(errors.value).some(
+      (key) => errors.value[key]
+    )
+  const hasBudgetItemErrors = Object.keys(budgetItemErrors.value).some(
+      (key) => budgetItemErrors.value[key]
+    )
 
   return !hasMainErrors && !hasBudgetItemErrors
 }
@@ -204,20 +216,20 @@ const initializeForm = () => {
   if (props.asset) {
     // Edit mode
     form.value = {
-      name: props.asset.name || '',
-      type: props.asset.type || '',
-      status: props.asset.status || 'active',
-      description: props.asset.description || '',
-      purchase_amount: props.asset.purchase_amount || null,
-      down_payment: props.asset.down_payment || null,
-      monthly_payment: props.asset.monthly_payment || null,
-      purchase_date: props.asset.purchase_date || '',
-      current_value: props.asset.current_value || null,
-      last_valuation_date: props.asset.last_valuation_date || '',
-      location: props.asset.location || '',
-      details: props.asset.details || {},
-      budget_item_id: props.asset.budget_item_id || null
-    }
+        name: props.asset.name || '',
+        type: props.asset.type || '',
+        status: props.asset.status || 'active',
+        description: props.asset.description || '',
+        purchase_amount: props.asset.purchase_amount || null,
+        down_payment: props.asset.down_payment || null,
+        monthly_payment: props.asset.monthly_payment || null,
+        purchase_date: props.asset.purchase_date || '',
+        current_value: props.asset.current_value || null,
+        last_valuation_date: props.asset.last_valuation_date || '',
+        location: props.asset.location || '',
+        details: props.asset.details || {},
+        budget_item_id: props.asset.budget_item_id || null
+      }
 
     // Set budget item form if creating new budget item
     if (props.asset.budget_items) {
@@ -227,20 +239,20 @@ const initializeForm = () => {
   } else {
     // Create mode
     form.value = {
-      name: '',
-      type: '',
-      status: 'active',
-      description: '',
-      purchase_amount: null,
-      down_payment: null,
-      monthly_payment: null,
-      purchase_date: '',
-      current_value: null,
-      last_valuation_date: '',
-      location: '',
-      details: {},
-      budget_item_id: null
-    }
+        name: '',
+        type: '',
+        status: 'active',
+        description: '',
+        purchase_amount: null,
+        down_payment: null,
+        monthly_payment: null,
+        purchase_date: '',
+        current_value: null,
+        last_valuation_date: '',
+        location: '',
+        details: {},
+        budget_item_id: null
+      }
   }
 }
 
@@ -262,12 +274,13 @@ const handleSubmit = async () => {
     // Create budget item if needed
     if (createBudgetItem.value && budgetItemForm.value.name) {
       const budgetItem = {
-        ...budgetItemForm.value,
-        user_id: authStore.user.id,
-        year: new Date().getFullYear()
-      }
+          ...budgetItemForm.value,
+          user_id: authStore.user.id,
+          year: new Date().getFullYear()
+        }
 
-      const createdBudgetItem = await budgetStore.createBudgetItem(budgetItem)
+      const createdBudgetItem =
+        await budgetStore.createBudgetItem(budgetItem)
       budgetItemId = createdBudgetItem.id
     } else if (selectedBudgetItemId.value) {
       budgetItemId = selectedBudgetItemId.value
@@ -275,24 +288,28 @@ const handleSubmit = async () => {
 
     // Prepare asset data
     const assetData = {
-      ...form.value,
-      budget_item_id: budgetItemId
-    }
+        ...form.value,
+        budget_item_id: budgetItemId
+      }
 
     // Create or update asset
     let result
     if (props.asset) {
-      result = await investmentAssetsStore.updateInvestmentAsset(props.asset.id, assetData)
+      result = await investmentAssetsStore.updateInvestmentAsset(
+          props.asset.id,
+          assetData
+        )
     } else {
       result = await investmentAssetsStore.createInvestmentAsset(assetData)
     }
 
     if (result) {
-      emit('saved', result)
+        emit('saved', result)
     }
   } catch (err) {
-    console.error('Error saving investment asset:', err)
-    error.value = err.message || 'Failed to save investment asset. Please try again.'
+      console.error('Error saving investment asset:', err)
+      error.value =
+        err.message || 'Failed to save investment asset. Please try again.'
   } finally {
     loading.value = false
   }
@@ -305,18 +322,18 @@ const unlinkBudgetItem = async () => {
   }
 }
 
-// Lifecycle
-onMounted(() => {
-  initializeForm()
-})
+  // Lifecycle
+  onMounted(() => {
+    initializeForm()
+  })
 
-// Watch for budget item selection
-watch(selectedBudgetItemId, (newId) => {
-  if (newId) {
-    form.value.budget_item_id = newId
-    createBudgetItem.value = false
-  }
-})
+  // Watch for budget item selection
+  watch(selectedBudgetItemId, (newId) => {
+    if (newId) {
+      form.value.budget_item_id = newId
+      createBudgetItem.value = false
+    }
+  })
 </script>
 
 <template>
@@ -445,7 +462,9 @@ watch(selectedBudgetItemId, (newId) => {
               class="block text-sm font-medium"
             >Purchase Amount</label>
             <div class="mt-1 relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
+              <span
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500"
+              >$</span>
               <CurrencyInput
                 id="purchase_amount"
                 v-model="form.purchase_amount"
@@ -463,7 +482,9 @@ watch(selectedBudgetItemId, (newId) => {
               class="block text-sm font-medium"
             >Down Payment</label>
             <div class="mt-1 relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
+              <span
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500"
+              >$</span>
               <CurrencyInput
                 id="down_payment"
                 v-model="form.down_payment"
@@ -481,7 +502,9 @@ watch(selectedBudgetItemId, (newId) => {
               class="block text-sm font-medium"
             >Monthly Payment</label>
             <div class="mt-1 relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
+              <span
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500"
+              >$</span>
               <CurrencyInput
                 id="monthly_payment"
                 v-model="form.monthly_payment"
@@ -521,7 +544,9 @@ watch(selectedBudgetItemId, (newId) => {
               class="block text-sm font-medium"
             >Current Value</label>
             <div class="mt-1 relative">
-              <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500">$</span>
+              <span
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 text-surface-500"
+              >$</span>
               <CurrencyInput
                 id="current_value"
                 v-model="form.current_value"
@@ -752,7 +777,9 @@ watch(selectedBudgetItemId, (newId) => {
             <small
               v-if="budgetItemErrors.name"
               class="p-error"
-            >{{ budgetItemErrors.name }}</small>
+            >{{
+              budgetItemErrors.name
+            }}</small>
           </div>
 
           <div>
@@ -780,7 +807,9 @@ watch(selectedBudgetItemId, (newId) => {
             <small
               v-if="budgetItemErrors.category"
               class="p-error"
-            >{{ budgetItemErrors.category }}</small>
+            >{{
+              budgetItemErrors.category
+            }}</small>
           </div>
         </div>
 
@@ -806,14 +835,15 @@ watch(selectedBudgetItemId, (newId) => {
       <div class="flex justify-between items-center">
         <div class="text-sm text-surface-500">
           <span
-            v-if="Object.keys(errors).length > 0 || Object.keys(budgetItemErrors).length > 0"
+            v-if="
+              Object.keys(errors).length > 0 ||
+                Object.keys(budgetItemErrors).length > 0
+            "
             class="text-red-500"
           >
             Please fix the errors above
           </span>
-          <span v-else>
-            All fields are valid
-          </span>
+          <span v-else> All fields are valid </span>
         </div>
         <div class="flex gap-3">
           <Button
@@ -825,7 +855,11 @@ watch(selectedBudgetItemId, (newId) => {
           />
           <Button
             type="submit"
-            :disabled="loading || Object.keys(errors).length > 0 || Object.keys(budgetItemErrors).length > 0"
+            :disabled="
+              loading ||
+                Object.keys(errors).length > 0 ||
+                Object.keys(budgetItemErrors).length > 0
+            "
             :loading="loading"
             icon="pi pi-check"
             :label="asset ? 'Update' : 'Create' + ' Investment'"

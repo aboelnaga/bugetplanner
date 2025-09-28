@@ -3,7 +3,14 @@ import { useIslamicLawCompliance } from './useIslamicLawCompliance'
 
 export function useNisabCalculation (externalNisabMethod = null) {
   // Islamic law compliance
-  const { selectedSchool, nisabCalculationMethod, currentSchoolConfig, validateNisabCalculation, setNisabCalculationMethod, loadNisabMethodFromStorage } = useIslamicLawCompliance()
+  const {
+    selectedSchool,
+    nisabCalculationMethod,
+    currentSchoolConfig,
+    validateNisabCalculation,
+    setNisabCalculationMethod,
+    loadNisabMethodFromStorage
+  } = useIslamicLawCompliance()
 
   // Use external method if provided, otherwise use the internal one
   const effectiveNisabMethod = computed(() => {
@@ -43,20 +50,32 @@ export function useNisabCalculation (externalNisabMethod = null) {
     }
 
     // Validate Nisab calculation according to Islamic law
-    const validation = validateNisabCalculation(goldPricePerGram.value, silverPricePerGram.value)
+    const validation = validateNisabCalculation(
+      goldPricePerGram.value,
+      silverPricePerGram.value
+    )
 
     // Use the effective Nisab calculation method (external or internal)
-    if (effectiveNisabMethod.value === 'silver' && silverPricePerGram.value > 0) {
+    if (
+      effectiveNisabMethod.value === 'silver' &&
+      silverPricePerGram.value > 0
+    ) {
       console.log('Using silver Nisab:', validation.silverNisab)
       return validation.silverNisab
-    } else if (effectiveNisabMethod.value === 'gold' && goldPricePerGram.value > 0) {
+    } else if (
+      effectiveNisabMethod.value === 'gold' &&
+      goldPricePerGram.value > 0
+    ) {
       console.log('Using gold Nisab:', validation.goldNisab)
       return validation.goldNisab
     }
 
     // Fallback to lower of gold or silver (traditional Islamic ruling)
     if (goldPricePerGram.value > 0 && silverPricePerGram.value > 0) {
-      const fallbackValue = Math.min(nisabGoldValue.value, nisabSilverValue.value)
+      const fallbackValue = Math.min(
+        nisabGoldValue.value,
+        nisabSilverValue.value
+      )
       console.log('Using fallback Nisab:', fallbackValue)
       return fallbackValue
     }
@@ -82,9 +101,15 @@ export function useNisabCalculation (externalNisabMethod = null) {
     }
 
     // Use the effective Nisab calculation method
-    if (effectiveNisabMethod.value === 'silver' && silverPricePerGram.value > 0) {
+    if (
+      effectiveNisabMethod.value === 'silver' &&
+      silverPricePerGram.value > 0
+    ) {
       return 'silver'
-    } else if (effectiveNisabMethod.value === 'gold' && goldPricePerGram.value > 0) {
+    } else if (
+      effectiveNisabMethod.value === 'gold' &&
+      goldPricePerGram.value > 0
+    ) {
       return 'gold'
     }
 
@@ -150,11 +175,14 @@ export function useNisabCalculation (externalNisabMethod = null) {
   // Save prices to localStorage
   const savePricesToStorage = () => {
     try {
-      localStorage.setItem('nisab-data', JSON.stringify({
-        goldPrice: goldPricePerGram.value,
-        silverPrice: silverPricePerGram.value,
-        lastUpdated: lastUpdated.value
-      }))
+      localStorage.setItem(
+        'nisab-data',
+        JSON.stringify({
+          goldPrice: goldPricePerGram.value,
+          silverPrice: silverPricePerGram.value,
+          lastUpdated: lastUpdated.value
+        })
+      )
     } catch (err) {
       console.error('Error saving prices to storage:', err)
     }
@@ -174,8 +202,6 @@ export function useNisabCalculation (externalNisabMethod = null) {
       console.error('Error loading cached prices:', err)
     }
   }
-
-
 
   // Initialize
   const initialize = async () => {

@@ -1,7 +1,12 @@
 // Budget utilities
 // Formatting functions, validation helpers, date utilities
 
-import { BUDGET_TYPE_ICONS, BUDGET_TYPE_STYLES, SUMMARY_VALUE_STYLES, TABLE_CELL_STYLES } from '@/constants/budgetConstants.js'
+import {
+  BUDGET_TYPE_ICONS,
+  BUDGET_TYPE_STYLES,
+  SUMMARY_VALUE_STYLES,
+  TABLE_CELL_STYLES
+} from '@/constants/budgetConstants.js'
 
 // Currency formatting
 export const formatCurrency = (amount) => {
@@ -11,7 +16,9 @@ export const formatCurrency = (amount) => {
     currencyDisplay: 'symbol',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
-  }).format(Math.abs(amount || 0)).replace('EGP', '')
+  })
+    .format(Math.abs(amount || 0))
+    .replace('EGP', '')
 }
 
 // Compact currency formatting for better display in small spaces
@@ -47,7 +54,12 @@ export const getBudgetTypeIcon = (type) => {
 }
 
 // Get month label based on selected year and current date
-export const getMonthLabel = (monthIndex, selectedYear, currentYear, currentMonth) => {
+export const getMonthLabel = (
+  monthIndex,
+  selectedYear,
+  currentYear,
+  currentMonth
+) => {
   if (selectedYear === currentYear) {
     if (monthIndex === currentMonth) return '(Current)'
     if (monthIndex === currentMonth + 1) return '(Next)'
@@ -69,9 +81,17 @@ export const summaryUtils = {
   },
 
   // Get summary cell classes
-  getSummaryCellClasses: (value, selectedYear, currentYear, currentMonth, monthIndex, summaryRowStyling = null) => {
+  getSummaryCellClasses: (
+    value,
+    selectedYear,
+    currentYear,
+    currentMonth,
+    monthIndex,
+    summaryRowStyling = null
+  ) => {
     const baseClasses = 'px-2 py-3 text-center'
-    const isCurrentMonth = selectedYear === currentYear && monthIndex === currentMonth
+    const isCurrentMonth =
+      selectedYear === currentYear && monthIndex === currentMonth
 
     let classes = baseClasses
 
@@ -136,7 +156,17 @@ export const summaryUtils = {
 export const validationHelpers = {
   // Allow only numbers and specific keys
   allowOnlyNumbers: (event) => {
-    const allowedKeys = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
+    const allowedKeys = [
+      'Backspace',
+      'Delete',
+      'Tab',
+      'Escape',
+      'Enter',
+      'ArrowLeft',
+      'ArrowRight',
+      'ArrowUp',
+      'ArrowDown'
+    ]
     const allowedChars = /[0-9]/
 
     if (allowedKeys.includes(event.key) || allowedChars.test(event.key)) {
@@ -154,7 +184,12 @@ export const validationHelpers = {
   },
 
   // Ensure start month is valid for the selected year
-  ensureValidStartMonth: (startMonth, selectedYear, currentYear, currentMonth) => {
+  ensureValidStartMonth: (
+    startMonth,
+    selectedYear,
+    currentYear,
+    currentMonth
+  ) => {
     if (selectedYear === currentYear && startMonth < currentMonth) {
       return currentMonth
     } else if (selectedYear !== currentYear && startMonth < 0) {
@@ -173,7 +208,10 @@ export const dateUtils = {
       return Array.from({ length: 12 }, (_, i) => i)
     } else if (selectedYear === currentYear) {
       // Current year: only current month and future month indices
-      return Array.from({ length: 12 - currentMonth }, (_, i) => currentMonth + i)
+      return Array.from(
+        { length: 12 - currentMonth },
+        (_, i) => currentMonth + i
+      )
     } else {
       // Past year: all month indices (0-11)
       return Array.from({ length: 12 }, (_, i) => i)
@@ -222,12 +260,20 @@ export const inputUtils = {
 // Empty state utilities
 export const emptyStateUtils = {
   // Generate empty state message based on filters
-  generateFilteredResultsMessage: (selectedTypeFilter, selectedCategoryFilter, selectedYear) => {
+  generateFilteredResultsMessage: (
+    selectedTypeFilter,
+    selectedCategoryFilter,
+    selectedYear
+  ) => {
     const parts = []
 
     if (selectedTypeFilter !== 'all') {
-      const typeLabel = selectedTypeFilter === 'income' ? 'income' :
-        selectedTypeFilter === 'expense' ? 'expense' : 'investment'
+      const typeLabel =
+        selectedTypeFilter === 'income'
+          ? 'income'
+          : selectedTypeFilter === 'expense'
+            ? 'expense'
+            : 'investment'
       parts.push(`No ${typeLabel} items`)
     }
 
@@ -260,9 +306,16 @@ export const emptyStateUtils = {
 // Table utilities
 export const tableUtils = {
   // Get table header classes for month columns
-  getMonthHeaderClasses: (selectedYear, currentYear, currentMonth, monthIndex) => {
-    const baseClasses = 'px-4 py-3 text-center text-xs font-medium uppercase tracking-wider min-w-32 bg-gray-50'
-    const isCurrentMonth = selectedYear === currentYear && monthIndex === currentMonth
+  getMonthHeaderClasses: (
+    selectedYear,
+    currentYear,
+    currentMonth,
+    monthIndex
+  ) => {
+    const baseClasses =
+      'px-4 py-3 text-center text-xs font-medium uppercase tracking-wider min-w-32 bg-gray-50'
+    const isCurrentMonth =
+      selectedYear === currentYear && monthIndex === currentMonth
 
     if (isCurrentMonth) {
       return `${baseClasses} bg-blue-200 text-blue-900 font-bold`
@@ -306,8 +359,17 @@ export const tableUtils = {
   },
 
   // Get monthly amount cell classes
-  getMonthlyAmountCellClasses: (budget, selectedYear, currentYear, currentMonth, monthIndex, isScheduledMonth, getBudgetAmount) => {
-    const baseClasses = 'w-full text-center py-2 px-2 rounded text-sm min-h-[2rem] flex items-center justify-center'
+  getMonthlyAmountCellClasses: (
+    budget,
+    selectedYear,
+    currentYear,
+    currentMonth,
+    monthIndex,
+    isScheduledMonth,
+    getBudgetAmount
+  ) => {
+    const baseClasses =
+      'w-full text-center py-2 px-2 rounded text-sm min-h-[2rem] flex items-center justify-center'
     const typeStyling = tableUtils.getBudgetTypeStyling(budget)
     const amount = getBudgetAmount(budget, monthIndex)
 
@@ -353,7 +415,10 @@ export const tableUtils = {
   formatAmountWithSign: (amount, budget, formatCurrency) => {
     if (amount === 0) return '—'
 
-    const isExpense = budget.type === 'expense' || (budget.type === 'investment' && budget.investment_direction === 'outgoing')
+    const isExpense =
+      budget.type === 'expense' ||
+      (budget.type === 'investment' &&
+        budget.investment_direction === 'outgoing')
     const sign = isExpense ? '-' : '+'
     return `${sign}${formatCurrency(amount)}`
   },
@@ -369,7 +434,18 @@ export const tableUtils = {
 // Schedule generation utilities
 export const scheduleUtils = {
   // Generate schedule based on new frequency system
-  generateSchedule: (frequency, startMonth, endMonth, startYear, endYear, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null, defaultAmount = 0) => {
+  generateSchedule: (
+    frequency,
+    startMonth,
+    endMonth,
+    startYear,
+    endYear,
+    recurrenceInterval = 1,
+    customMonths = [],
+    oneTimeMonth = 0,
+    oneTimeYear = null,
+    defaultAmount = 0
+  ) => {
     let schedule = []
     const amounts = new Array(12).fill(0)
 
@@ -385,11 +461,17 @@ export const scheduleUtils = {
         break
       case 'custom':
         // Use custom months array
-        schedule = [...customMonths].filter(month => month >= startMonth && month <= endMonth)
+        schedule = [...customMonths].filter(
+          (month) => month >= startMonth && month <= endMonth
+        )
         break
       case 'once':
         // One-time in specific month/year
-        if (oneTimeYear === startYear && oneTimeMonth >= startMonth && oneTimeMonth <= endMonth) {
+        if (
+          oneTimeYear === startYear &&
+          oneTimeMonth >= startMonth &&
+          oneTimeMonth <= endMonth
+        ) {
           schedule = [oneTimeMonth]
         }
         break
@@ -401,7 +483,7 @@ export const scheduleUtils = {
     }
 
     // Populate amounts array
-    schedule.forEach(month => {
+    schedule.forEach((month) => {
       amounts[month] = defaultAmount
     })
 
@@ -409,8 +491,27 @@ export const scheduleUtils = {
   },
 
   // Get schedule preview class
-  getSchedulePreviewClass: (monthIndex, frequency, startMonth, endMonth, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null) => {
-    const { schedule } = scheduleUtils.generateSchedule(frequency, startMonth, endMonth, null, null, recurrenceInterval, customMonths, oneTimeMonth, oneTimeYear)
+  getSchedulePreviewClass: (
+    monthIndex,
+    frequency,
+    startMonth,
+    endMonth,
+    recurrenceInterval = 1,
+    customMonths = [],
+    oneTimeMonth = 0,
+    oneTimeYear = null
+  ) => {
+    const { schedule } = scheduleUtils.generateSchedule(
+      frequency,
+      startMonth,
+      endMonth,
+      null,
+      null,
+      recurrenceInterval,
+      customMonths,
+      oneTimeMonth,
+      oneTimeYear
+    )
 
     if (schedule.includes(monthIndex)) {
       return 'bg-blue-100 text-blue-800 border border-blue-200'
@@ -420,13 +521,39 @@ export const scheduleUtils = {
   },
 
   // Calculate total amount for schedule
-  calculateTotalAmount: (frequency, startMonth, endMonth, recurrenceInterval = 1, customMonths = [], oneTimeMonth = 0, oneTimeYear = null, defaultAmount = 0) => {
-    const { schedule } = scheduleUtils.generateSchedule(frequency, startMonth, endMonth, null, null, recurrenceInterval, customMonths, oneTimeMonth, oneTimeYear, defaultAmount)
+  calculateTotalAmount: (
+    frequency,
+    startMonth,
+    endMonth,
+    recurrenceInterval = 1,
+    customMonths = [],
+    oneTimeMonth = 0,
+    oneTimeYear = null,
+    defaultAmount = 0
+  ) => {
+    const { schedule } = scheduleUtils.generateSchedule(
+      frequency,
+      startMonth,
+      endMonth,
+      null,
+      null,
+      recurrenceInterval,
+      customMonths,
+      oneTimeMonth,
+      oneTimeYear,
+      defaultAmount
+    )
     return schedule.length * defaultAmount
   },
 
   // Legacy function for backward compatibility
-  generateScheduleLegacy: (recurrence, startMonth, customMonths = [], oneTimeMonth = 0, defaultAmount = 0) => {
+  generateScheduleLegacy: (
+    recurrence,
+    startMonth,
+    customMonths = [],
+    oneTimeMonth = 0,
+    defaultAmount = 0
+  ) => {
     // Map old recurrence to new frequency
     let frequency = 'repeats'
     let recurrenceInterval = 1
@@ -456,7 +583,18 @@ export const scheduleUtils = {
         break
     }
 
-    return scheduleUtils.generateSchedule(frequency, startMonth, 11, null, null, recurrenceInterval, customMonths, oneTimeMonth, null, defaultAmount)
+    return scheduleUtils.generateSchedule(
+      frequency,
+      startMonth,
+      11,
+      null,
+      null,
+      recurrenceInterval,
+      customMonths,
+      oneTimeMonth,
+      null,
+      defaultAmount
+    )
   }
 }
 

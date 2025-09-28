@@ -6,11 +6,11 @@ const { familyBudgets, totalFamilyExpenses, currentMonth } = store
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'EGP',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(Math.abs(amount))
+      style: 'currency',
+      currency: 'EGP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(Math.abs(amount))
 }
 </script>
 
@@ -33,8 +33,12 @@ const formatCurrency = (amount) => {
         class="card"
       >
         <div class="text-center">
-          <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span class="text-2xl font-bold text-primary-600">{{ key.charAt(0).toUpperCase() }}</span>
+          <div
+            class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4"
+          >
+            <span class="text-2xl font-bold text-primary-600">{{
+              key.charAt(0).toUpperCase()
+            }}</span>
           </div>
           <h3 class="text-lg font-semibold capitalize mb-2">
             {{ key }}
@@ -62,7 +66,13 @@ const formatCurrency = (amount) => {
           {{ formatCurrency(totalFamilyExpenses || 0) }}
         </p>
         <p class="text-gray-600">
-          {{ (((totalFamilyExpenses || 0) / (currentMonth?.monthlySpending || 1)) * 100).toFixed(1) }}% of total monthly spending
+          {{
+            (
+              ((totalFamilyExpenses || 0) /
+                (currentMonth?.monthlySpending || 1)) *
+              100
+            ).toFixed(1)
+          }}% of total monthly spending
         </p>
       </div>
     </div>
@@ -79,8 +89,12 @@ const formatCurrency = (amount) => {
           class="flex items-center justify-between p-4 border rounded-lg"
         >
           <div class="flex items-center space-x-4">
-            <div class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-              <span class="font-semibold text-gray-600 capitalize">{{ key.charAt(0) }}</span>
+            <div
+              class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center"
+            >
+              <span class="font-semibold text-gray-600 capitalize">{{
+                key.charAt(0)
+              }}</span>
             </div>
             <div>
               <div class="font-medium capitalize">
@@ -96,7 +110,11 @@ const formatCurrency = (amount) => {
               {{ formatCurrency(member.monthly) }}
             </div>
             <div class="text-sm text-gray-500">
-              {{ ((member.monthly / (totalFamilyExpenses || 1)) * 100).toFixed(1) }}% of family budget
+              {{
+                ((member.monthly / (totalFamilyExpenses || 1)) * 100).toFixed(
+                  1,
+                )
+              }}% of family budget
             </div>
           </div>
         </div>

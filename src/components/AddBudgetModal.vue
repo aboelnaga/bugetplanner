@@ -24,34 +24,41 @@ import {
   END_TYPES,
   END_TYPE_LABELS
 } from '@/constants/budgetConstants.js'
-import { formatCurrency, formatCompactCurrency } from '@/utils/budgetUtils.js'
+import {
+  formatCurrency,
+  formatCompactCurrency
+} from '@/utils/budgetUtils.js'
 import BaseModal from './BaseModal.vue'
 import CurrencyInput from './CurrencyInput.vue'
 import { currencyOptions } from '@/constants/currencyOptions.js'
 
 // Props
 const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  selectedYear: {
-    type: Number,
-    required: true
-  },
-  budget: {
-    type: Object,
-    default: null
-  },
-  mode: {
-    type: String,
-    default: 'add',
-    validator: value => ['add', 'edit'].includes(value)
-  }
-})
+    modelValue: {
+      type: Boolean,
+      default: false
+    },
+    selectedYear: {
+      type: Number,
+      required: true
+    },
+    budget: {
+      type: Object,
+      default: null
+    },
+    mode: {
+      type: String,
+      default: 'add',
+      validator: (value) => ['add', 'edit'].includes(value)
+    }
+  })
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'budget-added', 'budget-updated'])
+const emit = defineEmits([
+    'update:modelValue',
+    'budget-added',
+    'budget-updated'
+  ])
 
 // Store
 const budgetStore = useBudgetStore()
@@ -78,22 +85,29 @@ const currentMonth = computed(() => budgetStore.currentMonth)
 
 // Auto-detect multi-year based on start/end years
 const isMultiYear = computed(() => {
-  if (formData.value.frequency === FREQUENCY_TYPES.REPEATS) {
-    if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
-      return formData.value.endYear > formData.value.startYear
-    } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
-      // For occurrences, calculate if it spans multiple years
-      const totalMonths = formData.value.occurrences === 1
-        ? 0
-        : (formData.value.occurrences - 1) * formData.value.recurrenceInterval
-      const startDate = new Date(formData.value.startYear, formData.value.startMonth)
-      const endDate = new Date(startDate.getTime() + (totalMonths * 30 * 24 * 60 * 60 * 1000))
-      return endDate.getFullYear() > startDate.getFullYear()
+    if (formData.value.frequency === FREQUENCY_TYPES.REPEATS) {
+      if (formData.value.endType === END_TYPES.SPECIFIC_DATE) {
+        return formData.value.endYear > formData.value.startYear
+      } else if (formData.value.endType === END_TYPES.AFTER_OCCURRENCES) {
+        // For occurrences, calculate if it spans multiple years
+        const totalMonths =
+          formData.value.occurrences === 1
+            ? 0
+            : (formData.value.occurrences - 1) *
+              formData.value.recurrenceInterval
+        const startDate = new Date(
+          formData.value.startYear,
+          formData.value.startMonth
+        )
+        const endDate = new Date(
+          startDate.getTime() + totalMonths * 30 * 24 * 60 * 60 * 1000
+        )
+        return endDate.getFullYear() > startDate.getFullYear()
+      }
     }
-  }
-  // For once and custom, it's never multi-year
-  return false
-})
+    // For once and custom, it's never multi-year
+    return false
+  })
 
 // Validation errors state
 const validationErrors = ref([])
@@ -120,172 +134,233 @@ const {
   updateLegacyRecurrence,
   getAvailableOnceMonths,
   validateFormData
-} = useBudgetModals(budgetStore, computed(() => props.selectedYear), currentYear, currentMonth, toast, confirm)
+} = useBudgetModals(
+    budgetStore,
+    computed(() => props.selectedYear),
+    currentYear,
+    currentMonth,
+    toast,
+    confirm
+  )
 
 // Computed options for form fields
 const typeOptions = computed(() =>
-  Object.entries(BUDGET_TYPE_LABELS).map(([value, label]) => ({ value, label }))
-)
+    Object.entries(BUDGET_TYPE_LABELS).map(([value, label]) => ({
+      value,
+      label
+    }))
+  )
 
 const categoryOptions = computed(() =>
-  getCategoriesByType(formData.value.type).map(cat => ({ value: cat, label: cat }))
-)
+    getCategoriesByType(formData.value.type).map((cat) => ({
+      value: cat,
+      label: cat
+    }))
+  )
 
 const investmentDirectionOptions = computed(() =>
-  Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({ value, label }))
-)
+    Object.entries(INVESTMENT_DIRECTION_LABELS).map(([value, label]) => ({
+      value,
+      label
+    }))
+  )
 
 const investmentOptions = computed(() => [
-  { label: 'No investment linked', value: '' },
-  ...availableInvestments.value.map(inv => ({
-    label: `${inv.name} (${formatInvestmentType(inv.investment_type)})`,
-    value: inv.id
-  }))
-])
+    { label: 'No investment linked', value: '' },
+    ...availableInvestments.value.map((inv) => ({
+      label: `${inv.name} (${formatInvestmentType(inv.investment_type)})`,
+      value: inv.id
+    }))
+  ])
 
 const paymentScheduleOptions = computed(() =>
-  Object.entries(PAYMENT_SCHEDULE_LABELS).map(([value, label]) => ({ value, label }))
-)
+    Object.entries(PAYMENT_SCHEDULE_LABELS).map(([value, label]) => ({
+      value,
+      label
+    }))
+  )
 
 const dueDateOptions = computed(() =>
-  Array.from({ length: 31 }, (_, i) => ({
-    value: i + 1,
-    label: `${i + 1}${getDaySuffix(i + 1)}`
-  }))
-)
+    Array.from({ length: 31 }, (_, i) => ({
+      value: i + 1,
+      label: `${i + 1}${getDaySuffix(i + 1)}`
+    }))
+  )
 
 const reminderDaysOptions = computed(() =>
-  [1, 2, 3, 5, 7, 10, 14, 21, 30].map(days => ({
-    value: days,
-    label: `${days} day${days !== 1 ? 's' : ''} before`
-  }))
-)
+    [1, 2, 3, 5, 7, 10, 14, 21, 30].map((days) => ({
+      value: days,
+      label: `${days} day${days !== 1 ? 's' : ''} before`
+    }))
+  )
 
 const frequencyOptions = computed(() =>
-  Object.entries(FREQUENCY_LABELS).map(([value, label]) => ({ value, label }))
-)
+    Object.entries(FREQUENCY_LABELS).map(([value, label]) => ({
+      value,
+      label
+    }))
+  )
 
 const recurrenceIntervalOptions = computed(() =>
-  RECURRENCE_INTERVALS.map(interval => ({ value: interval.value, label: interval.label }))
-)
+    RECURRENCE_INTERVALS.map((interval) => ({
+      value: interval.value,
+      label: interval.label
+    }))
+  )
 
 const monthOptions = computed(() =>
-  MONTH_OPTIONS.map(month => ({ value: month.value, label: month.label }))
-)
+    MONTH_OPTIONS.map((month) => ({ value: month.value, label: month.label }))
+  )
 
 const availableStartMonthOptions = computed(() =>
-  getAvailableStartMonthIndices().map(month => ({ value: month.value, label: month.label }))
-)
+    getAvailableStartMonthIndices().map((month) => ({
+      value: month.value,
+      label: month.label
+    }))
+  )
 
 const availableYearOptions = computed(() =>
-  getAvailableYears().map(year => ({ value: year, label: year.toString() }))
-)
+    getAvailableYears().map((year) => ({
+      value: year,
+      label: year.toString()
+    }))
+  )
 
 const availableEndYearOptions = computed(() =>
-  getAvailableEndYears().map(year => ({ value: year, label: year.toString() }))
-)
+    getAvailableEndYears().map((year) => ({
+      value: year,
+      label: year.toString()
+    }))
+  )
 
 const availableOnceMonthOptions = computed(() =>
-  getAvailableOnceMonths().map(month => ({ value: month.value, label: month.label }))
-)
+    getAvailableOnceMonths().map((month) => ({
+      value: month.value,
+      label: month.label
+    }))
+  )
 
 const endTypeOptions = computed(() =>
-  Object.entries(END_TYPE_LABELS).map(([value, label]) => ({ value, label }))
-)
+    Object.entries(END_TYPE_LABELS).map(([value, label]) => ({ value, label }))
+  )
 
 // Computed
 const hasErrors = computed(() => validationErrors.value.length > 0)
 
-// Watch for budget type changes to clear linked investment
-watch(() => formData.value.type, (newType, oldType) => {
-  if (oldType === BUDGET_TYPES.INVESTMENT && newType !== BUDGET_TYPES.INVESTMENT) {
-    formData.value.linked_investment_id = ''
-  }
-})
-
-// Watch for modal opening to initialize form
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    // Clear validation errors when modal opens
-    validationErrors.value = []
-
-    if (props.mode === 'edit' && props.budget) {
-      console.log('Initializing form with budget for edit:', props.budget)
-      initializeFormDataFromBudget(props.budget)
-    } else {
-      initializeFormData()
-      // Ensure frequency is set to "repeats" by default for add mode
-      formData.value.frequency = FREQUENCY_TYPES.REPEATS
+  // Watch for budget type changes to clear linked investment
+  watch(
+    () => formData.value.type,
+    (newType, oldType) => {
+      if (
+        oldType === BUDGET_TYPES.INVESTMENT &&
+        newType !== BUDGET_TYPES.INVESTMENT
+      ) {
+        formData.value.linked_investment_id = ''
+      }
     }
-    loadAvailableInvestments()
-  }
-})
+  )
 
-// Watch for budget changes in edit mode
-watch(() => props.budget, (newBudget) => {
-  if (newBudget && props.modelValue && props.mode === 'edit') {
-    console.log('Budget changed, reinitializing form:', newBudget)
-    initializeFormDataFromBudget(newBudget)
-  }
-})
+  // Watch for modal opening to initialize form
+  watch(
+    () => props.modelValue,
+    (isOpen) => {
+      if (isOpen) {
+        // Clear validation errors when modal opens
+        validationErrors.value = []
 
-// Watch for form changes to update preview (both single-year and multi-year)
-watch([
-  () => formData.value.frequency,
-  () => formData.value.startMonth,
-  () => formData.value.startYear,
-  () => formData.value.endMonth,
-  () => formData.value.endYear,
-  () => formData.value.endType,
-  () => formData.value.recurrenceInterval,
-  () => formData.value.occurrences,
-  () => formData.value.customMonths,
-  () => formData.value.oneTimeMonth,
-  () => formData.value.oneTimeYear,
-  () => formData.value.defaultAmount,
-  // Legacy fields for backward compatibility
-  () => formData.value.is_multi_year,
-  () => formData.value.start_year,
-  () => formData.value.end_year,
-  () => formData.value.end_month
-], () => {
-  // Clear validation errors when user makes changes
-  if (validationErrors.value.length > 0) {
-    validationErrors.value = []
-  }
+        if (props.mode === 'edit' && props.budget) {
+          console.log('Initializing form with budget for edit:', props.budget)
+          initializeFormDataFromBudget(props.budget)
+        } else {
+          initializeFormData()
+          // Ensure frequency is set to "repeats" by default for add mode
+          formData.value.frequency = FREQUENCY_TYPES.REPEATS
+        }
+        loadAvailableInvestments()
+      }
+    }
+  )
 
-  // Update multi-year preview if available
-  if (updateMultiYearPreview) {
-    updateMultiYearPreview()
-  }
-}, { deep: true })
+  // Watch for budget changes in edit mode
+  watch(
+    () => props.budget,
+    (newBudget) => {
+      if (newBudget && props.modelValue && props.mode === 'edit') {
+        console.log('Budget changed, reinitializing form:', newBudget)
+        initializeFormDataFromBudget(newBudget)
+      }
+    }
+  )
+
+  // Watch for form changes to update preview (both single-year and multi-year)
+  watch(
+    [
+      () => formData.value.frequency,
+      () => formData.value.startMonth,
+      () => formData.value.startYear,
+      () => formData.value.endMonth,
+      () => formData.value.endYear,
+      () => formData.value.endType,
+      () => formData.value.recurrenceInterval,
+      () => formData.value.occurrences,
+      () => formData.value.customMonths,
+      () => formData.value.oneTimeMonth,
+      () => formData.value.oneTimeYear,
+      () => formData.value.defaultAmount,
+      // Legacy fields for backward compatibility
+      () => formData.value.is_multi_year,
+      () => formData.value.start_year,
+      () => formData.value.end_year,
+      () => formData.value.end_month
+    ],
+    () => {
+      // Clear validation errors when user makes changes
+      if (validationErrors.value.length > 0) {
+        validationErrors.value = []
+      }
+
+      // Update multi-year preview if available
+      if (updateMultiYearPreview) {
+        updateMultiYearPreview()
+      }
+    },
+    { deep: true }
+  )
 
 // Get day suffix (1st, 2nd, 3rd, etc.)
 const getDaySuffix = (day) => {
   if (day >= 11 && day <= 13) return 'th'
   switch (day % 10) {
-    case 1: return 'st'
-    case 2: return 'nd'
-    case 3: return 'rd'
-    default: return 'th'
+    case 1:
+      return 'st'
+    case 2:
+      return 'nd'
+    case 3:
+      return 'rd'
+    default:
+      return 'th'
   }
 }
 
 // Investment linking helpers
 const formatInvestmentType = (type) => {
   if (!type) return 'Unknown'
-  return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
+  return type.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())
 }
 
 const getLinkedInvestmentName = () => {
   if (!formData.value.linked_investment_id) return ''
-  const investment = availableInvestments.value.find(inv => inv.id === formData.value.linked_investment_id)
+  const investment = availableInvestments.value.find(
+      (inv) => inv.id === formData.value.linked_investment_id
+    )
   return investment?.name || ''
 }
 
 const getLinkedInvestmentPurchaseAmount = () => {
   if (!formData.value.linked_investment_id) return 0
-  const investment = availableInvestments.value.find(inv => inv.id === formData.value.linked_investment_id)
+  const investment = availableInvestments.value.find(
+      (inv) => inv.id === formData.value.linked_investment_id
+    )
   return investment?.purchase_amount || 0
 }
 
@@ -294,94 +369,104 @@ const loadAvailableInvestments = async () => {
     await investmentAssetsStore.fetchInvestmentAssets()
     availableInvestments.value = investmentAssetsStore.investmentAssets || []
   } catch (error) {
-    console.error('Error loading investments:', error)
-    availableInvestments.value = []
+      console.error('Error loading investments:', error)
+      availableInvestments.value = []
   }
 }
 
 // Close modal
 const closeModal = () => {
-  emit('update:modelValue', false)
+    emit('update:modelValue', false)
 }
 
 // Unified budget submission handler
 const handleSubmit = async () => {
-  console.log('AddBudgetModal handleSubmit called, mode:', props.mode)
+    console.log('AddBudgetModal handleSubmit called, mode:', props.mode)
 
-  try {
-    // Clear previous validation errors
-    validationErrors.value = []
+    try {
+      // Clear previous validation errors
+      validationErrors.value = []
 
-    // Validate form data first
-    const errors = validateFormData()
-    if (errors.length > 0) {
-      console.log('Validation errors found:', errors)
-      validationErrors.value = errors
-      return
-    }
-
-    // Use the same schedule data that preview uses (single source of truth)
-    const scheduleData = schedulePreviewData.value
-    console.log('Using schedule data:', scheduleData)
-
-    let result
-    if (props.mode === 'edit') {
-      console.log('Edit mode - budget:', props.budget)
-      if (!props.budget || !props.budget.id) {
-        console.error('No budget to edit')
+      // Validate form data first
+      const errors = validateFormData()
+      if (errors.length > 0) {
+        console.log('Validation errors found:', errors)
+        validationErrors.value = errors
         return
       }
 
-      // Use unified submit logic for both single and multi-year edits
-      result = await handleUnifiedEditSubmit(props.budget.id, scheduleData)
-    } else {
-      // Use unified submit logic for both single and multi-year adds
-      result = await handleUnifiedAddSubmit(scheduleData)
-    }
+      // Use the same schedule data that preview uses (single source of truth)
+      const scheduleData = schedulePreviewData.value
+      console.log('Using schedule data:', scheduleData)
 
-    console.log('Submit result:', result)
+      let result
+      if (props.mode === 'edit') {
+        console.log('Edit mode - budget:', props.budget)
+        if (!props.budget || !props.budget.id) {
+          console.error('No budget to edit')
+          return
+        }
 
-    if (result) {
-      console.log('Budget operation successful, closing modal')
-      closeModal()
-      emit(props.mode === 'edit' ? 'budget-updated' : 'budget-added', result)
-    } else {
-      console.log('Budget operation failed, keeping modal open')
-      const errorMessage = `Failed to ${props.mode === 'edit' ? 'update' : 'create'} budget item "${formData.value.name}". Please try again.`
+        // Use unified submit logic for both single and multi-year edits
+        result = await handleUnifiedEditSubmit(props.budget.id, scheduleData)
+      } else {
+        // Use unified submit logic for both single and multi-year adds
+        result = await handleUnifiedAddSubmit(scheduleData)
+      }
+
+      console.log('Submit result:', result)
+
+      if (result) {
+        console.log('Budget operation successful, closing modal')
+        closeModal()
+        emit(props.mode === 'edit' ? 'budget-updated' : 'budget-added', result)
+      } else {
+        console.log('Budget operation failed, keeping modal open')
+        const errorMessage = `Failed to ${props.mode === 'edit' ? 'update' : 'create'} budget item "${formData.value.name}". Please try again.`
+        console.log('Error message:', errorMessage)
+
+        // Show error toast
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: errorMessage,
+          life: 3000
+        })
+      }
+    } catch (error) {
+      console.error('Budget submission error:', error)
+      const errorMessage = `Error ${props.mode === 'edit' ? 'updating' : 'creating'} budget item "${formData.value.name}": ${error.message || 'Unknown error'}`
       console.log('Error message:', errorMessage)
 
       // Show error toast
-      toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 })
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: errorMessage,
+        life: 3000
+      })
     }
-  } catch (error) {
-    console.error('Budget submission error:', error)
-    const errorMessage = `Error ${props.mode === 'edit' ? 'updating' : 'creating'} budget item "${formData.value.name}": ${error.message || 'Unknown error'}`
-    console.log('Error message:', errorMessage)
-
-    // Show error toast
-    toast.add({ severity: 'error', summary: 'Error', detail: errorMessage, life: 3000 })
-  }
 }
 
 // Unified add submit handler
 const handleUnifiedAddSubmit = async (scheduleData) => {
   if (isMultiYear.value) {
-    console.log('Creating multi-year budget with schedule data')
-    return await handleMultiYearAddSubmit(scheduleData)
+      console.log('Creating multi-year budget with schedule data')
+      return await handleMultiYearAddSubmit(scheduleData)
   } else {
-    console.log('Creating single-year budget with schedule data')
-    return await handleSingleYearAddSubmit(scheduleData)
+      console.log('Creating single-year budget with schedule data')
+      return await handleSingleYearAddSubmit(scheduleData)
   }
 }
 
 // Unified edit submit handler
 const handleUnifiedEditSubmit = async (budgetId, scheduleData) => {
   if (isMultiYear.value) {
-    console.log('Updating multi-year budget with schedule data')
-    return await handleMultiYearEditWithSchedule(budgetId, scheduleData)
+      console.log('Updating multi-year budget with schedule data')
+      return await handleMultiYearEditWithSchedule(budgetId, scheduleData)
   } else {
-    console.log('Updating single-year budget with schedule data')
-    return await handleSingleYearEditWithSchedule(budgetId, scheduleData)
+      console.log('Updating single-year budget with schedule data')
+      return await handleSingleYearEditWithSchedule(budgetId, scheduleData)
   }
 }
 
@@ -389,22 +474,31 @@ const handleUnifiedEditSubmit = async (budgetId, scheduleData) => {
 const handleMultiYearEditWithSchedule = async (budgetId, scheduleData) => {
   try {
     // Use existing updateMultiYearBudgetItems but with calculated data
-    const updateData = createBudgetDataFromSchedule(formData.value, scheduleData.yearlyBreakdown[0])
-    return await budgetStore.updateMultiYearBudgetItems(props.budget.linked_group_id, updateData)
+    const updateData = createBudgetDataFromSchedule(
+        formData.value,
+        scheduleData.yearlyBreakdown[0]
+      )
+    return await budgetStore.updateMultiYearBudgetItems(
+        props.budget.linked_group_id,
+        updateData
+      )
   } catch (error) {
-    console.error('Multi-year edit error:', error)
-    return null
+      console.error('Multi-year edit error:', error)
+      return null
   }
 }
 
 // Single-year edit using schedule data
 const handleSingleYearEditWithSchedule = async (budgetId, scheduleData) => {
   try {
-    const updateData = createBudgetDataFromSchedule(formData.value, scheduleData.yearlyBreakdown[0])
+    const updateData = createBudgetDataFromSchedule(
+        formData.value,
+        scheduleData.yearlyBreakdown[0]
+      )
     return await budgetStore.updateBudgetItem(budgetId, updateData)
   } catch (error) {
-    console.error('Single-year edit error:', error)
-    return null
+      console.error('Single-year edit error:', error)
+      return null
   }
 }
 
@@ -417,60 +511,63 @@ const handleSingleYearAddSubmit = async (scheduleData) => {
   try {
     return await budgetStore.addBudgetItemFromSchedule(budgetData)
   } catch (error) {
-    console.error('Single-year add error:', error)
-    return null
+      console.error('Single-year add error:', error)
+      return null
   }
 }
 
 // Multi-year add using schedule data
 const handleMultiYearAddSubmit = async (scheduleData) => {
   // Use the calculated yearly breakdown instead of recalculating
-  const budgetDataArray = scheduleData.yearlyBreakdown.map(yearData =>
-    createBudgetDataFromSchedule(formData.value, yearData)
-  )
+  const budgetDataArray = scheduleData.yearlyBreakdown.map((yearData) =>
+      createBudgetDataFromSchedule(formData.value, yearData)
+    )
 
   try {
-    return await budgetStore.addMultiYearBudgetFromSchedule(budgetDataArray, formData.value)
+    return await budgetStore.addMultiYearBudgetFromSchedule(
+        budgetDataArray,
+        formData.value
+      )
   } catch (error) {
-    console.error('Multi-year add error:', error)
-    return null
+      console.error('Multi-year add error:', error)
+      return null
   }
 }
 
 // Helper function to create budget data from schedule data
 const createBudgetDataFromSchedule = (formData, yearData) => {
   return {
-    name: formData.name,
-    type: formData.type,
-    category: formData.category,
-    default_amount: formData.defaultAmount,
-    payment_schedule: formData.payment_schedule,
-    due_date: formData.due_date || null,
-    is_fixed_expense: formData.is_fixed_expense,
-    reminder_enabled: formData.reminder_enabled,
-    reminder_days_before: formData.reminder_days_before,
-    investment_direction: formData.investment_direction,
-    linked_investment_id: formData.linked_investment_id,
-    // Schedule-specific fields
-    year: yearData.year,
-    frequency: formData.frequency,
-    recurrence_interval: formData.recurrenceInterval,
-    start_month: formData.startMonth,
-    start_year: formData.startYear,
-    end_month: formData.endMonth,
-    end_year: formData.endYear,
-    end_type: formData.endType,
-    occurrences: formData.occurrences,
-    custom_months: formData.customMonths,
-    one_time_month: formData.oneTimeMonth,
-    one_time_year: formData.oneTimeYear,
-    // Legacy recurrence field (required by database schema)
-    recurrence: 'monthly',
-    // Pre-calculated amounts (single source of truth)
-    amounts: yearData.monthlyAmounts,
-    is_multi_year: isMultiYear.value
-    // Note: total_amount and months_count removed - not needed in database, only used for UI display
-  }
+      name: formData.name,
+      type: formData.type,
+      category: formData.category,
+      default_amount: formData.defaultAmount,
+      payment_schedule: formData.payment_schedule,
+      due_date: formData.due_date || null,
+      is_fixed_expense: formData.is_fixed_expense,
+      reminder_enabled: formData.reminder_enabled,
+      reminder_days_before: formData.reminder_days_before,
+      investment_direction: formData.investment_direction,
+      linked_investment_id: formData.linked_investment_id,
+      // Schedule-specific fields
+      year: yearData.year,
+      frequency: formData.frequency,
+      recurrence_interval: formData.recurrenceInterval,
+      start_month: formData.startMonth,
+      start_year: formData.startYear,
+      end_month: formData.endMonth,
+      end_year: formData.endYear,
+      end_type: formData.endType,
+      occurrences: formData.occurrences,
+      custom_months: formData.customMonths,
+      one_time_month: formData.oneTimeMonth,
+      one_time_year: formData.oneTimeYear,
+      // Legacy recurrence field (required by database schema)
+      recurrence: 'monthly',
+      // Pre-calculated amounts (single source of truth)
+      amounts: yearData.monthlyAmounts,
+      is_multi_year: isMultiYear.value
+      // Note: total_amount and months_count removed - not needed in database, only used for UI display
+    }
 }
 
 // Get multi-year duration
@@ -520,45 +617,51 @@ const getCalculatedEndYear = () => {
 
 // Unified schedule preview data (computed for reactivity)
 const schedulePreviewData = computed(() => {
-  if (isMultiYear.value && multiYearPreview.value) {
-    // Add computed fields for DataTable
-    return {
-      ...multiYearPreview.value,
-      yearlyBreakdown: multiYearPreview.value.yearlyBreakdown.map(year => ({
-        ...year,
-        monthlyAverage: year.monthsCount > 0 ? year.amount / year.monthsCount : 0
-      }))
+    if (isMultiYear.value && multiYearPreview.value) {
+      // Add computed fields for DataTable
+      return {
+        ...multiYearPreview.value,
+        yearlyBreakdown: multiYearPreview.value.yearlyBreakdown.map((year) => ({
+          ...year,
+          monthlyAverage:
+            year.monthsCount > 0 ? year.amount / year.monthsCount : 0
+        }))
+      }
+    } else {
+      // Generate single-year preview data in the same format as multi-year
+      const schedule = generateSchedule()
+      const totalAmount = calculateTotalAmount()
+
+      // Use the actual year from form data, not props.selectedYear
+      const actualYear =
+        formData.value.frequency === FREQUENCY_TYPES.ONCE
+          ? formData.value.oneTimeYear
+          : formData.value.startYear || props.selectedYear
+
+      // Calculate active months from the schedule
+      const activeMonths = schedule.amounts.filter(
+        (amount) => amount > 0
+      ).length
+
+      // Always create a yearlyBreakdown entry, even if there are no active months
+      // This ensures the breakdown section is always shown
+      return {
+        duration: 1,
+        totalAmount,
+        yearlyBreakdown: [
+          {
+            year: actualYear,
+            amount: totalAmount,
+            monthsCount: activeMonths,
+            monthlyAmounts: schedule.amounts,
+            isFirstYear: true,
+            isLastYear: true,
+            monthlyAverage: activeMonths > 0 ? totalAmount / activeMonths : 0
+          }
+        ]
+      }
     }
-  } else {
-    // Generate single-year preview data in the same format as multi-year
-    const schedule = generateSchedule()
-    const totalAmount = calculateTotalAmount()
-
-    // Use the actual year from form data, not props.selectedYear
-    const actualYear = formData.value.frequency === FREQUENCY_TYPES.ONCE
-      ? formData.value.oneTimeYear
-      : formData.value.startYear || props.selectedYear
-
-    // Calculate active months from the schedule
-    const activeMonths = schedule.amounts.filter(amount => amount > 0).length
-
-    // Always create a yearlyBreakdown entry, even if there are no active months
-    // This ensures the breakdown section is always shown
-    return {
-      duration: 1,
-      totalAmount,
-      yearlyBreakdown: [{
-        year: actualYear,
-        amount: totalAmount,
-        monthsCount: activeMonths,
-        monthlyAmounts: schedule.amounts,
-        isFirstYear: true,
-        isLastYear: true,
-        monthlyAverage: activeMonths > 0 ? totalAmount / activeMonths : 0
-      }]
-    }
-  }
-})
+  })
 
 // Unified class for schedule month headers
 const getScheduleMonthClass = (amount, index) => {
@@ -587,12 +690,15 @@ const onRowToggle = (event) => {
 
 const getMonthlyData = (yearData) => {
   return yearData.monthlyAmounts.map((amount, index) => ({
-    monthIndex: index,
-    monthName: months[index],
-    amount,
-    isCurrentMonth: yearData.year === currentYear.value && index === currentMonth.value,
-    isPastMonth: yearData.year < currentYear.value || (yearData.year === currentYear.value && index < currentMonth.value)
-  }))
+      monthIndex: index,
+      monthName: months[index],
+      amount,
+      isCurrentMonth:
+        yearData.year === currentYear.value && index === currentMonth.value,
+      isPastMonth:
+        yearData.year < currentYear.value ||
+        (yearData.year === currentYear.value && index < currentMonth.value)
+    }))
 }
 </script>
 
@@ -650,7 +756,9 @@ const getMonthlyData = (yearData) => {
               v-model="formData.name"
               placeholder="Budget item name"
               class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Name')) }"
+              :class="{
+                'p-invalid': validationErrors.some((e) => e.includes('Name')),
+              }"
               data-testid="budget-name-input"
             />
           </div>
@@ -671,7 +779,9 @@ const getMonthlyData = (yearData) => {
               option-value="value"
               placeholder="Select budget type"
               class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Type')) }"
+              :class="{
+                'p-invalid': validationErrors.some((e) => e.includes('Type')),
+              }"
               data-testid="budget-type-select"
               @change="updateCategoryOnTypeChange"
             />
@@ -693,7 +803,11 @@ const getMonthlyData = (yearData) => {
               option-value="value"
               placeholder="Select category"
               class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Category')) }"
+              :class="{
+                'p-invalid': validationErrors.some((e) =>
+                  e.includes('Category'),
+                ),
+              }"
               data-testid="budget-category-select"
             />
           </div>
@@ -762,7 +876,8 @@ const getMonthlyData = (yearData) => {
                   {{ getLinkedInvestmentName() }}
                 </span>
                 <span class="text-sm opacity-75">
-                  (Purchase: {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }})
+                  (Purchase:
+                  {{ formatCurrency(getLinkedInvestmentPurchaseAmount()) }})
                 </span>
               </div>
               <Button
@@ -801,7 +916,9 @@ const getMonthlyData = (yearData) => {
               currency="EGP"
               placeholder="0.00"
               class="w-full"
-              :class="{ 'p-invalid': validationErrors.some(e => e.includes('Amount')) }"
+              :class="{
+                'p-invalid': validationErrors.some((e) => e.includes('Amount')),
+              }"
               data-testid="default-amount-input"
             />
           </div>
@@ -1087,9 +1204,11 @@ const getMonthlyData = (yearData) => {
               :key="month"
               class="flex items-center p-3 border rounded-lg transition-colors"
               :class="{
-                'bg-primary-50 border-primary-300': formData.customMonths.includes(index),
+                'bg-primary-50 border-primary-300':
+                  formData.customMonths.includes(index),
                 'cursor-pointer hover:bg-surface-100': index >= currentMonth,
-                'cursor-not-allowed bg-surface-100 opacity-50': index < currentMonth
+                'cursor-not-allowed bg-surface-100 opacity-50':
+                  index < currentMonth,
               }"
             >
               <Checkbox
@@ -1172,9 +1291,14 @@ const getMonthlyData = (yearData) => {
                   <span class="font-medium">schedule preview</span>
                 </div>
                 <div class="text-right">
-                  <span class="font-semibold">{{ formatCurrency(schedulePreviewData.totalAmount) }} / </span>
+                  <span class="font-semibold">{{ formatCurrency(schedulePreviewData.totalAmount) }} /
+                  </span>
                   <span class="text-surface-600">
-                    {{ isMultiYear ? ` ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? 's' : ''}` : ` ${schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0} month${(schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0) !== 1 ? 's' : ''}` }}
+                    {{
+                      isMultiYear
+                        ? ` ${schedulePreviewData.duration} year${schedulePreviewData.duration !== 1 ? "s" : ""}`
+                        : ` ${schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0} month${(schedulePreviewData.yearlyBreakdown[0]?.monthsCount || 0) !== 1 ? "s" : ""}`
+                    }}
                   </span>
                 </div>
               </div>
@@ -1185,7 +1309,9 @@ const getMonthlyData = (yearData) => {
               :expanded-rows="expandedRows"
               data-key="year"
               class="p-datatable-sm"
-              :data-testid="isMultiYear ? 'multi-year-preview' : 'schedule-preview'"
+              :data-testid="
+                isMultiYear ? 'multi-year-preview' : 'schedule-preview'
+              "
               expandable-rows
               @row-toggle="onRowToggle"
             >
@@ -1314,7 +1440,9 @@ const getMonthlyData = (yearData) => {
                 class="w-32"
               >
                 <template #body="{ data }">
-                  <span class="font-semibold text-lg">{{ formatCurrency(data.amount) }}</span>
+                  <span class="font-semibold text-lg">{{
+                    formatCurrency(data.amount)
+                  }}</span>
                 </template>
               </Column>
 
@@ -1324,7 +1452,9 @@ const getMonthlyData = (yearData) => {
                 class="w-32"
               >
                 <template #body="{ data }">
-                  <span class="font-medium">{{ formatCurrency(data.monthlyAverage) }}</span>
+                  <span class="font-medium">{{
+                    formatCurrency(data.monthlyAverage)
+                  }}</span>
                 </template>
               </Column>
 
@@ -1367,9 +1497,17 @@ const getMonthlyData = (yearData) => {
           :disabled="isLoading || hasErrors"
           :loading="isLoading"
           icon="pi pi-check"
-          :label="props.mode === 'edit' ? 'Update Budget Item' : (isMultiYear ? 'Add Multi-Year Budget' : 'Add Budget Item')"
+          :label="
+            props.mode === 'edit'
+              ? 'Update Budget Item'
+              : isMultiYear
+                ? 'Add Multi-Year Budget'
+                : 'Add Budget Item'
+          "
           severity="primary"
-          :data-testid="props.mode === 'edit' ? 'submit-edit-btn' : 'submit-budget-btn'"
+          :data-testid="
+            props.mode === 'edit' ? 'submit-edit-btn' : 'submit-budget-btn'
+          "
           @click="handleSubmit"
         />
       </div>

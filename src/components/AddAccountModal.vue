@@ -11,11 +11,11 @@ import Message from 'primevue/message'
 import Button from 'primevue/button'
 
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false
-  }
-})
+    isOpen: {
+      type: Boolean,
+      default: false
+    }
+  })
 
 const emit = defineEmits(['close', 'account-added'])
 
@@ -24,28 +24,31 @@ const loading = ref(false)
 const error = ref('')
 
 const form = reactive({
-  name: '',
-  type: '',
-  balance: 0,
-  credit_limit: null,
-  is_default: false
-})
+    name: '',
+    type: '',
+    balance: 0,
+    credit_limit: null,
+    is_default: false
+  })
 
 // Computed options for form fields
 const accountTypeOptions = [
-  { label: 'Select account type', value: '' },
-  { label: 'Checking', value: 'checking' },
-  { label: 'Savings', value: 'savings' },
-  { label: 'Credit Card', value: 'credit_card' },
-  { label: 'Cash', value: 'cash' }
-]
+    { label: 'Select account type', value: '' },
+    { label: 'Checking', value: 'checking' },
+    { label: 'Savings', value: 'savings' },
+    { label: 'Credit Card', value: 'credit_card' },
+    { label: 'Cash', value: 'cash' }
+  ]
 
-// Reset form when modal opens
-watch(() => props.isOpen, (isOpen) => {
-  if (isOpen) {
-    resetForm()
-  }
-})
+  // Reset form when modal opens
+  watch(
+    () => props.isOpen,
+    (isOpen) => {
+      if (isOpen) {
+        resetForm()
+      }
+    }
+  )
 
 const resetForm = () => {
   form.name = ''
@@ -63,11 +66,11 @@ const handleSubmit = async () => {
   try {
     // Prepare account data
     const accountData = {
-      name: form.name.trim(),
-      type: form.type,
-      balance: parseFloat(form.balance) || 0,
-      is_default: form.is_default
-    }
+        name: form.name.trim(),
+        type: form.type,
+        balance: parseFloat(form.balance) || 0,
+        is_default: form.is_default
+      }
 
     // Add credit limit for credit cards
     if (form.type === 'credit_card' && form.credit_limit) {
@@ -77,9 +80,9 @@ const handleSubmit = async () => {
     // Create account
     const newAccount = await accountsStore.createAccount(accountData)
 
-    emit('account-added', newAccount)
-    emit('close')
-    resetForm()
+      emit('account-added', newAccount)
+      emit('close')
+      resetForm()
   } catch (err) {
     error.value = err.message || 'Failed to create account'
   } finally {

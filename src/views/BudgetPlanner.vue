@@ -47,21 +47,27 @@ const budgetItems = computed(() => budgetStore.budgetItemsWithUnlinked || [])
 
 // Selected year (from store)
 const selectedYear = computed({
-  get: () => budgetStore.selectedYear,
-  set: (value) => {
-    budgetStore.selectedYear = value
-    budgetStore.fetchBudgetItems(value)
-  }
-})
+    get: () => budgetStore.selectedYear,
+    set: (value) => {
+      budgetStore.selectedYear = value
+      budgetStore.fetchBudgetItems(value)
+    }
+  })
 
 // Current month from store
 const currentMonth = computed(() => budgetStore.currentMonth)
 
 // Available years (computed from store)
 const availableYears = computed(() => {
-  const currentYear = budgetStore.currentYear
-  return [currentYear - 1, currentYear, currentYear + 1, currentYear + 2, currentYear + 3]
-})
+    const currentYear = budgetStore.currentYear
+    return [
+      currentYear - 1,
+      currentYear,
+      currentYear + 1,
+      currentYear + 2,
+      currentYear + 3
+    ]
+  })
 
 // Use composables
 
@@ -79,7 +85,14 @@ const {
   deleteBudget,
   addNewYear,
   copyFromPreviousYear
-} = useBudgetModals(budgetStore, selectedYear, budgetStore.currentYear, currentMonth, toast, confirm)
+} = useBudgetModals(
+    budgetStore,
+    selectedYear,
+    budgetStore.currentYear,
+    currentMonth,
+    toast,
+    confirm
+  )
 
 // Budget modal mode
 const budgetModalMode = ref('add')
@@ -88,17 +101,20 @@ const budgetModalMode = ref('add')
 const openAddBudgetModalUnified = () => {
   budgetModalMode.value = 'add'
   editingBudget.value = null
-  openAddBudgetModal()
+    openAddBudgetModal()
 }
 
 // Override editBudget to use unified modal
 const editBudgetUnified = (budget) => {
   if (budget.is_multi_year) {
     // For multi-year items, we need to fetch all linked items first
-    const linkedItems = budgetStore.getLinkedBudgetItems(budget.linked_group_id)
+    const linkedItems = budgetStore.getLinkedBudgetItems(
+        budget.linked_group_id
+      )
     if (linkedItems.length > 0) {
       // Use the master item (first item) for editing
-      const masterItem = linkedItems.find(item => item.is_master) || linkedItems[0]
+      const masterItem =
+          linkedItems.find((item) => item.is_master) || linkedItems[0]
       editingBudget.value = masterItem
     } else {
       // Fallback to single item editing
@@ -116,8 +132,8 @@ const editBudgetUnified = (budget) => {
 
 // Handle view transactions for unlinked transactions
 const handleViewTransactions = () => {
-  // Navigate to transactions page with unlinked filter
-  router.push('/transactions?filter=unlinked')
+    // Navigate to transactions page with unlinked filter
+    router.push('/transactions?filter=unlinked')
 }
 
 // Month closure state
@@ -200,13 +216,13 @@ const {
   calculateGrandTotalSavings,
   calculatePreviousYearSavings
 } = useBudgetCalculations(
-  budgetItems,
-  budgetStore,
-  closedMonths,
-  budgetStore.currentYear,
-  budgetStore.currentMonth,
-  selectedYear
-)
+    budgetItems,
+    budgetStore,
+    closedMonths,
+    budgetStore.currentYear,
+    budgetStore.currentMonth,
+    selectedYear
+  )
 
 // Year management
 const previousYearHasData = ref(false)
@@ -215,15 +231,18 @@ const previousYearHasData = ref(false)
 const dualMode = ref('both')
 
 const canCopyFromPreviousYear = computed(() => {
-  const previousYear = selectedYear.value - 1
-  return previousYear >= 2020 && previousYearHasData.value
-})
+    const previousYear = selectedYear.value - 1
+    return previousYear >= 2020 && previousYearHasData.value
+  })
 
 // Smart refresh
-const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } = useSmartRefresh()
+const { isRefreshing, refreshProgress, smartRefresh, debouncedRefresh } =
+    useSmartRefresh()
 
 // Error handling
-const { handleError, retryWithBackoff, clearErrors } = useErrorHandler(toast.add)
+const { handleError, retryWithBackoff, clearErrors } = useErrorHandler(
+    toast.add
+  )
 
 // Check if previous year has data (only when needed)
 const checkPreviousYearData = async () => {
@@ -231,7 +250,8 @@ const checkPreviousYearData = async () => {
   if (budgetStore.budgetItems.length === 0) {
     const previousYear = selectedYear.value - 1
     if (previousYear >= 2020) {
-      previousYearHasData.value = await budgetStore.hasBudgetItemsForYear(previousYear)
+      previousYearHasData.value =
+        await budgetStore.hasBudgetItemsForYear(previousYear)
     } else {
       previousYearHasData.value = false
     }
@@ -247,17 +267,19 @@ const fetchClosedMonths = async () => {
 
   try {
     loadingClosedMonths.value = true
-    const data = await retryWithBackoff(() => budgetStore.getClosedMonths(selectedYear.value))
+    const data = await retryWithBackoff(() =>
+        budgetStore.getClosedMonths(selectedYear.value)
+      )
     closedMonths.value = data || []
   } catch (error) {
     await handleError(error, 'fetching closed months', {
-      showNotification: true,
-      onRecovery: async (errorEntry) => {
-        if (errorEntry.recovery.action === 'retry') {
-          await fetchClosedMonths()
+        showNotification: true,
+        onRecovery: async (errorEntry) => {
+          if (errorEntry.recovery.action === 'retry') {
+            await fetchClosedMonths()
+          }
         }
-      }
-    })
+      })
     closedMonths.value = []
   } finally {
     loadingClosedMonths.value = false
@@ -277,32 +299,46 @@ const confirmCloseMonth = async (year, month) => {
   if (!authStore.isAuthenticated || !authStore.userId) return
 
   try {
-    const success = await retryWithBackoff(() => budgetStore.closeMonth(year, month))
+    const success = await retryWithBackoff(() =>
+        budgetStore.closeMonth(year, month)
+      )
     if (success) {
       // Refresh closed months
       await fetchClosedMonths()
 
       // Show success notification
-      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December']
+      const monthNames = [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+        ]
       const monthName = monthNames[month]
 
-      toast.add({
-        severity: 'success',
-        summary: 'Month Closed Successfully',
-        detail: `${monthName} ${year} has been closed and actual amounts are now displayed.`,
-        life: 5000
-      })
+        toast.add({
+          severity: 'success',
+          summary: 'Month Closed Successfully',
+          detail: `${monthName} ${year} has been closed and actual amounts are now displayed.`,
+          life: 5000
+        })
     }
   } catch (error) {
     await handleError(error, 'closing month', {
-      showNotification: true,
-      onRecovery: async (errorEntry) => {
-        if (errorEntry.recovery.action === 'retry') {
-          await confirmCloseMonth(year, month)
+        showNotification: true,
+        onRecovery: async (errorEntry) => {
+          if (errorEntry.recovery.action === 'retry') {
+            await confirmCloseMonth(year, month)
+          }
         }
-      }
-    })
+      })
   }
 }
 
@@ -310,64 +346,76 @@ const confirmCloseMonth = async (year, month) => {
 
 // Get total transactions count for the selected year
 const transactionsCount = computed(() => {
-  // This would need to be implemented based on your transaction store
-  // For now, returning a placeholder
-  return 0
-})
+    // This would need to be implemented based on your transaction store
+    // For now, returning a placeholder
+    return 0
+  })
 
-// Watch for authentication changes
-watch(() => authStore.isAuthenticated, (isAuthenticated) => {
-  if (isAuthenticated) {
-    // budgetStore.initialize() - removed to avoid duplicate calls, handled in onMounted
-    accountsStore.fetchAccounts()
-    yearlySummariesStore.initialize() // Essential for balance calculations
-    // checkPreviousYearData() - moved to budget items watcher
-    // fetchClosedMonths() - moved to onMounted to avoid duplicate calls
-  } else {
-    // Clear data when not authenticated
-    budgetStore.budgetItems = []
-    accountsStore.accounts = []
-    yearlySummariesStore.yearlySummaries = []
+  // Watch for authentication changes
+  watch(
+    () => authStore.isAuthenticated,
+    (isAuthenticated) => {
+      if (isAuthenticated) {
+        // budgetStore.initialize() - removed to avoid duplicate calls, handled in onMounted
+        accountsStore.fetchAccounts()
+        yearlySummariesStore.initialize() // Essential for balance calculations
+        // checkPreviousYearData() - moved to budget items watcher
+        // fetchClosedMonths() - moved to onMounted to avoid duplicate calls
+      } else {
+        // Clear data when not authenticated
+        budgetStore.budgetItems = []
+        accountsStore.accounts = []
+        yearlySummariesStore.yearlySummaries = []
 
-    // budgetStore.budgetHistory = [] // History functionality commented out
-    budgetStore.error = null
-    accountsStore.error = null
-    yearlySummariesStore.error = null
-    previousYearHasData.value = false
-    closedMonths.value = []
-  }
-})
+        // budgetStore.budgetHistory = [] // History functionality commented out
+        budgetStore.error = null
+        accountsStore.error = null
+        yearlySummariesStore.error = null
+        previousYearHasData.value = false
+        closedMonths.value = []
+      }
+    }
+  )
 
-// Watch for selected year changes
-watch(() => selectedYear.value, (newYear) => {
-  if (authStore.isAuthenticated) {
-    // Fetch budget items for the new year
-    budgetStore.fetchBudgetItems(newYear)
-    // checkPreviousYearData() - moved to budget items watcher
-    // fetchClosedMonths() - removed to avoid duplicate calls on year change
-  }
-})
+  // Watch for selected year changes
+  watch(
+    () => selectedYear.value,
+    (newYear) => {
+      if (authStore.isAuthenticated) {
+        // Fetch budget items for the new year
+        budgetStore.fetchBudgetItems(newYear)
+        // checkPreviousYearData() - moved to budget items watcher
+        // fetchClosedMonths() - removed to avoid duplicate calls on year change
+      }
+    }
+  )
 
-// Watch for auto-close completion to refresh closed months
-watch(() => budgetStore.showHeaderBadge, (showBadge) => {
-  if (!showBadge && authStore.isAuthenticated) {
-    // When badge disappears (auto-close completed), refresh closed months
-    fetchClosedMonths()
-  }
-})
+  // Watch for auto-close completion to refresh closed months
+  watch(
+    () => budgetStore.showHeaderBadge,
+    (showBadge) => {
+      if (!showBadge && authStore.isAuthenticated) {
+        // When badge disappears (auto-close completed), refresh closed months
+        fetchClosedMonths()
+      }
+    }
+  )
 
-// Watch for budget items changes to check previous year data
-watch(() => budgetStore.budgetItems, () => {
-  if (authStore.isAuthenticated) {
-    checkPreviousYearData()
-  }
-}, { immediate: false })
-
-
+  // Watch for budget items changes to check previous year data
+  watch(
+    () => budgetStore.budgetItems,
+    () => {
+      if (authStore.isAuthenticated) {
+        checkPreviousYearData()
+      }
+    },
+    { immediate: false }
+  )
 
 // Account helper functions
 const getAccountIcon = (type) => accountsStore.getAccountIcon(type)
-const getAvailableCredit = (accountId) => accountsStore.getAvailableCredit(accountId)
+const getAvailableCredit = (accountId) =>
+    accountsStore.getAvailableCredit(accountId)
 
 const getBalanceColor = (balance) => {
   if (balance >= 0) return 'text-green-600'
@@ -379,35 +427,32 @@ const getTotalBalanceColor = (balance) => {
   return 'text-red-600'
 }
 
+  // Lifecycle
+  onMounted(async () => {
+    try {
+      // Initialize stores
+      await budgetStore.initialize()
+      await accountsStore.initialize()
+      await yearlySummariesStore.initialize()
+      await transactionStore.fetchTransactions(selectedYear.value)
 
+      // Check previous year data
+      await checkPreviousYearData()
 
-// Lifecycle
-onMounted(async () => {
-  try {
-    // Initialize stores
-    await budgetStore.initialize()
-    await accountsStore.initialize()
-    await yearlySummariesStore.initialize()
-    await transactionStore.fetchTransactions(selectedYear.value)
+      // Fetch closed months
+      await fetchClosedMonths()
+    } catch (error) {
+      console.error('Error initializing BudgetPlanner:', error)
+      handleError(error)
+    }
+  })
 
-    // Check previous year data
-    await checkPreviousYearData()
-
-    // Fetch closed months
-    await fetchClosedMonths()
-
-  } catch (error) {
-    console.error('Error initializing BudgetPlanner:', error)
-    handleError(error)
-  }
-})
-
-// Watch for selected year changes to fetch transactions
-watch(selectedYear, async (newYear) => {
-  if (newYear) {
-    await transactionStore.fetchTransactions(newYear)
-  }
-})
+  // Watch for selected year changes to fetch transactions
+  watch(selectedYear, async (newYear) => {
+    if (newYear) {
+      await transactionStore.fetchTransactions(newYear)
+    }
+  })
 </script>
 
 <template>
@@ -422,7 +467,6 @@ watch(selectedYear, async (newYear) => {
         :style="{ width: refreshProgress + '%' }"
       />
     </div>
-
 
     <div class="space-y-6">
       <!-- Auto-Close Progress Message -->
@@ -463,7 +507,9 @@ watch(selectedYear, async (newYear) => {
               </h3>
               <Tag
                 :value="formatCurrency(accountsStore.totalBalance)"
-                :severity="accountsStore.totalBalance >= 0 ? 'success' : 'danger'"
+                :severity="
+                  accountsStore.totalBalance >= 0 ? 'success' : 'danger'
+                "
                 size="small"
               />
             </div>
@@ -486,9 +532,13 @@ watch(selectedYear, async (newYear) => {
             >
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="text-base">{{ getAccountIcon(account.type) }}</span>
+                  <span class="text-base">{{
+                    getAccountIcon(account.type)
+                  }}</span>
                   <div>
-                    <span class="font-bold text-color mr-2">{{ account.name }}</span>
+                    <span class="font-bold text-color mr-2">{{
+                      account.name
+                    }}</span>
                     <Tag
                       :value="account.type.replace('_', ' ')"
                       severity="secondary"
@@ -526,7 +576,7 @@ watch(selectedYear, async (newYear) => {
         :available-years="availableYears"
         :can-copy-from-previous-year="canCopyFromPreviousYear"
         :budget-items="budgetItems"
-        @update:selected-year="(year) => selectedYear = year"
+        @update:selected-year="(year) => (selectedYear = year)"
         @add-year="addNewYear"
         @copy-from-previous-year="copyFromPreviousYear"
         @add-budget="openAddBudgetModalUnified"
@@ -548,12 +598,22 @@ watch(selectedYear, async (newYear) => {
           :calculate-grand-total-income="calculateGrandTotalIncome"
           :calculate-grand-total-expenses="calculateGrandTotalExpenses"
           :calculate-grand-total="calculateGrandTotal"
-          :calculate-previous-year-income-total="calculatePreviousYearIncomeTotal"
-          :calculate-previous-year-expenses-total="calculatePreviousYearExpensesTotal"
-          :calculate-previous-year-investment-incoming-total="calculatePreviousYearInvestmentIncomingTotal"
-          :calculate-previous-year-investment-outgoing-total="calculatePreviousYearInvestmentOutgoingTotal"
+          :calculate-previous-year-income-total="
+            calculatePreviousYearIncomeTotal
+          "
+          :calculate-previous-year-expenses-total="
+            calculatePreviousYearExpensesTotal
+          "
+          :calculate-previous-year-investment-incoming-total="
+            calculatePreviousYearInvestmentIncomingTotal
+          "
+          :calculate-previous-year-investment-outgoing-total="
+            calculatePreviousYearInvestmentOutgoingTotal
+          "
           :calculate-previous-year-net-total="calculatePreviousYearNetTotal"
-          :calculate-previous-year-investment-net-total="calculatePreviousYearInvestmentNetTotal"
+          :calculate-previous-year-investment-net-total="
+            calculatePreviousYearInvestmentNetTotal
+          "
           :calculate-previous-year-savings="calculatePreviousYearSavings"
           :closed-months="closedMonths"
           :get-actual-amount="getActualAmount"
@@ -561,31 +621,69 @@ watch(selectedYear, async (newYear) => {
           :calculate-monthly-actual-income="calculateMonthlyActualIncome"
           :calculate-monthly-actual-expenses="calculateMonthlyActualExpenses"
           :calculate-monthly-actual-total="calculateMonthlyActualTotal"
-          :calculate-monthly-actual-investment-incoming="calculateMonthlyActualInvestmentIncoming"
-          :calculate-monthly-actual-investment-outgoing="calculateMonthlyActualInvestmentOutgoing"
-          :calculate-monthly-actual-investment-net="calculateMonthlyActualInvestmentNet"
-          :calculate-grand-total-actual-investment-incoming="calculateGrandTotalActualInvestmentIncoming"
-          :calculate-grand-total-actual-investment-outgoing="calculateGrandTotalActualInvestmentOutgoing"
-          :calculate-grand-total-actual-investment-net="calculateGrandTotalActualInvestmentNet"
-          :calculate-previous-year-income-total-with-dual="calculatePreviousYearIncomeTotalWithDual"
-          :calculate-previous-year-expenses-total-with-dual="calculatePreviousYearExpensesTotalWithDual"
-          :calculate-previous-year-investment-incoming-total-with-dual="calculatePreviousYearInvestmentIncomingTotalWithDual"
-          :calculate-previous-year-investment-outgoing-total-with-dual="calculatePreviousYearInvestmentOutgoingTotalWithDual"
-          :calculate-previous-year-net-total-with-dual="calculatePreviousYearNetTotalWithDual"
-          :calculate-previous-year-investment-net-total-with-dual="calculatePreviousYearInvestmentNetTotalWithDual"
-          :calculate-previous-year-savings-total-with-dual="calculatePreviousYearSavingsTotalWithDual"
-          :calculate-all-previous-years-income-total-with-dual="calculateAllPreviousYearsIncomeTotalWithDual"
-          :calculate-all-previous-years-expenses-total-with-dual="calculateAllPreviousYearsExpensesTotalWithDual"
-          :calculate-all-previous-years-investment-incoming-total-with-dual="calculateAllPreviousYearsInvestmentIncomingTotalWithDual"
-          :calculate-all-previous-years-investment-outgoing-total-with-dual="calculateAllPreviousYearsInvestmentOutgoingTotalWithDual"
-          :calculate-all-previous-years-net-total-with-dual="calculateAllPreviousYearsNetTotalWithDual"
-          :calculate-all-previous-years-investment-net-total-with-dual="calculateAllPreviousYearsInvestmentNetTotalWithDual"
+          :calculate-monthly-actual-investment-incoming="
+            calculateMonthlyActualInvestmentIncoming
+          "
+          :calculate-monthly-actual-investment-outgoing="
+            calculateMonthlyActualInvestmentOutgoing
+          "
+          :calculate-monthly-actual-investment-net="
+            calculateMonthlyActualInvestmentNet
+          "
+          :calculate-grand-total-actual-investment-incoming="
+            calculateGrandTotalActualInvestmentIncoming
+          "
+          :calculate-grand-total-actual-investment-outgoing="
+            calculateGrandTotalActualInvestmentOutgoing
+          "
+          :calculate-grand-total-actual-investment-net="
+            calculateGrandTotalActualInvestmentNet
+          "
+          :calculate-previous-year-income-total-with-dual="
+            calculatePreviousYearIncomeTotalWithDual
+          "
+          :calculate-previous-year-expenses-total-with-dual="
+            calculatePreviousYearExpensesTotalWithDual
+          "
+          :calculate-previous-year-investment-incoming-total-with-dual="
+            calculatePreviousYearInvestmentIncomingTotalWithDual
+          "
+          :calculate-previous-year-investment-outgoing-total-with-dual="
+            calculatePreviousYearInvestmentOutgoingTotalWithDual
+          "
+          :calculate-previous-year-net-total-with-dual="
+            calculatePreviousYearNetTotalWithDual
+          "
+          :calculate-previous-year-investment-net-total-with-dual="
+            calculatePreviousYearInvestmentNetTotalWithDual
+          "
+          :calculate-previous-year-savings-total-with-dual="
+            calculatePreviousYearSavingsTotalWithDual
+          "
+          :calculate-all-previous-years-income-total-with-dual="
+            calculateAllPreviousYearsIncomeTotalWithDual
+          "
+          :calculate-all-previous-years-expenses-total-with-dual="
+            calculateAllPreviousYearsExpensesTotalWithDual
+          "
+          :calculate-all-previous-years-investment-incoming-total-with-dual="
+            calculateAllPreviousYearsInvestmentIncomingTotalWithDual
+          "
+          :calculate-all-previous-years-investment-outgoing-total-with-dual="
+            calculateAllPreviousYearsInvestmentOutgoingTotalWithDual
+          "
+          :calculate-all-previous-years-net-total-with-dual="
+            calculateAllPreviousYearsNetTotalWithDual
+          "
+          :calculate-all-previous-years-investment-net-total-with-dual="
+            calculateAllPreviousYearsInvestmentNetTotalWithDual
+          "
           :can-copy-from-previous-year="canCopyFromPreviousYear"
           @edit-budget="editBudgetUnified"
           @duplicate-budget="duplicateBudget"
           @delete-budget="deleteBudget"
           @view-transactions="handleViewTransactions"
-          @update:dual-mode="(mode) => dualMode = mode"
+          @update:dual-mode="(mode) => (dualMode = mode)"
           @add-budget="openAddBudgetModalUnified"
           @copy-from-previous-year="copyFromPreviousYear"
           @close-month="handleCloseMonth"

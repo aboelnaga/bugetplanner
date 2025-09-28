@@ -17,7 +17,10 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = true
 
       // Get current session
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabase.auth.getSession()
 
       if (sessionError) throw sessionError
 
@@ -31,14 +34,13 @@ export const useAuthStore = defineStore('auth', () => {
         if (event === 'SIGNED_IN' && session?.user) {
           user.value = session.user
           // Create profile without await to prevent dead-lock
-          createProfileIfNeeded(session.user).catch(err => {
+          createProfileIfNeeded(session.user).catch((err) => {
             console.error('Error creating profile in auth state change:', err)
           })
         } else if (event === 'SIGNED_OUT') {
           user.value = null
         }
       })
-
     } catch (err) {
       error.value = err.message
       console.error('Auth initialization error:', err)
@@ -57,13 +59,11 @@ export const useAuthStore = defineStore('auth', () => {
         .single()
 
       if (!existingProfile) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .insert({
-            id: userData.id,
-            email: userData.email,
-            full_name: userData.user_metadata?.full_name || ''
-          })
+        const { error: profileError } = await supabase.from('profiles').insert({
+          id: userData.id,
+          email: userData.email,
+          full_name: userData.user_metadata?.full_name || ''
+        })
 
         if (profileError) throw profileError
         console.log('Profile created for user:', userData.id)
@@ -106,10 +106,11 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = true
       error.value = null
 
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      })
+      const { data, error: signInError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password
+        })
 
       if (signInError) throw signInError
 
@@ -172,9 +173,12 @@ export const useAuthStore = defineStore('auth', () => {
       loading.value = true
       error.value = null
 
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`
-      })
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/auth/reset-password`
+        }
+      )
 
       if (resetError) throw resetError
     } catch (err) {

@@ -5,7 +5,6 @@ import { computed, ref } from 'vue'
  * Ensures Zakat calculations follow proper Islamic jurisprudence
  */
 export function useIslamicLawCompliance () {
-
   // Islamic Schools of Thought (Madhahib)
   const ISLAMIC_SCHOOLS = {
     HANAFI: 'hanafi',
@@ -32,7 +31,7 @@ export function useIslamicLawCompliance () {
       gold: 85, // grams
       silver: 595, // grams
       preference: 'gold', // Shafi'i prefers gold standard
-      description: 'Shafi\'i school uses gold standard for Nisab calculation'
+      description: "Shafi'i school uses gold standard for Nisab calculation"
     },
     [ISLAMIC_SCHOOLS.HANBALI]: {
       gold: 85, // grams
@@ -47,22 +46,26 @@ export function useIslamicLawCompliance () {
     [ISLAMIC_SCHOOLS.HANAFI]: {
       general: 0.025, // 2.5%
       agricultural: 0.1, // 10% for irrigated land
-      description: 'Hanafi: 2.5% on general wealth, 10% on irrigated agricultural produce'
+      description:
+        'Hanafi: 2.5% on general wealth, 10% on irrigated agricultural produce'
     },
     [ISLAMIC_SCHOOLS.MALIKI]: {
       general: 0.025, // 2.5%
       agricultural: 0.1, // 10% for irrigated land
-      description: 'Maliki: 2.5% on general wealth, 10% on irrigated agricultural produce'
+      description:
+        'Maliki: 2.5% on general wealth, 10% on irrigated agricultural produce'
     },
     [ISLAMIC_SCHOOLS.SHAFII]: {
       general: 0.025, // 2.5%
       agricultural: 0.1, // 10% for irrigated land
-      description: 'Shafi\'i: 2.5% on general wealth, 10% on irrigated agricultural produce'
+      description:
+        "Shafi'i: 2.5% on general wealth, 10% on irrigated agricultural produce"
     },
     [ISLAMIC_SCHOOLS.HANBALI]: {
       general: 0.025, // 2.5%
       agricultural: 0.1, // 10% for irrigated land
-      description: 'Hanbali: 2.5% on general wealth, 10% on irrigated agricultural produce'
+      description:
+        'Hanbali: 2.5% on general wealth, 10% on irrigated agricultural produce'
     }
   }
 
@@ -99,7 +102,7 @@ export function useIslamicLawCompliance () {
       realEstate: false, // Shafi'i: No Zakat on personal residence
       agricultural: true,
       livestock: true,
-      description: 'Shafi\'i: Includes jewelry but excludes personal residence'
+      description: "Shafi'i: Includes jewelry but excludes personal residence"
     },
     [ISLAMIC_SCHOOLS.HANBALI]: {
       cash: true,
@@ -120,25 +123,29 @@ export function useIslamicLawCompliance () {
       duration: 354, // days (lunar year)
       continuity: 'strict', // Must maintain Nisab throughout
       interruption: 'restart', // Hawl restarts if interrupted
-      description: 'Hanafi: Strict continuity required, Hawl restarts if interrupted'
+      description:
+        'Hanafi: Strict continuity required, Hawl restarts if interrupted'
     },
     [ISLAMIC_SCHOOLS.MALIKI]: {
       duration: 354, // days (lunar year)
       continuity: 'moderate', // Some flexibility in continuity
       interruption: 'partial', // Partial Hawl credit possible
-      description: 'Maliki: Moderate continuity, partial credit for interrupted periods'
+      description:
+        'Maliki: Moderate continuity, partial credit for interrupted periods'
     },
     [ISLAMIC_SCHOOLS.SHAFII]: {
       duration: 354, // days (lunar year)
       continuity: 'strict', // Must maintain Nisab throughout
       interruption: 'restart', // Hawl restarts if interrupted
-      description: 'Shafi\'i: Strict continuity required, Hawl restarts if interrupted'
+      description:
+        "Shafi'i: Strict continuity required, Hawl restarts if interrupted"
     },
     [ISLAMIC_SCHOOLS.HANBALI]: {
       duration: 354, // days (lunar year)
       continuity: 'strict', // Must maintain Nisab throughout
       interruption: 'restart', // Hawl restarts if interrupted
-      description: 'Hanbali: Strict continuity required, Hawl restarts if interrupted'
+      description:
+        'Hanbali: Strict continuity required, Hawl restarts if interrupted'
     }
   }
 
@@ -168,7 +175,7 @@ export function useIslamicLawCompliance () {
       description: 'Uses gold standard for Nisab'
     },
     {
-      label: 'Shafi\'i',
+      label: "Shafi'i",
       value: ISLAMIC_SCHOOLS.SHAFII,
       description: 'Uses gold standard for Nisab'
     },
@@ -230,10 +237,14 @@ export function useIslamicLawCompliance () {
 
     // Validate Nisab thresholds
     if (schoolConfig.nisab.gold !== 85) {
-      errors.push(`Invalid gold Nisab threshold: ${schoolConfig.nisab.gold}g (should be 85g)`)
+      errors.push(
+        `Invalid gold Nisab threshold: ${schoolConfig.nisab.gold}g (should be 85g)`
+      )
     }
     if (schoolConfig.nisab.silver !== 595) {
-      errors.push(`Invalid silver Nisab threshold: ${schoolConfig.nisab.silver}g (should be 595g)`)
+      errors.push(
+        `Invalid silver Nisab threshold: ${schoolConfig.nisab.silver}g (should be 595g)`
+      )
     }
 
     return {
@@ -249,7 +260,8 @@ export function useIslamicLawCompliance () {
     const schoolConfig = currentSchoolConfig.value
     const expectedRate = schoolConfig.zakatRate.general
 
-    if (Math.abs(rate - expectedRate) > 0.001) { // Allow for small floating point differences
+    if (Math.abs(rate - expectedRate) > 0.001) {
+      // Allow for small floating point differences
       return {
         valid: false,
         error: `Invalid Zakat rate: ${rate} (should be ${expectedRate} for ${selectedSchool.value} school)`
@@ -264,7 +276,8 @@ export function useIslamicLawCompliance () {
     const expectedDays = schoolConfig.hawl.duration
     const actualDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24))
 
-    if (Math.abs(actualDays - expectedDays) > 1) { // Allow 1 day tolerance
+    if (Math.abs(actualDays - expectedDays) > 1) {
+      // Allow 1 day tolerance
       return {
         valid: false,
         warning: `Hawl duration: ${actualDays} days (expected ~${expectedDays} days for lunar year)`

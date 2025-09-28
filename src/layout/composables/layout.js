@@ -58,13 +58,18 @@ export function useLayout () {
       layoutState.staticMenuDesktopInactive = false // Keep sidebar visible
 
       // Save the collapsed state to localStorage
-      localStorage.setItem('sidebar-collapsed', JSON.stringify(layoutState.sidebarCollapsed))
+      localStorage.setItem(
+        'sidebar-collapsed',
+        JSON.stringify(layoutState.sidebarCollapsed)
+      )
     } else {
       layoutState.staticMenuMobileActive = !layoutState.staticMenuMobileActive
     }
   }
 
-  const isSidebarActive = computed(() => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive)
+  const isSidebarActive = computed(
+    () => layoutState.overlayMenuActive || layoutState.staticMenuMobileActive
+  )
 
   const isSidebarCollapsed = computed(() => layoutState.sidebarCollapsed)
 

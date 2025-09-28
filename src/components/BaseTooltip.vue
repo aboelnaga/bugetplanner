@@ -2,58 +2,58 @@
 import { ref, computed } from 'vue'
 
 const props = defineProps({
-  content: {
-    type: String,
-    default: ''
-  },
-  position: {
-    type: String,
-    default: 'top', // top, bottom, left, right
-    validator: (value) => ['top', 'bottom', 'left', 'right'].includes(value)
-  },
-  class: {
-    type: String,
-    default: ''
-  }
-})
+    content: {
+      type: String,
+      default: ''
+    },
+    position: {
+      type: String,
+      default: 'top', // top, bottom, left, right
+      validator: (value) => ['top', 'bottom', 'left', 'right'].includes(value)
+    },
+    customClass: {
+      type: String,
+      default: ''
+    }
+  })
 
 const showTooltip = ref(false)
 
 const positionClasses = computed(() => {
-  switch (props.position) {
-    case 'top':
-      return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2'
-    case 'bottom':
-      return 'top-full left-1/2 transform -translate-x-1/2 mt-2'
-    case 'left':
-      return 'right-full top-1/2 transform -translate-y-1/2 mr-2'
-    case 'right':
-      return 'left-full top-1/2 transform -translate-y-1/2 ml-2'
-    default:
-      return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2'
-  }
-})
+    switch (props.position) {
+      case 'top':
+        return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2'
+      case 'bottom':
+        return 'top-full left-1/2 transform -translate-x-1/2 mt-2'
+      case 'left':
+        return 'right-full top-1/2 transform -translate-y-1/2 mr-2'
+      case 'right':
+        return 'left-full top-1/2 transform -translate-y-1/2 ml-2'
+      default:
+        return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2'
+    }
+  })
 
 const arrowClasses = computed(() => {
-  switch (props.position) {
-    case 'top':
-      return 'top-full left-1/2 transform -translate-x-1/2 -mt-1'
-    case 'bottom':
-      return 'bottom-full left-1/2 transform -translate-x-1/2 mt-1'
-    case 'left':
-      return 'left-full top-1/2 transform -translate-y-1/2 -ml-1'
-    case 'right':
-      return 'right-full top-1/2 transform -translate-y-1/2 ml-1'
-    default:
-      return 'top-full left-1/2 transform -translate-x-1/2 -mt-1'
-  }
-})
+    switch (props.position) {
+      case 'top':
+        return 'top-full left-1/2 transform -translate-x-1/2 -mt-1'
+      case 'bottom':
+        return 'bottom-full left-1/2 transform -translate-x-1/2 mt-1'
+      case 'left':
+        return 'left-full top-1/2 transform -translate-y-1/2 -ml-1'
+      case 'right':
+        return 'right-full top-1/2 transform -translate-y-1/2 ml-1'
+      default:
+        return 'top-full left-1/2 transform -translate-x-1/2 -mt-1'
+    }
+  })
 </script>
 
 <template>
   <div
     class="relative inline-block"
-    :class="class"
+    :class="customClass"
     @mouseenter="showTooltip = true"
     @mouseleave="showTooltip = false"
   >

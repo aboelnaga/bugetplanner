@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { transactionAPI, budgetAPI, subscribeToTransactionChanges } from '@/lib/supabase.js'
+import {
+  transactionAPI,
+  budgetAPI,
+  subscribeToTransactionChanges
+} from '@/lib/supabase.js'
 import { useAuthStore } from './auth.js'
 
 export const useTransactionStore = defineStore('transactions', () => {
@@ -32,7 +36,10 @@ export const useTransactionStore = defineStore('transactions', () => {
   const currentMonth = computed(() => new Date().getMonth())
 
   // Get transactions for selected year and month
-  const fetchTransactions = async (year = selectedYear.value, month = selectedMonth.value) => {
+  const fetchTransactions = async (
+    year = selectedYear.value,
+    month = selectedMonth.value
+  ) => {
     if (!authStore.isAuthenticated || !authStore.userId) {
       transactions.value = []
       return
@@ -42,8 +49,19 @@ export const useTransactionStore = defineStore('transactions', () => {
       loading.value = true
       error.value = null
 
-      console.log('Store: Fetching transactions for user:', authStore.userId, 'year:', year, 'month:', month)
-      const data = await transactionAPI.getTransactions(authStore.userId, year, month)
+      console.log(
+        'Store: Fetching transactions for user:',
+        authStore.userId,
+        'year:',
+        year,
+        'month:',
+        month
+      )
+      const data = await transactionAPI.getTransactions(
+        authStore.userId,
+        year,
+        month
+      )
       console.log('Store: Fetched transactions:', data)
 
       transactions.value = data || []
@@ -57,7 +75,10 @@ export const useTransactionStore = defineStore('transactions', () => {
   }
 
   // Get transaction statistics
-  const fetchTransactionStats = async (year = selectedYear.value, month = selectedMonth.value) => {
+  const fetchTransactionStats = async (
+    year = selectedYear.value,
+    month = selectedMonth.value
+  ) => {
     if (!authStore.isAuthenticated || !authStore.userId) {
       transactionStats.value = {
         totalIncome: 0,
@@ -74,8 +95,19 @@ export const useTransactionStore = defineStore('transactions', () => {
       statsLoading.value = true
       error.value = null
 
-      console.log('Store: Fetching transaction stats for user:', authStore.userId, 'year:', year, 'month:', month)
-      const data = await transactionAPI.getTransactionStats(authStore.userId, year, month)
+      console.log(
+        'Store: Fetching transaction stats for user:',
+        authStore.userId,
+        'year:',
+        year,
+        'month:',
+        month
+      )
+      const data = await transactionAPI.getTransactionStats(
+        authStore.userId,
+        year,
+        month
+      )
       console.log('Store: Fetched transaction stats:', data)
 
       transactionStats.value = data
@@ -120,7 +152,12 @@ export const useTransactionStore = defineStore('transactions', () => {
 
       // Update budget item actual amounts if linked
       if (data.budget_item_id) {
-        await updateBudgetItemActuals(data.budget_item_id, data.amount, 'add', data.date)
+        await updateBudgetItemActuals(
+          data.budget_item_id,
+          data.amount,
+          'add',
+          data.date
+        )
       }
 
       // Refresh stats
@@ -145,7 +182,7 @@ export const useTransactionStore = defineStore('transactions', () => {
       error.value = null
 
       // Get the original transaction to calculate the difference
-      const originalTransaction = transactions.value.find(t => t.id === id)
+      const originalTransaction = transactions.value.find((t) => t.id === id)
       if (!originalTransaction) return false
 
       // Update year and month if date changed
@@ -157,7 +194,7 @@ export const useTransactionStore = defineStore('transactions', () => {
       const data = await transactionAPI.updateTransaction(id, updates)
 
       // Update local state immediately
-      const index = transactions.value.findIndex(item => item.id === id)
+      const index = transactions.value.findIndex((item) => item.id === id)
       if (index !== -1) {
         transactions.value[index] = { ...transactions.value[index], ...data }
       }
@@ -169,16 +206,36 @@ export const useTransactionStore = defineStore('transactions', () => {
           // Same budget item, just update the amount difference
           const amountDiff = data.amount - originalTransaction.amount
           if (amountDiff !== 0) {
-            await updateBudgetItemActuals(data.budget_item_id, Math.abs(amountDiff), amountDiff > 0 ? 'add' : 'delete', data.date)
+            await updateBudgetItemActuals(
+              data.budget_item_id,
+              Math.abs(amountDiff),
+              amountDiff > 0 ? 'add' : 'delete',
+              data.date
+            )
           }
         } else {
           // Different budget item - remove from old, add to new
-          await updateBudgetItemActuals(originalTransaction.budget_item_id, originalTransaction.amount, 'delete', originalTransaction.date)
-          await updateBudgetItemActuals(data.budget_item_id, data.amount, 'add', data.date)
+          await updateBudgetItemActuals(
+            originalTransaction.budget_item_id,
+            originalTransaction.amount,
+            'delete',
+            originalTransaction.date
+          )
+          await updateBudgetItemActuals(
+            data.budget_item_id,
+            data.amount,
+            'add',
+            data.date
+          )
         }
       } else if (originalTransaction.budget_item_id) {
         // Transaction unlinked from budget item
-        await updateBudgetItemActuals(originalTransaction.budget_item_id, originalTransaction.amount, 'delete', originalTransaction.date)
+        await updateBudgetItemActuals(
+          originalTransaction.budget_item_id,
+          originalTransaction.amount,
+          'delete',
+          originalTransaction.date
+        )
       }
 
       // Refresh stats
@@ -203,16 +260,21 @@ export const useTransactionStore = defineStore('transactions', () => {
       error.value = null
 
       // Get the transaction before deleting to update budget actuals
-      const transaction = transactions.value.find(t => t.id === id)
+      const transaction = transactions.value.find((t) => t.id === id)
 
       await transactionAPI.deleteTransaction(id)
 
       // Remove from local state immediately
-      transactions.value = transactions.value.filter(item => item.id !== id)
+      transactions.value = transactions.value.filter((item) => item.id !== id)
 
       // Update budget item actual amounts if linked
       if (transaction && transaction.budget_item_id) {
-        await updateBudgetItemActuals(transaction.budget_item_id, transaction.amount, 'delete', transaction.date)
+        await updateBudgetItemActuals(
+          transaction.budget_item_id,
+          transaction.amount,
+          'delete',
+          transaction.date
+        )
       }
 
       // Refresh stats
@@ -233,7 +295,11 @@ export const useTransactionStore = defineStore('transactions', () => {
     if (!authStore.isAuthenticated || !authStore.userId) return []
 
     try {
-      const data = await transactionAPI.getTransactionsByBudgetItem(authStore.userId, budgetItemId, year)
+      const data = await transactionAPI.getTransactionsByBudgetItem(
+        authStore.userId,
+        budgetItemId,
+        year
+      )
       return data || []
     } catch (err) {
       console.error('Error fetching transactions by budget item:', err)
@@ -243,17 +309,21 @@ export const useTransactionStore = defineStore('transactions', () => {
 
   // Filter transactions by type
   const getTransactionsByType = (type) => {
-    return transactions.value.filter(transaction => transaction.type === type)
+    return transactions.value.filter(
+      (transaction) => transaction.type === type
+    )
   }
 
   // Filter transactions by category
   const getTransactionsByCategory = (category) => {
-    return transactions.value.filter(transaction => transaction.category === category)
+    return transactions.value.filter(
+      (transaction) => transaction.category === category
+    )
   }
 
   // Get transactions for a specific date range
   const getTransactionsByDateRange = (startDate, endDate) => {
-    return transactions.value.filter(transaction => {
+    return transactions.value.filter((transaction) => {
       const transactionDate = new Date(transaction.date)
       return transactionDate >= startDate && transactionDate <= endDate
     })
@@ -262,20 +332,27 @@ export const useTransactionStore = defineStore('transactions', () => {
   // Get recent transactions by account
   const getRecentTransactionsByAccount = (accountId, limit = 5) => {
     return transactions.value
-      .filter(transaction => transaction.account_id === accountId)
+      .filter((transaction) => transaction.account_id === accountId)
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .slice(0, limit)
   }
 
   // Update budget item actual amounts when transactions change
-  const updateBudgetItemActuals = async (budgetItemId, amount, operation = 'add', date = null) => {
+  const updateBudgetItemActuals = async (
+    budgetItemId,
+    amount,
+    operation = 'add',
+    date = null
+  ) => {
     try {
       // Get current budget item
       const budgetItem = await budgetAPI.getBudgetItem(budgetItemId)
       if (!budgetItem) return
 
       const month = date ? new Date(date).getMonth() : new Date().getMonth()
-      const newAmounts = [...(budgetItem.actual_amounts || [0,0,0,0,0,0,0,0,0,0,0,0])]
+      const newAmounts = [
+        ...(budgetItem.actual_amounts || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+      ]
 
       // Update the specific month
       switch (operation) {
@@ -299,7 +376,12 @@ export const useTransactionStore = defineStore('transactions', () => {
 
   // Initialize store
   const initialize = async () => {
-    console.log('Store: Initializing, auth status:', authStore.isAuthenticated, 'userId:', authStore.userId)
+    console.log(
+      'Store: Initializing, auth status:',
+      authStore.isAuthenticated,
+      'userId:',
+      authStore.userId
+    )
     if (authStore.isAuthenticated && authStore.userId) {
       await fetchTransactions()
       await fetchTransactionStats()

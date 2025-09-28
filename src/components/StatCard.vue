@@ -10,43 +10,43 @@ import {
 } from 'lucide-vue-next'
 
 const props = defineProps({
-  title: String,
-  value: String,
-  change: String,
-  icon: String,
-  color: {
-    type: String,
-    default: 'blue'
-  }
-})
+    title: String,
+    value: String,
+    change: String,
+    icon: String,
+    color: {
+      type: String,
+      default: 'blue'
+    }
+  })
 
 const iconComponent = computed(() => {
-  const icons = {
-    DollarSign,
-    CreditCard,
-    TrendingUp,
-    Calculator
-  }
-  return icons[props.icon] || DollarSign
-})
+    const icons = {
+      DollarSign,
+      CreditCard,
+      TrendingUp,
+      Calculator
+    }
+    return icons[props.icon] || DollarSign
+  })
 
 const getIconColor = () => {
   const colors = {
-    green: 'text-green-600',
-    red: 'text-red-600',
-    blue: 'text-blue-600',
-    yellow: 'text-yellow-600'
-  }
+      green: 'text-green-600',
+      red: 'text-red-600',
+      blue: 'text-blue-600',
+      yellow: 'text-yellow-600'
+    }
   return colors[props.color]
 }
 
 const getIconBackgroundColor = () => {
   const colors = {
-    green: 'bg-green-100',
-    red: 'bg-red-100',
-    blue: 'bg-blue-100',
-    yellow: 'bg-yellow-100'
-  }
+      green: 'bg-green-100',
+      red: 'bg-red-100',
+      blue: 'bg-blue-100',
+      yellow: 'bg-yellow-100'
+    }
   return colors[props.color]
 }
 

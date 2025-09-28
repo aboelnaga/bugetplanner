@@ -89,12 +89,12 @@ export function useSmartRefresh () {
   }
 
   // Optimistic update helper
-  const optimisticUpdate = async (updateFunction, rollbackFunction, options = {}) => {
-    const {
-      showLoading = true,
-      onSuccess = null,
-      onError = null
-    } = options
+  const optimisticUpdate = async (
+    updateFunction,
+    rollbackFunction,
+    options = {}
+  ) => {
+    const { showLoading = true, onSuccess = null, onError = null } = options
 
     try {
       if (showLoading) {

@@ -10,13 +10,17 @@ export function useBudgetHistory (budgetStore) {
 
   // Get budget item name by ID
   const getBudgetItemName = (budgetItemId) => {
-    const budgetItem = budgetStore.budgetItems.find(item => item.id === budgetItemId)
+    const budgetItem = budgetStore.budgetItems.find(
+      (item) => item.id === budgetItemId
+    )
     return budgetItem ? budgetItem.name : `Budget Item #${budgetItemId}`
   }
 
   // Get unique budget items count
   const uniqueBudgetItems = computed(() => {
-    const uniqueIds = new Set(historyItems.value.map(item => item.budget_item_id))
+    const uniqueIds = new Set(
+      historyItems.value.map((item) => item.budget_item_id)
+    )
     return uniqueIds.size
   })
 
@@ -80,18 +84,30 @@ export function useBudgetHistory (budgetStore) {
     const latestChange = latestChangeTime.value
 
     // Calculate change types
-    const increases = historyItems.value.filter(change => change.new_amount > change.old_amount).length
-    const decreases = historyItems.value.filter(change => change.new_amount < change.old_amount).length
-    const noChanges = historyItems.value.filter(change => change.new_amount === change.old_amount).length
+    const increases = historyItems.value.filter(
+      (change) => change.new_amount > change.old_amount
+    ).length
+    const decreases = historyItems.value.filter(
+      (change) => change.new_amount < change.old_amount
+    ).length
+    const noChanges = historyItems.value.filter(
+      (change) => change.new_amount === change.old_amount
+    ).length
 
     // Calculate total amount changes
     const totalIncrease = historyItems.value
-      .filter(change => change.new_amount > change.old_amount)
-      .reduce((sum, change) => sum + (change.new_amount - change.old_amount), 0)
+      .filter((change) => change.new_amount > change.old_amount)
+      .reduce(
+        (sum, change) => sum + (change.new_amount - change.old_amount),
+        0
+      )
 
     const totalDecrease = historyItems.value
-      .filter(change => change.new_amount < change.old_amount)
-      .reduce((sum, change) => sum + (change.old_amount - change.new_amount), 0)
+      .filter((change) => change.new_amount < change.old_amount)
+      .reduce(
+        (sum, change) => sum + (change.old_amount - change.new_amount),
+        0
+      )
 
     return {
       totalChanges,
@@ -110,7 +126,7 @@ export function useBudgetHistory (budgetStore) {
   const getHistoryByBudgetItem = () => {
     const grouped = {}
 
-    historyItems.value.forEach(change => {
+    historyItems.value.forEach((change) => {
       const itemId = change.budget_item_id
       if (!grouped[itemId]) {
         grouped[itemId] = {
@@ -128,7 +144,7 @@ export function useBudgetHistory (budgetStore) {
   const getHistoryByMonth = () => {
     const grouped = {}
 
-    historyItems.value.forEach(change => {
+    historyItems.value.forEach((change) => {
       const monthKey = `${change.month_index + 1}`
       if (!grouped[monthKey]) {
         grouped[monthKey] = {
@@ -144,7 +160,7 @@ export function useBudgetHistory (budgetStore) {
 
   // Filter history by date range
   const filterHistoryByDateRange = (startDate, endDate) => {
-    return historyItems.value.filter(change => {
+    return historyItems.value.filter((change) => {
       const changeDate = new Date(change.changed_at)
       return changeDate >= startDate && changeDate <= endDate
     })
@@ -152,12 +168,16 @@ export function useBudgetHistory (budgetStore) {
 
   // Filter history by budget item
   const filterHistoryByBudgetItem = (budgetItemId) => {
-    return historyItems.value.filter(change => change.budget_item_id === budgetItemId)
+    return historyItems.value.filter(
+      (change) => change.budget_item_id === budgetItemId
+    )
   }
 
   // Filter history by month
   const filterHistoryByMonth = (monthIndex) => {
-    return historyItems.value.filter(change => change.month_index === monthIndex)
+    return historyItems.value.filter(
+      (change) => change.month_index === monthIndex
+    )
   }
 
   return {
