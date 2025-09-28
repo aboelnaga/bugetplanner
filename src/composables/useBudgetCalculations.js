@@ -2,7 +2,6 @@
 // All calculation functions: monthly totals, yearly totals, investment calculations, grand totals
 
 import { BUDGET_TYPES } from '@/constants/budgetConstants.js'
-import { useTransactionStore } from '@/stores/transactions.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 
 export function useBudgetCalculations (
@@ -14,7 +13,6 @@ export function useBudgetCalculations (
   selectedYear = null
 ) {
   const yearlySummariesStore = useYearlySummariesStore()
-  const transactionStore = useTransactionStore()
   // Basic budget amount calculations
   const isScheduledMonth = (budget, monthIndex) => {
     if (!budget || !budget.schedule) return false
@@ -78,7 +76,7 @@ export function useBudgetCalculations (
     return Math.max(actualAmount, plannedAmount)
   }
 
-  const hasChanges = (budgetId, monthIndex) => {
+  const hasChanges = (_budgetId, _monthIndex) => {
     // History functionality commented out
     return false
     // if (!budgetId) return false

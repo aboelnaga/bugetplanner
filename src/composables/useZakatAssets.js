@@ -1,14 +1,12 @@
 import { useAccountsStore } from '@/stores/accounts'
 import { useBudgetStore } from '@/stores/budget'
 import { useInvestmentAssetsStore } from '@/stores/investmentAssets'
-import { useTransactionStore } from '@/stores/transactions'
 import { computed } from 'vue'
 
 export function useZakatAssets () {
   const budgetStore = useBudgetStore()
   const accountsStore = useAccountsStore()
   const investmentAssetsStore = useInvestmentAssetsStore()
-  const transactionStore = useTransactionStore()
 
   // Asset categories for Zakat calculation
   const ZAKATABLE_ASSET_TYPES = {
@@ -221,7 +219,7 @@ export function useZakatAssets () {
   })
 
   // Monthly asset tracking for Hawl continuity
-  const getMonthlyAssetValue = (year, month) => {
+  const getMonthlyAssetValue = (_year, _month) => {
     // This would calculate asset value for a specific month
     // For now, return current total (would need historical data)
     return totalZakatableAssets.value.total

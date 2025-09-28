@@ -1,6 +1,4 @@
 <script setup>
-import { computed } from 'vue'
-import { FILTER_OPTIONS } from '@/constants/budgetConstants.js'
 import { useTooltipBuilder } from '@/composables/useTooltipBuilder.js'
 import { useYearlySummariesStore } from '@/stores/yearlySummaries.js'
 import BudgetSummaryRowHelper from './BudgetSummaryRowHelper.vue'

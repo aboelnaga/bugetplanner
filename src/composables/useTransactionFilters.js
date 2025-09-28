@@ -2,10 +2,6 @@
 // Filter state management, search functionality, date range filtering
 
 import { ref, computed, watch } from 'vue'
-import {
-  TRANSACTION_TYPES,
-  TRANSACTION_CATEGORIES
-} from '@/constants/budgetConstants.js'
 
 export function useTransactionFilters (
   transactions,
@@ -274,7 +270,7 @@ export function useTransactionFilters (
   }
 
   // Watch for year/month changes and adjust date filters
-  watch([selectedYear, selectedMonth], ([year, month]) => {
+  watch([selectedYear, selectedMonth], ([_year, _month]) => {
     if (
       selectedDateRange.value === 'this-month' ||
       selectedDateRange.value === 'last-month'

@@ -1,53 +1,53 @@
 <script setup>
-import { ref, computed } from 'vue'
+  import { ref, computed } from "vue";
 
-const props = defineProps({
+  const props = defineProps({
     content: {
       type: String,
-      default: ''
+      default: "",
     },
     position: {
       type: String,
-      default: 'top', // top, bottom, left, right
-      validator: (value) => ['top', 'bottom', 'left', 'right'].includes(value)
+      default: "top", // top, bottom, left, right
+      validator: (value) => ["top", "bottom", "left", "right"].includes(value),
     },
     customClass: {
       type: String,
-      default: ''
-    }
-  })
+      default: "",
+    },
+  });
 
-const showTooltip = ref(false)
+  const showTooltip = ref(false);
 
-const positionClasses = computed(() => {
+  const positionClasses = computed(() => {
     switch (props.position) {
-      case 'top':
-        return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2'
-      case 'bottom':
-        return 'top-full left-1/2 transform -translate-x-1/2 mt-2'
-      case 'left':
-        return 'right-full top-1/2 transform -translate-y-1/2 mr-2'
-      case 'right':
-        return 'left-full top-1/2 transform -translate-y-1/2 ml-2'
+      case "top":
+        return "bottom-full left-1/2 transform -translate-x-1/2 mb-2";
+      case "bottom":
+        return "top-full left-1/2 transform -translate-x-1/2 mt-2";
+      case "left":
+        return "right-full top-1/2 transform -translate-y-1/2 mr-2";
+      case "right":
+        return "left-full top-1/2 transform -translate-y-1/2 ml-2";
       default:
-        return 'bottom-full left-1/2 transform -translate-x-1/2 mb-2'
+        return "bottom-full left-1/2 transform -translate-x-1/2 mb-2";
     }
-  })
+  });
 
-const arrowClasses = computed(() => {
+  const arrowClasses = computed(() => {
     switch (props.position) {
-      case 'top':
-        return 'top-full left-1/2 transform -translate-x-1/2 -mt-1'
-      case 'bottom':
-        return 'bottom-full left-1/2 transform -translate-x-1/2 mt-1'
-      case 'left':
-        return 'left-full top-1/2 transform -translate-y-1/2 -ml-1'
-      case 'right':
-        return 'right-full top-1/2 transform -translate-y-1/2 ml-1'
+      case "top":
+        return "top-full left-1/2 transform -translate-x-1/2 -mt-1";
+      case "bottom":
+        return "bottom-full left-1/2 transform -translate-x-1/2 mt-1";
+      case "left":
+        return "left-full top-1/2 transform -translate-y-1/2 -ml-1";
+      case "right":
+        return "right-full top-1/2 transform -translate-y-1/2 ml-1";
       default:
-        return 'top-full left-1/2 transform -translate-x-1/2 -mt-1'
+        return "top-full left-1/2 transform -translate-x-1/2 -mt-1";
     }
-  })
+  });
 </script>
 
 <template>
@@ -73,7 +73,7 @@ const arrowClasses = computed(() => {
         @mouseenter="showTooltip = true"
         @mouseleave="showTooltip = false"
       >
-        <div v-html="content" />
+        <div>{{ content }}</div>
         <div
           class="absolute w-2 h-2 bg-gray-900 transform rotate-45"
           :class="arrowClasses"

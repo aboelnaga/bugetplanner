@@ -2,10 +2,7 @@
 // Summary row logic, display conditions, and styling
 
 import { computed } from 'vue'
-import {
-  SUMMARY_ROWS,
-  SUMMARY_VALUE_STYLES
-} from '@/constants/budgetConstants.js'
+import { SUMMARY_ROWS } from '@/constants/budgetConstants.js'
 import { summaryUtils } from '@/utils/budgetUtils.js'
 
 export function useBudgetSummaries (

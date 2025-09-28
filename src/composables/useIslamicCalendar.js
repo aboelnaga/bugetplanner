@@ -76,7 +76,7 @@ export function useIslamicCalendar () {
   const getHawlProgress = (startDate) => {
     const startMoment = moment(startDate)
     const now = moment()
-    const endMoment = startMoment.clone().add(354, 'days')
+    const _endMoment = startMoment.clone().add(354, 'days')
 
     const totalDays = 354
     const elapsedDays = now.diff(startMoment, 'days')

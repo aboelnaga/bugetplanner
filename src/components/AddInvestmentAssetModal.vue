@@ -88,7 +88,7 @@ const detailsText = computed({
     set (value) {
       try {
         form.value.details = value ? JSON.parse(value) : {}
-      } catch (e) {
+      } catch (_e) {
         // Keep as string if invalid JSON
         form.value.details = { raw: value }
       }

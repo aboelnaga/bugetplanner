@@ -5,23 +5,17 @@ import { ref, watch } from 'vue'
 import {
   BUDGET_TYPES,
   RECURRENCE_LABELS,
-  INVESTMENT_DIRECTIONS,
-  SCHEDULE_PATTERNS,
   DEFAULT_VALUES,
   CATEGORIES_BY_TYPE,
   DATABASE_LIMITS,
   MULTI_YEAR_CONSTANTS,
   FREQUENCY_TYPES,
-  FREQUENCY_LABELS,
-  RECURRENCE_INTERVALS,
   MONTH_OPTIONS,
-  END_TYPES,
-  END_TYPE_LABELS
+  END_TYPES
 } from '@/constants/budgetConstants.js'
 import {
   dateUtils,
   validationHelpers,
-  scheduleUtils,
   formatCurrency
 } from '@/utils/budgetUtils.js'
 
@@ -1221,375 +1215,13 @@ export function useBudgetModals (
     }
   }
 
-  // Helper function for updating multi-year budgets
-  const handleMultiYearEditSubmit = async (budgetId) => {
-    try {
-      console.log('handleMultiYearEditSubmit called with budgetId:', budgetId)
+  // Helper function for updating multi-year budgets - REMOVED (unused)
 
-      const budget = budgetStore.budgetItems.find(
-        (item) => item.id === budgetId
-      )
-      if (!budget || !budget.linked_group_id) {
-        console.error(
-          'Invalid multi-year budget item or missing linked_group_id'
-        )
-        showToast(
-          'error',
-          'Invalid Multi-Year Budget',
-          'Invalid multi-year budget item'
-        )
-        return false
-      }
+  // Helper function for converting single year to multi-year - REMOVED (unused)
 
-      console.log('Found budget:', budget)
-      console.log('Linked group ID:', budget.linked_group_id)
+  // Helper function for converting multi-year to single year - REMOVED (unused)
 
-      // Validate multi-year settings
-      const multiYearErrors = validateMultiYearSettings()
-      if (multiYearErrors.length > 0) {
-        console.error('Multi-year validation errors:', multiYearErrors)
-        showToast(
-          'error',
-          'Multi-Year Validation Error',
-          `Please fix the following multi-year errors:\n${multiYearErrors.join('\n')}`
-        )
-        return false
-      }
-
-      // Create update data for multi-year budget
-      const updateData = {
-        name: formData.value.name,
-        type: formData.value.type,
-        category: formData.value.category,
-        // New recurrence system fields
-        frequency: formData.value.frequency,
-        recurrence_interval: formData.value.recurrenceInterval,
-        start_month: formData.value.startMonth,
-        start_year: formData.value.startYear,
-        end_month: formData.value.endMonth,
-        end_year: formData.value.endYear,
-        end_type: formData.value.endType,
-        occurrences: formData.value.occurrences,
-        one_time_year: formData.value.oneTimeYear,
-        custom_months: formData.value.customMonths,
-        // Legacy fields for backward compatibility
-        recurrence: formData.value.recurrence,
-        default_amount: formData.value.defaultAmount,
-        payment_schedule: formData.value.payment_schedule,
-        due_date: formData.value.due_date,
-        is_fixed_expense: formData.value.is_fixed_expense,
-        reminder_enabled: formData.value.reminder_enabled,
-        reminder_days_before: formData.value.reminder_days_before,
-        linked_investment_id: formData.value.linked_investment_id || null,
-        // Multi-year specific fields
-        is_multi_year: formData.value.is_multi_year
-      }
-
-      if (formData.value.type === 'investment') {
-        updateData.investment_direction = formData.value.investment_direction
-      }
-
-      console.log(
-        'Composable: Updating multi-year budget with data:',
-        updateData
-      )
-      console.log('Composable: Form data frequency:', formData.value.frequency)
-      console.log(
-        'Composable: Form data recurrenceInterval:',
-        formData.value.recurrenceInterval
-      )
-      console.log(
-        'Composable: Form data startMonth:',
-        formData.value.startMonth
-      )
-      console.log('Composable: Form data endMonth:', formData.value.endMonth)
-      console.log('Composable: Form data endType:', formData.value.endType)
-      console.log(
-        'Composable: Form data occurrences:',
-        formData.value.occurrences
-      )
-
-      // Update all linked items using the store function
-      const result = await budgetStore.updateMultiYearBudgetItems(
-        budget.linked_group_id,
-        updateData
-      )
-      console.log('Multi-year update result:', result)
-
-      if (result) {
-        return result
-      } else {
-        showToast(
-          'error',
-          'Update Multi-Year Budget Failed',
-          'Failed to update multi-year budget. Please try again.'
-        )
-        return false
-      }
-    } catch (error) {
-      console.error('Error updating multi-year budget:', error)
-      showToast(
-        'error',
-        'Update Multi-Year Budget Failed',
-        `Error updating multi-year budget: ${error.message || 'Unknown error'}`
-      )
-      return false
-    }
-  }
-
-  // Helper function for converting single year to multi-year
-  const handleSingleYearToMultiYearConversion = async (budgetId) => {
-    try {
-      console.log('Converting single year to multi-year budget')
-
-      // Validate multi-year settings
-      const multiYearErrors = validateMultiYearSettings()
-      if (multiYearErrors.length > 0) {
-        showToast(
-          'error',
-          'Multi-Year Validation Error',
-          `Please fix the following multi-year errors:\n${multiYearErrors.join('\n')}`
-        )
-        return false
-      }
-
-      // Create multi-year budget data
-      const budgetData = {
-        name: formData.value.name,
-        type: formData.value.type,
-        category: formData.value.category,
-        default_amount: formData.value.defaultAmount,
-        // New recurrence system fields
-        frequency: formData.value.frequency,
-        recurrence_interval: formData.value.recurrenceInterval,
-        start_month: formData.value.startMonth,
-        start_year: formData.value.startYear,
-        end_month: formData.value.endMonth,
-        end_year: formData.value.endYear,
-        end_type: formData.value.endType,
-        occurrences: formData.value.occurrences,
-        one_time_year: formData.value.oneTimeYear,
-        custom_months: formData.value.customMonths,
-        // Legacy fields for backward compatibility
-        recurrence: formData.value.recurrence,
-        payment_schedule: formData.value.payment_schedule,
-        due_date: formData.value.due_date,
-        is_fixed_expense: formData.value.is_fixed_expense,
-        reminder_enabled: formData.value.reminder_enabled,
-        reminder_days_before: formData.value.reminder_days_before,
-        linked_investment_id: formData.value.linked_investment_id || null,
-        // Multi-year specific fields
-        is_multi_year: true
-      }
-
-      if (formData.value.type === 'investment') {
-        budgetData.investment_direction = formData.value.investment_direction
-      }
-
-      console.log('Converting to multi-year with data:', budgetData)
-
-      try {
-        // Use the store function to create multi-year budget
-        const result = await budgetStore.addMultiYearBudgetItem(budgetData)
-        console.log('Multi-year conversion result:', result)
-
-        if (result && result.length > 0) {
-          console.log(
-            'Successfully created multi-year budget, deleting original item'
-          )
-          // Delete the original single year item
-          const deleteResult = await budgetStore.deleteBudgetItem(budgetId)
-          console.log('Delete original item result:', deleteResult)
-          return result
-        } else {
-          console.error(
-            'addMultiYearBudgetItem returned falsy or empty result'
-          )
-          showToast(
-            'error',
-            'Convert to Multi-Year Failed',
-            'Failed to convert to multi-year budget. Please try again.'
-          )
-          return false
-        }
-      } catch (conversionError) {
-        console.error('Error in addMultiYearBudgetItem:', conversionError)
-        throw conversionError
-      }
-    } catch (error) {
-      console.error('Error converting to multi-year budget:', error)
-      showToast(
-        'error',
-        'Convert to Multi-Year Failed',
-        `Error converting to multi-year budget: ${error.message || 'Unknown error'}`
-      )
-      return false
-    }
-  }
-
-  // Helper function for converting multi-year to single year
-  const handleMultiYearToSingleYearConversion = async (budgetId) => {
-    try {
-      console.log('Converting multi-year to single year budget')
-
-      // Get the original budget to find the linked group
-      const budget = budgetStore.budgetItems.find(
-        (item) => item.id === budgetId
-      )
-      if (!budget || !budget.linked_group_id) {
-        showToast(
-          'error',
-          'Invalid Multi-Year Budget',
-          'Invalid multi-year budget item'
-        )
-        return false
-      }
-
-      // Create single year budget data
-      const budgetData = {
-        name: formData.value.name,
-        type: formData.value.type,
-        category: formData.value.category,
-        default_amount: formData.value.defaultAmount,
-        // New recurrence system fields
-        frequency: formData.value.frequency,
-        recurrence_interval: formData.value.recurrenceInterval,
-        start_month: formData.value.startMonth,
-        start_year: formData.value.startYear,
-        end_month: formData.value.endMonth,
-        end_year: formData.value.endYear,
-        end_type: formData.value.endType,
-        occurrences: formData.value.occurrences,
-        one_time_year: formData.value.oneTimeYear,
-        custom_months: formData.value.customMonths,
-        // Legacy fields for backward compatibility
-        recurrence: formData.value.recurrence,
-        payment_schedule: formData.value.payment_schedule,
-        due_date: formData.value.due_date,
-        is_fixed_expense: formData.value.is_fixed_expense,
-        reminder_enabled: formData.value.reminder_enabled,
-        reminder_days_before: formData.value.reminder_days_before,
-        linked_investment_id: formData.value.linked_investment_id || null,
-        // Single year specific fields
-        is_multi_year: false,
-        year: formData.value.startYear
-      }
-
-      if (formData.value.type === 'investment') {
-        budgetData.investment_direction = formData.value.investment_direction
-      }
-
-      console.log('Converting to single year with data:', budgetData)
-
-      // Use the store function to create single year budget
-      const result = await budgetStore.addBudgetItem(budgetData)
-      console.log('Single year conversion result:', result)
-
-      if (result) {
-        // Delete the original multi-year group
-        await budgetStore.deleteMultiYearBudget(budget)
-        return result
-      } else {
-        showToast(
-          'error',
-          'Convert to Single Year Failed',
-          'Failed to convert to single year budget. Please try again.'
-        )
-        return false
-      }
-    } catch (error) {
-      console.error('Error converting to single year budget:', error)
-      showToast(
-        'error',
-        'Convert to Single Year Failed',
-        `Error converting to single year budget: ${error.message || 'Unknown error'}`
-      )
-      return false
-    }
-  }
-
-  // Helper function for updating single year budgets
-  const handleSingleYearEditSubmit = async (budgetId) => {
-    try {
-      console.log('handleSingleYearEditSubmit called with budgetId:', budgetId)
-      console.log('formData.value:', formData.value)
-
-      // Preserve existing amounts and only update from start month onwards
-      let newSchedule = []
-      const newAmounts = [...(formData.value.amounts || [])] // Add null check
-
-      console.log('Initial newAmounts:', newAmounts)
-
-      // Calculate schedule with start month consideration
-      const startMonth = formData.value.startMonth
-
-      console.log('Start month:', startMonth)
-
-      // Clear amounts from start month onwards first
-      for (let i = startMonth; i < 12; i++) {
-        newAmounts[i] = 0
-      }
-
-      const { schedule } = generateSchedule()
-      newSchedule = schedule
-
-      console.log('Generated schedule:', newSchedule)
-
-      // Set amounts for scheduled months
-      newSchedule.forEach((month) => {
-        newAmounts[month] = formData.value.defaultAmount
-      })
-
-      console.log('Final newAmounts:', newAmounts)
-
-      // Create update data object
-      const updateData = {
-        name: formData.value.name,
-        type: formData.value.type,
-        category: formData.value.category,
-        // New recurrence system fields
-        frequency: formData.value.frequency,
-        recurrence_interval: formData.value.recurrenceInterval,
-        default_amount: formData.value.defaultAmount,
-        amounts: newAmounts,
-        schedule: newSchedule,
-        start_month: formData.value.startMonth,
-        payment_schedule: formData.value.payment_schedule,
-        due_date: formData.value.due_date,
-        is_fixed_expense: formData.value.is_fixed_expense,
-        reminder_enabled: formData.value.reminder_enabled,
-        reminder_days_before: formData.value.reminder_days_before,
-        linked_investment_id: formData.value.linked_investment_id || null
-      }
-
-      if (formData.value.type === 'investment') {
-        updateData.investment_direction = formData.value.investment_direction
-      }
-
-      console.log('Updating single year budget item with data:', updateData)
-      const result = await budgetStore.updateBudgetItem(budgetId, updateData)
-      console.log('Store result:', result)
-
-      if (result) {
-        return result
-      } else {
-        showToast(
-          'error',
-          'Update Budget Failed',
-          'Failed to update budget item. Please try again.'
-        )
-        return false
-      }
-    } catch (error) {
-      console.error('Error updating single year budget:', error)
-      showToast(
-        'error',
-        'Update Budget Failed',
-        `Error updating budget item: ${error.message || 'Unknown error'}`
-      )
-      return false
-    }
-  }
+  // Helper function for updating single year budgets - REMOVED (unused)
 
   // Initialize form data when budget prop changes (for edit modal)
   const initializeFormDataFromBudget = (budget) => {
@@ -2268,7 +1900,10 @@ export function useBudgetModals (
   }
 
   // Dynamic month validation - more flexible approach
-  const getDynamicAvailableMonths = (targetYear, isCurrentYearOnly = false) => {
+  const getDynamicAvailableMonths = (
+    targetYear,
+    _isCurrentYearOnly = false
+  ) => {
     const currentYearValue = currentYear.value
     const currentMonthValue = currentMonth.value
 
